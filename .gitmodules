@@ -1,0 +1,6 @@
+[submodule "libpassqlite"]
+	path = libpassqlite
+	url = https://github.com/isemenkov/libpassqlite
+[submodule "pascalutils"]
+	path = pascalutils
+	url = https://github.com/isemenkov/pascalutils
