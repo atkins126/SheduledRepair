@@ -76,3 +76,7 @@ lib/
 *.app/
 
 SheduledRepair.ico
+unit-tests/database.db
+unit-tests/test.ico
+unit-tests/test.fpcunit.ini
+unit-tests/test
