@@ -44,6 +44,9 @@ type
     constructor Create;
     destructor Destroy; override;
 
+    { Get last inserted row id. }
+    function GetLastInsertID : Int64;
+
     { Get database handle. }
     function Handle : ppsqlite3;
 
@@ -76,6 +79,11 @@ end;
 destructor TDatabase.Destroy;
 begin
   inherited Destroy;
+end;
+
+function TDatabase.GetLastInsertID : Int64;
+begin
+  Result := FDatabase.LastInsertID;
 end;
 
 function TDatabase.Handle : ppsqlite3;

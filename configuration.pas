@@ -43,7 +43,7 @@ type
     const
       CONFIG_TABLE_NAME = 'config';
   public
-    constructor Create; override;
+    constructor Create (AID : Int64); override;
     destructor Destroy; override;
 
     { Check database table scheme. }
@@ -53,7 +53,7 @@ type
     function Table : String; override;
 
     { Load object from database. }
-    function Load ({%H-}AID : Int64) : Boolean; override;
+    function Load : Boolean; override;
 
     { Save object to database. }
     function Save : Boolean; override;
@@ -67,6 +67,9 @@ type
     procedure SetValue (AKey : String; AValue : String); overload;
     procedure SetValue (AKey : String; AValue : Integer); overload;
     procedure SetValue (AKey : String; AValue : Double); overload;
+
+    { Delete value. }
+    function RemoveValue(AKey : String) : Boolean;
   private
     type
       TKeyValue = class(specialize TPair<String, String>);
@@ -103,11 +106,11 @@ end;
 
 { TConfig }
 
-constructor TConfig.Create;
+constructor TConfig.Create (AID : Int64);
 begin
   if not Assigned(Config) then
   begin
-    inherited Create;
+    inherited Create (AID);
     FKeyValueList := TKeyValueList.Create;
     Config := self;
   end else
@@ -144,7 +147,7 @@ begin
   Result := CONFIG_TABLE_NAME;
 end;
 
-function TConfig.Load (AID : Int64) : Boolean;
+function TConfig.Load : Boolean;
 var
   result_rows : TSQLite3Result;
   row : TSQLite3ResultRow;
@@ -165,23 +168,8 @@ begin
 end;
 
 function TConfig.Save : Boolean;
-var
-  item : TKeyValue;
-  insert : TSQLite3Insert;
 begin
-  if not FKeyValueList.FirstEntry.HasValue then
-    Exit(True);
-
-  insert := FTable.Insert
-    .Column('key', SQLITE_TEXT)
-    .Column('value', SQLITE_TEXT);
-
-  for item in FKeyValueList do
-  begin
-    insert.Row.Value(item.First).Value(item.Second);
-  end;
-
-  Result := (insert.Get > 0);
+  Result := True;
 end;
 
 function TConfig.GetValue (AKey : String; ADefault : String) : String;
@@ -210,22 +198,57 @@ begin
 end;
 
 procedure TConfig.SetValue (AKey : String; AValue : String);
+var
+  updated_rows : Integer;
+  index : Integer;
 begin
+  updated_rows := FTable.Update.Update('value', AValue).Where('key', AKey).Get;
+ 
+  if updated_rows > 0 then
+  begin
+    index := FKeyValueList.IndexOf(TKeyValue.Create(AKey, AValue));
+    
+    if index <> -1 then
+      FKeyValueList.GetValue(Index).Second := AValue
+    else
+      FKeyValueList.Append(TKeyValue.Create(AKey, AValue));
+    Exit;
+  end;
+    
+  FTable.Insert.Value('key', AKey).Value('value', AValue).Get;
   FKeyValueList.Append(TKeyValue.Create(AKey, AValue));
 end;
 
 procedure TConfig.SetValue (AKey : String; AValue : Integer);
 begin
-  FKeyValueList.Append(TKeyValue.Create(AKey, IntToStr(AValue)));
+  SetValue(AKey, IntToStr(AValue));
 end;
 
 procedure TConfig.SetValue (AKey : String; AValue : Double);
 begin
-  FKeyValueList.Append(TKeyValue.Create(AKey, FloatToStr(AValue)));
+  SetValue(AKey, FloatToStr(AValue));
+end;
+
+function TConfig.RemoveValue (AKey : String) : Boolean;
+var
+  Index : Integer;
+begin
+  if not FKeyValueList.FirstEntry.HasValue then
+    Exit(False);
+
+  Index := FKeyValueList.IndexOf(TKeyValue.Create(AKey, ''));
+
+  if Index <> -1 then
+  begin
+    FKeyValueList.Remove(Index);
+    Exit(FTable.Delete.Where('key', AKey).Get > 0);
+  end;
+
+  Result := False;
 end;
 
 initialization
-  Config := TConfig.Create;
+  Config := TConfig.Create(-1);
 finalization
   FreeAndNil(Config);
 end.

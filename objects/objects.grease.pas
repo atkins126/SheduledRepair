@@ -22,7 +22,7 @@
 (* Floor, Boston, MA 02110-1335, USA.                                         *)
 (*                                                                            *)
 (******************************************************************************)
-unit objects.common;
+unit objects.grease;
 
 {$mode objfpc}{$H+}
 {$IFOPT D+}
@@ -32,94 +32,110 @@ unit objects.common;
 interface
 
 uses
-  SysUtils, database, sqlite3.table, sqlite3.insert, sqlite3.update, 
-  sqlite3.result;
+  SysUtils, objects.common, sqlite3.schema, sqlite3.result, sqlite3.result_row,
+  objects.supplier, objects.grade;
 
 type
-  TCommonObject = class
+  TGrease = class(TCommonObject)
+  private
+    const
+      GREASE_TABLE_NAME = 'grease';
   public
-    constructor Create (AID : Int64); virtual;
+    constructor Create (AID : Int64); override;
     destructor Destroy; override;
     
     { Check database table scheme. }
-    function CheckSchema : Boolean; virtual; abstract;
+    function CheckSchema : Boolean; override;
 
     { Get object database table name. }
-    function Table : String; virtual; abstract;
+    function Table : String; override;
 
     { Load object from database. }
-    function Load : Boolean; virtual; abstract;
-
-    { Reload object from database. }
-    function Reload (AID : Int64) : Boolean;
+    function Load : Boolean; override;
 
     { Save object to database. }
-    function Save : Boolean; virtual; abstract;
-
-    { Return object ID. }
-    function ID : Int64;
+    function Save : Boolean; override;
   protected
-    { Return row by object id. }
-    function GetRowIterator : TSQLite3Result.TRowIterator;
-
-    { Return TSQLite3Insert for current object. }
-    function InsertRow : TSQLite3Insert;
-
-    { Return TSQLite3Update for current object. }
-    function UpdateRow : TSQLite3Update;
-
-    { Update object ID. }
-    procedure UpdateObjectID;
-  protected
-    FID : Int64;
-    FTable : TSQLite3Table;  
+    FSupplier : TSupplier;
+    FGrade : TGrade;
+  public
+    property Supplier : TSupplier read FSupplier write FSupplier;
+    property Grade : TGrade read FGrade write FGrade;
   end;
 
 implementation
 
 { TCommonObject }
 
-constructor TCommonObject.Create (AID : Int64);
+constructor TGrease.Create (AID : Int64);
 begin
-  FID := AID;
-  FTable := TSQLite3Table.Create(DB.Errors, DB.Handle, Table);
+  inherited Create (AID);
+  FSupplier := TSupplier.Create(-1);
+  FGrade := TGrade.Create(-1);
 end;
 
-destructor TCommonObject.Destroy;
+destructor TGrease.Destroy;
 begin
-  FreeAndNil(FTable);
+  FreeAndNil(FSupplier);
+  FreeAndNil(FGrade);
   inherited Destroy;
 end;
 
-function TCommonObject.Reload (AID : Int64) : Boolean;
+function TGrease.CheckSchema : Boolean;
+var
+  Schema : TSQLite3Schema;
 begin
-  FID := AID;
-  Result := Load;
+  Schema := TSQLite3Schema.Create;
+  
+  Schema
+    .Id
+    .Integer('supplier_id').NotNull
+    .Integer('grade_id').NotNull;
+
+  if not FTable.Exists then
+    FTable.New(Schema);
+
+  Result := FTable.CheckSchema(Schema);  
+
+  FreeAndNil(Schema);
 end;
 
-function TCommonObject.ID : Int64;
+function TGrease.Table : String;
 begin
-  Result := FID;
+  Result := GREASE_TABLE_NAME;
 end;
 
-function TCommonObject.GetRowIterator : TSQLite3Result.TRowIterator;
+function TGrease.Load : Boolean;
+var
+  row : TSQLite3Result.TRowIterator;
 begin
-  Result := FTable.Select.All.Where('id', ID).Get.FirstRow;
+  row := GetRowIterator;
+
+  if not row.HasRow then
+    Exit(False);
+
+  Result := FSupplier.Reload(row.Row.GetIntegerValue('supplier_id')) and
+    FGrade.Reload(row.Row.GetIntegerValue('grade_id'));
 end;
 
-function TCommonObject.InsertRow : TSQLite3Insert;
+function TGrease.Save : Boolean;
 begin
-  Result := FTable.Insert;
-end;
+  if not FSupplier.Save then
+    Exit(False);
 
-function TCommonObject.UpdateRow : TSQLite3Update;
-begin
-  Result := FTable.Update.Where('id', ID);
-end;
+  if not FGrade.Save then
+    Exit(False);
 
-procedure TCommonObject.UpdateObjectID;
-begin
-  FID := DB.GetLastInsertID;
+  if ID <> -1 then
+  begin
+    Result := (UpdateRow.Update('supplier_id', FSupplier.ID)
+      .Update('grade_id', FGrade.ID).Get > 0);
+  end else 
+  begin
+    Result := (InsertRow.Value('supplier_id', FSupplier.ID)
+      .Value('grade_id', FGrade.ID).Get > 0);
+    UpdateObjectID;
+  end;
 end;
 
 end.
