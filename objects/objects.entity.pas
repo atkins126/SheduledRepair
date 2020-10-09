@@ -170,7 +170,6 @@ begin
       .Value('shedule_id', FShedule.ID).Get;
     UpdateObjectID;
   end;
-  UpdateObjectID;
 
   FGreaseBag.Entity := @Self;
   FGreaseBag.Save;

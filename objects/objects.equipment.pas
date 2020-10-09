@@ -22,7 +22,7 @@
 (* Floor, Boston, MA 02110-1335, USA.                                         *)
 (*                                                                            *)
 (******************************************************************************)
-unit objects.job;
+unit objects.equipment;
 
 {$mode objfpc}{$H+}
 {$IFOPT D+}
@@ -33,13 +33,13 @@ interface
 
 uses
   SysUtils, objects.common, sqlite3.schema, sqlite3.result, sqlite3.result_row,
-  objects.entity, objects.period, objects.shedule;
+  objects.entitybag;
 
 type
-  TJob = class(TCommonObject)
+  TEquipment = class(TCommonObject)
   private
     const
-      JOB_TABLE_NAME = 'job';
+      EQUIPMENT_TABLE_NAME = 'equipment';
   public
     constructor Create (AID : Int64); override;
     destructor Destroy; override;
@@ -57,38 +57,30 @@ type
     function Save : Boolean; override;
   protected
     FName : String;
-    FEntity : TEntity;
-    FPeriod : TPeriod;
-    FShedule : TShedule;
+    FEntityBag : TEntityBag;
   public
     property Name : String read FName write FName;
-    property Entity : TEntity read FEntity write FEntity;
-    property Period : TPeriod read FPeriod write FPeriod;
-    property Shedule : TShedule read FShedule write FShedule;
+    property EntityBag : TEntityBag read FEntityBag write FEntityBag;
   end;
 
 implementation
 
-{ TCommonObject }
+{ TEquipment }
 
-constructor TJob.Create (AID : Int64);
+constructor TEquipment.Create (AID : Int64);
 begin
   inherited Create (AID);
   FName := '';
-  FEntity := TEntity.Create(-1);
-  FPeriod := TPeriod.Create(-1);
-  FShedule := TShedule.Create(-1);
+  FEntityBag := TEntityBag.Create(-1);
 end;
 
-destructor TJob.Destroy;
+destructor TEquipment.Destroy;
 begin
-  FreeAndNil(FEntity);
-  FreeAndNil(FPeriod);
-  FreeAndNil(FShedule);
+  FreeAndNil(FEntityBag);
   inherited Destroy;
 end;
 
-function TJob.CheckSchema : Boolean;
+function TEquipment.CheckSchema : Boolean;
 var
   Schema : TSQLite3Schema;
 begin
@@ -96,25 +88,22 @@ begin
   
   Schema
     .Id
-    .Text('name').NotNull
-    .Integer('entity_id').NotNull
-    .Integer('period_id')
-    .Integer('shedule_id');
+    .Text('name').NotNull;
 
   if not FTable.Exists then
     FTable.New(Schema);
 
-  Result := FTable.CheckSchema(Schema);  
+  Result := FTable.CheckSchema(Schema) and FEntityBag.CheckSchema;
 
   FreeAndNil(Schema);
 end;
 
-function TJob.Table : String;
+function TEquipment.Table : String;
 begin
-  Result := JOB_TABLE_NAME;
+  Result := EQUIPMENT_TABLE_NAME;
 end;
 
-function TJob.Load : Boolean;
+function TEquipment.Load : Boolean;
 var
   row : TSQLite3Result.TRowIterator;
 begin
@@ -124,34 +113,23 @@ begin
     Exit(False);
 
   FName := row.Row.GetStringValue('name');
-  Result := FEntity.Reload(row.Row.GetIntegerValue('entity_id')) and
-    FPeriod.Reload(row.Row.GetIntegerValue('period_id')) and
-    FShedule.Reload(row.Row.GetIntegerValue('shedule_id'));
+  FEntityBag.Entity := @Self;
+  Result := FEntityBag.Reload(-1);
 end;
 
-function TJob.Save : Boolean;
+function TEquipment.Save : Boolean;
 begin
-  if not FEntity.Save then
-    Exit(False);
-
-  if not FPeriod.Save then
-    Exit(False);
-
-  if not FShedule.Save then
-    Exit(False);
-
   if ID <> -1 then
   begin
-    Result := (UpdateRow.Update('name', FName)
-      .Update('entity_id', FEntity.Id).Update('period_id', FPeriod.ID)
-      .Update('shedule_id', FShedule.ID).Get > 0);
+    Result := (UpdateRow.Update('name', FName).Get > 0);
   end else 
   begin
-    Result := (InsertRow.Value('name', FName)
-      .Value('entity_id', FEntity.ID).Value('period_id', FPeriod.ID)
-      .Value('shedule_id', FShedule.ID).Get > 0);
+    Result := (InsertRow.Value('name', FName).Get > 0);
     UpdateObjectID;
   end;
+
+  FEntityBag.Entity := @Self;
+  FEntityBag.Save;
 end;
 
 end.

@@ -36,7 +36,7 @@
         <PackageName Value="LCL"/>
       </Item3>
     </RequiredPackages>
-    <Units Count="37">
+    <Units Count="39">
       <Unit0>
         <Filename Value="test.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -185,6 +185,14 @@
         <Filename Value="job_testcase.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit36>
+      <Unit37>
+        <Filename Value="equipment_testcase.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit37>
+      <Unit38>
+        <Filename Value="../objects/objects.equipment.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit38>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

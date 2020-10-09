@@ -22,7 +22,7 @@
 (* Floor, Boston, MA 02110-1335, USA.                                         *)
 (*                                                                            *)
 (******************************************************************************)
-unit objects.greasebag;
+unit objects.entitybag;
 
 {$mode objfpc}{$H+}
 {$IFOPT D+}
@@ -33,13 +33,13 @@ interface
 
 uses
   SysUtils, objects.common, sqlite3.schema, sqlite3.result, sqlite3.result_row,
-  container.arraylist, utils.functor, objects.greasebundle;
+  container.arraylist, utils.functor, objects.entity;
 
 type
-  TGreaseBag = class(TCommonObject)
+  TEntityBag = class(TCommonObject)
   private
     const
-      GREASE_BAG_TABLE_NAME = 'greasebag';
+      ENTITY_BAG_TABLE_NAME = 'entitybag';
   public
     constructor Create (AID : Int64); override;
     destructor Destroy; override;
@@ -57,36 +57,36 @@ type
     function Save : Boolean; override;
 
     { Add new grease bundle to current bag. }
-    procedure Append (AGreaseBundle : TGreaseBundle);
+    procedure Append (AEntity : TEntity);
 
     { Remove grease bundle from current bag. }
-    procedure Remove (AGreaseBundle : TGreaseBundle);
+    procedure Remove (AEntity : TEntity);
   public
     type
-      TGreaseBundleCompareFunctor = class
-        (specialize TBinaryFunctor<TGreaseBundle, Integer>)
+      TEntityCompareFunctor = class
+        (specialize TBinaryFunctor<TEntity, Integer>)
       public
-        function Call (AValue1, AValue2 : TGreaseBundle) : Integer; override;
+        function Call (AValue1, AValue2 : TEntity) : Integer; override;
       end;
 
-      TGreaseBundleList = class
-        (specialize TArrayList<TGreaseBundle, TGreaseBundleCompareFunctor>);  
+      TEntityList = class
+        (specialize TArrayList<TEntity, TEntityCompareFunctor>);  
   public
     { Get enumerator for in operator. }
-    function GetEnumerator : TGreaseBundleList.TIterator;
+    function GetEnumerator : TEntityList.TIterator;
   private
     FObject : PCommonObject;
-    FGreaseBundleList : TGreaseBundleList;
+    FEntityList : TEntityList;
   public
     property Entity : PCommonObject read FObject write FObject;
   end;
 
 implementation
 
-{ TGreaseBag.TGreaseBundleCompareFunctor }
+{ TEntityBag.TEntityCompareFunctor }
 
-function TGreaseBag.TGreaseBundleCompareFunctor.Call (AValue1, AValue2 :
-  TGreaseBundle) : Integer;
+function TEntityBag.TEntityCompareFunctor.Call (AValue1, AValue2 :
+  TEntity) : Integer;
 begin
   if AValue1.ID < AValue2.ID then
     Result := -1
@@ -96,77 +96,76 @@ begin
     Result := 0;
 end;
 
-{ TGreaseBag }
+{ TEntityBag }
 
-constructor TGreaseBag.Create (AID : Int64);
+constructor TEntityBag.Create (AID : Int64);
 begin
   inherited Create (AID);
   FObject := nil;
-  FGreaseBundleList := TGreaseBundleList.Create;
+  FEntityList := TEntityList.Create;
 end;
 
-destructor TGreaseBag.Destroy;
+destructor TEntityBag.Destroy;
 begin
-  FreeAndNil(FGreaseBundleList);
+  FreeAndNil(FEntityList);
   inherited Destroy;
 end;
 
-function TGreaseBag.CheckSchema : Boolean;
+function TEntityBag.CheckSchema : Boolean;
 var
   Schema : TSQLite3Schema;
-  GreaseBundle : TGreaseBundle;
+  Ent : TEntity;
 begin
   Schema := TSQLite3Schema.Create;
-  GreaseBundle := TGreaseBundle.Create(-1);
+  Ent := TEntity.Create(-1);
   
   Schema
     .Id
-    .Integer('greasebundle_id').NotNull
+    .Integer('entity_id').NotNull
     .Text('object_name').NotNull
     .Integer('object_id').NotNull;
 
   if not FTable.Exists then
     FTable.New(Schema);
 
-  Result := FTable.CheckSchema(Schema) and GreaseBundle.CheckSchema;  
+  Result := FTable.CheckSchema(Schema) and Ent.CheckSchema;
 
-  FreeAndNil(GreaseBundle);
+  FreeAndNil(Ent);
   FreeAndNil(Schema);
 end;
 
-function TGreaseBag.Table : String;
+function TEntityBag.Table : String;
 begin
-  Result := GREASE_BAG_TABLE_NAME;
+  Result := ENTITY_BAG_TABLE_NAME;
 end;
 
-function TGreaseBag.Load : Boolean;
+function TEntityBag.Load : Boolean;
 var
   result_rows : TSQLite3Result;
   row : TSQLite3ResultRow;
-  GreaseBundle : TGreaseBundle;
+  Ent : TEntity;
 begin
   if (FObject = nil) or (FObject^.ID = -1) then
     Exit(False);
 
   result_rows := FTable.Select.All.Where('object_id', FObject^.ID)
     .Where('object_name', FObject^.Table).Get;
-  FGreaseBundleList.Clear;
+  FEntityList.Clear;
 
   for row in result_rows do
   begin
-    GreaseBundle := 
-      TGreaseBundle.Create(row.GetIntegerValue('greasebundle_id'));
+    Ent := TEntity.Create(row.GetIntegerValue('entity_id'));
 
-    if GreaseBundle.Load then
-      FGreaseBundleList.Append(GreaseBundle);
+    if Ent.Load then
+      FEntityList.Append(Ent);
   end;
 
   Result := True;
 end;
 
-function TGreaseBag.Save : Boolean;
+function TEntityBag.Save : Boolean;
 var
-  GreaseBundle : TGreaseBundle;
+  Ent : TEntity;
   updated_rows : Integer;
 begin
   if FObject = nil then
@@ -175,21 +174,21 @@ begin
   if FObject^.ID = -1 then
     FObject^.Save;
 
-  if not FGreaseBundleList.FirstEntry.HasValue then
+  if not FEntityList.FirstEntry.HasValue then
     Exit(False);
 
-  for GreaseBundle in FGreaseBundleList do
+  for Ent in FEntityList do
   begin
-    GreaseBundle.Save;
+    Ent.Save;
     
-    updated_rows := UpdateRow.Update('greasebundle_id', GreaseBundle.ID)
+    updated_rows := UpdateRow.Update('entity_id', Ent.ID)
       .Where('object_id', FObject^.ID).Where('object_name', FObject^.Table)
-      .Where('greasebundle_id', GreaseBundle.ID).Get;
+      .Where('entity_id', Ent.ID).Get;
 
     if updated_rows > 0 then
       continue;
     
-    InsertRow.Value('greasebundle_id', GreaseBundle.ID)
+    InsertRow.Value('entity_id', Ent.ID)
       .Value('object_id', FObject^.ID).Value('object_name', FObject^.Table).Get;
     UpdateObjectID;
   end;
@@ -197,51 +196,51 @@ begin
   Result := True;
 end;
 
-procedure TGreaseBag.Append (AGreaseBundle : TGreaseBundle);
+procedure TEntityBag.Append (AEntity : TEntity);
 var
   updated_rows : Integer;
 begin
-  FGreaseBundleList.Append(AGreaseBundle);
+  FEntityList.Append(AEntity);
 
   if (FObject <> nil) and (FObject^.ID <> -1) then
   begin
-    if not AGreaseBundle.Save then
+    if not AEntity.Save then
       Exit;
 
-    updated_rows := UpdateRow.Update('greasebundle_id', AGreaseBundle.ID)
+    updated_rows := UpdateRow.Update('entity_id', AEntity.ID)
       .Where('object_id', FObject^.ID).Where('object_name', FObject^.Table)
-      .Where('greasebundle_id', AGreaseBundle.ID).Get;
+      .Where('entity_id', AEntity.ID).Get;
 
     if updated_rows > 0 then
       Exit;
 
-    InsertRow.Value('greasebundle_id', AGreaseBundle.ID)
+    InsertRow.Value('entity_id', AEntity.ID)
       .Value('object_id', FObject^.ID).Value('object_name', FObject^.Table).Get;
   end;
 end;
 
-procedure TGreaseBag.Remove (AGreaseBundle : TGreaseBundle);
+procedure TEntityBag.Remove (AEntity : TEntity);
 var
   Index : Integer;
 begin
-  Index := FGreaseBundleList.IndexOf(AGreaseBundle);
+  Index := FEntityList.IndexOf(AEntity);
 
   if Index <> -1 then
   begin
-    FGreaseBundleList.Remove(Index);
+    FEntityList.Remove(Index);
     
     if (FObject <> nil) and (FObject^.ID <> -1) then
     begin
-      FTable.Delete.Where('greasebundle_id', AGreaseBundle.ID)
+      FTable.Delete.Where('entity_id', AEntity.ID)
         .Where('object_id', FObject^.ID).Where('object_name', FObject^.Table)
         .Get;
     end;
   end;
 end;
 
-function TGreaseBag.GetEnumerator : TGreaseBundleList.TIterator;
+function TEntityBag.GetEnumerator : TEntityList.TIterator;
 begin
-  Result := FGreaseBundleList.GetEnumerator;
+  Result := FEntityList.GetEnumerator;
 end;
 
 end.

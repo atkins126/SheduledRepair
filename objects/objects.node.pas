@@ -150,8 +150,8 @@ begin
     updated_rows := InsertRow.Value('name', FName)
       .Value('period_id', FPeriod.ID)
       .Value('shedule_id', FShedule.ID).Get;
+    UpdateObjectID;
   end;
-  UpdateObjectID;
 
   FGreaseBag.Entity := @Self;
   if not FGreaseBag.Save then
