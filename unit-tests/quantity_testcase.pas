@@ -10,39 +10,31 @@ uses
 type
   TQuantityTestCase = class(TTestCase)
   published
-    procedure Test_Quanitity_CheckSchema;
+    procedure Test_Quantity_CheckSchema;
     procedure Test_Quantity_SaveAndLoad;
   end;
 
 implementation
 
-procedure TQuantityTestCase.Test_Quanitity_CheckSchema;
+procedure TQuantityTestCase.Test_Quantity_CheckSchema;
 var
   quantity : TQuantity;
 begin
   quantity := TQuantity.Create(-1);
-
   AssertTrue('Database table schema is not correct', quantity.CheckSchema);
-  AssertTrue('Database file not exists', FileExists('database.db'));
+  FreeAndNil(quantity);
 end;
 
 procedure TQuantityTestCase.Test_Quantity_SaveAndLoad;
 var
   quantity : TQuantity;
-  measure : TMeasure;
   id : Int64;
 begin
   quantity := TQuantity.Create(-1);
-
   AssertTrue('Database table schema is not correct', quantity.CheckSchema);
-  AssertTrue('Database file not exists', FileExists('database.db'));
 
   quantity.Count := 1;
-  
-  measure := TMeasure.Create(-1);
-  measure.Name := 'piece';
-  quantity.Measure := measure;
-
+  quantity.Measure.Name := 'piece';
   AssertTrue('Object save error', quantity.Save);
 
   id := quantity.ID;
@@ -50,7 +42,8 @@ begin
 
   quantity := TQuantity.Create(id);
   AssertTrue('Quantity object load error', quantity.Load);
-  AssertTrue('Quantity object ''Count'' is not correct', quantity.Count = 1);
+  AssertEquals('Quantity object ''Count'' is not correct', quantity.Count, 1, 
+    0.01);
   AssertTrue('Quantity object ''Measure'' is not correct', 
     quantity.Measure.Name = 'piece');
   

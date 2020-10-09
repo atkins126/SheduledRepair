@@ -95,7 +95,8 @@ begin
   if not FTable.Exists then
     FTable.New(Schema);
 
-  Result := FTable.CheckSchema(Schema);  
+  Result := FTable.CheckSchema(Schema) and FGrease.CheckSchema and
+    FQuantity.CheckSchema;  
 
   FreeAndNil(Schema);
 end;

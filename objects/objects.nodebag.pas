@@ -22,7 +22,7 @@
 (* Floor, Boston, MA 02110-1335, USA.                                         *)
 (*                                                                            *)
 (******************************************************************************)
-unit objects.greasebag;
+unit objects.nodebag;
 
 {$mode objfpc}{$H+}
 {$IFOPT D+}
@@ -33,13 +33,13 @@ interface
 
 uses
   SysUtils, objects.common, sqlite3.schema, sqlite3.result, sqlite3.result_row,
-  container.arraylist, utils.functor, objects.greasebundle;
+  container.arraylist, utils.functor, objects.node;
 
 type
-  TGreaseBag = class(TCommonObject)
+  TNodeBag = class(TCommonObject)
   private
     const
-      GREASE_BAG_TABLE_NAME = 'greasebag';
+      NODE_BAG_TABLE_NAME = 'nodebag';
   public
     constructor Create (AID : Int64); override;
     destructor Destroy; override;
@@ -57,26 +57,26 @@ type
     function Save : Boolean; override;
 
     { Add new grease bundle to current bag. }
-    procedure Append (AGreaseBundle : TGreaseBundle);
+    procedure Append (ANode : TNode);
 
     { Remove grease bundle from current bag. }
-    procedure Remove (AGreaseBundle : TGreaseBundle);
+    procedure Remove (ANode : TNode);
   public
     type
-      TGreaseBundleCompareFunctor = class
-        (specialize TBinaryFunctor<TGreaseBundle, Integer>)
+      TNodeCompareFunctor = class
+        (specialize TBinaryFunctor<TNode, Integer>)
       public
-        function Call (AValue1, AValue2 : TGreaseBundle) : Integer; override;
+        function Call (AValue1, AValue2 : TNode) : Integer; override;
       end;
 
-      TGreaseBundleList = class
-        (specialize TArrayList<TGreaseBundle, TGreaseBundleCompareFunctor>);  
+      TNodeList = class
+        (specialize TArrayList<TNode, TNodeCompareFunctor>);  
   public
     { Get enumerator for in operator. }
-    function GetEnumerator : TGreaseBundleList.TIterator;
+    function GetEnumerator : TNodeList.TIterator;
   private
     FObject : PCommonObject;
-    FGreaseBundleList : TGreaseBundleList;
+    FNodeList : TNodeList;
   public
     property Entity : PCommonObject read FObject write FObject;
   end;
@@ -85,8 +85,7 @@ implementation
 
 { TGreaseBag.TGreaseBundleCompareFunctor }
 
-function TGreaseBag.TGreaseBundleCompareFunctor.Call (AValue1, AValue2 :
-  TGreaseBundle) : Integer;
+function TNodeBag.TNodeCompareFunctor.Call (AValue1, AValue2 : TNode) : Integer;
 begin
   if AValue1.ID < AValue2.ID then
     Result := -1
@@ -96,75 +95,74 @@ begin
     Result := 0;
 end;
 
-{ TGreaseBag }
+{ TNodeBag }
 
-constructor TGreaseBag.Create (AID : Int64);
+constructor TNodeBag.Create (AID : Int64);
 begin
   inherited Create (AID);
   FObject := nil;
-  FGreaseBundleList := TGreaseBundleList.Create;
+  FNodeList := TNodeList.Create;
 end;
 
-destructor TGreaseBag.Destroy;
+destructor TNodeBag.Destroy;
 begin
-  FreeAndNil(FGreaseBundleList);
+  FreeAndNil(FNodeList);
   inherited Destroy;
 end;
 
-function TGreaseBag.CheckSchema : Boolean;
+function TNodeBag.CheckSchema : Boolean;
 var
   Schema : TSQLite3Schema;
-  GreaseBundle : TGreaseBundle;
+  Node : TNode;
 begin
   Schema := TSQLite3Schema.Create;
-  GreaseBundle := TGreaseBundle.Create(-1);
+  Node := TNode.Create(-1);
   
   Schema
     .Id
-    .Integer('greasebundle_id')
+    .Integer('node_id')
     .Integer('object_id');
 
   if not FTable.Exists then
     FTable.New(Schema);
 
-  Result := FTable.CheckSchema(Schema) and GreaseBundle.CheckSchema;  
+  Result := FTable.CheckSchema(Schema) and Node.CheckSchema;  
 
-  FreeAndNil(GreaseBundle);
+  FreeAndNil(Node);
   FreeAndNil(Schema);
 end;
 
-function TGreaseBag.Table : String;
+function TNodeBag.Table : String;
 begin
-  Result := GREASE_BAG_TABLE_NAME;
+  Result := NODE_BAG_TABLE_NAME;
 end;
 
-function TGreaseBag.Load : Boolean;
+function TNodeBag.Load : Boolean;
 var
   result_rows : TSQLite3Result;
   row : TSQLite3ResultRow;
-  GreaseBundle : TGreaseBundle;
+  node : TNode;
 begin
   if (FObject = nil) or (FObject^.ID = -1) then
     Exit(False);
 
   result_rows := FTable.Select.All.Where('object_id', FObject^.ID).Get;
-  FGreaseBundleList.Clear;
+  FNodeList.Clear;
 
   for row in result_rows do
   begin
-    GreaseBundle := 
-      TGreaseBundle.Create(row.GetIntegerValue('greasebundle_id'));
+    node := TNode.Create(row.GetIntegerValue('node_id'));
 
-    if GreaseBundle.Load then
-      FGreaseBundleList.Append(GreaseBundle);
+    if node.Load then
+      FNodeList.Append(node);
   end;
 
   Result := True;
 end;
 
-function TGreaseBag.Save : Boolean;
+function TNodeBag.Save : Boolean;
 var
-  GreaseBundle : TGreaseBundle;
+  node : TNode;
   updated_rows : Integer;
 begin
   if FObject = nil then
@@ -173,21 +171,21 @@ begin
   if FObject^.ID = -1 then
     FObject^.Save;
 
-  if not FGreaseBundleList.FirstEntry.HasValue then
+  if not FNodeList.FirstEntry.HasValue then
     Exit(False);
 
-  for GreaseBundle in FGreaseBundleList do
+  for node in FNodeList do
   begin
-    if not GreaseBundle.Save then
+    if not node.Save then
       continue;
     {
-    updated_rows := UpdateRow.Update('greasebundle_id', GreaseBundle.ID)
+    updated_rows := UpdateRow.Update('node_id', node.ID)
       .Where('object_id', FObject^.ID).Get;
 
     if updated_rows > 0 then
       continue;
     }
-    InsertRow.Value('greasebundle_id', GreaseBundle.ID)
+    InsertRow.Value('node_id', node.ID)
       .Value('object_id', FObject^.ID).Get;
     UpdateObjectID;
   end;
@@ -195,46 +193,46 @@ begin
   Result := True;
 end;
 
-procedure TGreaseBag.Append (AGreaseBundle : TGreaseBundle);
+procedure TNodeBag.Append (ANode : TNode);
 var
   updated_rows : Integer;
 begin
-  FGreaseBundleList.Append(AGreaseBundle);
+  FNodeList.Append(ANode);
 
   if (FObject <> nil) and (FObject^.ID <> -1) then
   begin
-    updated_rows := UpdateRow.Update('greasebundle_id', AGreaseBundle.ID)
+    updated_rows := UpdateRow.Update('node_id', ANode.ID)
       .Where('object_id', FObject^.ID).Get;
 
     if updated_rows > 0 then
       Exit;
 
-    InsertRow.Value('greasebundle_id', AGreaseBundle.ID)
+    InsertRow.Value('node_id', ANode.ID)
       .Value('object_id', FObject^.ID).Get;
   end;
 end;
 
-procedure TGreaseBag.Remove (AGreaseBundle : TGreaseBundle);
+procedure TNodeBag.Remove (ANode : TNode);
 var
   Index : Integer;
 begin
-  Index := FGreaseBundleList.IndexOf(AGreaseBundle);
+  Index := FNodeList.IndexOf(ANode);
 
   if Index <> -1 then
   begin
-    FGreaseBundleList.Remove(Index);
+    FNodeList.Remove(Index);
     
     if (FObject <> nil) and (FObject^.ID <> -1) then
     begin
-      FTable.Delete.Where('greasebundle_id', AGreaseBundle.ID)
+      FTable.Delete.Where('node_id', ANode.ID)
         .Where('object_id', FObject^.ID).Get;
     end;
   end;
 end;
 
-function TGreaseBag.GetEnumerator : TGreaseBundleList.TIterator;
+function TNodeBag.GetEnumerator : TNodeList.TIterator;
 begin
-  Result := FGreaseBundleList.GetEnumerator;
+  Result := FNodeList.GetEnumerator;
 end;
 
 end.

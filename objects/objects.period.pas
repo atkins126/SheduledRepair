@@ -22,7 +22,7 @@
 (* Floor, Boston, MA 02110-1335, USA.                                         *)
 (*                                                                            *)
 (******************************************************************************)
-unit objects.common;
+unit objects.period;
 
 {$mode objfpc}{$H+}
 {$IFOPT D+}
@@ -32,95 +32,100 @@ unit objects.common;
 interface
 
 uses
-  SysUtils, database, sqlite3.table, sqlite3.insert, sqlite3.update, 
-  sqlite3.result;
+  SysUtils, objects.common, sqlite3.schema, sqlite3.result, sqlite3.result_row,
+  objects.quantity;
 
 type
-  PCommonObject = ^TCommonObject;
-  TCommonObject = class
+  TPeriod = class(TCommonObject)
+  private
+    const
+      PERIOD_TABLE_NAME = 'period';
   public
-    constructor Create (AID : Int64); virtual;
+    constructor Create (AID : Int64); override;
     destructor Destroy; override;
     
     { Check database table scheme. }
-    function CheckSchema : Boolean; virtual; abstract;
+    function CheckSchema : Boolean; override;
 
     { Get object database table name. }
-    function Table : String; virtual; abstract;
+    function Table : String; override;
 
     { Load object from database. }
-    function Load : Boolean; virtual; abstract;
-
-    { Reload object from database. }
-    function Reload (AID : Int64) : Boolean;
+    function Load : Boolean; override;
 
     { Save object to database. }
-    function Save : Boolean; virtual; abstract;
-
-    { Return object ID. }
-    function ID : Int64;
+    function Save : Boolean; override;
   protected
-    { Return row by object id. }
-    function GetRowIterator : TSQLite3Result.TRowIterator;
-
-    { Return TSQLite3Insert for current object. }
-    function InsertRow : TSQLite3Insert;
-
-    { Return TSQLite3Update for current object. }
-    function UpdateRow : TSQLite3Update;
-
-    { Update object ID. }
-    procedure UpdateObjectID;
-  protected
-    FID : Int64;
-    FTable : TSQLite3Table;  
+    FQuantity : TQuantity;
+  public
+    property Quantity : TQuantity read FQuantity write FQuantity;
   end;
 
 implementation
 
-{ TCommonObject }
+{ TPeriod }
 
-constructor TCommonObject.Create (AID : Int64);
+constructor TPeriod.Create (AID : Int64);
 begin
-  FID := AID;
-  FTable := TSQLite3Table.Create(DB.Errors, DB.Handle, Table);
+  inherited Create (AID);
+  FQuantity := TQuantity.Create(-1);
 end;
 
-destructor TCommonObject.Destroy;
+destructor TPeriod.Destroy;
 begin
-  FreeAndNil(FTable);
+  FreeAndNil(FQuantity);
   inherited Destroy;
 end;
 
-function TCommonObject.Reload (AID : Int64) : Boolean;
+function TPeriod.CheckSchema : Boolean;
+var
+  Schema : TSQLite3Schema;
 begin
-  FID := AID;
-  Result := Load;
+  Schema := TSQLite3Schema.Create;
+  
+  Schema
+    .Id
+    .Integer('quantity_id');
+
+  if not FTable.Exists then
+    FTable.New(Schema);
+
+  Result := FTable.CheckSchema(Schema);  
+
+  FreeAndNil(Schema);
 end;
 
-function TCommonObject.ID : Int64;
+function TPeriod.Table : String;
 begin
-  Result := FID;
+  Result := PERIOD_TABLE_NAME;
 end;
 
-function TCommonObject.GetRowIterator : TSQLite3Result.TRowIterator;
+function TPeriod.Load : Boolean;
+var
+  row : TSQLite3Result.TRowIterator;
 begin
-  Result := FTable.Select.All.Where('id', ID).Get.FirstRow;
+  row := GetRowIterator;
+
+  if not row.HasRow then
+    Exit(False);
+
+  FQuantity.Reload(row.Row.GetIntegerValue('quantity_id'));
+  Result := True;
 end;
 
-function TCommonObject.InsertRow : TSQLite3Insert;
+function TPeriod.Save : Boolean;
 begin
-  Result := FTable.Insert;
-end;
+  if not FQuantity.Save then
+    Exit(False);  
 
-function TCommonObject.UpdateRow : TSQLite3Update;
-begin
-  Result := FTable.Update.Where('id', ID);
-end;
-
-procedure TCommonObject.UpdateObjectID;
-begin
-  FID := DB.GetLastInsertID;
+  if ID <> -1 then
+  begin
+    Result := (UpdateRow.Update('quantity_id', FQuantity.ID).Get > 0);
+  end else 
+  begin
+    Result := (InsertRow.Value('quantity_id', FQuantity.ID).Get > 0);
+    UpdateObjectID;
+  end;
 end;
 
 end.

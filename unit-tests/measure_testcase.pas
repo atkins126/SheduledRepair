@@ -21,10 +21,7 @@ var
   measure : TMeasure;
 begin
   measure := TMeasure.Create(-1);
-
   AssertTrue('Database table schema is not correct', measure.CheckSchema);
-  AssertTrue('Database file not exists', FileExists('database.db'));
-
   FreeAndNil(measure);
 end;
 
@@ -34,9 +31,7 @@ var
   id : Int64;
 begin
   measure := TMeasure.Create(-1);
-
   AssertTrue('Database table schema is not correct', measure.CheckSchema);
-  AssertTrue('Database file not exists', FileExists('database.db'));
 
   measure.Name := 'pcs';
   AssertTrue('Object save error', measure.Save);

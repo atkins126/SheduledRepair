@@ -21,10 +21,7 @@ var
   supplier : TSupplier;
 begin
   supplier := TSupplier.Create(-1);
-
   AssertTrue('Database table schema is not correct', supplier.CheckSchema);
-  AssertTrue('Database file not exists', FileExists('database.db'));
-
   FreeAndNil(supplier);
 end;
 
@@ -34,9 +31,7 @@ var
   id : Int64;
 begin
   supplier := TSupplier.Create(-1);
-
   AssertTrue('Database table schema is not correct', supplier.CheckSchema);
-  AssertTrue('Database file not exists', FileExists('database.db'));
 
   supplier.Name := 'ECO';
   AssertTrue('Object save error', supplier.Save);

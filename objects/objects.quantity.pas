@@ -56,16 +56,16 @@ type
     { Save object to database. }
     function Save : Boolean; override;
   protected
-    FCount : Integer;
+    FCount : Double;
     FMeasure : TMeasure;
   public
-    property Count : Integer read FCount write FCount;
+    property Count : Double read FCount write FCount;
     property Measure : TMeasure read FMeasure write FMeasure;
   end;
 
 implementation
 
-{ TCommonObject }
+{ TQuantity }
 
 constructor TQuantity.Create (AID : Int64);
 begin
@@ -88,13 +88,13 @@ begin
   
   Schema
     .Id
-    .Integer('count').NotNull
+    .Float('count').NotNull
     .Integer('measure_id').NotNull;
 
   if not FTable.Exists then
     FTable.New(Schema);
 
-  Result := FTable.CheckSchema(Schema);  
+  Result := FTable.CheckSchema(Schema) and FMeasure.CheckSchema;  
 
   FreeAndNil(Schema);
 end;
@@ -113,7 +113,7 @@ begin
   if not row.HasRow then
     Exit(False);
 
-  FCount := row.Row.GetIntegerValue('count');
+  FCount := row.Row.GetDoubleValue('count');
   Result := FMeasure.Reload(row.Row.GetIntegerValue('measure_id'));
 end;
 

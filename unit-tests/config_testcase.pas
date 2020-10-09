@@ -20,13 +20,11 @@ implementation
 procedure TConfigTestCase.Test_Config_CheckSchema;
 begin
   AssertTrue('Database table schema is not correct', Config.CheckSchema);
-  AssertTrue('Database file not exists', FileExists('database.db'));
 end;
 
 procedure TConfigTestCase.Test_Config_SaveAndLoad;
 begin
   AssertTrue('Database table schema is not correct', Config.CheckSchema);
-  AssertTrue('Database file not exists', FileExists('database.db'));
   Config.Load;
 
   Config.SetValue('config.integer', 123);
@@ -47,8 +45,6 @@ end;
 procedure TConfigTestCase.Test_Config_RemoveValue;
 begin
   AssertTrue('Database table schema is not correct', Config.CheckSchema);
-  AssertTrue('Database file not exists', FileExists('database.db'));
-
   Config.Load;
 
   AssertTrue('Config integer key not exists or not correct', 

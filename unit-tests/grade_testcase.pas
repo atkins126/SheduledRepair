@@ -21,10 +21,7 @@ var
   grade : TGrade;
 begin
   grade := TGrade.Create(-1);
-
   AssertTrue('Database table schema is not correct', grade.CheckSchema);
-  AssertTrue('Database file not exists', FileExists('database.db'));
-
   FreeAndNil(grade);
 end;
 
@@ -34,9 +31,7 @@ var
   id : Int64;
 begin
   grade := TGrade.Create(-1);
-
   AssertTrue('Database table schema is not correct', grade.CheckSchema);
-  AssertTrue('Database file not exists', FileExists('database.db'));
 
   grade.Name := 'E10';
   AssertTrue('Object save error', grade.Save);

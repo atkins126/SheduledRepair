@@ -22,7 +22,7 @@
 (* Floor, Boston, MA 02110-1335, USA.                                         *)
 (*                                                                            *)
 (******************************************************************************)
-unit objects.grease;
+unit objects.node;
 
 {$mode objfpc}{$H+}
 {$IFOPT D+}
@@ -33,13 +33,13 @@ interface
 
 uses
   SysUtils, objects.common, sqlite3.schema, sqlite3.result, sqlite3.result_row,
-  objects.supplier, objects.grade;
+  objects.greasebag, objects.period, objects.shedule;
 
 type
-  TGrease = class(TCommonObject)
+  TNode = class(TCommonObject)
   private
     const
-      GREASE_TABLE_NAME = 'grease';
+      NODE_TABLE_NAME = 'node';
   public
     constructor Create (AID : Int64); override;
     destructor Destroy; override;
@@ -56,32 +56,39 @@ type
     { Save object to database. }
     function Save : Boolean; override;
   protected
-    FSupplier : TSupplier;
-    FGrade : TGrade;
+    FName : String;
+    FGreaseBag : TGreaseBag;
+    FPeriod : TPeriod;
+    FShedule : TShedule;
   public
-    property Supplier : TSupplier read FSupplier write FSupplier;
-    property Grade : TGrade read FGrade write FGrade;
+    property Name : String read FName write FName;
+    property GreaseBag : TGreaseBag read FGreaseBag write FGreaseBag;
+    property Period : TPeriod read FPeriod write FPeriod;
+    property Shedule : TShedule read FShedule write FShedule;
   end;
 
 implementation
 
-{ TCommonObject }
+{ TPeriod }
 
-constructor TGrease.Create (AID : Int64);
+constructor TNode.Create (AID : Int64);
 begin
   inherited Create (AID);
-  FSupplier := TSupplier.Create(-1);
-  FGrade := TGrade.Create(-1);
+  FName := '';
+  FGreaseBag := TGreaseBag.Create(-1);
+  FPeriod := TPeriod.Create(-1);
+  FShedule := TShedule.Create(-1);
 end;
 
-destructor TGrease.Destroy;
+destructor TNode.Destroy;
 begin
-  FreeAndNil(FSupplier);
-  FreeAndNil(FGrade);
+  FreeAndNil(FGreaseBag);
+  FreeAndNil(FPeriod);
+  FreeAndNil(FShedule);
   inherited Destroy;
 end;
 
-function TGrease.CheckSchema : Boolean;
+function TNode.CheckSchema : Boolean;
 var
   Schema : TSQLite3Schema;
 begin
@@ -89,24 +96,26 @@ begin
   
   Schema
     .Id
-    .Integer('supplier_id').NotNull
-    .Integer('grade_id').NotNull;
+    .Text('name').NotNull
+    .Integer('greasebag_id')
+    .Integer('period_id')
+    .Integer('shedule_id');
 
   if not FTable.Exists then
     FTable.New(Schema);
 
-  Result := FTable.CheckSchema(Schema) and FSupplier.CheckSchema and 
-    FGrade.CheckSchema;  
+  Result := FTable.CheckSchema(Schema) and FGreaseBag.CheckSchema and
+    FPeriod.CheckSchema and FShedule.CheckSchema;  
 
   FreeAndNil(Schema);
 end;
 
-function TGrease.Table : String;
+function TNode.Table : String;
 begin
-  Result := GREASE_TABLE_NAME;
+  Result := NODE_TABLE_NAME;
 end;
 
-function TGrease.Load : Boolean;
+function TNode.Load : Boolean;
 var
   row : TSQLite3Result.TRowIterator;
 begin
@@ -115,28 +124,42 @@ begin
   if not row.HasRow then
     Exit(False);
 
-  Result := FSupplier.Reload(row.Row.GetIntegerValue('supplier_id')) and
-    FGrade.Reload(row.Row.GetIntegerValue('grade_id'));
+  FName := row.Row.GetStringValue('name');
+  FGreaseBag.Entity := @Self;
+  Result := FGreaseBag.Reload(row.Row.GetIntegerValue('greasebag_id')) and
+    FPeriod.Reload(row.Row.GetIntegerValue('period_id')) and
+    FShedule.Reload(row.Row.GetIntegerValue('shedule_id'));
 end;
 
-function TGrease.Save : Boolean;
+function TNode.Save : Boolean;
+var
+  updated_rows : Integer;
 begin
-  if not FSupplier.Save then
+  if not FPeriod.Save then
     Exit(False);
 
-  if not FGrade.Save then
-    Exit(False);
+  if not FShedule.Save then
+    Exit(False);    
 
   if ID <> -1 then
   begin
-    Result := (UpdateRow.Update('supplier_id', FSupplier.ID)
-      .Update('grade_id', FGrade.ID).Get > 0);
+    updated_rows := UpdateRow.Update('name', FName)
+      .Update('greasebad_id', -1).Update('period_id', FPeriod.ID)
+      .Update('shedule_id', FShedule.ID).Get;
   end else 
   begin
-    Result := (InsertRow.Value('supplier_id', FSupplier.ID)
-      .Value('grade_id', FGrade.ID).Get > 0);
-    UpdateObjectID;
+    updated_rows := InsertRow.Value('name', FName)
+      .Value('greasebag_id', -1).Value('period_id', FPeriod.ID)
+      .Value('shedule_id', FShedule.ID).Get;
   end;
+  UpdateObjectID;
+
+  FGreaseBag.Entity := @Self;
+  if not FGreaseBag.Save then
+    Exit(False);
+
+  Result := (updated_rows > 0) and
+    (UpdateRow.Update('greasebag_id', FGreaseBag.ID).Get > 0);
 end;
 
 end.

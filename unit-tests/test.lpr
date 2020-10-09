@@ -4,14 +4,14 @@ program test;
 
 uses
   Interfaces, Forms, GuiTestRunner, fpcunittestrunner, SysUtils,
-  config_testcase, measure_testcase, sqlite3.database, quantity_testcase,
-  grade_testcase, supplier_testcase, grease_testcase, greasebundle_testcase;
+  sqlite3.database, quantity_testcase, objects.greasebundle, objects.quantity,
+  objects.period, objects.node, config_testcase, measure_testcase,
+  grade_testcase, supplier_testcase, grease_testcase, greasebundle_testcase,
+  period_testcase, shedule_testcase, node_testcase;
 
 {$R *.res}
 
 begin
-  //DeleteFile('database.db');
-
   Application.Initialize;
   Application.CreateForm(TGuiTestRunner, TestRunner);
   Application.Run;

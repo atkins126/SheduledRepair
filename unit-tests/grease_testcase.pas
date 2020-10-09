@@ -22,33 +22,20 @@ var
   grease : TGrease;
 begin
   grease := TGrease.Create(-1);
-
   AssertTrue('Database table schema is not correct', grease.CheckSchema);
-  AssertTrue('Database file not exists', FileExists('database.db'));
-
   FreeAndNil(grease);
 end;
 
 procedure TGreaseTestCase.Test_Grease_SaveAndLoad;
 var
   grease : TGrease;
-  supplier : TSupplier;
-  grade : TGrade;
   id : Int64;
 begin
   grease := TGrease.Create(-1);
-
   AssertTrue('Database table schema is not correct', grease.CheckSchema);
-  AssertTrue('Database file not exists', FileExists('database.db'));
 
-  supplier := TSupplier.Create(-1);
-  supplier.Name := 'MOBI';
-
-  grade := TGrade.Create(-1);
-  grade.Name := 'GW700';
-
-  grease.Supplier := supplier;
-  grease.Grade := grade;
+  grease.Supplier.Name := 'MOBI';
+  grease.Grade.Name := 'GW700';
   AssertTrue('Object save error', grease.Save);
 
   id := grease.ID;
