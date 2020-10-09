@@ -22,7 +22,7 @@
 (* Floor, Boston, MA 02110-1335, USA.                                         *)
 (*                                                                            *)
 (******************************************************************************)
-unit objects.node;
+unit objects.job;
 
 {$mode objfpc}{$H+}
 {$IFOPT D+}
@@ -33,13 +33,13 @@ interface
 
 uses
   SysUtils, objects.common, sqlite3.schema, sqlite3.result, sqlite3.result_row,
-  objects.greasebag, objects.period, objects.shedule;
+  objects.entity, objects.period, objects.shedule;
 
 type
-  TNode = class(TCommonObject)
+  TJob = class(TCommonObject)
   private
     const
-      NODE_TABLE_NAME = 'node';
+      JOB_TABLE_NAME = 'job';
   public
     constructor Create (AID : Int64); override;
     destructor Destroy; override;
@@ -57,38 +57,38 @@ type
     function Save : Boolean; override;
   protected
     FName : String;
-    FGreaseBag : TGreaseBag;
+    FEntity : TEntity;
     FPeriod : TPeriod;
     FShedule : TShedule;
   public
     property Name : String read FName write FName;
-    property GreaseBag : TGreaseBag read FGreaseBag write FGreaseBag;
+    property Entity : TEntity read FEntity write FEntity;
     property Period : TPeriod read FPeriod write FPeriod;
     property Shedule : TShedule read FShedule write FShedule;
   end;
 
 implementation
 
-{ TPeriod }
+{ TCommonObject }
 
-constructor TNode.Create (AID : Int64);
+constructor TJob.Create (AID : Int64);
 begin
   inherited Create (AID);
   FName := '';
-  FGreaseBag := TGreaseBag.Create(-1);
+  FEntity := TEntity.Create(-1);
   FPeriod := TPeriod.Create(-1);
   FShedule := TShedule.Create(-1);
 end;
 
-destructor TNode.Destroy;
+destructor TJob.Destroy;
 begin
-  FreeAndNil(FGreaseBag);
+  FreeAndNil(FEntity);
   FreeAndNil(FPeriod);
   FreeAndNil(FShedule);
   inherited Destroy;
 end;
 
-function TNode.CheckSchema : Boolean;
+function TJob.CheckSchema : Boolean;
 var
   Schema : TSQLite3Schema;
 begin
@@ -97,24 +97,24 @@ begin
   Schema
     .Id
     .Text('name').NotNull
+    .Integer('entity_id').NotNull
     .Integer('period_id')
     .Integer('shedule_id');
 
   if not FTable.Exists then
     FTable.New(Schema);
 
-  Result := FTable.CheckSchema(Schema) and FGreaseBag.CheckSchema and
-    FPeriod.CheckSchema and FShedule.CheckSchema;  
+  Result := FTable.CheckSchema(Schema);  
 
   FreeAndNil(Schema);
 end;
 
-function TNode.Table : String;
+function TJob.Table : String;
 begin
-  Result := NODE_TABLE_NAME;
+  Result := JOB_TABLE_NAME;
 end;
 
-function TNode.Load : Boolean;
+function TJob.Load : Boolean;
 var
   row : TSQLite3Result.TRowIterator;
 begin
@@ -124,40 +124,35 @@ begin
     Exit(False);
 
   FName := row.Row.GetStringValue('name');
-  FGreaseBag.Entity := @Self;
-  Result := FGreaseBag.Reload(-1) and
+  Result := FEntity.Reload(row.Row.GetIntegerValue('entity_id')) and
     FPeriod.Reload(row.Row.GetIntegerValue('period_id')) and
     FShedule.Reload(row.Row.GetIntegerValue('shedule_id'));
 end;
 
-function TNode.Save : Boolean;
-var
-  updated_rows : Integer;
+function TJob.Save : Boolean;
 begin
+  if not FEntity.Save then
+    Exit(False);
+
   if not FPeriod.Save then
     Exit(False);
 
   if not FShedule.Save then
-    Exit(False);    
+    Exit(False);
 
   if ID <> -1 then
   begin
-    updated_rows := UpdateRow.Update('name', FName)
-      .Update('period_id', FPeriod.ID)
-      .Update('shedule_id', FShedule.ID).Get;
+    Result := (UpdateRow.Update('name', FName)
+      .Update('entity_id', FEntity.Id).Update('period_id', FPeriod.ID)
+      .Update('shedule_id', FShedule.ID).Get > 0);
   end else 
   begin
-    updated_rows := InsertRow.Value('name', FName)
-      .Value('period_id', FPeriod.ID)
-      .Value('shedule_id', FShedule.ID).Get;
+    Result := (InsertRow.Value('name', FName)
+      .Value('entity_id', FEntity.ID).Value('period_id', FPeriod.ID)
+      .Value('shedule_id', FShedule.ID).Get > 0);
+    UpdateObjectID;
   end;
   UpdateObjectID;
-
-  FGreaseBag.Entity := @Self;
-  if not FGreaseBag.Save then
-    Exit(False);
-
-  Result := (updated_rows > 0);
 end;
 
 end.

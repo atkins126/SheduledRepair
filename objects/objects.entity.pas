@@ -22,7 +22,7 @@
 (* Floor, Boston, MA 02110-1335, USA.                                         *)
 (*                                                                            *)
 (******************************************************************************)
-unit objects.node;
+unit objects.entity;
 
 {$mode objfpc}{$H+}
 {$IFOPT D+}
@@ -33,13 +33,14 @@ interface
 
 uses
   SysUtils, objects.common, sqlite3.schema, sqlite3.result, sqlite3.result_row,
-  objects.greasebag, objects.period, objects.shedule;
+  objects.greasebag, objects.nodebag, objects.shedule, objects.period,
+  objects.quantity;
 
 type
-  TNode = class(TCommonObject)
+  TEntity = class(TCommonObject)
   private
     const
-      NODE_TABLE_NAME = 'node';
+      ENTITY_TABLE_NAME = 'entity';
   public
     constructor Create (AID : Int64); override;
     destructor Destroy; override;
@@ -58,37 +59,45 @@ type
   protected
     FName : String;
     FGreaseBag : TGreaseBag;
-    FPeriod : TPeriod;
+    FNodeBag : TNodeBag;
     FShedule : TShedule;
+    FQuantity : TQuantity;
+    FPeriod : TPeriod;
   public
     property Name : String read FName write FName;
     property GreaseBag : TGreaseBag read FGreaseBag write FGreaseBag;
-    property Period : TPeriod read FPeriod write FPeriod;
+    property NodeBag : TNodeBag read FNodeBag write FNodeBag;
     property Shedule : TShedule read FShedule write FShedule;
+    property Quantity : TQuantity read FQuantity write FQuantity;
+    property Period : TPeriod read FPeriod write FPeriod;
   end;
 
 implementation
 
-{ TPeriod }
+{ TEntity }
 
-constructor TNode.Create (AID : Int64);
+constructor TEntity.Create (AID : Int64);
 begin
   inherited Create (AID);
   FName := '';
   FGreaseBag := TGreaseBag.Create(-1);
-  FPeriod := TPeriod.Create(-1);
+  FNodeBag := TNodeBag.Create(-1);
   FShedule := TShedule.Create(-1);
+  FQuantity := TQuantity.Create(-1);
+  FPeriod := TPeriod.Create(-1);
 end;
 
-destructor TNode.Destroy;
+destructor TEntity.Destroy;
 begin
   FreeAndNil(FGreaseBag);
-  FreeAndNil(FPeriod);
+  FreeAndNil(FNodeBag);
   FreeAndNil(FShedule);
+  FreeAndNil(FQuantity);
+  FreeAndNil(FPeriod);
   inherited Destroy;
 end;
 
-function TNode.CheckSchema : Boolean;
+function TEntity.CheckSchema : Boolean;
 var
   Schema : TSQLite3Schema;
 begin
@@ -97,6 +106,7 @@ begin
   Schema
     .Id
     .Text('name').NotNull
+    .Integer('quantity_id')
     .Integer('period_id')
     .Integer('shedule_id');
 
@@ -104,17 +114,18 @@ begin
     FTable.New(Schema);
 
   Result := FTable.CheckSchema(Schema) and FGreaseBag.CheckSchema and
-    FPeriod.CheckSchema and FShedule.CheckSchema;  
+    FNodeBag.CheckSchema and FQuantity.CheckSchema and FPeriod.CheckSchema and
+    FShedule.CheckSchema;
 
   FreeAndNil(Schema);
 end;
 
-function TNode.Table : String;
+function TEntity.Table : String;
 begin
-  Result := NODE_TABLE_NAME;
+  Result := ENTITY_TABLE_NAME;
 end;
 
-function TNode.Load : Boolean;
+function TEntity.Load : Boolean;
 var
   row : TSQLite3Result.TRowIterator;
 begin
@@ -125,37 +136,47 @@ begin
 
   FName := row.Row.GetStringValue('name');
   FGreaseBag.Entity := @Self;
-  Result := FGreaseBag.Reload(-1) and
+  FGreaseBag.Reload(-1);
+  FNodeBag.Entity := @Self;
+  FNodeBag.Reload(-1);
+
+  Result := FQuantity.Reload(row.Row.GetIntegerValue('quantity_id')) and
     FPeriod.Reload(row.Row.GetIntegerValue('period_id')) and
     FShedule.Reload(row.Row.GetIntegerValue('shedule_id'));
 end;
 
-function TNode.Save : Boolean;
+function TEntity.Save : Boolean;
 var
   updated_rows : Integer;
 begin
-  if not FPeriod.Save then
+  if not FShedule.Save then
     Exit(False);
 
-  if not FShedule.Save then
-    Exit(False);    
+  if not FQuantity.Save then
+    Exit(False);
+
+  if not FPeriod.Save then
+    Exit(False);
 
   if ID <> -1 then
   begin
     updated_rows := UpdateRow.Update('name', FName)
-      .Update('period_id', FPeriod.ID)
+      .Update('quantity_id', FQuantity.ID).Update('period_id', FPeriod.ID)
       .Update('shedule_id', FShedule.ID).Get;
   end else 
   begin
     updated_rows := InsertRow.Value('name', FName)
-      .Value('period_id', FPeriod.ID)
+      .Value('quantity_id', FQuantity.ID).Value('period_id', FPeriod.ID)
       .Value('shedule_id', FShedule.ID).Get;
+    UpdateObjectID;
   end;
   UpdateObjectID;
 
   FGreaseBag.Entity := @Self;
-  if not FGreaseBag.Save then
-    Exit(False);
+  FGreaseBag.Save;
+
+  FNodeBag.Entity := @Self;
+  FNodeBag.Save;
 
   Result := (updated_rows > 0);
 end;

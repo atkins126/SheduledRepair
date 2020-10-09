@@ -120,8 +120,9 @@ begin
   
   Schema
     .Id
-    .Integer('node_id')
-    .Integer('object_id');
+    .Integer('node_id').NotNull
+    .Text('object_name').NotNull
+    .Integer('object_id').NotNull;
 
   if not FTable.Exists then
     FTable.New(Schema);
@@ -146,7 +147,8 @@ begin
   if (FObject = nil) or (FObject^.ID = -1) then
     Exit(False);
 
-  result_rows := FTable.Select.All.Where('object_id', FObject^.ID).Get;
+  result_rows := FTable.Select.All.Where('object_id', FObject^.ID)
+    .Where('object_name', FObject^.Table).Get;
   FNodeList.Clear;
 
   for row in result_rows do
@@ -176,17 +178,17 @@ begin
 
   for node in FNodeList do
   begin
-    if not node.Save then
-      continue;
-    {
+    node.Save;
+    
     updated_rows := UpdateRow.Update('node_id', node.ID)
-      .Where('object_id', FObject^.ID).Get;
+      .Where('object_id', FObject^.ID).Where('object_name', FObject^.Table)
+      .Where('node_id', node.ID).Get;
 
     if updated_rows > 0 then
       continue;
-    }
+    
     InsertRow.Value('node_id', node.ID)
-      .Value('object_id', FObject^.ID).Get;
+      .Value('object_id', FObject^.ID).Value('object_name', FObject^.Table).Get;
     UpdateObjectID;
   end;
 
@@ -201,14 +203,18 @@ begin
 
   if (FObject <> nil) and (FObject^.ID <> -1) then
   begin
+    if not ANode.Save then
+      Exit;
+
     updated_rows := UpdateRow.Update('node_id', ANode.ID)
-      .Where('object_id', FObject^.ID).Get;
+      .Where('object_id', FObject^.ID).Where('object_name', FObject^.Table)
+      .Where('node_id', ANode.ID).Get;
 
     if updated_rows > 0 then
       Exit;
 
     InsertRow.Value('node_id', ANode.ID)
-      .Value('object_id', FObject^.ID).Get;
+      .Value('object_id', FObject^.ID).Value('object_name', FObject^.Table).Get;
   end;
 end;
 
@@ -225,7 +231,8 @@ begin
     if (FObject <> nil) and (FObject^.ID <> -1) then
     begin
       FTable.Delete.Where('node_id', ANode.ID)
-        .Where('object_id', FObject^.ID).Get;
+        .Where('object_id', FObject^.ID).Where('object_name', FObject^.Table)
+        .Get;
     end;
   end;
 end;

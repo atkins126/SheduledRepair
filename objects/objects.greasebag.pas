@@ -121,8 +121,9 @@ begin
   
   Schema
     .Id
-    .Integer('greasebundle_id')
-    .Integer('object_id');
+    .Integer('greasebundle_id').NotNull
+    .Text('object_name').NotNull
+    .Integer('object_id').NotNull;
 
   if not FTable.Exists then
     FTable.New(Schema);
@@ -147,7 +148,8 @@ begin
   if (FObject = nil) or (FObject^.ID = -1) then
     Exit(False);
 
-  result_rows := FTable.Select.All.Where('object_id', FObject^.ID).Get;
+  result_rows := FTable.Select.All.Where('object_id', FObject^.ID)
+    .Where('object_name', FObject^.Table).Get;
   FGreaseBundleList.Clear;
 
   for row in result_rows do
@@ -180,15 +182,16 @@ begin
   begin
     if not GreaseBundle.Save then
       continue;
-    {
+    
     updated_rows := UpdateRow.Update('greasebundle_id', GreaseBundle.ID)
-      .Where('object_id', FObject^.ID).Get;
+      .Where('object_id', FObject^.ID).Where('object_name', FObject^.Table)
+      .Where('greasebundle_id', GreaseBundle.ID).Get;
 
     if updated_rows > 0 then
       continue;
-    }
+    
     InsertRow.Value('greasebundle_id', GreaseBundle.ID)
-      .Value('object_id', FObject^.ID).Get;
+      .Value('object_id', FObject^.ID).Value('object_name', FObject^.Table).Get;
     UpdateObjectID;
   end;
 
@@ -203,14 +206,18 @@ begin
 
   if (FObject <> nil) and (FObject^.ID <> -1) then
   begin
+    if not AGreaseBundle.Save then
+      Exit;
+
     updated_rows := UpdateRow.Update('greasebundle_id', AGreaseBundle.ID)
-      .Where('object_id', FObject^.ID).Get;
+      .Where('object_id', FObject^.ID).Where('object_name', FObject^.Table)
+      .Where('greasebundle_id', AGreaseBundle.ID).Get;
 
     if updated_rows > 0 then
       Exit;
 
     InsertRow.Value('greasebundle_id', AGreaseBundle.ID)
-      .Value('object_id', FObject^.ID).Get;
+      .Value('object_id', FObject^.ID).Value('object_name', FObject^.Table).Get;
   end;
 end;
 
@@ -227,7 +234,8 @@ begin
     if (FObject <> nil) and (FObject^.ID <> -1) then
     begin
       FTable.Delete.Where('greasebundle_id', AGreaseBundle.ID)
-        .Where('object_id', FObject^.ID).Get;
+        .Where('object_id', FObject^.ID).Where('object_name', FObject^.Table)
+        .Get;
     end;
   end;
 end;

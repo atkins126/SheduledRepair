@@ -5,9 +5,10 @@ program test;
 uses
   Interfaces, Forms, GuiTestRunner, fpcunittestrunner, SysUtils,
   sqlite3.database, quantity_testcase, objects.greasebundle, objects.quantity,
-  objects.period, objects.node, config_testcase, measure_testcase,
-  grade_testcase, supplier_testcase, grease_testcase, greasebundle_testcase,
-  period_testcase, shedule_testcase, node_testcase;
+  objects.period, objects.node, objects.entity, objects.shedule,
+  config_testcase, measure_testcase, grade_testcase, supplier_testcase,
+  grease_testcase, greasebundle_testcase, period_testcase, shedule_testcase,
+  node_testcase, entity_testcase, job_testcase;
 
 {$R *.res}
 
