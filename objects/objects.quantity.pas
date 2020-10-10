@@ -55,6 +55,9 @@ type
 
     { Save object to database. }
     function Save : Boolean; override;
+
+    { Delete object from database. }
+    function Delete : Boolean; override;
   protected
     FCount : Double;
     FMeasure : TMeasure;
@@ -108,6 +111,9 @@ function TQuantity.Load : Boolean;
 var
   row : TSQLite3Result.TRowIterator;
 begin
+  if ID = -1 then
+    Exit(False);
+
   row := GetRowIterator;
 
   if not row.HasRow then
@@ -132,6 +138,14 @@ begin
       .Value('measure_id', FMeasure.ID).Get > 0);
     UpdateObjectID;
   end;
+end;
+
+function TQuantity.Delete : Boolean;
+begin
+  if ID <> -1 then
+    Result := FMeasure.Delete and (DeleteRow.Get > 0)
+  else
+    Result := False;
 end;
 
 end.

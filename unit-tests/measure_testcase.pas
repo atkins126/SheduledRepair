@@ -12,6 +12,7 @@ type
   published
     procedure Test_Measure_CheckSchema;
     procedure Test_Measure_SaveAndLoad;
+    procedure Test_Measure_Delete;
   end;
 
 implementation
@@ -43,6 +44,31 @@ begin
   AssertTrue('Measure object load error', measure.Load);
   AssertTrue('Measure object ''ID'' is not correct error', measure.ID = id);
   AssertTrue('Measure object ''Name'' is not correct', measure.Name = 'pcs');
+
+  FreeAndNil(measure);
+end;
+
+procedure TMeasureTestCase.Test_Measure_Delete;
+var
+  measure : TMeasure;
+  id : Int64;
+begin
+  measure := TMeasure.Create(-1);
+  AssertTrue('Database table schema is not correct', measure.CheckSchema);
+
+  measure.Name := 'pcs';
+  AssertTrue('Object save error', measure.Save);
+  
+  id := measure.ID;
+  FreeAndNil(measure);
+
+  measure := TMeasure.Create(id);
+  AssertTrue('Measure object load error', measure.Load);
+  AssertTrue('Measure object ''ID'' is not correct error', measure.ID = id);
+  AssertTrue('Measure object ''Name'' is not correct', measure.Name = 'pcs');
+
+  AssertTrue('Measure object delete error', measure.Delete);
+  AssertTrue('Measure object impossible load', not measure.Load);
 
   FreeAndNil(measure);
 end;

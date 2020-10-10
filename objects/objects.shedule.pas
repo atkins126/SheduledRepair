@@ -54,6 +54,9 @@ type
 
     { Save object to database. }
     function Save : Boolean; override;
+
+    { Delete object from database. }
+    function Delete : Boolean; override;
   protected
     FPrevDate : TDate;
     FNextDate : TDate;
@@ -106,6 +109,9 @@ function TShedule.Load : Boolean;
 var
   row : TSQLite3Result.TRowIterator;
 begin
+  if ID = -1 then
+    Exit(False);
+
   row := GetRowIterator;
 
   if not row.HasRow then
@@ -128,6 +134,14 @@ begin
       .Value('next_date', DateToStr(FNextDate)).Get > 0);
     UpdateObjectID;
   end;
+end;
+
+function TShedule.Delete : Boolean;
+begin
+  if ID <> -1 then
+    Result := (DeleteRow.Get > 0)
+  else
+    Result := False;
 end;
 
 end.

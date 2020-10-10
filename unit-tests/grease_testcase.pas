@@ -13,6 +13,7 @@ type
   published
     procedure Test_Grease_CheckSchema;
     procedure Test_Grease_SaveAndLoad;
+    procedure Test_Grease_Delete;
   end;
 
 implementation
@@ -47,6 +48,34 @@ begin
     grease.Supplier.Name = 'MOBI');
   AssertTrue('Grease object ''Grade.Name'' is not correct', 
     grease.Grade.Name = 'GW700');
+
+  FreeAndNil(grease);
+end;
+
+procedure TGreaseTestCase.Test_Grease_Delete;
+var
+  grease : TGrease;
+  id : Int64;
+begin
+  grease := TGrease.Create(-1);
+  AssertTrue('Database table schema is not correct', grease.CheckSchema);
+
+  grease.Supplier.Name := 'MOBI';
+  grease.Grade.Name := 'GW700';
+  AssertTrue('Object save error', grease.Save);
+
+  id := grease.ID;
+  FreeAndNil(grease);
+
+  grease := TGrease.Create(id);
+  AssertTrue('Grease object load error', grease.Load);
+  AssertTrue('Grease object ''Supplier.Name'' is not correct error', 
+    grease.Supplier.Name = 'MOBI');
+  AssertTrue('Grease object ''Grade.Name'' is not correct', 
+    grease.Grade.Name = 'GW700');
+
+  AssertTrue('Grease object delete error', grease.Delete);
+  AssertTrue('Grease object impossible load', not grease.Load);
 
   FreeAndNil(grease);
 end;

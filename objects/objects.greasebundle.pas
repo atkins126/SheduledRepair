@@ -55,6 +55,9 @@ type
 
     { Save object to database. }
     function Save : Boolean; override;
+
+    { Delete object from database. }
+    function Delete : Boolean; override;
   protected
     FGrease : TGrease;
     FQuantity : TQuantity;
@@ -110,6 +113,9 @@ function TGreaseBundle.Load : Boolean;
 var
   row : TSQLite3Result.TRowIterator;
 begin
+  if ID = -1 then
+    Exit(False);
+
   row := GetRowIterator;
 
   if not row.HasRow then
@@ -137,6 +143,14 @@ begin
       .Value('grease_id', FGrease.ID).Get > 0);
     UpdateObjectID;
   end;
+end;
+
+function TGreaseBundle.Delete : Boolean;
+begin
+  if ID <> -1 then
+    Result := FGrease.Delete and FQuantity.Delete and (DeleteRow.Get > 0)
+  else
+    Result := False;
 end;
 
 end.

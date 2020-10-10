@@ -56,6 +56,9 @@ type
     { Save object to database. }
     function Save : Boolean; override;
 
+    { Delete object from database. }
+    function Delete : Boolean; override;
+
     { Add new grease bundle to current bag. }
     procedure Append (AGreaseBundle : TGreaseBundle);
 
@@ -195,6 +198,21 @@ begin
   end;
 
   Result := True;
+end;
+
+function TGreaseBag.Delete : Boolean;
+var
+  GreaseBundle : TGreaseBundle;
+begin
+  if (FObject = nil) or (ID = -1) then
+    Exit(False);
+
+  for GreaseBundle in FGreaseBundleList do
+  begin
+    GreaseBundle.Delete;
+  end; 
+
+  Result := (DeleteRow.Get > 0);
 end;
 
 procedure TGreaseBag.Append (AGreaseBundle : TGreaseBundle);

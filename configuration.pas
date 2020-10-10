@@ -58,6 +58,9 @@ type
     { Save object to database. }
     function Save : Boolean; override;
 
+    { Delete object from database. }
+    function Delete : Boolean; override;
+
     { Get config value. }
     function GetValue (AKey : String; ADefault : String) : String; overload; 
     function GetValue (AKey : String; ADefault : Integer) : Integer; overload;
@@ -168,6 +171,11 @@ begin
 end;
 
 function TConfig.Save : Boolean;
+begin
+  Result := True;
+end;
+
+function TConfig.Delete : Boolean;
 begin
   Result := True;
 end;

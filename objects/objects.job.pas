@@ -55,6 +55,9 @@ type
 
     { Save object to database. }
     function Save : Boolean; override;
+
+    { Delete object from database. }
+    function Delete : Boolean; override;
   protected
     FName : String;
     FEntity : TEntity;
@@ -118,6 +121,9 @@ function TJob.Load : Boolean;
 var
   row : TSQLite3Result.TRowIterator;
 begin
+  if ID = -1 then
+    Exit(False);
+
   row := GetRowIterator;
 
   if not row.HasRow then
@@ -152,6 +158,15 @@ begin
       .Value('shedule_id', FShedule.ID).Get > 0);
     UpdateObjectID;
   end;
+end;
+
+function TJob.Delete : Boolean;
+begin
+  if ID <> -1 then
+    Result := FEntity.Delete and FPeriod.Delete and FShedule.Delete and
+      (DeleteRow.Get > 0)
+  else
+    Result := False;
 end;
 
 end.

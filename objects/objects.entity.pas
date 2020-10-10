@@ -56,6 +56,9 @@ type
 
     { Save object to database. }
     function Save : Boolean; override;
+
+    { Delete object from database. }
+    function Delete : Boolean; override;
   protected
     FName : String;
     FGreaseBag : TGreaseBag;
@@ -129,6 +132,9 @@ function TEntity.Load : Boolean;
 var
   row : TSQLite3Result.TRowIterator;
 begin
+  if ID = -1 then
+    Exit(False);
+
   row := GetRowIterator;
 
   if not row.HasRow then
@@ -178,6 +184,15 @@ begin
   FNodeBag.Save;
 
   Result := (updated_rows > 0);
+end;
+
+function TEntity.Delete : Boolean;
+begin
+  if ID <> -1 then
+    Result := FShedule.Delete and FQuantity.Delete and FPeriod.Delete and
+      (DeleteRow.Get > 0)
+  else
+    Result := False;
 end;
 
 end.

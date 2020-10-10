@@ -33,7 +33,7 @@ interface
 
 uses
   SysUtils, database, sqlite3.table, sqlite3.insert, sqlite3.update, 
-  sqlite3.result;
+  sqlite3.delete, sqlite3.result;
 
 type
   PCommonObject = ^TCommonObject;
@@ -57,6 +57,9 @@ type
     { Save object to database. }
     function Save : Boolean; virtual; abstract;
 
+    { Delete object from database. }
+    function Delete : Boolean; virtual; abstract;
+
     { Return object ID. }
     function ID : Int64;
   protected
@@ -68,6 +71,9 @@ type
 
     { Return TSQLite3Update for current object. }
     function UpdateRow : TSQLite3Update;
+
+    { Return TSQLite3Delete for current object. }
+    function DeleteRow : TSQLite3Delete;
 
     { Update object ID. }
     procedure UpdateObjectID;
@@ -116,6 +122,11 @@ end;
 function TCommonObject.UpdateRow : TSQLite3Update;
 begin
   Result := FTable.Update.Where('id', ID);
+end;
+
+function TCommonObject.DeleteRow : TSQLite3Delete;
+begin
+  Result := FTable.Delete.Where('id', ID);
 end;
 
 procedure TCommonObject.UpdateObjectID;

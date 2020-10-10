@@ -56,6 +56,9 @@ type
     { Save object to database. }
     function Save : Boolean; override;
 
+    { Delete object from database. }
+    function Delete : Boolean; override;
+
     { Add new grease bundle to current bag. }
     procedure Append (ANode : TNode);
 
@@ -193,6 +196,21 @@ begin
   end;
 
   Result := True;
+end;
+
+function TNodeBag.Delete : Boolean;
+var
+  node : TNode;
+begin
+  if (FObject = nil) or (ID = -1) then
+    Exit(False);
+
+  for node in FNodeList do
+  begin
+    node.Delete;
+  end;  
+
+  Result := (DeleteRow.Get > 0);
 end;
 
 procedure TNodeBag.Append (ANode : TNode);

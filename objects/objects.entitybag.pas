@@ -56,6 +56,9 @@ type
     { Save object to database. }
     function Save : Boolean; override;
 
+    { Delete object from database. }
+    function Delete : Boolean; override;
+
     { Add new grease bundle to current bag. }
     procedure Append (AEntity : TEntity);
 
@@ -194,6 +197,21 @@ begin
   end;
 
   Result := True;
+end;
+
+function TEntityBag.Delete : Boolean;
+var
+  Ent : TEntity;
+begin
+  if (FObject = nil) or (ID = -1) then
+    Exit(False);
+
+  for Ent in FEntityList do
+  begin
+    Ent.Delete;
+  end;
+
+  Result := (DeleteRow.Get > 0);
 end;
 
 procedure TEntityBag.Append (AEntity : TEntity);
