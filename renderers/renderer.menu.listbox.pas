@@ -43,21 +43,20 @@ type
     type
       TMenuSide = (MENU_LEFT, MENU_RIGHT);
   public
-    constructor Create (AListBox : PCustomListBox; AActiveImageList : 
-      PCustomImageList; AGreyImageList : PCustomImageList);
+    constructor Create (AListBox : PCustomListBox; AImageList : 
+      PCustomImageList);
   protected
     procedure DrawItem (ACanvas : TCanvas; AIndex : Integer; ARect : TRect;
       AState : TOwnerDrawState); override;
   private
-    FListBox : PCustomListBox;
-    FActiveImageList : PCustomImageList;
-    FGreyImageList : PCustomImageList;
-
+    FImageList : PCustomImageList;
     FMenuSide : TMenuSide;
+    FMenuHover : Boolean;
 
     procedure SetMenuSide (ASide : TMenuSide);
   public
     property MenuSide : TMenuSide read FMenuSide write SetMenuSide;
+    property MenuHover : Boolean read FMenuHover write FMenuHover;
   end;
 
 implementation
@@ -65,23 +64,29 @@ implementation
 { TMenuListBoxRenderer }
 
 constructor TMenuListBoxRenderer.Create (AListBox : PCustomListBox; 
-  AActiveImageList : PCustomImageList; AGreyImageList : PCustomImageList);
+  AImageList : PCustomImageList);
+var
+ i : Integer;
 begin
   inherited Create(AListBox);
-  FListBox := AListBox;  
-  FListBox^.Options := [];
-  FActiveImageList := AActiveImageList;
-  FGreyImageList := AGreyImageList;
+  AListBox^.Options := [];
+  FImageList := AImageList;
   
+  AListBox^.Items.Clear;
+  for i := 0 to (AImageList^.Count div 2) - 1 do
+  begin
+    AListBox^.Items.Add(IntToStr(i));
+  end;
+
   FMenuSide := MENU_LEFT;
-  ItemHeight := FActiveImageList^.Height + 20;
-  ItemWidth := FActiveImageList^.Width + 30;
+  FMenuHover := False;
+  ItemHeight := FImageList^.Height + 20;
+  ItemWidth := FImageList^.Width + 30;
 end;
 
 procedure TMenuListBoxRenderer.SetMenuSide (ASide : TMenuSide);
 begin
   FMenuSide := ASide;
-  FListBox^.Update;
 end;
 
 procedure TMenuListBoxRenderer.DrawItem (ACanvas : TCanvas; AIndex : Integer;
@@ -100,7 +105,7 @@ begin
   case FMenuSide of
     MENU_LEFT :
       begin
-        if odSelected in AState then
+        if (odSelected in AState) or (FMenuHover and (ItemHover = AIndex)) then
         begin
           ACanvas.Brush.Color := clMenuBar;
           ACanvas.RoundRect(ARect.Left, ARect.Top, ARect.Left + 10,
@@ -112,16 +117,18 @@ begin
             ARect.Bottom - 1);
         end;
 
-        if (odBackgroundPainted in AState) and (odSelected in AState) then
+        if ((odBackgroundPainted in AState) and (odSelected in AState)) or
+           ((FMenuHover and (ItemHover = AIndex))) then
         begin
-          FActiveImageList^.Draw(ACanvas, ARect.Left + 20, ARect.Top + 10,
-            AIndex);
+          FImageList^.Draw(ACanvas, ARect.Left + 20, ARect.Top + 10,
+            AIndex * 2 + 1);
         end;
 
-        if (odBackgroundPainted in AState) and not (odSelected in AState) then
+        if ((odBackgroundPainted in AState) and not (odSelected in AState)) or
+           ((FMenuHover and (ItemHover <> AIndex))) then
         begin
-          FGreyImageList^.Draw(ACanvas, ARect.Left + 20, ARect.Top + 10,
-            AIndex);
+          FImageList^.Draw(ACanvas, ARect.Left + 20, ARect.Top + 10,
+            AIndex * 2);
         end;
       end;
     MENU_RIGHT :
@@ -140,14 +147,14 @@ begin
 
         if (odBackgroundPainted in AState) and (odSelected in AState) then
         begin
-          FActiveImageList^.Draw(ACanvas, ARect.Left + 10, ARect.Top + 10,
-            AIndex);
+          FImageList^.Draw(ACanvas, ARect.Left + 10, ARect.Top + 10,
+            AIndex * 2 + 1);
         end;
 
         if (odBackgroundPainted in AState) and not (odSelected in AState) then
         begin
-          FGreyImageList^.Draw(ACanvas, ARect.Left + 10, ARect.Top + 10,
-            AIndex);
+          FImageList^.Draw(ACanvas, ARect.Left + 10, ARect.Top + 10,
+            AIndex * 2);
         end;
       end;
   end;

@@ -32,7 +32,7 @@ unit renderer.common.listbox;
 interface
 
 uses
-  SysUtils, StdCtrls, Controls, Graphics, Types;
+  SysUtils, Classes, StdCtrls, Controls, Graphics, Types, Math;
 
 type
   PCustomListBox = ^TCustomListBox;  
@@ -43,22 +43,27 @@ type
   protected
     procedure DrawItem (ACanvas : TCanvas; AIndex : Integer; ARect : TRect;
       AState : TOwnerDrawState); virtual; abstract;
-    function DrawItemHeight (AIndex : Integer) : Integer; virtual;  
+    function DrawItemHeight ({%H-}AIndex : Integer) : Integer; virtual;
   private
     procedure OnDrawItem(AControl: TWinControl; AIndex: Integer;
       ARect: TRect; AState: TOwnerDrawState);
-    procedure OnMeasureItem (AControl: TWinControl; AIndex: Integer;
+    procedure OnMeasureItem ({%H-}AControl: TWinControl; AIndex: Integer;
         var AHeight: Integer);
+    procedure OnMouseMove(Sender: TObject; {%H-}Shift: TShiftState; {%H-}X,
+      Y: Integer);
+    procedure OnMouseLeave(Sender: TObject);
   private
     FListBox : PCustomListBox;
     FItemHeight : Integer;
     FItemWidth : Integer;
+    FItemHover : Integer;
 
     procedure SetItemHeight (AHeight : Integer);
     procedure SetItemWidth (AWidth : Integer);
   public
     property ItemHeight : Integer read FItemHeight write SetItemHeight;
     property ItemWidth : Integer read FItemWidth write SetItemWidth;
+    property ItemHover : Integer read FItemHover;
   end;
 
 implementation
@@ -68,6 +73,7 @@ implementation
 constructor TCommonListBoxRenderer.Create (AListBox : PCustomListBox);
 begin
   FItemHeight := 50;
+  FItemHover := -1;
   FListBox := AListBox;
   with FListBox^ do
   begin
@@ -75,6 +81,8 @@ begin
     Style := TListBoxStyle.lbVirtual;
     OnDrawItem := TDrawItemEvent(@Self.OnDrawItem);
     OnMeasureItem := @Self.OnMeasureItem;
+    OnMouseMove := @Self.OnMouseMove;
+    OnMouseLeave := @Self.OnMouseLeave;
     ItemHeight := FItemHeight;
     ScrollWidth := 0;
   end;
@@ -91,6 +99,19 @@ procedure TCommonListBoxRenderer.OnMeasureItem(AControl: TWinControl; AIndex:
   Integer; var AHeight: Integer);
 begin
   AHeight := DrawItemHeight(AIndex);
+end;
+
+procedure TCommonListBoxRenderer.OnMouseMove(Sender: TObject; Shift:
+  TShiftState; X, Y: Integer);
+begin
+  FItemHover := Y div (FItemHeight + 6);
+  FListBox^.Refresh;
+end;
+
+procedure TCommonListBoxRenderer.OnMouseLeave(Sender: TObject);
+begin
+  FItemHover := -1;
+  FListBox^.Refresh;
 end;
 
 function TCommonListBoxRenderer.DrawItemHeight (AIndex : Integer) : Integer;
