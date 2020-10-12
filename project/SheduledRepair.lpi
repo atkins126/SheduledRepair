@@ -30,7 +30,7 @@
         <PackageName Value="LCL"/>
       </Item1>
     </RequiredPackages>
-    <Units Count="9">
+    <Units Count="6">
       <Unit0>
         <Filename Value="SheduledRepair.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -48,29 +48,17 @@
         <IsPartOfProject Value="True"/>
       </Unit2>
       <Unit3>
-        <Filename Value="../renderers/renderer.menu.listbox.pas"/>
+        <Filename Value="../renderers/renderer.common.stringgrid.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit3>
       <Unit4>
-        <Filename Value="../renderers/renderer.common.stringgrid.pas"/>
+        <Filename Value="../pascalutils/source/utils.functor.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit4>
       <Unit5>
-        <Filename Value="../renderers/renderer.menu.stringgrid.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit5>
-      <Unit6>
-        <Filename Value="../renderers/renderer.toolbar.stringgrid.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit6>
-      <Unit7>
-        <Filename Value="../pascalutils/source/utils.functor.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit7>
-      <Unit8>
         <Filename Value="../libpasc-algorithms/source/container.arraylist.pas"/>
         <IsPartOfProject Value="True"/>
-      </Unit8>
+      </Unit5>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

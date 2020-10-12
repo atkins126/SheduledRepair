@@ -1,25 +1,19 @@
 unit MainForm;
 
 {$mode objfpc}{$H+}
-
 interface
 
 uses
-  Classes, SysUtils, Forms, Controls, StdCtrls, LCLType, Grids, ExtCtrls,
-  renderer.menu.listbox, Types, Graphics, renderer.toolbar.stringgrid;
+  Classes, SysUtils, Forms, Controls, StdCtrls, LCLType, ExtCtrls, Graphics,
+  Grids, Menus;
 
 type
 
   { TMainWindow }
 
   TMainWindow = class(TForm)
-    MenuList: TListBox;
-    MenuIcons: TImageList;
-    ToolBarGrid: TStringGrid;
-    procedure FormCreate(Sender: TObject);
-  private
-    FMenuListBoxRenderer : TMenuListBoxRenderer;
-    FToolbarRenderer : TToolbarStringGridRenderer;
+    MenuGrid: TStringGrid;
+    ContentGrid: TStringGrid;
   public
 
   end;
@@ -33,13 +27,6 @@ implementation
 
 { TMainWindow }
 
-procedure TMainWindow.FormCreate(Sender: TObject);
-begin
-  FMenuListBoxRenderer := TMenuListBoxRenderer.Create(@MenuList,
-    @MenuIcons);
-  FToolbarRenderer := TToolbarStringGridRenderer.Create(@ToolBarGrid);
-  FToolbarRenderer.Append(TMenuHeaderItem.Create);
-end;
 
 end.
 
