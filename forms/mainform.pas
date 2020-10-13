@@ -5,7 +5,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, StdCtrls, LCLType, ExtCtrls, Graphics,
-  Grids, Menus;
+  Grids, Menus, dataproviders.measure;
 
 type
 
@@ -26,7 +26,6 @@ implementation
 {$R *.lfm}
 
 { TMainWindow }
-
 
 end.
 

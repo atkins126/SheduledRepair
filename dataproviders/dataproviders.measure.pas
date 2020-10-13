@@ -22,7 +22,7 @@
 (* Floor, Boston, MA 02110-1335, USA.                                         *)
 (*                                                                            *)
 (******************************************************************************)
-unit renderer.common.stringgrid;
+unit dataproviders.measure;
 
 {$mode objfpc}{$H+}
 {$IFOPT D+}
@@ -32,44 +32,35 @@ unit renderer.common.stringgrid;
 interface
 
 uses
-  SysUtils, Classes, StdCtrls, Controls, Graphics, Types, Math, Grids,
-  renderer.objects.common;
+  SysUtils, dataproviders.common, objects.common, objects.measure;
 
 type
-  PCustomStringGrid = ^TCustomStringGrid;  
-
-  TCommonStringGridRenderer = class
+  PMeasureDataProvider = ^TMeasureDataProvider;
+  TMeasureDataProvider = class(specialize TCommonDataProvider<TMeasure>)
   public
-    constructor Create (AStringGrid : PCustomStringGrid; ARenderer :
-      PObjectCommonRenderer);
-
-  private
-    FStringGrid : PCustomStringGrid;
-    FRenderer : PObjectCommonRenderer;    
+    function Load : Boolean; override;
+    
   protected
-    property StringGrid : PCustomStringGrid read FStringGrid;
-    property Renderer : PObjectCommonRenderer read FRenderer;
+    function OpenEditor (AObject : TCommonObject) : Boolean; override;
   end;
 
 implementation
 
-{ TCommonStringGridRenderer }
+{ TMeasureDataProvider }
 
-constructor TCommonStringGridRenderer.Create (AStringGrid : PCustomStringGrid;
-  ARenderer : PObjectCommonRenderer);
+function TMeasureDataProvider.Load : Boolean;
+var
+  MeasureItem : TMeasure;
 begin
-  FStringGrid := AStringGrid;
-  FRenderer := ARenderer;
-
-  with FStringGrid^ do
-  begin
-    DefaultDrawing := False;
-    ExtendedSelect := False;
-    FixedCols := 0;
-    FixedRows := 0;
-    Options := [goSmoothScroll];
-  end;
+  MeasureItem := TMeasure.Create(-1);
+  Result := LoadObjects(MeasureItem.Table);
+  FreeAndNil(MeasureItem);
 end;
 
+function TMeasureDataProvider.OpenEditor (AObject : TCommonObject) :
+  Boolean;
+begin
+  Result := False;
+end;
 
 end.

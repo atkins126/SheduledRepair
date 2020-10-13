@@ -22,7 +22,7 @@
 (* Floor, Boston, MA 02110-1335, USA.                                         *)
 (*                                                                            *)
 (******************************************************************************)
-unit renderer.common.stringgrid;
+unit renderer.objects.common;
 
 {$mode objfpc}{$H+}
 {$IFOPT D+}
@@ -32,44 +32,18 @@ unit renderer.common.stringgrid;
 interface
 
 uses
-  SysUtils, Classes, StdCtrls, Controls, Graphics, Types, Math, Grids,
-  renderer.objects.common;
+  dataproviders.common, objects.common;
 
 type
-  PCustomStringGrid = ^TCustomStringGrid;  
-
-  TCommonStringGridRenderer = class
+  generic TCommonRenderer<T> = class
   public
-    constructor Create (AStringGrid : PCustomStringGrid; ARenderer :
-      PObjectCommonRenderer);
-
-  private
-    FStringGrid : PCustomStringGrid;
-    FRenderer : PObjectCommonRenderer;    
-  protected
-    property StringGrid : PCustomStringGrid read FStringGrid;
-    property Renderer : PObjectCommonRenderer read FRenderer;
+    
   end;
 
 implementation
 
-{ TCommonStringGridRenderer }
+{ TCommonRenderer }
 
-constructor TCommonStringGridRenderer.Create (AStringGrid : PCustomStringGrid;
-  ARenderer : PObjectCommonRenderer);
-begin
-  FStringGrid := AStringGrid;
-  FRenderer := ARenderer;
-
-  with FStringGrid^ do
-  begin
-    DefaultDrawing := False;
-    ExtendedSelect := False;
-    FixedCols := 0;
-    FixedRows := 0;
-    Options := [goSmoothScroll];
-  end;
-end;
 
 
 end.

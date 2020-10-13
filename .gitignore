@@ -81,3 +81,4 @@ unit-tests/test.fpcunit.ini
 unit-tests/test
 project/SheduledRepair
 project/SheduledRepair.ico
+project/database.db
