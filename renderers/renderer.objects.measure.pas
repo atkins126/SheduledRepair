@@ -22,7 +22,7 @@
 (* Floor, Boston, MA 02110-1335, USA.                                         *)
 (*                                                                            *)
 (******************************************************************************)
-unit renderer.objects.common;
+unit renderer.objects.measure;
 
 {$mode objfpc}{$H+}
 {$IFOPT D+}
@@ -32,25 +32,17 @@ unit renderer.objects.common;
 interface
 
 uses
-  dataproviders.common, objects.common, configuration, Graphics, BGRABitmap,
-  BGRABitmapTypes;
+  renderer.objects.common, objects.measure, BGRABitmap, BGRABitmapTypes,
+  Graphics;
 
 type
-  PBGRABitmap = ^TBGRABitmap;
-
-  generic TCommonRenderer<T> = class
-  public
-    type
-      
-  private
-    
-  public
-    
+  TMeasureRenderer = class(specialize TCommonRenderer<TMeasure>)
+  
   end;
 
 implementation
 
-{ TCommonRenderer }
+{ TMeasureRenderer }
 
 
 end.

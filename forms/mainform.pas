@@ -5,7 +5,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, StdCtrls, LCLType, ExtCtrls, Graphics,
-  Grids, Menus, dataproviders.measure;
+  Grids, Menus, renderer.objects.measure, configuration;
 
 type
 
@@ -14,6 +14,7 @@ type
   TMainWindow = class(TForm)
     MenuGrid: TStringGrid;
     ContentGrid: TStringGrid;
+    procedure FormCreate(Sender: TObject);
   public
 
   end;
@@ -26,6 +27,16 @@ implementation
 {$R *.lfm}
 
 { TMainWindow }
+
+procedure TMainWindow.FormCreate(Sender: TObject);
+var
+  r : TMeasureRenderer;
+begin
+  Config.CheckSchema;
+  r := TMeasureRenderer.Create;
+  r.LoadSettings;
+  r.SaveSettings;
+end;
 
 end.
 
