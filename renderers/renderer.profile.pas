@@ -32,7 +32,9 @@ unit renderer.profile;
 interface
 
 uses
-  objects.common, Graphics, BGRABitmap, BGRABitmapTypes, container.arraylist;
+  SysUtils, objects.common, Graphics, BGRABitmap, BGRABitmapTypes,
+  container.arraylist, utils.functor, sqlite3.schema, sqlite3.result,
+  sqlite3.result_row, renderer.profileitem, sqlite3.table, database;
 
 type
   TRendererProfile = class(TCommonObject)
@@ -47,48 +49,23 @@ type
         BORDER_SQUARE_ROUND_CORNER
       );
 
-      TMargin = record
+      TMargin = class
         Top, Left, Bottom, Right : Integer;
       end;
 
-      TPadding = record
+      TPadding = class
         Top, Left, Bottom, Right : Integer;
       end;
 
-      TBackgroundFillType = (
-        FILL_NONE,
-        FILL_SQUARE,
-        FILL_SQUARE_ROUND_CORNER
-      );
-
-      TPositionType = (
-        POSITION_FIXED,
-        POSITION_FLOAT  
-      );  
-  
-      TPosition = record
-        Top, Left, Botom, Right : Integer;
-      end;
-
-      TItem = record
-        Name : String;
-        Background : TBGRAPixel;
-        BackgroundFill : TBackgroundFillType;
-        BackgroundRoundRadius : Integer;
-        FontName : String;
-        FontSize : Integer;
-        FontColor : TBGRAPixel;
-        Padding : TPadding;
-        PositionType : TPositionType;
-        Position : TPosition;
-      end; 
-
-      TItemCompareFunctor = class(specialize TBinaryFunctor<TItem, Integer)
+      TItemCompareFunctor = class
+        (specialize TBinaryFunctor<TRendererProfileItem, Integer>)
       public
-        function Call (AValue1, AValue2 : TItem) : Integer; override;
+        function Call (AValue1, AValue2 : TRendererProfileItem) : Integer; 
+          override;
       end;
 
-      TItemsList = class(specialize TArrayList<TItem, TItemCompareFunctor>);
+      TItemsList = class
+        (specialize TArrayList<TRendererProfileItem, TItemCompareFunctor>);
   public
     constructor Create (AID : Int64); override;
     destructor Destroy; override;
@@ -116,8 +93,8 @@ type
     FBackground : TBGRAPixel;
     FItemsList : TItemsList;
 
-    function GetItem (AName : String) : TItem;
-    procedure SetItem (AName : String; AValue : TItem);
+    function GetItem (AName : String) : TRendererProfileItem;
+    procedure SetItem (AName : String; AValue : TRendererProfileItem);
   public
     property BorderType : TBorderType read FBorderType write FBorderType;
     property Border : Integer read FBorder write FBorder;
@@ -125,7 +102,8 @@ type
     property BorderColor : TBGRAPixel read FBorderColor write FBorderColor;
     property BorderMargin : TMargin read FBorderMargin write FBorderMargin;
     property Background : TBGRAPixel read FBackground write FBackground;
-    property Items[Name : String] : TItem read GetItem write SetItem;
+    property Items[Name : String] : TRendererProfileItem read GetItem
+      write SetItem;
   end;
 
 implementation
@@ -133,7 +111,7 @@ implementation
 { TRendererProfile.TItemCompareFunctor }
 
 function TRendererProfile.TItemCompareFunctor.Call (AValue1, AValue2 :
-  TItem) : Integer;
+  TRendererProfileItem) : Integer;
 begin
   if AValue1.Name < AValue2.Name then
     Result := -1
@@ -150,6 +128,7 @@ begin
   FBorder := 0;
   FBorderRadius := 0;
   FBorderColor := BGRA(0, 0, 0, 255);
+  FBorderMargin := TMargin.Create;
   FBorderMargin.Top := 0;
   FBorderMargin.Left := 0;
   FBorderMargin.Bottom := 0;
@@ -161,14 +140,58 @@ end;
 destructor TRendererProfile.Destroy;
 begin
   FreeAndNil(FItemsList);
+  FreeAndNil(FBorderMargin);
   inherited Destroy;
+end;
+
+function TRendererProfile.GetItem (AName : String) : TRendererProfileItem;
+var
+  item : TRendererProfileItem;
+begin
+  for item in FItemsList do
+  begin
+    if item.Name = AName then
+      Exit(item);
+  end;  
+
+  FItemsList.Append(TRendererProfileItem.Create(-1));
+  FItemsList.LastEntry.Value.Name := AName;
+  Result := FItemsList.LastEntry.Value;
+end;
+
+procedure TRendererProfile.SetItem (AName : String; AValue :
+  TRendererProfileItem);
+var
+  item : TRendererProfileItem;
+begin
+  for item in FItemsList do
+  begin
+    if item.Name = AName then
+    begin
+      item.Background := AValue.Background;
+      item.BackgroundFillType := AValue.BackgroundFillType;
+      item.BackgroundRoundRadius := AValue.BackgroundRoundRadius;
+      item.FontName := AValue.FontName;
+      item.FontSize := AValue.FontSize;
+      item.FontColor := AValue.FontColor;
+      item.Padding := AValue.Padding;
+      item.PositionType := AValue.PositionType;
+      item.Position := AValue.Position;
+      Exit;
+    end;  
+  end;
+
+  FItemsList.Append(TRendererProfileItem.Create(-1));
+  FItemsList.LastEntry.Value.Name := AName;
 end;
 
 function TRendererProfile.CheckSchema : Boolean;
 var
   Schema : TSQLite3Schema;
+  Item : TRendererProfileItem;
 begin
   Schema := TSQLite3Schema.Create;
+  Item := TRendererProfileItem.Create(-1);
   
   Schema
     .Id
@@ -185,8 +208,9 @@ begin
   if not FTable.Exists then
     FTable.New(Schema);
 
-  Result := FTable.CheckSchema(Schema);  
+  Result := FTable.CheckSchema(Schema) and Item.CheckSchema;  
 
+  FreeAndNil(Item);
   FreeAndNil(Schema);
 end;
 
@@ -197,7 +221,11 @@ end;
 
 function TRendererProfile.Load : Boolean;
 var
+  result_row : TSQLite3Result;
+  item_row : TSQLite3ResultRow;
   row : TSQLite3Result.TRowIterator;
+  item : TRendererProfileItem;
+  items_table : TSQLite3Table;
 begin
   if ID = -1 then
     Exit(False);
@@ -216,9 +244,66 @@ begin
   FBorderMargin.Bottom := row.Row.GetIntegerValue('border_margin_bottom');
   FBorderMargin.Right := row.Row.GetIntegerValue('border_margin_right');
   FBackground := StrToBGRA(row.Row.GetStringValue('background'));
+
+  item := TRendererProfileItem.Create(-1);
+  items_table := TSQLite3Table.Create(DB.Errors, DB.Handle, item.Table);
+  result_row := items_table.Select.Field('id').Where('profile_id', ID).Get;
+  FItemsList.Clear;
+
+  for item_row in result_row do
+  begin
+    item := TRendererProfileItem.Create(item_row.GetIntegerValue('id'));
+
+    if item.Load then
+      FItemsList.Append(item);    
+  end;
+
   Result := True;
 end;
 
+function TRendererProfile.Save : Boolean;
+var
+  item : TRendererProfileItem;
+begin
+  if ID <> -1 then
+  begin
+    Result := (UpdateRow.Update('border_type', Integer(FBorderType))
+      .Update('border', FBorder).Update('border_radius', FBorderRadius)
+      .Update('border_color', BGRAToStr(FBorderColor))
+      .Update('border_margin_top', FBorderMargin.Top)
+      .Update('border_margin_left', FBorderMargin.Left)
+      .Update('border_margin_bottom', FBorderMargin.Bottom)
+      .Update('border_margin_right', FBorderMargin.Right)
+      .Update('background', BGRAToStr(FBackground)).Get > 0);
+  end else
+  begin
+    Result := (InsertRow.Value('border_type', Integer(FBorderType))
+      .Value('border', FBorder).Value('border_radius', FBorderRadius)
+      .Value('border_color', BGRAToStr(FBorderColor))
+      .Value('border_margin_top', FBorderMargin.Top)
+      .Value('border_margin_left', FBorderMargin.Left)
+      .Value('border_margin_bottom', FBorderMargin.Bottom)
+      .Value('border_margin_right', FBorderMargin.Right)
+      .Value('background', BGRAToStr(FBackground)).Get > 0);
+      UpdateObjectID;
+  end;
 
+  if not FItemsList.FirstEntry.HasValue then
+    Exit;
+
+  for item in FItemsList do
+  begin
+    item.Profile := @Self;
+    item.Save;
+  end;
+end;
+
+function TRendererProfile.Delete : Boolean;
+begin
+  if ID <> -1 then
+    Result := (DeleteRow.Get > 0)
+  else
+    Result := False;
+end;
 
 end.
