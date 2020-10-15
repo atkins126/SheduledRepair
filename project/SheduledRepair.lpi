@@ -66,64 +66,68 @@
         <IsPartOfProject Value="True"/>
       </Unit5>
       <Unit6>
-        <Filename Value="../dataproviders/dataproviders.configuration.pas"/>
+        <Filename Value="../dataproviders/dataproviders.measure.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit6>
       <Unit7>
-        <Filename Value="../dataproviders/dataproviders.measure.pas"/>
+        <Filename Value="../database.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit7>
       <Unit8>
-        <Filename Value="../database.pas"/>
+        <Filename Value="../libpassqlite/source/libpassqlite.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit8>
       <Unit9>
-        <Filename Value="../libpassqlite/source/libpassqlite.pas"/>
+        <Filename Value="../libpassqlite/source/sqlite3/sqlite3.errors_stack.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit9>
       <Unit10>
-        <Filename Value="../libpassqlite/source/sqlite3/sqlite3.errors_stack.pas"/>
+        <Filename Value="../libpassqlite/source/builder/sqlite3.table.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit10>
       <Unit11>
-        <Filename Value="../libpassqlite/source/builder/sqlite3.table.pas"/>
+        <Filename Value="../objects/objects.measure.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit11>
       <Unit12>
-        <Filename Value="../objects/objects.measure.pas"/>
+        <Filename Value="../renderers/renderer.objects.common.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit12>
       <Unit13>
-        <Filename Value="../renderers/renderer.objects.common.pas"/>
+        <Filename Value="../renderers/renderer.objects.measure.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit13>
       <Unit14>
-        <Filename Value="../renderers/renderer.objects.measure.pas"/>
+        <Filename Value="../configuration.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit14>
       <Unit15>
-        <Filename Value="../configuration.pas"/>
+        <Filename Value="../renderers/renderer.objectprofile.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit15>
       <Unit16>
-        <Filename Value="../renderers/renderer.objectprofile.pas"/>
+        <Filename Value="../renderers/renderer.profile.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit16>
       <Unit17>
-        <Filename Value="../renderers/renderer.profile.pas"/>
+        <Filename Value="../renderers/renderer.profileitem.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit17>
       <Unit18>
-        <Filename Value="../renderers/renderer.profileitem.pas"/>
+        <Filename Value="../rules/rules.chain.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit18>
       <Unit19>
-        <Filename Value="../rules/rules.chain.pas"/>
+        <Filename Value="../rules/rules.rule.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit19>
       <Unit20>
-        <Filename Value="../rules/rules.rule.pas"/>
+        <Filename Value="../forms/editors/measureeditor.pas"/>
         <IsPartOfProject Value="True"/>
+        <ComponentName Value="MeasureEditorForm"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="MeasureEditor"/>
       </Unit20>
     </Units>
   </ProjectOptions>
@@ -134,7 +138,7 @@
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="../forms;../renderers;../pascalutils/source;../libpasc-algorithms/source;../dataproviders;..;../libpassqlite/source;../libpassqlite/source/sqlite3;../libpassqlite/source/builder;../objects;../rules"/>
+      <OtherUnitFiles Value="../forms;../renderers;../pascalutils/source;../libpasc-algorithms/source;../dataproviders;..;../libpassqlite/source;../libpassqlite/source/sqlite3;../libpassqlite/source/builder;../objects;../rules;../forms/editors"/>
       <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Linking>

@@ -44,7 +44,7 @@ type
     function Load : Boolean; virtual; abstract;
     function Count : Integer;
 
-    function CreateObject : Boolean;
+    function CreateObject : T;
     function EditObject (AIndex : Integer) : Boolean;
     function RemoveObject (AIndex : Integer) : Boolean;
   public
@@ -113,22 +113,22 @@ begin
   Result := FObjectsList.Length;
 end;
 
-function TCommonDataProvider.CreateObject : Boolean;
+function TCommonDataProvider.CreateObject : T;
 var
   ObjectItem : T;
 begin
   ObjectItem := T.Create(-1);
 
   if not OpenEditor(ObjectItem) then
-    Exit(False);
+    Exit(ObjectItem);
   
   if ObjectItem.Save then
   begin
     FObjectsList.Append(ObjectItem);
-    Exit(True);
+    Exit(ObjectItem);
   end;
 
-  Result := False;
+  Result := nil;
 end;
 
 function TCommonDataProvider.EditObject (AIndex : Integer) : Boolean;

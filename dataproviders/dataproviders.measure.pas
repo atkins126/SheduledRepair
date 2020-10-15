@@ -32,7 +32,7 @@ unit dataproviders.measure;
 interface
 
 uses
-  SysUtils, dataproviders.common, objects.common, objects.measure;
+  SysUtils, dataproviders.common, objects.measure, MeasureEditor, Controls;
 
 type
   PMeasureDataProvider = ^TMeasureDataProvider;
@@ -53,14 +53,23 @@ var
   MeasureItem : TMeasure;
 begin
   MeasureItem := TMeasure.Create(-1);
+
+  if not MeasureItem.CheckSchema then
+    Exit(False);
+
   Result := LoadObjects(MeasureItem.Table);
   FreeAndNil(MeasureItem);
 end;
 
 function TMeasureDataProvider.OpenEditor (AObject : TMeasure) :
   Boolean;
+var
+  Editor : TMeasureEditorForm;
 begin
-  Result := False;
+  Editor := TMeasureEditorForm.Create(nil);
+  Editor.Measure := AObject;
+  Result := (Editor.ShowModal = mrOk);
+  FreeAndNil(Editor);
 end;
 
 end.

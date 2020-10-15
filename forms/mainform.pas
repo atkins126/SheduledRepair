@@ -5,7 +5,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, StdCtrls, LCLType, ExtCtrls, Graphics,
-  Grids, Menus, renderer.objectprofile, rules.chain;
+  Grids, Menus, dataproviders.measure;
 
 type
 
@@ -30,9 +30,11 @@ implementation
 
 procedure TMainWindow.FormCreate(Sender: TObject);
 var
-  profile : TRendererObjectProfile;
+  provider : TMeasureDataProvider;
 begin
-  profile := TRulesChain.CalculateProfile(nil);
+  provider := TMeasureDataProvider.Create;
+  provider.Load;
+  provider.CreateObject;
 end;
 
 end.

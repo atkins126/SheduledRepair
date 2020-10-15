@@ -57,6 +57,9 @@ type
 
     { Delete object from database. }
     function Delete : Boolean; override;
+
+    { Object deep copy. }
+    procedure Assign (AGrade : TGrade);
   protected
     FName : String;
   public
@@ -135,6 +138,11 @@ begin
     Result := (DeleteRow.Get > 0)
   else
     Result := False;
+end;
+
+procedure TGrade.Assign (AGrade : TGrade);
+begin
+  Name := AGrade.Name;
 end;
 
 end.

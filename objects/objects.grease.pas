@@ -58,6 +58,9 @@ type
 
     { Delete object from database. }
     function Delete : Boolean; override;
+
+    { Object deep copy. }
+    procedure Assign (AGrease : TGrease);
   protected
     FSupplier : TSupplier;
     FGrade : TGrade;
@@ -151,6 +154,12 @@ begin
     Result := FSupplier.Delete and FGrade.Delete and (DeleteRow.Get > 0)
   else
     Result := False;
+end;
+
+procedure TGrease.Assign (AGrease : TGrease);
+begin
+  Supplier.Assign(AGrease.Supplier);
+  Grade.Assign(AGrease.Grade);
 end;
 
 end.

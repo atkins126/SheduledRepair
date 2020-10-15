@@ -58,6 +58,9 @@ type
 
     { Delete object from database. }
     function Delete : Boolean; override;
+
+    { Object deep copy. }
+    procedure Assign (APeriod : TPeriod);
   protected
     FQuantity : TQuantity;
   public
@@ -140,6 +143,11 @@ begin
     Result := FQuantity.Delete and (DeleteRow.Get > 0)
   else
     Result := False;
+end;
+
+procedure TPeriod.Assign (APeriod : TPeriod);
+begin
+  Quantity.Assign(APeriod.Quantity);
 end;
 
 end.

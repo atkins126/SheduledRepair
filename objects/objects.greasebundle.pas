@@ -58,6 +58,9 @@ type
 
     { Delete object from database. }
     function Delete : Boolean; override;
+
+    { Object deep copy. }
+    procedure Assign (AGreaseBundle : TGreaseBundle);
   protected
     FGrease : TGrease;
     FQuantity : TQuantity;
@@ -151,6 +154,12 @@ begin
     Result := FGrease.Delete and FQuantity.Delete and (DeleteRow.Get > 0)
   else
     Result := False;
+end;
+
+procedure TGreaseBundle.Assign (AGreaseBundle : TGreaseBundle);
+begin
+  Grease.Assign(AGreaseBundle.Grease);
+  Quantity.Assign(AGreaseBundle.Quantity);
 end;
 
 end.
