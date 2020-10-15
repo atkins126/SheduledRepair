@@ -22,7 +22,7 @@
 (* Floor, Boston, MA 02110-1335, USA.                                         *)
 (*                                                                            *)
 (******************************************************************************)
-unit renderer.objectprofile;
+unit rules.chain;
 
 {$mode objfpc}{$H+}
 {$IFOPT D+}
@@ -33,14 +33,17 @@ interface
 
 uses
   SysUtils, objects.common, sqlite3.schema, sqlite3.result, sqlite3.result_row,
-  renderer.profile;
+  rules.rule, renderer.objectprofile, sqlite3.table, database;
 
 type
-  TRendererObjectProfile = class(TCommonObject)
+  TRulesChain = class(TCommonObject)
   private
     const
-      RENDERER_OBJECT_PROFILE_TABLE_NAME = 'renderer_object_profile';
+      RULES_CHAIN_TABLE_NAME = 'rules_chain';
   public
+    class function CalculateProfile (AObject : PCommonObject) : 
+      TRendererObjectProfile;    
+
     constructor Create (AID : Int64); override;
     destructor Destroy; override;
     
@@ -59,60 +62,90 @@ type
     { Delete object from database. }
     function Delete : Boolean; override;
   protected
-    FProfile : TRendererProfile;
-    FFocusedProfile : TRendererProfile;
+    FObject : PCommonObject;
+    FRendererProfile : TRendererObjectProfile;
   public
-    property Profile : TRendererProfile read FProfile;
-    property FocusedProfile : TRendererProfile read FFocusedProfile;
+    property Entity : PCommonObject read FObject write FObject;
+    property RendererProfile : TRendererObjectProfile read FRendererProfile;
   end;
 
 implementation
 
-{ TRendererObjectProfile }
+{ TRulesChain }
 
-constructor TRendererObjectProfile.Create (AID : Int64);
+class function TRulesChain.CalculateProfile (AObject : PCommonObject) : 
+  TRendererObjectProfile;
+var
+  rules : TSQLite3Table;
+  chain : TSQLite3Result.TRowIterator;
+  profile_id : Int64; 
 begin
-  inherited Create (AID);
-  FProfile := TRendererProfile.Create(-1);
-  FFocusedProfile := TRendererProfile.Create(-1);
+  if (AObject = nil) or (AObject^.ID = -1) then
+    Exit(TRendererObjectProfile.Create(-1));
+
+  rules := TSQLite3Table.Create(DB.Errors, DB.Handle, RULES_CHAIN_TABLE_NAME);
+  chain := rules.Select.Field('object_profile_id')
+    .Where('object_name', AObject^.Table).Where('object_id', AObject^.ID)
+    .Limit(1).Get.FirstRow;
+  
+  if not chain.HasRow then
+    Exit(TRendererObjectProfile.Create(-1));
+
+  Result := TRendererObjectProfile.Create(
+    chain.Row.GetIntegerValue('object_profile_id')
+  );
 end;
 
-destructor TRendererObjectProfile.Destroy;
+constructor TRulesChain.Create (AID : Int64);
 begin
-  FreeAndNil(FProfile);
-  FreeAndNil(FFocusedProfile);
+  inherited Create (AID);
+  FRendererProfile := TRendererObjectProfile.Create(-1);
+end;
+
+destructor TRulesChain.Destroy;
+begin
   inherited Destroy;
 end;
 
-function TRendererObjectProfile.CheckSchema : Boolean;
+function TRulesChain.CheckSchema : Boolean;
 var
   Schema : TSQLite3Schema;
+  rule : TRule;
+  obj_profile : TRendererObjectProfile;
 begin
   Schema := TSQLite3Schema.Create;
+  rule := TRule.Create(-1);
+  obj_profile := TRendererObjectProfile.Create(-1);
   
   Schema
     .Id
-    .Integer('profile_id').NotNull
-    .Integer('focused_profile_id').NotNull;
+    .Text('object_name').NotNull
+    .Integer('object_id').NotNull
+    .Integer('object_profile_id').NotNull;
 
   if not FTable.Exists then
     FTable.New(Schema);
 
-  Result := FTable.CheckSchema(Schema) and FProfile.CheckSchema;  
+  Result := FTable.CheckSchema(Schema) and rule.CheckSchema and
+    obj_profile.CheckSchema;  
 
+  FreeAndNil(rule);
+  FreeAndNil(obj_profile);
   FreeAndNil(Schema);
 end;
 
-function TRendererObjectProfile.Table : String;
+function TRulesChain.Table : String;
 begin
-  Result := RENDERER_OBJECT_PROFILE_TABLE_NAME;
+  Result := RULES_CHAIN_TABLE_NAME;
 end;
 
-function TRendererObjectProfile.Load : Boolean;
+function TRulesChain.Load : Boolean;
 var
   row : TSQLite3Result.TRowIterator;
-  profile_id, focused_profile_id : Int64;
 begin
+  if (FObject = nil) or (FObject^.ID = -1) then
+    Exit(False);  
+
   if ID = -1 then
     Exit(False);
 
@@ -121,34 +154,31 @@ begin
   if not row.HasRow then
     Exit(False);
 
-  profile_id := row.Row.GetIntegerValue('profile_id');
-  focused_profile_id := row.Row.GetIntegerValue('focused_profile_id');
-
-  Result := FProfile.Reload(profile_id) and 
-    FFocusedProfile.Reload(focused_profile_id);
+  Result := FRendererProfile.Reload(
+    row.Row.GetIntegerValue('object_profile_id')
+  );  
 end;
 
-function TRendererObjectProfile.Save : Boolean;
+function TRulesChain.Save : Boolean;
 begin
-  if not FProfile.Save then
-    Exit(False);  
-
-  if not FFocusedProfile.Save then  
+  if (FObject = nil) or (FObject^.ID = -1) then
     Exit(False);
 
   if ID <> -1 then
   begin
-    Result := (UpdateRow.Update('profile_id', FProfile.ID)
-      .Update('focused_profile_id', FFocusedProfile.ID).Get > 0);
+    Result := (UpdateRow.Update('object_profile_id', FRendererProfile.ID)
+      .Update('object_name', FObject^.Table)
+      .Update('object_id', FObject^.ID).Get > 0);
   end else 
   begin
-    Result := (InsertRow.Value('profile_id', FProfile.ID)
-      .Value('focused_profile_id', FFocusedProfile.ID).Get > 0);
+    Result := (InsertRow.Value('object_profile_id', FRendererProfile.ID)
+      .Value('object_name', FObject^.Table).Value('object_id', FObject^.ID)  
+      .Get > 0);
     UpdateObjectID;
   end;
 end;
 
-function TRendererObjectProfile.Delete : Boolean;
+function TRulesChain.Delete : Boolean;
 begin
   if ID <> -1 then
     Result := (DeleteRow.Get > 0)

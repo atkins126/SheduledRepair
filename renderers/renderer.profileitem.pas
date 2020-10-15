@@ -39,7 +39,7 @@ type
   TRendererProfileItem = class(TCommonObject)
   private
     const
-      RENDERER_PROFILE_ITEM_TABLE_NAME = 'rendererprofileitem';
+      RENDERER_PROFILE_ITEM_TABLE_NAME = 'renderer_profile_item';
   public
     type
       

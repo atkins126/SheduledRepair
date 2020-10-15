@@ -39,7 +39,7 @@
         <PackageName Value="LCL"/>
       </Item4>
     </RequiredPackages>
-    <Units Count="46">
+    <Units Count="48">
       <Unit0>
         <Filename Value="test.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -224,6 +224,14 @@
         <Filename Value="../renderers/renderer.objectprofile.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit45>
+      <Unit46>
+        <Filename Value="rule_testcase.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit46>
+      <Unit47>
+        <Filename Value="../rules/rules.rule.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit47>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
@@ -233,7 +241,7 @@
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="../pascalutils/source;../libpassqlite/source;../libpassqlite/source/builder;../libpassqlite/source/sqlite3;../libpasc-algorithms/source;..;../objects;../renderers"/>
+      <OtherUnitFiles Value="../pascalutils/source;../libpassqlite/source;../libpassqlite/source/builder;../libpassqlite/source/sqlite3;../libpasc-algorithms/source;..;../objects;../renderers;../rules"/>
       <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Linking>

@@ -22,7 +22,7 @@
 (* Floor, Boston, MA 02110-1335, USA.                                         *)
 (*                                                                            *)
 (******************************************************************************)
-unit renderer.objects.common;
+unit rules.rule;
 
 {$mode objfpc}{$H+}
 {$IFOPT D+}
@@ -32,29 +32,106 @@ unit renderer.objects.common;
 interface
 
 uses
-  dataproviders.common, objects.common, configuration, Graphics, BGRABitmap,
-  BGRABitmapTypes, rules.chain;
+  SysUtils, objects.common, sqlite3.schema, sqlite3.result, sqlite3.result_row;
 
 type
-  PBGRABitmap = ^TBGRABitmap;
-
-  generic TCommonRenderer<T> = class
+  TRule = class(TCommonObject)
+  private
+    const
+      RULE_TABLE_NAME = 'rule';
   public
-    function CreateObjectProfile : Boolean;
-    function EditObjectProfile (AIndex : Integer) : Boolean;
-    function RemoveObjectProfile (AIndex : Integer) : Boolean;
+    constructor Create (AID : Int64); override;
+    destructor Destroy; override;
+    
+    { Check database table scheme. }
+    function CheckSchema : Boolean; override;
+
+    { Get object database table name. }
+    function Table : String; override;
+
+    { Load object from database. }
+    function Load : Boolean; override;
+
+    { Save object to database. }
+    function Save : Boolean; override;
+
+    { Delete object from database. }
+    function Delete : Boolean; override;
   protected
-    function OpenEditor (AObject : T) : Boolean; virtual; 
-      abstract;
+    
   public
     
   end;
 
 implementation
 
-{ TCommonRenderer }
+{ TCommonObject }
 
+constructor TRule.Create (AID : Int64);
+begin
+  inherited Create (AID);
+end;
 
+destructor TRule.Destroy;
+begin
+  inherited Destroy;
+end;
 
+function TRule.CheckSchema : Boolean;
+var
+  Schema : TSQLite3Schema;
+begin
+  Schema := TSQLite3Schema.Create;
+  
+  Schema
+    .Id;
+
+  if not FTable.Exists then
+    FTable.New(Schema);
+
+  Result := FTable.CheckSchema(Schema);  
+
+  FreeAndNil(Schema);
+end;
+
+function TRule.Table : String;
+begin
+  Result := RULE_TABLE_NAME;
+end;
+
+function TRule.Load : Boolean;
+var
+  row : TSQLite3Result.TRowIterator;
+begin
+  if ID = -1 then
+    Exit(False);
+
+  row := GetRowIterator;
+
+  if not row.HasRow then
+    Exit(False);
+
+  Result := True;
+end;
+
+function TRule.Save : Boolean;
+begin
+  if ID <> -1 then
+  begin
+    Result := (UpdateRow.Get > 0);
+  end else 
+  begin
+    Result := (InsertRow.Get > 0);
+    UpdateObjectID;
+  end;
+end;
+
+function TRule.Delete : Boolean;
+begin
+  if ID <> -1 then
+    Result := (DeleteRow.Get > 0)
+  else 
+    Result := False;
+end;
 
 end.

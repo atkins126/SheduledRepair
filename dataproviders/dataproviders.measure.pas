@@ -41,7 +41,7 @@ type
     function Load : Boolean; override;
     
   protected
-    function OpenEditor (AObject : TCommonObject) : Boolean; override;
+    function OpenEditor (AObject : TMeasure) : Boolean; override;
   end;
 
 implementation
@@ -57,7 +57,7 @@ begin
   FreeAndNil(MeasureItem);
 end;
 
-function TMeasureDataProvider.OpenEditor (AObject : TCommonObject) :
+function TMeasureDataProvider.OpenEditor (AObject : TMeasure) :
   Boolean;
 begin
   Result := False;

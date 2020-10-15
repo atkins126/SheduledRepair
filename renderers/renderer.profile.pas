@@ -40,7 +40,7 @@ type
   TRendererProfile = class(TCommonObject)
   private
     const
-      RENDERER_PROFILE_TABLE_NAME = 'rendererprofile';
+      RENDERER_PROFILE_TABLE_NAME = 'renderer_profile';
   public
     type
       TBorderType = (

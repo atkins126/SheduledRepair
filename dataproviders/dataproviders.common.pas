@@ -55,7 +55,7 @@ type
     function GetEnumerator : TObjectsList.TIterator;
   protected
     function LoadObjects (ATableName : String) : Boolean;
-    function OpenEditor (AObject : TCommonObject) : Boolean; virtual; 
+    function OpenEditor (AObject : T) : Boolean; virtual; 
       abstract;
   protected
     FObjectsList : TObjectsList;
