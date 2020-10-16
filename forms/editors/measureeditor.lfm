@@ -30,22 +30,28 @@ object MeasureEditorForm: TMeasureEditorForm
       TabOrder = 0
     end
   end
-  object OkButton: TButton
+  object OkButton: TBitBtn
     Left = 5
-    Height = 25
+    Height = 30
     Top = 72
-    Width = 75
-    Caption = 'Ok'
+    Width = 100
+    Default = True
+    DefaultCaption = True
+    GlyphShowMode = gsmAlways
+    Kind = bkOK
     ModalResult = 1
     OnClick = OkButtonClick
     TabOrder = 1
   end
-  object CancelButton: TButton
-    Left = 240
-    Height = 25
+  object CancelButton: TBitBtn
+    Left = 215
+    Height = 30
     Top = 72
-    Width = 75
+    Width = 100
+    Cancel = True
     Caption = 'Cancel'
+    GlyphShowMode = gsmAlways
+    Kind = bkCancel
     ModalResult = 2
     TabOrder = 2
   end

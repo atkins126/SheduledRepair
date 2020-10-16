@@ -158,7 +158,7 @@ end;
 
 procedure TGreaseBundle.Assign (AGreaseBundle : TGreaseBundle);
 begin
-  Grease.Assign(AGreaseBundle.Grease);
+  Grease := AGreaseBundle.Grease;
   Quantity.Assign(AGreaseBundle.Quantity);
 end;
 

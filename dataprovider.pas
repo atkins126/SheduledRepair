@@ -22,7 +22,7 @@
 (* Floor, Boston, MA 02110-1335, USA.                                         *)
 (*                                                                            *)
 (******************************************************************************)
-unit dataproviders.measure;
+unit dataprovider;
 
 {$mode objfpc}{$H+}
 {$IFOPT D+}
@@ -32,44 +32,52 @@ unit dataproviders.measure;
 interface
 
 uses
-  SysUtils, dataproviders.common, objects.measure, MeasureEditor, Controls;
+  SysUtils, dataproviders.measure;
 
 type
-  PMeasureDataProvider = ^TMeasureDataProvider;
-  TMeasureDataProvider = class(specialize TCommonDataProvider<TMeasure>)
+  TDataProvider = class
   public
-    function Load : Boolean; override;
-    
-  protected
-    function OpenEditor (AObject : TMeasure) : Boolean; override;
+    constructor Create;
+    destructor Destroy; override;
+  private
+    FMeasure : TMeasureDataProvider;
+
+    procedure LoadDataProviders;
+  public
+    property Measure : TMeasureDataProvider read FMeasure;
   end;
+
+var
+  DataProvider : TDataProvider = nil;
 
 implementation
 
-{ TMeasureDataProvider }
+{ TDataProvider }
 
-function TMeasureDataProvider.Load : Boolean;
-var
-  MeasureItem : TMeasure;
+constructor TDataProvider.Create;
 begin
-  MeasureItem := TMeasure.Create(-1);
+  if not Assigned(DataProvider) then
+  begin
+    FMeasure := TMeasureDataProvider.Create;
 
-  if not MeasureItem.CheckSchema then
-    Exit(False);
-
-  Result := LoadObjects(MeasureItem.Table);
-  FreeAndNil(MeasureItem);
+    LoadDataProviders;
+    DataProvider := self;
+  end else
+    self := DataProvider;
 end;
 
-function TMeasureDataProvider.OpenEditor (AObject : TMeasure) :
-  Boolean;
-var
-  Editor : TMeasureEditorForm;
+destructor TDataProvider.Destroy;
 begin
-  Editor := TMeasureEditorForm.Create(FEditorParent);
-  Editor.Measure := AObject;
-  Result := (Editor.ShowModal = mrOk);
-  FreeAndNil(Editor);
+  inherited Destroy;
 end;
 
+procedure TDataProvider.LoadDataProviders;
+begin
+  FMeasure.Load;
+end;
+
+initialization
+  DataProvider := TDataProvider.Create;
+finalization
+  FreeAndNil(DataProvider);
 end.

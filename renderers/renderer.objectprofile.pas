@@ -33,7 +33,7 @@ interface
 
 uses
   SysUtils, objects.common, sqlite3.schema, sqlite3.result, sqlite3.result_row,
-  renderer.profile;
+  renderer.profile, rules.chain;
 
 type
   TRendererObjectProfile = class(TCommonObject)

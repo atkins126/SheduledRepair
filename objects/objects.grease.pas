@@ -158,8 +158,8 @@ end;
 
 procedure TGrease.Assign (AGrease : TGrease);
 begin
-  Supplier.Assign(AGrease.Supplier);
-  Grade.Assign(AGrease.Grade);
+  Supplier := AGrease.Supplier;
+  Grade := AGrease.Grade;
 end;
 
 end.

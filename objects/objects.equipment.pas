@@ -58,6 +58,9 @@ type
 
     { Delete object from database. }
     function Delete : Boolean; override;
+
+    { Object deep copy. }
+    procedure Assign (AEquipment : TEquipment);
   protected
     FName : String;
     FEntityBag : TEntityBag;
@@ -146,6 +149,12 @@ begin
     Result := (DeleteRow.Get > 0);
   end else 
     Result := False;
+end;
+
+procedure TEquipment.Assign (AEquipment : TEquipment);
+begin
+  FName := AEquipment.Name;
+  FEntityBag.Assign(AEquipment.EntityBag);
 end;
 
 end.

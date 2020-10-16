@@ -57,6 +57,9 @@ type
 
     { Delete object from database. }
     function Delete : Boolean; override;
+
+    { Object deep copy. }
+    procedure Assign (AShedule : TShedule);
   protected
     FPrevDate : TDate;
     FNextDate : TDate;
@@ -142,6 +145,12 @@ begin
     Result := (DeleteRow.Get > 0)
   else
     Result := False;
+end;
+
+procedure TShedule.Assign (AShedule : TShedule);
+begin
+  FPrevDate := AShedule.PrevDate;
+  FNextDate := AShedule.NextDate;
 end;
 
 end.

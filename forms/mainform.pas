@@ -32,7 +32,7 @@ procedure TMainWindow.FormCreate(Sender: TObject);
 var
   provider : TMeasureDataProvider;
 begin
-  provider := TMeasureDataProvider.Create;
+  provider := TMeasureDataProvider.Create(Self);
   provider.Load;
   provider.CreateObject;
 end;

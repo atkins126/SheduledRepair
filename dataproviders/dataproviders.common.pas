@@ -33,12 +33,12 @@ interface
 
 uses
   SysUtils, database, sqlite3.table, container.list, utils.functor,
-  sqlite3.result, sqlite3.result_row, objects.common;
+  sqlite3.result, sqlite3.result_row, objects.common, Classes;
 
 type
   generic TCommonDataProvider<T> = class
   public
-    constructor Create;
+    constructor Create (AEditorParent : TComponent);
     destructor Destroy; override;
     
     function Load : Boolean; virtual; abstract;
@@ -59,15 +59,17 @@ type
       abstract;
   protected
     FObjectsList : TObjectsList;
+    FEditorParent : TComponent;
   end;
 
 implementation
 
 { TCommonDataProvider }
 
-constructor TCommonDataProvider.Create;
+constructor TCommonDataProvider.Create (AEditorParent : TComponent);
 begin
   FObjectsList := TObjectsList.Create;
+  FEditorParent := AEditorParent;
 end;
 
 destructor TCommonDataProvider.Destroy;

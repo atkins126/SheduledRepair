@@ -59,6 +59,9 @@ type
 
     { Delete object from database. }
     function Delete : Boolean; override;
+
+    { Object deep copy. }
+    procedure Assign (AEntity : TEntity);
   protected
     FName : String;
     FGreaseBag : TGreaseBag;
@@ -193,6 +196,16 @@ begin
       (DeleteRow.Get > 0)
   else
     Result := False;
+end;
+
+procedure TEntity.Assign (AEntity : TEntity);
+begin
+  FName := AEntity.Name;
+  FGreaseBag.Assign(AEntity.GreaseBag);
+  FNodeBag.Assign(AEntity.NodeBag);
+  FShedule.Assign(AEntity.Shedule);
+  FQuantity.Assign(AEntity.Quantity);
+  FPeriod.Assign(AEntity.Period);
 end;
 
 end.

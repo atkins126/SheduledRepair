@@ -58,6 +58,9 @@ type
 
     { Delete object from database. }
     function Delete : Boolean; override;
+
+    { Object deep copy. }
+    procedure Assign (ANode : TNode);
   protected
     FName : String;
     FGreaseBag : TGreaseBag;
@@ -175,6 +178,14 @@ begin
   end
   else
     Result := False;
+end;
+
+procedure TNode.Assign (ANode : TNode);
+begin
+  FName := ANode.Name;
+  FGreaseBag.Assign(ANode.GreaseBag);
+  FPeriod.Assign(ANode.Period);
+  FShedule.Assign(ANode.Shedule);
 end;
 
 end.

@@ -5,7 +5,7 @@ unit MeasureEditor;
 interface
 
 uses
-  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls,
+  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, Buttons,
   objects.measure;
 
 type
@@ -13,8 +13,8 @@ type
   { TMeasureEditorForm }
 
   TMeasureEditorForm = class(TForm)
-    CancelButton: TButton;
-    OkButton: TButton;
+    CancelButton: TBitBtn;
+    OkButton: TBitBtn;
     NameEdit: TEdit;
     NameGroupBox: TGroupBox;
     procedure OkButtonClick(Sender: TObject);

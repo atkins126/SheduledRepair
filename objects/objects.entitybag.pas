@@ -64,6 +64,9 @@ type
 
     { Remove grease bundle from current bag. }
     procedure Remove (AEntity : TEntity);
+
+    { Object deep copy. }
+    procedure Assign (AEntityBag : TEntityBag);
   public
     type
       TEntityCompareFunctor = class
@@ -259,6 +262,21 @@ end;
 function TEntityBag.GetEnumerator : TEntityList.TIterator;
 begin
   Result := FEntityList.GetEnumerator;
+end;
+
+procedure TEntityBag.Assign (AEntityBag : TEntityBag);
+var
+  entity_item, entity_new : TEntity;
+begin
+  if not AEntityBag.FEntityList.FirstEntry.HasValue then
+    Exit;
+
+  for entity_item in AEntityBag.FEntityList do
+  begin
+    entity_new := TEntity.Create(-1);
+    entity_new.Assign(entity_item);
+    FEntityList.Append(entity_new);
+  end;
 end;
 
 end.

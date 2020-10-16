@@ -154,7 +154,7 @@ end;
 procedure TQuantity.Assign (AQuantity : TQuantity);
 begin
   Count := AQuantity.Count;
-  Measure.Assign(AQuantity.Measure);
+  Measure := AQuantity.Measure;
 end;
 
 end.

@@ -64,6 +64,9 @@ type
 
     { Remove grease bundle from current bag. }
     procedure Remove (ANode : TNode);
+
+    { Object deep copy. }
+    procedure Assign (ANodeBag : TNodeBag);
   public
     type
       TNodeCompareFunctor = class
@@ -258,6 +261,21 @@ end;
 function TNodeBag.GetEnumerator : TNodeList.TIterator;
 begin
   Result := FNodeList.GetEnumerator;
+end;
+
+procedure TNodeBag.Assign (ANodeBag : TNodeBag);
+var
+  node_item, node : TNode;
+begin
+  if not FNodeList.FirstEntry.HasValue then
+    Exit;
+
+  for node_item in FNodeList do
+  begin
+    node := TNode.Create(-1);
+    node.Assign(node_item);
+    FNodeList.Append(node);
+  end;
 end;
 
 end.

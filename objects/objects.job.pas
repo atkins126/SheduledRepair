@@ -58,6 +58,9 @@ type
 
     { Delete object from database. }
     function Delete : Boolean; override;
+
+    { Object deep copy. }
+    procedure Assign (AJob : TJob);
   protected
     FName : String;
     FEntity : TEntity;
@@ -167,6 +170,14 @@ begin
       (DeleteRow.Get > 0)
   else
     Result := False;
+end;
+
+procedure TJob.Assign (AJob : TJob);
+begin
+  FName := AJob.Name;
+  FEntity.Assign(AJob.Entity);
+  FPeriod.Assign(AJob.Period);
+  FShedule.Assign(AJob.Shedule);
 end;
 
 end.

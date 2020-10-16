@@ -64,6 +64,9 @@ type
 
     { Remove grease bundle from current bag. }
     procedure Remove (AGreaseBundle : TGreaseBundle);
+
+    { Object deep copy. }
+    procedure Assign (AGreaseBag : TGreaseBag);
   public
     type
       TGreaseBundleCompareFunctor = class
@@ -260,6 +263,22 @@ end;
 function TGreaseBag.GetEnumerator : TGreaseBundleList.TIterator;
 begin
   Result := FGreaseBundleList.GetEnumerator;
+end;
+
+procedure TGreaseBag.Assign (AGreaseBag : TGreaseBag);
+var
+  grease_bundle : TGreaseBundle;
+  bundle : TGreaseBundle;
+begin
+  if not AGreaseBag.FGreaseBundleList.FirstEntry.HasValue then
+    Exit;
+
+  for grease_bundle in AGreaseBag.FGreaseBundleList do
+  begin
+    bundle := TGreaseBundle.Create(-1);
+    bundle.Assign(grease_bundle);
+    FGreaseBundleList.Append(bundle);
+  end;
 end;
 
 end.
