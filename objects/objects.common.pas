@@ -79,7 +79,10 @@ type
     procedure UpdateObjectID;
   protected
     FID : Int64;
-    FTable : TSQLite3Table;  
+    FTable : TSQLite3Table;
+    FProfile : TCommonObject;
+  public
+    property Profile : TCommonObject read FProfile write FProfile;
   end;
 
 implementation
@@ -90,6 +93,7 @@ constructor TCommonObject.Create (AID : Int64);
 begin
   FID := AID;
   FTable := TSQLite3Table.Create(DB.Errors, DB.Handle, Table);
+  FProfile := nil;
 end;
 
 destructor TCommonObject.Destroy;

@@ -293,7 +293,7 @@ begin
 
   for item in FItemsList do
   begin
-    item.Profile := @Self;
+    item.RendererProfile := @Self;
     item.Save;
   end;
 end;

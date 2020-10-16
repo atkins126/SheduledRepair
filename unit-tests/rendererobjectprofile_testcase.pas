@@ -35,11 +35,11 @@ begin
   obj_profile := TRendererObjectProfile.Create(-1);
   AssertTrue('Database table schema is not correct', obj_profile.CheckSchema);
 
-  obj_profile.Profile.BorderRadius := 10;
-  obj_profile.Profile.Background := BGRA(10, 10, 10, 128);
+  obj_profile.DefaultProfile.BorderRadius := 10;
+  obj_profile.DefaultProfile.Background := BGRA(10, 10, 10, 128);
 
-  obj_profile.FocusedProfile.BorderRadius := 10;
-  obj_profile.FocusedProfile.Background := BGRA(128, 128, 128, 192);
+  obj_profile.SelectedProfile.BorderRadius := 10;
+  obj_profile.SelectedProfile.Background := BGRA(128, 128, 128, 192);
 
   AssertTrue('Object save error', obj_profile.Save);
 

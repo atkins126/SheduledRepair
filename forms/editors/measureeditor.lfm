@@ -1,7 +1,7 @@
 object MeasureEditorForm: TMeasureEditorForm
-  Left = 2889
+  Left = 2907
   Height = 109
-  Top = 243
+  Top = 249
   Width = 320
   BorderStyle = bsDialog
   Caption = 'Measure Editor'

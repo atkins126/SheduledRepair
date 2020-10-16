@@ -81,6 +81,7 @@ type
     function Delete : Boolean; override;
   protected
     FName : String;
+    FRenderProfile : PCommonObject;
     FBackground : TBGRAPixel;
     FBackgroundFill : TBackgroundFillType;
     FBackgroundRoundRadius : Integer;
@@ -90,8 +91,6 @@ type
     FPadding : TPadding;
     FPositionType : TPositionType;
     FPosition : TPosition;
-
-    FProfile : PCommonObject;
   public
     property Name : String read FName write FName;
     property Background : TBGRAPixel read FBackground write FBackground;
@@ -107,7 +106,8 @@ type
       write FPositionType;
     property Position : TPosition read FPosition write FPosition;
 
-    property Profile : PCommonObject read FProfile write FProfile;
+    property RendererProfile : PCommonObject read FRenderProfile
+      write FRenderProfile;
   end;
 
 implementation
@@ -117,7 +117,7 @@ implementation
 constructor TRendererProfileItem.Create (AID : Int64);
 begin
   inherited Create(AID);
-  FProfile := nil;  
+  FRenderProfile := nil;
 
   FName := '';
   FBackground := BGRA(255, 255, 255, 255);
@@ -219,12 +219,12 @@ end;
 
 function TRendererProfileItem.Save : Boolean;
 begin
-  if FProfile = nil then
+  if (FRenderProfile = nil) or (FRenderProfile^.ID = -1) then
     Exit(False);  
 
   if ID <> -1 then
   begin
-    Result := (UpdateRow.Update('profile_id', FProfile^.ID)
+    Result := (UpdateRow.Update('profile_id', FRenderProfile^.ID)
       .Update('name', FName)
       .Update('background', BGRAToStr(FBackground))
       .Update('background_fill_type', Integer(FBackgroundFill))
@@ -243,7 +243,7 @@ begin
       .Update('position_right', FPosition.Right).Get > 0);
   end else
   begin
-    Result := (InsertRow.Value('profile_id', FProfile^.ID)
+    Result := (InsertRow.Value('profile_id', FRenderProfile^.ID)
       .Value('name', FName)
       .Value('background', BGRAToStr(FBackground))
       .Value('background_fill_type', Integer(FBackgroundFill))

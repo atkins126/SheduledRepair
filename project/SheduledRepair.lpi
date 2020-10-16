@@ -36,7 +36,7 @@
         <PackageName Value="LCL"/>
       </Item3>
     </RequiredPackages>
-    <Units Count="21">
+    <Units Count="22">
       <Unit0>
         <Filename Value="SheduledRepair.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -129,6 +129,10 @@
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="MeasureEditor"/>
       </Unit20>
+      <Unit21>
+        <Filename Value="../dataprovider.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit21>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

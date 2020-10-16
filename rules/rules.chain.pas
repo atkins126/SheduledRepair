@@ -42,7 +42,7 @@ type
       RULES_CHAIN_TABLE_NAME = 'rules_chain';
   public
     class function CalculateProfile (AObject : PCommonObject) : 
-      TRendererObjectProfile;    
+      TRendererObjectProfile;
 
     constructor Create (AID : Int64); override;
     destructor Destroy; override;

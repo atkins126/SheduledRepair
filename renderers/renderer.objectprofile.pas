@@ -33,9 +33,10 @@ interface
 
 uses
   SysUtils, objects.common, sqlite3.schema, sqlite3.result, sqlite3.result_row,
-  renderer.profile, rules.chain;
+  renderer.profile;
 
 type
+  PRendererObjectProfile = ^TRendererObjectProfile;
   TRendererObjectProfile = class(TCommonObject)
   private
     const
@@ -59,11 +60,11 @@ type
     { Delete object from database. }
     function Delete : Boolean; override;
   protected
-    FProfile : TRendererProfile;
-    FFocusedProfile : TRendererProfile;
+    FDefaultProfile : TRendererProfile;
+    FSelectedProfile : TRendererProfile;
   public
-    property Profile : TRendererProfile read FProfile;
-    property FocusedProfile : TRendererProfile read FFocusedProfile;
+    property DefaultProfile : TRendererProfile read FDefaultProfile;
+    property SelectedProfile : TRendererProfile read FSelectedProfile;
   end;
 
 implementation
@@ -73,14 +74,14 @@ implementation
 constructor TRendererObjectProfile.Create (AID : Int64);
 begin
   inherited Create (AID);
-  FProfile := TRendererProfile.Create(-1);
-  FFocusedProfile := TRendererProfile.Create(-1);
+  FDefaultProfile := TRendererProfile.Create(-1);
+  FSelectedProfile := TRendererProfile.Create(-1);
 end;
 
 destructor TRendererObjectProfile.Destroy;
 begin
-  FreeAndNil(FProfile);
-  FreeAndNil(FFocusedProfile);
+  FreeAndNil(FDefaultProfile);
+  FreeAndNil(FSelectedProfile);
   inherited Destroy;
 end;
 
@@ -92,13 +93,13 @@ begin
   
   Schema
     .Id
-    .Integer('profile_id').NotNull
-    .Integer('focused_profile_id').NotNull;
+    .Integer('default_profile_id').NotNull
+    .Integer('selected_profile_id').NotNull;
 
   if not FTable.Exists then
     FTable.New(Schema);
 
-  Result := FTable.CheckSchema(Schema) and FProfile.CheckSchema;  
+  Result := FTable.CheckSchema(Schema) and FDefaultProfile.CheckSchema;
 
   FreeAndNil(Schema);
 end;
@@ -111,7 +112,7 @@ end;
 function TRendererObjectProfile.Load : Boolean;
 var
   row : TSQLite3Result.TRowIterator;
-  profile_id, focused_profile_id : Int64;
+  default_profile_id, selected_profile_id : Int64;
 begin
   if ID = -1 then
     Exit(False);
@@ -121,29 +122,29 @@ begin
   if not row.HasRow then
     Exit(False);
 
-  profile_id := row.Row.GetIntegerValue('profile_id');
-  focused_profile_id := row.Row.GetIntegerValue('focused_profile_id');
+  default_profile_id := row.Row.GetIntegerValue('default_profile_id');
+  selected_profile_id := row.Row.GetIntegerValue('selected_profile_id');
 
-  Result := FProfile.Reload(profile_id) and 
-    FFocusedProfile.Reload(focused_profile_id);
+  Result := FDefaultProfile.Reload(default_profile_id) and
+    FSelectedProfile.Reload(selected_profile_id);
 end;
 
 function TRendererObjectProfile.Save : Boolean;
 begin
-  if not FProfile.Save then
+  if not FDefaultProfile.Save then
     Exit(False);  
 
-  if not FFocusedProfile.Save then  
+  if not FSelectedProfile.Save then
     Exit(False);
 
   if ID <> -1 then
   begin
-    Result := (UpdateRow.Update('profile_id', FProfile.ID)
-      .Update('focused_profile_id', FFocusedProfile.ID).Get > 0);
+    Result := (UpdateRow.Update('default_profile_id', FDefaultProfile.ID)
+      .Update('selected_profile_id', FSelectedProfile.ID).Get > 0);
   end else 
   begin
-    Result := (InsertRow.Value('profile_id', FProfile.ID)
-      .Value('focused_profile_id', FFocusedProfile.ID).Get > 0);
+    Result := (InsertRow.Value('default_profile_id', FDefaultProfile.ID)
+      .Value('selected_profile_id', FSelectedProfile.ID).Get > 0);
     UpdateObjectID;
   end;
 end;

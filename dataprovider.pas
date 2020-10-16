@@ -32,7 +32,7 @@ unit dataprovider;
 interface
 
 uses
-  SysUtils, dataproviders.measure;
+  SysUtils, Classes, dataproviders.measure;
 
 type
   TDataProvider = class
@@ -40,6 +40,7 @@ type
     constructor Create;
     destructor Destroy; override;
   private
+    FEditorParent : TComponent;
     FMeasure : TMeasureDataProvider;
 
     procedure LoadDataProviders;
@@ -48,7 +49,7 @@ type
   end;
 
 var
-  DataProvider : TDataProvider = nil;
+  Provider : TDataProvider = nil;
 
 implementation
 
@@ -56,14 +57,14 @@ implementation
 
 constructor TDataProvider.Create;
 begin
-  if not Assigned(DataProvider) then
+  if not Assigned(Provider) then
   begin
-    FMeasure := TMeasureDataProvider.Create;
+    FMeasure := TMeasureDataProvider.Create(nil);
 
     LoadDataProviders;
-    DataProvider := self;
+    Provider := self;
   end else
-    self := DataProvider;
+    self := Provider;
 end;
 
 destructor TDataProvider.Destroy;
@@ -77,7 +78,7 @@ begin
 end;
 
 initialization
-  DataProvider := TDataProvider.Create;
+  Provider := TDataProvider.Create;
 finalization
-  FreeAndNil(DataProvider);
+  FreeAndNil(Provider);
 end.

@@ -32,8 +32,9 @@ unit dataproviders.common;
 interface
 
 uses
-  SysUtils, database, sqlite3.table, container.list, utils.functor,
-  sqlite3.result, sqlite3.result_row, objects.common, Classes;
+  SysUtils, database, sqlite3.table, container.arraylist, utils.functor,
+  sqlite3.result, sqlite3.result_row, Classes, rules.chain, 
+  renderer.objectprofile;
 
 type
   generic TCommonDataProvider<T> = class
@@ -44,13 +45,20 @@ type
     function Load : Boolean; virtual; abstract;
     function Count : Integer;
 
-    function CreateObject : T;
+    function GetObject (AIndex : Integer) : T;
+    function GetObjectProfile (AIndex : Integer) : TRendererObjectProfile;
+
+    function CreateObject : Integer;
     function EditObject (AIndex : Integer) : Boolean;
     function RemoveObject (AIndex : Integer) : Boolean;
   public
     type
-      TObjectCompareFunctor = class(specialize TUnsortableFunctor<T>);
-      TObjectsList = class(specialize TList<T, TObjectCompareFunctor>);
+      TObjectCompareFunctor = class(specialize TBinaryFunctor<T, Integer>)
+      public
+        function Call (AValue1, AValue2 : T) : Integer; override;
+      end;
+
+      TObjectsList = class(specialize TArrayList<T, TObjectCompareFunctor>);
   public
     function GetEnumerator : TObjectsList.TIterator;
   protected
@@ -63,6 +71,19 @@ type
   end;
 
 implementation
+
+{ TCommonDataProvider.TObjectCompareFunctor }
+
+function TCommonDataProvider.TObjectCompareFunctor.Call (AValue1, AValue2 : T) :
+  Integer;
+begin
+  if AValue1.ID < AValue2.ID then
+    Result := -1
+  else if AValue2.ID < AValue1.ID then
+    Result := 1
+  else 
+    Result := 0;
+end;
 
 { TCommonDataProvider }
 
@@ -104,6 +125,9 @@ begin
     if not ObjectItem.Load then
       continue;
 
+    ObjectItem.Profile := TRendererObjectProfile(
+      TRulesChain.CalculateProfile(@ObjectItem)
+    );
     FObjectsList.Append(ObjectItem);
   end;
 
@@ -115,48 +139,70 @@ begin
   Result := FObjectsList.Length;
 end;
 
-function TCommonDataProvider.CreateObject : T;
+function TCommonDataProvider.GetObject (AIndex : Integer) : T;
+begin
+  if (AIndex < 0) or (AIndex > FObjectsList.Length) then
+    Exit(nil);
+
+  Result := FObjectsList.Value[AIndex - 1];
+end;
+
+function TCommonDataProvider.GetObjectProfile (AIndex : Integer) :
+  TRendererObjectProfile;
+begin
+  if (AIndex < 0) or (AIndex > FObjectsList.Length) then
+    Exit(nil);
+
+  Result := TRendererObjectProfile(GetObject(AIndex).Profile);
+end;
+
+function TCommonDataProvider.CreateObject : Integer;
 var
   ObjectItem : T;
 begin
   ObjectItem := T.Create(-1);
 
   if not OpenEditor(ObjectItem) then
-    Exit(ObjectItem);
+    Exit(-1);
   
   if ObjectItem.Save then
   begin
+    ObjectItem.Profile := TRendererObjectProfile(
+      TRulesChain.CalculateProfile(@ObjectItem)
+    );
     FObjectsList.Append(ObjectItem);
-    Exit(ObjectItem);
+    Exit(FObjectsList.Length - 1);
   end;
 
-  Result := nil;
+  Result := -1;
 end;
 
 function TCommonDataProvider.EditObject (AIndex : Integer) : Boolean;
 var
-  ObjectItem : TObjectsList.TIterator;
+  item : T;
 begin
-  ObjectItem := FObjectsList.NthEntry(AIndex);
-
-  if (not ObjectItem.HasValue) and (not OpenEditor(ObjectItem.Value)) then
+  if (AIndex < 0) or (AIndex > FObjectsList.Length) then
     Exit(False);
 
-  Result := ObjectItem.Value.Save;
+  if not OpenEditor(FObjectsList.Value[AIndex - 1]) then
+    Exit(False);
+
+  item := FObjectsList.Value[AIndex - 1];
+  Result := item.Save;
+  item.Profile := TRendererObjectProfile(TRulesChain.CalculateProfile(@item));
 end;
 
 function TCommonDataProvider.RemoveObject (AIndex : Integer) : Boolean;
 var
-  ObjectItem : TObjectsList.TIterator;
+  item : T;
 begin
-  ObjectItem := FObjectsList.NthEntry(AIndex);
-
-  if not ObjectItem.HasValue then
+  if (AIndex < 0) or (AIndex > FObjectsList.Length) then
     Exit(False);
 
-  if ObjectItem.Value.Delete then
+  item := FObjectsList.Value[AIndex - 1];
+  if item.Delete then
   begin
-    ObjectItem.Remove;
+    FObjectsList.Remove(AIndex - 1);
     Exit(True);
   end;
 
