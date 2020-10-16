@@ -267,10 +267,10 @@ procedure TNodeBag.Assign (ANodeBag : TNodeBag);
 var
   node_item, node : TNode;
 begin
-  if not FNodeList.FirstEntry.HasValue then
+  if not ANodeBag.FNodeList.FirstEntry.HasValue then
     Exit;
 
-  for node_item in FNodeList do
+  for node_item in ANodeBag.FNodeList do
   begin
     node := TNode.Create(-1);
     node.Assign(node_item);

@@ -5,8 +5,8 @@ unit rendererobjectprofile_testcase;
 interface
 
 uses
-  Classes, SysUtils, fpcunit, testregistry, renderer.profile, 
-  renderer.objectprofile, BGRABitmap, BGRABitmapTypes;
+  Classes, SysUtils, fpcunit, testregistry, renderer.profile.profile, 
+  renderer.profile.objectprofile, BGRABitmap, BGRABitmapTypes;
 
 type
   TRendererObjectProfileTestCase = class(TTestCase)

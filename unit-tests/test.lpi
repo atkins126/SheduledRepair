@@ -205,31 +205,31 @@
         <IsPartOfProject Value="True"/>
       </Unit40>
       <Unit41>
-        <Filename Value="../renderers/renderer.profile.pas"/>
+        <Filename Value="../libpassqlite/source/builder/sqlite3.select.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit41>
       <Unit42>
-        <Filename Value="../renderers/renderer.profileitem.pas"/>
+        <Filename Value="rendererobjectprofile_testcase.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit42>
       <Unit43>
-        <Filename Value="../libpassqlite/source/builder/sqlite3.select.pas"/>
+        <Filename Value="rule_testcase.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit43>
       <Unit44>
-        <Filename Value="rendererobjectprofile_testcase.pas"/>
+        <Filename Value="../rules/rules.rule.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit44>
       <Unit45>
-        <Filename Value="../renderers/renderer.objectprofile.pas"/>
+        <Filename Value="../renderers/profile/renderer.profile.objectprofile.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit45>
       <Unit46>
-        <Filename Value="rule_testcase.pas"/>
+        <Filename Value="../renderers/profile/renderer.profile.profile.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit46>
       <Unit47>
-        <Filename Value="../rules/rules.rule.pas"/>
+        <Filename Value="../renderers/profile/renderer.profile.profileitem.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit47>
     </Units>
@@ -241,7 +241,7 @@
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="../pascalutils/source;../libpassqlite/source;../libpassqlite/source/builder;../libpassqlite/source/sqlite3;../libpasc-algorithms/source;..;../objects;../renderers;../rules"/>
+      <OtherUnitFiles Value="../pascalutils/source;../libpassqlite/source;../libpassqlite/source/builder;../libpassqlite/source/sqlite3;../libpasc-algorithms/source;..;../objects;../rules;../renderers/profile"/>
       <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Linking>

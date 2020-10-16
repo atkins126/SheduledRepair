@@ -32,21 +32,21 @@ unit renderer.objects.common;
 interface
 
 uses
-  dataproviders.common, objects.common, configuration, Graphics, BGRABitmap,
-  BGRABitmapTypes, rules.chain;
+  objects.measure, Graphics, BGRABitmap, BGRABitmapTypes, Classes, 
+  renderer.objectprofile;
 
 type
   PBGRABitmap = ^TBGRABitmap;
 
   generic TCommonRenderer<T> = class
   public
-    function CreateObjectProfile : Boolean;
-    function EditObjectProfile (AIndex : Integer) : Boolean;
-    function RemoveObjectProfile (AIndex : Integer) : Boolean;
+    constructor Create;
+    destructor Destroy; override;
+
+    
   protected
-    function OpenEditor (AObject : T) : Boolean; virtual; 
-      abstract;
-  public
+    
+  protected
     
   end;
 
@@ -54,6 +54,15 @@ implementation
 
 { TCommonRenderer }
 
+constructor TCommonRenderer.Create;
+begin
+
+end;
+
+destructor TCommonRenderer.Destroy;
+begin
+  inherited Destroy;
+end;
 
 
 

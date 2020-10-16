@@ -22,7 +22,7 @@
 (* Floor, Boston, MA 02110-1335, USA.                                         *)
 (*                                                                            *)
 (******************************************************************************)
-unit renderer.objectprofile;
+unit renderer.profile.objectprofile;
 
 {$mode objfpc}{$H+}
 {$IFOPT D+}
@@ -33,7 +33,7 @@ interface
 
 uses
   SysUtils, objects.common, sqlite3.schema, sqlite3.result, sqlite3.result_row,
-  renderer.profile;
+  renderer.profile.profile;
 
 type
   PRendererObjectProfile = ^TRendererObjectProfile;

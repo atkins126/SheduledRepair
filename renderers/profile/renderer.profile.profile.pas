@@ -22,7 +22,7 @@
 (* Floor, Boston, MA 02110-1335, USA.                                         *)
 (*                                                                            *)
 (******************************************************************************)
-unit renderer.profile;
+unit renderer.profile.profile;
 
 {$mode objfpc}{$H+}
 {$IFOPT D+}
@@ -34,7 +34,7 @@ interface
 uses
   SysUtils, objects.common, Graphics, BGRABitmap, BGRABitmapTypes,
   container.arraylist, utils.functor, sqlite3.schema, sqlite3.result,
-  sqlite3.result_row, renderer.profileitem, sqlite3.table, database;
+  sqlite3.result_row, renderer.profile.profileitem, sqlite3.table, database;
 
 type
   TRendererProfile = class(TCommonObject)

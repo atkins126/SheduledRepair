@@ -22,7 +22,7 @@
 (* Floor, Boston, MA 02110-1335, USA.                                         *)
 (*                                                                            *)
 (******************************************************************************)
-unit renderer.profileitem;
+unit renderer.profile.profileitem;
 
 {$mode objfpc}{$H+}
 {$IFOPT D+}

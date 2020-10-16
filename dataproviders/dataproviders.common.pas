@@ -34,7 +34,7 @@ interface
 uses
   SysUtils, database, sqlite3.table, container.arraylist, utils.functor,
   sqlite3.result, sqlite3.result_row, Classes, rules.chain, 
-  renderer.objectprofile;
+  renderer.profile.objectprofile;
 
 type
   generic TCommonDataProvider<T> = class
