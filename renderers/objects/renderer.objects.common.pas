@@ -32,8 +32,8 @@ unit renderer.objects.common;
 interface
 
 uses
-  objects.measure, Graphics, BGRABitmap, BGRABitmapTypes, Classes, 
-  renderer.objectprofile;
+  objects.measure, Graphics, BGRABitmap, BGRABitmapTypes, 
+  renderer.profile.profileitem, renderer.profile.profile;
 
 type
   PBGRABitmap = ^TBGRABitmap;
@@ -43,9 +43,14 @@ type
     constructor Create;
     destructor Destroy; override;
 
-    
+
   protected
-    
+    procedure DrawBackground (ABitmap : PBGRABitmap; AColor : TBGRAPixel);
+    procedure DrawSquareBorder (ABitmap : PBGRABitmap; AWidth : Integer; 
+      AMargin : TRendererProfile.TMargin; AColor : TBGRAPixel);
+    procedure DrawSquareRoundBorder (ABitmap : PBGRABitmap; AWidth : Integer;
+      AMargin : TRendererProfile.TMargin; AColor : TBGRAPixel; ARoundRadius :
+      Integer);
   protected
     
   end;
@@ -64,6 +69,27 @@ begin
   inherited Destroy;
 end;
 
+procedure TCommonRenderer.DrawBackground (ABitmap : PBGRABitmap; AColor : 
+  TBGRAPixel);
+begin
+  ABitmap^.FillRect(0, 0, ABitmap^.Width, ABitmap^.Height, AColor,
+    dmDrawWithTransparency);
+end;
 
+procedure TCommonRenderer.DrawSquareBorder (ABitmap : PBGRABitmap; AWidth :
+  Integer; AMargin : TRendererProfile.TMargin; AColor : TBGRAPixel);
+begin
+  ABitmap^.RectangleAntialias(AMargin.Top, AMargin.Right, ABitmap^.Width -
+    AMargin.Left, ABitmap^.Height - AMargin.Bottom, AColor, AWidth);
+end;
+
+procedure TCommonRenderer.DrawSquareRoundBorder (ABitmap : PBGRABitmap; 
+  AWidth : Integer; AMargin : TRendererProfile.TMargin; AColor : TBGRAPixel; 
+  ARoundRadius : Integer);
+begin
+  ABitmap^.RoundRectAntialias(AMargin.Top, AMargin.Right, ABitmap^.Width -
+    AMargin.Left, ABitmap^.Height - AMargin.Bottom, ARoundRadius, ARoundRadius,
+    AColor, AWidth, []);
+end;
 
 end.

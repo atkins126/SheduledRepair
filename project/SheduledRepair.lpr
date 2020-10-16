@@ -7,7 +7,7 @@ uses
   cthreads,
   {$ENDIF}{$ENDIF}
   Interfaces, // this includes the LCL widgetset
-  Forms, MainForm, MeasureEditor
+  Forms, MainForm, MeasureEditor, objectprofileeditor
   { you can add units after this };
 
 {$R *.res}
@@ -17,6 +17,7 @@ begin
   Application.Scaled:=True;
   Application.Initialize;
   Application.CreateForm(TMainWindow, MainWindow);
+  Application.CreateForm(TObjectProfileEditorForm, ObjectProfileEditorForm);
   Application.Run;
 end.
 

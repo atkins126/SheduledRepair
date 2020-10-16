@@ -85,6 +85,7 @@ type
     { Delete object from database. }
     function Delete : Boolean; override;
   protected
+    FHeight : Integer;
     FBorderType : TBorderType;
     FBorder : Integer;
     FBorderRadius : Integer;
@@ -96,6 +97,7 @@ type
     function GetItem (AName : String) : TRendererProfileItem;
     procedure SetItem (AName : String; AValue : TRendererProfileItem);
   public
+    property Height : Integer read FHeight write FHeight;
     property BorderType : TBorderType read FBorderType write FBorderType;
     property Border : Integer read FBorder write FBorder;
     property BorderRadius : Integer read FBorderRadius write FBorderRadius;
@@ -124,6 +126,7 @@ end;
 constructor TRendererProfile.Create (AID : Int64);
 begin
   inherited Create(AID);
+  FHeight := 20;
   FBorderType := BORDER_NONE;
   FBorder := 0;
   FBorderRadius := 0;
@@ -133,7 +136,7 @@ begin
   FBorderMargin.Left := 0;
   FBorderMargin.Bottom := 0;
   FBorderMargin.Right := 0;
-  FBackground := BGRA(255, 255, 255, 255);
+  FBackground := ColorToBGRA(ColorToRGB(clDefault));
   FItemsList := TItemsList.Create;
 end;
 
@@ -168,6 +171,7 @@ begin
   begin
     if item.Name = AName then
     begin
+      item.Height := AValue.Height;
       item.Background := AValue.Background;
       item.BackgroundFillType := AValue.BackgroundFillType;
       item.BackgroundRoundRadius := AValue.BackgroundRoundRadius;
@@ -195,6 +199,7 @@ begin
   
   Schema
     .Id
+    .Integer('height').NotNull
     .Integer('border_type').NotNull
     .Integer('border').NotNull
     .Integer('border_radius').NotNull
@@ -235,6 +240,7 @@ begin
   if not row.HasRow then
     Exit(False);
 
+  FHeight := row.Row.GetIntegerValue('height');
   FBorderType := TBorderType(row.Row.GetIntegerValue('border_type'));
   FBorder := row.Row.GetIntegerValue('border');
   FBorderRadius := row.Row.GetIntegerValue('border_radius');
@@ -267,7 +273,8 @@ var
 begin
   if ID <> -1 then
   begin
-    Result := (UpdateRow.Update('border_type', Integer(FBorderType))
+    Result := (UpdateRow.Update('height', FHeight)
+      .Update('border_type', Integer(FBorderType))
       .Update('border', FBorder).Update('border_radius', FBorderRadius)
       .Update('border_color', BGRAToStr(FBorderColor))
       .Update('border_margin_top', FBorderMargin.Top)
@@ -277,7 +284,8 @@ begin
       .Update('background', BGRAToStr(FBackground)).Get > 0);
   end else
   begin
-    Result := (InsertRow.Value('border_type', Integer(FBorderType))
+    Result := (InsertRow.Value('height', FHeight)
+      .Value('border_type', Integer(FBorderType))
       .Value('border', FBorder).Value('border_radius', FBorderRadius)
       .Value('border_color', BGRAToStr(FBorderColor))
       .Value('border_margin_top', FBorderMargin.Top)

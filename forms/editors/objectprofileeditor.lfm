@@ -1,0 +1,211 @@
+object ObjectProfileEditorForm: TObjectProfileEditorForm
+  Left = 2592
+  Height = 600
+  Top = 160
+  Width = 726
+  Caption = 'Profile Editor'
+  ClientHeight = 600
+  ClientWidth = 726
+  LCLVersion = '2.0.6.0'
+  object ListBox1: TListBox
+    Left = 0
+    Height = 480
+    Top = 120
+    Width = 264
+    Align = alLeft
+    ItemHeight = 0
+    ScrollWidth = 262
+    TabOrder = 0
+    TopIndex = -1
+  end
+  object StringGrid1: TStringGrid
+    Left = 0
+    Height = 120
+    Top = 0
+    Width = 726
+    Align = alTop
+    ColCount = 1
+    FixedCols = 0
+    FixedRows = 0
+    RowCount = 2
+    TabOrder = 1
+  end
+  object Panel1: TPanel
+    Left = 264
+    Height = 480
+    Top = 120
+    Width = 462
+    Align = alClient
+    BevelOuter = bvNone
+    ClientHeight = 480
+    ClientWidth = 462
+    TabOrder = 2
+    object GroupBox1: TGroupBox
+      Left = 5
+      Height = 131
+      Top = 5
+      Width = 452
+      Align = alTop
+      BorderSpacing.Around = 5
+      Caption = 'Background'
+      ClientHeight = 114
+      ClientWidth = 450
+      TabOrder = 0
+      object ComboBox1: TComboBox
+        Left = 256
+        Height = 27
+        Top = 8
+        Width = 188
+        ItemHeight = 0
+        TabOrder = 0
+        Text = 'ComboBox1'
+      end
+      object Label1: TLabel
+        Left = 8
+        Height = 14
+        Top = 12
+        Width = 30
+        Caption = 'Style'
+        ParentColor = False
+      end
+      object Label2: TLabel
+        Left = 8
+        Height = 14
+        Top = 46
+        Width = 33
+        Caption = 'Color'
+        ParentColor = False
+      end
+      object ColorBox1: TColorBox
+        Left = 256
+        Height = 29
+        Top = 41
+        Width = 188
+        DefaultColorColor = clDefault
+        Style = [cbStandardColors, cbExtendedColors, cbIncludeNone, cbCustomColor, cbCustomColors]
+        ItemHeight = 0
+        TabOrder = 1
+      end
+      object SpinEdit2: TSpinEdit
+        Left = 256
+        Height = 27
+        Top = 79
+        Width = 184
+        TabOrder = 2
+      end
+      object Label7: TLabel
+        Left = 8
+        Height = 14
+        Top = 88
+        Width = 40
+        Caption = 'Radius'
+        ParentColor = False
+      end
+    end
+    object GroupBox2: TGroupBox
+      Left = 5
+      Height = 187
+      Top = 141
+      Width = 452
+      Align = alTop
+      BorderSpacing.Around = 5
+      Caption = 'Border'
+      ClientHeight = 170
+      ClientWidth = 450
+      TabOrder = 1
+      object ComboBox2: TComboBox
+        Left = 256
+        Height = 27
+        Top = 8
+        Width = 188
+        ItemHeight = 0
+        TabOrder = 0
+        Text = 'ComboBox1'
+      end
+      object Label3: TLabel
+        Left = 8
+        Height = 14
+        Top = 12
+        Width = 30
+        Caption = 'Style'
+        ParentColor = False
+      end
+      object Label4: TLabel
+        Left = 8
+        Height = 14
+        Top = 46
+        Width = 33
+        Caption = 'Color'
+        ParentColor = False
+      end
+      object ColorBox2: TColorBox
+        Left = 256
+        Height = 29
+        Top = 41
+        Width = 188
+        DefaultColorColor = clDefault
+        Style = [cbStandardColors, cbExtendedColors, cbIncludeNone, cbCustomColor, cbCustomColors]
+        ItemHeight = 0
+        TabOrder = 1
+      end
+      object SpinEdit1: TSpinEdit
+        Left = 256
+        Height = 27
+        Top = 80
+        Width = 184
+        TabOrder = 2
+      end
+      object Label5: TLabel
+        Left = 8
+        Height = 14
+        Top = 88
+        Width = 40
+        Caption = 'Radius'
+        ParentColor = False
+      end
+      object Bevel1: TBevel
+        Left = 56
+        Height = 10
+        Top = 112
+        Width = 384
+        Shape = bsBottomLine
+      end
+      object Label6: TLabel
+        Left = 8
+        Height = 14
+        Top = 112
+        Width = 43
+        Caption = 'Margin'
+        ParentColor = False
+      end
+      object SpinEdit4: TSpinEdit
+        Left = 8
+        Height = 27
+        Top = 136
+        Width = 64
+        TabOrder = 3
+      end
+      object SpinEdit5: TSpinEdit
+        Left = 80
+        Height = 27
+        Top = 136
+        Width = 64
+        TabOrder = 4
+      end
+      object SpinEdit6: TSpinEdit
+        Left = 152
+        Height = 27
+        Top = 136
+        Width = 64
+        TabOrder = 5
+      end
+      object SpinEdit7: TSpinEdit
+        Left = 224
+        Height = 27
+        Top = 136
+        Width = 64
+        TabOrder = 6
+      end
+    end
+  end
+end

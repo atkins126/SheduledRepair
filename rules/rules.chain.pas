@@ -33,7 +33,7 @@ interface
 
 uses
   SysUtils, objects.common, sqlite3.schema, sqlite3.result, sqlite3.result_row,
-  rules.rule, renderer.objectprofile, sqlite3.table, database;
+  rules.rule, renderer.profile.objectprofile, sqlite3.table, database;
 
 type
   TRulesChain = class(TCommonObject)
@@ -78,22 +78,24 @@ class function TRulesChain.CalculateProfile (AObject : PCommonObject) :
 var
   rules : TSQLite3Table;
   chain : TSQLite3Result.TRowIterator;
-  profile_id : Int64; 
+  profile_item : TRendererObjectProfile;
 begin
   if (AObject = nil) or (AObject^.ID = -1) then
     Exit(TRendererObjectProfile.Create(-1));
 
   rules := TSQLite3Table.Create(DB.Errors, DB.Handle, RULES_CHAIN_TABLE_NAME);
   chain := rules.Select.Field('object_profile_id')
-    .Where('object_name', AObject^.Table).Where('object_id', AObject^.ID)
+    .Where('object_name', AObject^.Table)
     .Limit(1).Get.FirstRow;
   
   if not chain.HasRow then
     Exit(TRendererObjectProfile.Create(-1));
 
-  Result := TRendererObjectProfile.Create(
-    chain.Row.GetIntegerValue('object_profile_id')
-  );
+  profile_item := TRendererObjectProfile.Create(-1);
+  if profile_item.Reload(chain.Row.GetIntegerValue('object_profile_id')) then
+    Exit(profile_item);
+
+  Result := TRendererObjectProfile.Create(-1);
 end;
 
 constructor TRulesChain.Create (AID : Int64);

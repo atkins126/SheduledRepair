@@ -33,16 +33,42 @@ interface
 
 uses
   renderer.objects.common, objects.measure, BGRABitmap, BGRABitmapTypes,
-  Graphics;
+  Graphics, renderer.profile.objectprofile, renderer.profile.profile;
 
 type
   TMeasureRenderer = class(specialize TCommonRenderer<TMeasure>)
-  
+  public
+    constructor Create (AObject : TMeasure; AProfile : TRendererObjectProfile);
+    destructor Destroy; override;
+
+    procedure Draw (ABitmap : PBGRABitmap);  
+  private
+    FObject : TMeasure;
+    FProfile : TRendererObjectProfile;
   end;
 
 implementation
 
 { TMeasureRenderer }
 
+constructor TMeasureRenderer.Create (AObject : TMeasure; AProfile :
+  TRendererObjectProfile);
+begin
+  FObject := AObject;
+  FProfile := AProfile;
+end;
+
+destructor TMeasureRenderer.Destroy;
+begin
+  inherited Destroy;
+end;
+
+procedure TMeasureRenderer.Draw (ABitmap : PBGRABitmap);
+begin
+  DrawBackground(ABitmap, FProfile.DefaultProfile.Background);
+  DrawSquareRoundBorder(ABitmap, FProfile.DefaultProfile.Border,
+    FProfile.DefaultProfile.BorderMargin, FProfile.DefaultProfile.BorderColor,
+    FProfile.DefaultProfile.BorderRadius);
+end;
 
 end.

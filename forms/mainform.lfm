@@ -30,13 +30,15 @@ object MainWindow: TMainWindow
     Top = 0
     Width = 750
     Align = alClient
-    ColCount = 0
+    ColCount = 1
+    DefaultDrawing = False
     FixedCols = 0
     FixedRows = 0
     HeaderHotZones = []
     HeaderPushZones = []
     Options = [goSmoothScroll]
-    RowCount = 0
+    RowCount = 1
     TabOrder = 1
+    OnDrawCell = ContentGridDrawCell
   end
 end
