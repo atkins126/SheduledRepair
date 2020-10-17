@@ -37,9 +37,11 @@ begin
 
   obj_profile.DefaultProfile.BorderRadius := 10;
   obj_profile.DefaultProfile.Background := BGRA(10, 10, 10, 128);
+  obj_profile.DefaultProfile.Height := 25;
 
   obj_profile.SelectedProfile.BorderRadius := 10;
   obj_profile.SelectedProfile.Background := BGRA(128, 128, 128, 192);
+  obj_profile.SelectedProfile.Height := 40;
 
   AssertTrue('Object save error', obj_profile.Save);
 
@@ -50,6 +52,10 @@ begin
   AssertTrue('RendererObjectProfile object load error', obj_profile.Load);
   AssertTrue('RendererObjectProfile object ''ID'' is not correct error', 
     obj_profile.ID = id);
+  AssertTrue('RendererObjectProfile object ''DefaultProfile.Height'' is not correct error',
+    obj_profile.DefaultProfile.Height = 25);
+  AssertTrue('RendererObjectProfile object ''SelectedProfile.Height'' is not correct error',
+    obj_profile.SelectedProfile.Height = 40);
 
   FreeAndNil(obj_profile);  
 end;

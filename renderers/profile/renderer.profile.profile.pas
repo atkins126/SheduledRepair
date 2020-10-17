@@ -171,7 +171,6 @@ begin
   begin
     if item.Name = AName then
     begin
-      item.Height := AValue.Height;
       item.Background := AValue.Background;
       item.BackgroundFillType := AValue.BackgroundFillType;
       item.BackgroundRoundRadius := AValue.BackgroundRoundRadius;
