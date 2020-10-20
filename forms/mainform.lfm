@@ -4,41 +4,5 @@ object MainWindow: TMainWindow
   Top = 139
   Width = 974
   Caption = 'SheduledRepair'
-  ClientHeight = 655
-  ClientWidth = 974
-  OnCreate = FormCreate
   LCLVersion = '2.0.6.0'
-  object MenuGrid: TStringGrid
-    Left = 0
-    Height = 655
-    Top = 0
-    Width = 224
-    Align = alLeft
-    ColCount = 0
-    FixedCols = 0
-    FixedRows = 0
-    HeaderHotZones = []
-    HeaderPushZones = []
-    Options = [goSmoothScroll]
-    RowCount = 0
-    ScrollBars = ssAutoVertical
-    TabOrder = 0
-  end
-  object ContentGrid: TStringGrid
-    Left = 224
-    Height = 655
-    Top = 0
-    Width = 750
-    Align = alClient
-    ColCount = 1
-    DefaultDrawing = False
-    FixedCols = 0
-    FixedRows = 0
-    HeaderHotZones = []
-    HeaderPushZones = []
-    Options = [goSmoothScroll]
-    RowCount = 1
-    TabOrder = 1
-    OnDrawCell = ContentGridDrawCell
-  end
 end

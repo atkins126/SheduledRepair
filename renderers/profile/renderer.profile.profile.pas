@@ -32,9 +32,9 @@ unit renderer.profile.profile;
 interface
 
 uses
-  SysUtils, objects.common, Graphics, BGRABitmap, BGRABitmapTypes,
-  container.arraylist, utils.functor, sqlite3.schema, sqlite3.result,
-  sqlite3.result_row, renderer.profile.profileitem, sqlite3.table, database;
+  SysUtils, objects.common, Graphics, container.arraylist, utils.functor, 
+  sqlite3.schema, sqlite3.result, sqlite3.result_row, 
+  renderer.profile.profileitem, sqlite3.table, database;
 
 type
   TRendererProfile = class(TCommonObject)
@@ -43,20 +43,6 @@ type
       RENDERER_PROFILE_TABLE_NAME = 'renderer_profile';
   public
     type
-      TBorderType = (
-        BORDER_NONE,
-        BORDER_SQUARE,
-        BORDER_SQUARE_ROUND_CORNER
-      );
-
-      TMargin = class
-        Top, Left, Bottom, Right : Integer;
-      end;
-
-      TPadding = class
-        Top, Left, Bottom, Right : Integer;
-      end;
-
       TItemCompareFunctor = class
         (specialize TBinaryFunctor<TRendererProfileItem, Integer>)
       public
@@ -86,24 +72,14 @@ type
     function Delete : Boolean; override;
   protected
     FHeight : Integer;
-    FBorderType : TBorderType;
-    FBorder : Integer;
-    FBorderRadius : Integer;
-    FBorderColor : TBGRAPixel;
-    FBorderMargin : TMargin;
-    FBackground : TBGRAPixel;
+    FBackground : TColor;
     FItemsList : TItemsList;
 
     function GetItem (AName : String) : TRendererProfileItem;
     procedure SetItem (AName : String; AValue : TRendererProfileItem);
   public
     property Height : Integer read FHeight write FHeight;
-    property BorderType : TBorderType read FBorderType write FBorderType;
-    property Border : Integer read FBorder write FBorder;
-    property BorderRadius : Integer read FBorderRadius write FBorderRadius;
-    property BorderColor : TBGRAPixel read FBorderColor write FBorderColor;
-    property BorderMargin : TMargin read FBorderMargin write FBorderMargin;
-    property Background : TBGRAPixel read FBackground write FBackground;
+    property Background : TColor read FBackground write FBackground;
     property Items[Name : String] : TRendererProfileItem read GetItem
       write SetItem;
   end;
@@ -127,23 +103,13 @@ constructor TRendererProfile.Create (AID : Int64);
 begin
   inherited Create(AID);
   FHeight := 20;
-  FBorderType := BORDER_NONE;
-  FBorder := 0;
-  FBorderRadius := 0;
-  FBorderColor := BGRA(0, 0, 0, 255);
-  FBorderMargin := TMargin.Create;
-  FBorderMargin.Top := 0;
-  FBorderMargin.Left := 0;
-  FBorderMargin.Bottom := 0;
-  FBorderMargin.Right := 0;
-  FBackground := ColorToBGRA(ColorToRGB(clDefault));
+  FBackground := clDefault;
   FItemsList := TItemsList.Create;
 end;
 
 destructor TRendererProfile.Destroy;
 begin
   FreeAndNil(FItemsList);
-  FreeAndNil(FBorderMargin);
   inherited Destroy;
 end;
 
@@ -199,15 +165,7 @@ begin
   Schema
     .Id
     .Integer('height').NotNull
-    .Integer('border_type').NotNull
-    .Integer('border').NotNull
-    .Integer('border_radius').NotNull
-    .Text('border_color').NotNull
-    .Integer('border_margin_top').NotNull
-    .Integer('border_margin_left').NotNull
-    .Integer('border_margin_bottom').NotNull
-    .Integer('border_margin_right').NotNull
-    .Text('background').NotNull;
+    .Integer('background').NotNull;
 
   if not FTable.Exists then
     FTable.New(Schema);
@@ -240,15 +198,7 @@ begin
     Exit(False);
 
   FHeight := row.Row.GetIntegerValue('height');
-  FBorderType := TBorderType(row.Row.GetIntegerValue('border_type'));
-  FBorder := row.Row.GetIntegerValue('border');
-  FBorderRadius := row.Row.GetIntegerValue('border_radius');
-  FBorderColor := StrToBGRA(row.Row.GetStringValue('border_color'));
-  FBorderMargin.Top := row.Row.GetIntegerValue('border_margin_top');
-  FBorderMargin.Left := row.Row.GetIntegerValue('border_margin_left');
-  FBorderMargin.Bottom := row.Row.GetIntegerValue('border_margin_bottom');
-  FBorderMargin.Right := row.Row.GetIntegerValue('border_margin_right');
-  FBackground := StrToBGRA(row.Row.GetStringValue('background'));
+  FBackground := TColor(row.Row.GetIntegerValue('backgorund'));
 
   item := TRendererProfileItem.Create(-1);
   items_table := TSQLite3Table.Create(DB.Errors, DB.Handle, item.Table);
@@ -273,25 +223,11 @@ begin
   if ID <> -1 then
   begin
     Result := (UpdateRow.Update('height', FHeight)
-      .Update('border_type', Integer(FBorderType))
-      .Update('border', FBorder).Update('border_radius', FBorderRadius)
-      .Update('border_color', BGRAToStr(FBorderColor))
-      .Update('border_margin_top', FBorderMargin.Top)
-      .Update('border_margin_left', FBorderMargin.Left)
-      .Update('border_margin_bottom', FBorderMargin.Bottom)
-      .Update('border_margin_right', FBorderMargin.Right)
-      .Update('background', BGRAToStr(FBackground)).Get > 0);
+      .Update('background', FBackground).Get > 0);
   end else
   begin
     Result := (InsertRow.Value('height', FHeight)
-      .Value('border_type', Integer(FBorderType))
-      .Value('border', FBorder).Value('border_radius', FBorderRadius)
-      .Value('border_color', BGRAToStr(FBorderColor))
-      .Value('border_margin_top', FBorderMargin.Top)
-      .Value('border_margin_left', FBorderMargin.Left)
-      .Value('border_margin_bottom', FBorderMargin.Bottom)
-      .Value('border_margin_right', FBorderMargin.Right)
-      .Value('background', BGRAToStr(FBackground)).Get > 0);
+      .Value('background', FBackground).Get > 0);
       UpdateObjectID;
   end;
 

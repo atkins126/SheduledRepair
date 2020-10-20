@@ -32,8 +32,8 @@ unit renderer.profile.profileitem;
 interface
 
 uses
-  SysUtils, objects.common, Graphics, BGRABitmap, BGRABitmapTypes,
-  sqlite3.schema, sqlite3.result, sqlite3.result_row;
+  SysUtils, objects.common, Graphics, sqlite3.schema, sqlite3.result, 
+  sqlite3.result_row;
 
 type
   TRendererProfileItem = class(TCommonObject)
@@ -82,25 +82,25 @@ type
   protected
     FName : String;
     FRenderProfile : PCommonObject;
-    FBackground : TBGRAPixel;
+    FBackground : TColor;
     FBackgroundFill : TBackgroundFillType;
     FBackgroundRoundRadius : Integer;
     FFontName : String;
     FFontSize : Integer;
-    FFontColor : TBGRAPixel;
+    FFontColor : TColor;
     FPadding : TPadding;
     FPositionType : TPositionType;
     FPosition : TPosition;
   public
     property Name : String read FName write FName;
-    property Background : TBGRAPixel read FBackground write FBackground;
+    property Background : TColor read FBackground write FBackground;
     property BackgroundFillType : TBackgroundFillType read FBackgroundFill
       write FBackgroundFill;
     property BackgroundRoundRadius : Integer read FBackgroundRoundRadius
       write FBackgroundRoundRadius;
     property FontName : String read FFontName write FFontName;
     property FontSize : Integer read FFontSize write FFontSize;
-    property FontColor : TBGRAPixel read FFontColor write FFontColor;
+    property FontColor : TColor read FFontColor write FFontColor;
     property Padding : TPadding read FPadding write FPadding;
     property PositionType : TPositionType read FPositionType 
       write FPositionType;
@@ -120,12 +120,12 @@ begin
   FRenderProfile := nil;
 
   FName := '';
-  FBackground := BGRA(255, 255, 255, 255);
+  FBackground := clDefault;
   FBackgroundFill := FILL_NONE;
   FBackgroundRoundRadius := 0;
   FFontName := 'Default';
   FFontSize := 12;
-  FFontColor := BGRA(0, 0, 0, 255);
+  FFontColor := clBlack;
   FPadding := TPadding.Create;
   FPadding.Top := 0;
   FPadding.Left := 0;
@@ -156,12 +156,12 @@ begin
     .Id
     .Integer('profile_id').NotNull
     .Text('name').NotNull
-    .Text('background').NotNull
+    .Integer('background').NotNull
     .Integer('background_fill_type').NotNull
     .Integer('background_round_radius').NotNull
     .Text('font_name').NotNull
     .Integer('font_size').NotNull
-    .Text('font_color').NotNull
+    .Integer('font_color').NotNull
     .Integer('padding_top').NotNull
     .Integer('padding_left').NotNull
     .Integer('padding_bottom').NotNull
@@ -198,13 +198,13 @@ begin
     Exit(False);
 
   FName := row.Row.GetStringValue('name');  
-  FBackground := StrToBGRA(row.Row.GetStringValue('background'));
+  FBackground := TColor(row.Row.GetIntegerValue('background'));
   FBackgroundFill := 
     TBackgroundFillType(row.Row.GetIntegerValue('background_fill_type'));  
   FBackgroundRoundRadius := row.Row.GetIntegerValue('background_round_radius');
   FFontName := row.Row.GetStringValue('font_name');
   FFontSize := row.Row.GetIntegerValue('font_size');
-  FFontColor := StrToBGRA(row.Row.GetStringValue('font_color'));
+  FFontColor := TColor(row.Row.GetIntegerValue('font_color'));
   FPadding.Top := row.Row.GetIntegerValue('padding_top');
   FPadding.Left := row.Row.GetIntegerValue('padding_left');
   FPadding.Bottom := row.Row.GetIntegerValue('padding_bottom');
@@ -226,12 +226,12 @@ begin
   begin
     Result := (UpdateRow.Update('profile_id', FRenderProfile^.ID)
       .Update('name', FName)
-      .Update('background', BGRAToStr(FBackground))
+      .Update('background', FBackground)
       .Update('background_fill_type', Integer(FBackgroundFill))
       .Update('background_round_radius', FBackgroundRoundRadius)
       .Update('font_name', FFontName)
       .Update('font_size', FFontSize)
-      .Update('font_color', BGRAToStr(FFontColor))
+      .Update('font_color', FFontColor)
       .Update('padding_top', FPadding.Top)
       .Update('padding_left', FPadding.Left)
       .Update('padding_bottom', FPadding.Bottom)
@@ -245,12 +245,12 @@ begin
   begin
     Result := (InsertRow.Value('profile_id', FRenderProfile^.ID)
       .Value('name', FName)
-      .Value('background', BGRAToStr(FBackground))
+      .Value('background', FBackground)
       .Value('background_fill_type', Integer(FBackgroundFill))
       .Value('background_round_radius', FBackgroundRoundRadius)
       .Value('font_name', FFontName)
       .Value('font_size', FFontSize)
-      .Value('font_color', BGRAToStr(FFontColor))
+      .Value('font_color', FFontColor)
       .Value('padding_top', FPadding.Top)
       .Value('padding_left', FPadding.Left)
       .Value('padding_bottom', FPadding.Bottom)
