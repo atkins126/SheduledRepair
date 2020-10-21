@@ -35,13 +35,10 @@ uses
   SysUtils, dataproviders.common, objects.measure, MeasureEditor, Controls;
 
 type
-  PMeasureDataProvider = ^TMeasureDataProvider;
-  TMeasureDataProvider = class(specialize TCommonDataProvider<TMeasure>)
+  TMeasureDataProvider = class(TCommonDataProvider)
   public
     function Load : Boolean; override;
-    
-  protected
-    function OpenEditor (AObject : TMeasure) : Boolean; override;
+    function CreateObject : TCommonObject;
   end;
 
 implementation
@@ -57,19 +54,12 @@ begin
   if not MeasureItem.CheckSchema then
     Exit(False);
 
-  Result := LoadObjects(MeasureItem.Table);
-  FreeAndNil(MeasureItem);
+  
 end;
 
-function TMeasureDataProvider.OpenEditor (AObject : TMeasure) :
-  Boolean;
-var
-  Editor : TMeasureEditorForm;
+function TMeasureDataProvider.CreateObject : TCommonObject;
 begin
-  Editor := TMeasureEditorForm.Create(FEditorParent);
-  Editor.Measure := AObject;
-  Result := (Editor.ShowModal = mrOk);
-  FreeAndNil(Editor);
+  
 end;
 
 end.

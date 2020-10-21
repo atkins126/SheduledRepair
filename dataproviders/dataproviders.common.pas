@@ -34,40 +34,34 @@ interface
 uses
   SysUtils, database, sqlite3.table, container.arraylist, utils.functor,
   sqlite3.result, sqlite3.result_row, Classes, rules.chain, 
-  renderer.profile.objectprofile;
+  renderer.profile.objectprofile, objects.common;
 
 type
-  generic TCommonDataProvider<T> = class
+  TCommonDataProvider = class
   public
-    constructor Create (AEditorParent : TComponent);
+    constructor Create;
     destructor Destroy; override;
     
     function Load : Boolean; virtual; abstract;
-    function Count : Integer;
-
-    function GetObject (AIndex : Integer) : T;
-    function GetObjectProfile (AIndex : Integer) : TRendererObjectProfile;
-
-    function CreateObject : Integer;
-    function EditObject (AIndex : Integer) : Boolean;
-    function RemoveObject (AIndex : Integer) : Boolean;
+    
+    function CreateObject : TCommonObject; virtual; abstract;
+    function GetObject (AIndex : Cardinal) : TCommonObject;
+    function DeleteObject (AIndex : Cardinal) : Boolean;
+    function GetObjectProfile (AIndex : Cardinal) : TRendererObjectProfile;
   public
     type
-      TObjectCompareFunctor = class(specialize TBinaryFunctor<T, Integer>)
+      TObjectCompareFunctor = class
+        (specialize TBinaryFunctor<TCommonObject, Integer>)
       public
-        function Call (AValue1, AValue2 : T) : Integer; override;
+        function Call (AValue1, AValue2 : TCommonObject) : Integer; override;
       end;
 
-      TObjectsList = class(specialize TArrayList<T, TObjectCompareFunctor>);
+      TObjectsList = class
+        (specialize TArrayList<TCommonObject, TObjectCompareFunctor>);
   public
     function GetEnumerator : TObjectsList.TIterator;
   protected
-    function LoadObjects (ATableName : String) : Boolean;
-    function OpenEditor (AObject : T) : Boolean; virtual; 
-      abstract;
-  protected
     FObjectsList : TObjectsList;
-    FEditorParent : TComponent;
   end;
 
 implementation
@@ -87,10 +81,9 @@ end;
 
 { TCommonDataProvider }
 
-constructor TCommonDataProvider.Create (AEditorParent : TComponent);
+constructor TCommonDataProvider.Create;
 begin
   FObjectsList := TObjectsList.Create;
-  FEditorParent := AEditorParent;
 end;
 
 destructor TCommonDataProvider.Destroy;
@@ -104,109 +97,25 @@ begin
   Result := FObjectsList.GetEnumerator;
 end;
 
-function TCommonDataProvider.LoadObjects (ATableName : String) : Boolean;
-var
-  Table : TSQLite3Table;
-  ResultRows : TSQLite3Result;
-  Row : TSQLite3ResultRow;
-  ObjectItem : T;
+function TCommonDataProvider.GetObject (AIndex : Cardinal) : TCommonObject;
 begin
-  FObjectsList.Clear;
-
-  Table := TSQLite3Table.Create(DB.Errors, DB.Handle, ATableName);
-  ResultRows := Table.Select.Field('id').Get;
   
-  if not ResultRows.FirstRow.HasRow then
-    Exit(False);
-
-  for Row in ResultRows do
-  begin
-    ObjectItem := T.Create(Row.GetIntegerValue('id'));
-    if not ObjectItem.Load then
-      continue;
-
-    ObjectItem.Profile := TRendererObjectProfile(
-      TRulesChain.CalculateProfile(@ObjectItem)
-    );
-    FObjectsList.Append(ObjectItem);
-  end;
-
-  Result := True;  
 end;
 
-function TCommonDataProvider.Count : Integer;
+function TCommonDataProvider.DeleteObject (AIndex : Cardinal) : Boolean;
 begin
-  Result := FObjectsList.Length;
+  
 end;
 
-function TCommonDataProvider.GetObject (AIndex : Integer) : T;
-begin
-  if (AIndex < 0) or (AIndex > FObjectsList.Length) then
-    Exit(nil);
-
-  Result := FObjectsList.Value[AIndex - 1];
-end;
-
-function TCommonDataProvider.GetObjectProfile (AIndex : Integer) :
+function TCommonDataProvider.GetObjectProfile (AIndex : Cardinal) :
   TRendererObjectProfile;
 begin
-  if (AIndex < 0) or (AIndex > FObjectsList.Length) then
-    Exit(nil);
-
-  Result := TRendererObjectProfile(GetObject(AIndex).Profile);
-end;
-
-function TCommonDataProvider.CreateObject : Integer;
-var
-  ObjectItem : T;
-begin
-  ObjectItem := T.Create(-1);
-
-  if not OpenEditor(ObjectItem) then
-    Exit(-1);
   
-  if ObjectItem.Save then
-  begin
-    ObjectItem.Profile := TRendererObjectProfile(
-      TRulesChain.CalculateProfile(@ObjectItem)
-    );
-    FObjectsList.Append(ObjectItem);
-    Exit(FObjectsList.Length - 1);
-  end;
-
-  Result := -1;
 end;
 
-function TCommonDataProvider.EditObject (AIndex : Integer) : Boolean;
-var
-  item : T;
+function TCommonDataProvider.GetEnumerator : TObjectsList.TIterator;
 begin
-  if (AIndex < 0) or (AIndex > FObjectsList.Length) then
-    Exit(False);
-
-  if not OpenEditor(FObjectsList.Value[AIndex - 1]) then
-    Exit(False);
-
-  item := FObjectsList.Value[AIndex - 1];
-  Result := item.Save;
-  item.Profile := TRendererObjectProfile(TRulesChain.CalculateProfile(@item));
-end;
-
-function TCommonDataProvider.RemoveObject (AIndex : Integer) : Boolean;
-var
-  item : T;
-begin
-  if (AIndex < 0) or (AIndex > FObjectsList.Length) then
-    Exit(False);
-
-  item := FObjectsList.Value[AIndex - 1];
-  if item.Delete then
-  begin
-    FObjectsList.Remove(AIndex - 1);
-    Exit(True);
-  end;
-
-  Result := False;
+  
 end;
 
 end.
