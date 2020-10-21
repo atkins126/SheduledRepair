@@ -41,7 +41,7 @@ type
     const
       ENTITY_BAG_TABLE_NAME = 'entitybag';
   public
-    constructor Create (AID : Int64); override;
+    constructor Create (AID : Int64; AObject : TCommonObject);
     destructor Destroy; override;
     
     { Check database table scheme. }
@@ -81,10 +81,8 @@ type
     { Get enumerator for in operator. }
     function GetEnumerator : TEntityList.TIterator;
   private
-    FObject : PCommonObject;
+    FObject : TCommonObject;
     FEntityList : TEntityList;
-  public
-    property Entity : PCommonObject read FObject write FObject;
   end;
 
 implementation
@@ -104,10 +102,10 @@ end;
 
 { TEntityBag }
 
-constructor TEntityBag.Create (AID : Int64);
+constructor TEntityBag.Create (AID : Int64; AObject : TCommonObject);
 begin
   inherited Create (AID);
-  FObject := nil;
+  FObject := AObject;
   FEntityList := TEntityList.Create;
 end;
 
@@ -151,11 +149,11 @@ var
   row : TSQLite3ResultRow;
   Ent : TEntity;
 begin
-  if (FObject = nil) or (FObject^.ID = -1) then
+  if (FObject = nil) or (FObject.ID = -1) then
     Exit(False);
 
-  result_rows := FTable.Select.All.Where('object_id', FObject^.ID)
-    .Where('object_name', FObject^.Table).Get;
+  result_rows := FTable.Select.All.Where('object_id', FObject.ID)
+    .Where('object_name', FObject.Table).Get;
   FEntityList.Clear;
 
   for row in result_rows do
@@ -177,8 +175,8 @@ begin
   if FObject = nil then
     Exit(False);
 
-  if FObject^.ID = -1 then
-    FObject^.Save;
+  if FObject.ID = -1 then
+    FObject.Save;
 
   if not FEntityList.FirstEntry.HasValue then
     Exit(False);
@@ -188,14 +186,14 @@ begin
     Ent.Save;
     
     updated_rows := UpdateRow.Update('entity_id', Ent.ID)
-      .Where('object_id', FObject^.ID).Where('object_name', FObject^.Table)
+      .Where('object_id', FObject.ID).Where('object_name', FObject.Table)
       .Where('entity_id', Ent.ID).Get;
 
     if updated_rows > 0 then
       continue;
     
     InsertRow.Value('entity_id', Ent.ID)
-      .Value('object_id', FObject^.ID).Value('object_name', FObject^.Table).Get;
+      .Value('object_id', FObject.ID).Value('object_name', FObject.Table).Get;
     UpdateObjectID;
   end;
 
@@ -223,20 +221,20 @@ var
 begin
   FEntityList.Append(AEntity);
 
-  if (FObject <> nil) and (FObject^.ID <> -1) then
+  if (FObject <> nil) and (FObject.ID <> -1) then
   begin
     if not AEntity.Save then
       Exit;
 
     updated_rows := UpdateRow.Update('entity_id', AEntity.ID)
-      .Where('object_id', FObject^.ID).Where('object_name', FObject^.Table)
+      .Where('object_id', FObject.ID).Where('object_name', FObject.Table)
       .Where('entity_id', AEntity.ID).Get;
 
     if updated_rows > 0 then
       Exit;
 
     InsertRow.Value('entity_id', AEntity.ID)
-      .Value('object_id', FObject^.ID).Value('object_name', FObject^.Table).Get;
+      .Value('object_id', FObject.ID).Value('object_name', FObject.Table).Get;
   end;
 end;
 
@@ -250,10 +248,10 @@ begin
   begin
     FEntityList.Remove(Index);
     
-    if (FObject <> nil) and (FObject^.ID <> -1) then
+    if (FObject <> nil) and (FObject.ID <> -1) then
     begin
       FTable.Delete.Where('entity_id', AEntity.ID)
-        .Where('object_id', FObject^.ID).Where('object_name', FObject^.Table)
+        .Where('object_id', FObject.ID).Where('object_name', FObject.Table)
         .Get;
     end;
   end;

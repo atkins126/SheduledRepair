@@ -5,8 +5,8 @@ unit rendererprofile_testcase;
 interface
 
 uses
-  Classes, SysUtils, fpcunit, testregistry, renderer.profile.profile,
-  BGRABitmap, BGRABitmapTypes, renderer.profile.profileitem;
+  Classes, SysUtils, Graphics, fpcunit, testregistry, renderer.profile.profile,
+  renderer.profile.profileitem;
 
 type
   TRendererProfileTestCase = class(TTestCase)
@@ -36,23 +36,15 @@ begin
   profile := TRendererProfile.Create(-1);
   AssertTrue('Database table schema is not correct', profile.CheckSchema);
 
-  profile.BorderType := BORDER_NONE;
-  profile.Border := 2;
-  profile.BorderRadius := 5;
-  profile.BorderColor := BGRA(128, 128, 128, 128);
-  profile.BorderMargin.Top := 5;
-  profile.BorderMargin.Left := 5;
-  profile.BorderMargin.Bottom := 5;
-  profile.BorderMargin.Right := 5;
-  profile.Background := BGRA(25, 25, 25, 255);
+  profile.Background := clDefault;
 
   item := profile.Items['name'];
-  item.Background := BGRA(255, 255, 128, 255);
+  item.Background := clDefault;
   item.BackgroundFillType := FILL_NONE;
   item.BackgroundRoundRadius := 10;
   item.FontName := 'Default';
   item.FontSize := 13;
-  item.FontColor := BGRA(12, 12, 12, 255);
+  item.FontColor := clBlack;
   item.Padding.Top := 2;
   item.Padding.Left := 10;
   item.Padding.Bottom := 2;
@@ -72,29 +64,13 @@ begin
   AssertTrue('RendererProfile object load error', profile.Load);
   AssertTrue('RendererProfile object ''ID'' is not correct error', 
     profile.ID = id);
-  AssertTrue('RendererProfile object ''BorderType'' is not correct error', 
-    profile.BorderType = BORDER_NONE);
-  AssertTrue('RendererProfile object ''Border'' is not correct error', 
-    profile.Border = 2);
-  AssertTrue('RendererProfile object ''BorderRadius'' is not correct error', 
-    profile.BorderRadius = 5);
-  AssertTrue('RendererProfile object ''BorderColor'' is not correct error', 
-    profile.BorderColor = BGRA(128, 128, 128, 128));
-  AssertTrue('RendererProfile object ''BorderMargin.Top'' is not correct error', 
-    profile.BorderMargin.Top = 5);
-  AssertTrue('RendererProfile object ''BorderMargin.Left'' is not correct error', 
-    profile.BorderMargin.Left = 5);
-  AssertTrue('RendererProfile object ''BorderMargin.Bottom'' is not correct error', 
-    profile.BorderMargin.Bottom = 5);
-  AssertTrue('RendererProfile object ''BorderMargin.Right'' is not correct error', 
-    profile.BorderMargin.Right = 5);
   AssertTrue('RendererProfile object ''Background'' is not correct error', 
-    profile.Background = BGRA(25, 25, 25, 255));
+    profile.Background = clDefault);
 
   AssertTrue('RendererProfile object ''name'' item ''Name'' is not correct error', 
     profile.Items['name'].Name = 'name');
   AssertTrue('RendererProfile object ''name'' item ''Background'' is not correct error', 
-    profile.Items['name'].Background = BGRA(255, 255, 128, 255));
+    profile.Items['name'].Background = clDefault);
   AssertTrue('RendererProfile object ''name'' item ''BackgroundFillType'' is not correct error', 
     profile.Items['name'].BackgroundFillType = FILL_NONE);
   AssertTrue('RendererProfile object ''name'' item ''BackgroundRoundRadius'' is not correct error', 
@@ -104,7 +80,7 @@ begin
   AssertTrue('RendererProfile object ''name'' item ''FontSize'' is not correct error', 
     profile.Items['name'].FontSize = 13);
   AssertTrue('RendererProfile object ''name'' item ''FontColor'' is not correct error', 
-    profile.Items['name'].FontColor = BGRA(12, 12, 12, 255));
+    profile.Items['name'].FontColor = clBlack);
   AssertTrue('RendererProfile object ''name'' item ''Padding.Top'' is not correct error', 
     profile.Items['name'].Padding.Top = 2);
   AssertTrue('RendererProfile object ''name'' item ''Padding.Left'' is not correct error', 
@@ -135,15 +111,7 @@ begin
   profile := TRendererProfile.Create(-1);
   AssertTrue('Database table schema is not correct', profile.CheckSchema);
 
-  profile.BorderType := BORDER_NONE;
-  profile.Border := 2;
-  profile.BorderRadius := 5;
-  profile.BorderColor := BGRA(128, 128, 128, 128);
-  profile.BorderMargin.Top := 5;
-  profile.BorderMargin.Left := 5;
-  profile.BorderMargin.Bottom := 5;
-  profile.BorderMargin.Right := 5;
-  profile.Background := BGRA(25, 25, 25, 255);
+  profile.Background := clDefault;
 
   AssertTrue('Object save error', profile.Save);
 
@@ -154,24 +122,8 @@ begin
   AssertTrue('RendererProfile object load error', profile.Load);
   AssertTrue('RendererProfile object ''ID'' is not correct error', 
     profile.ID = id);
-  AssertTrue('RendererProfile object ''BorderType'' is not correct error', 
-    profile.BorderType = BORDER_NONE);
-  AssertTrue('RendererProfile object ''Border'' is not correct error', 
-    profile.Border = 2);
-  AssertTrue('RendererProfile object ''BorderRadius'' is not correct error', 
-    profile.BorderRadius = 5);
-  AssertTrue('RendererProfile object ''BorderColor'' is not correct error', 
-    profile.BorderColor = BGRA(128, 128, 128, 128));
-  AssertTrue('RendererProfile object ''BorderMargin.Top'' is not correct error', 
-    profile.BorderMargin.Top = 5);
-  AssertTrue('RendererProfile object ''BorderMargin.Left'' is not correct error', 
-    profile.BorderMargin.Left = 5);
-  AssertTrue('RendererProfile object ''BorderMargin.Bottom'' is not correct error', 
-    profile.BorderMargin.Bottom = 5);
-  AssertTrue('RendererProfile object ''BorderMargin.Right'' is not correct error', 
-    profile.BorderMargin.Right = 5);
   AssertTrue('RendererProfile object ''Background'' is not correct error', 
-    profile.Background = BGRA(25, 25, 25, 255));
+    profile.Background = clDefault);
 
   AssertTrue('RendererProfile object delete error', profile.Delete);
   AssertTrue('RendererProfile object impossible load', not profile.Load);

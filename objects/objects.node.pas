@@ -81,7 +81,7 @@ constructor TNode.Create (AID : Int64);
 begin
   inherited Create (AID);
   FName := '';
-  FGreaseBag := TGreaseBag.Create(-1);
+  FGreaseBag := TGreaseBag.Create(-1, Self);
   FPeriod := TPeriod.Create(-1);
   FShedule := TShedule.Create(-1);
 end;
@@ -133,7 +133,6 @@ begin
     Exit(False);
 
   FName := row.Row.GetStringValue('name');
-  FGreaseBag.Entity := @Self;
   Result := FGreaseBag.Reload(-1) and
     FPeriod.Reload(row.Row.GetIntegerValue('period_id')) and
     FShedule.Reload(row.Row.GetIntegerValue('shedule_id'));
@@ -162,7 +161,6 @@ begin
     UpdateObjectID;
   end;
 
-  FGreaseBag.Entity := @Self;
   if not FGreaseBag.Save then
     Exit(False);
 

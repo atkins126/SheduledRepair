@@ -81,7 +81,7 @@ type
     function Delete : Boolean; override;
   protected
     FName : String;
-    FRenderProfile : PCommonObject;
+    FRenderProfile : TCommonObject;
     FBackground : TColor;
     FBackgroundFill : TBackgroundFillType;
     FBackgroundRoundRadius : Integer;
@@ -106,7 +106,7 @@ type
       write FPositionType;
     property Position : TPosition read FPosition write FPosition;
 
-    property RendererProfile : PCommonObject read FRenderProfile
+    property RendererProfile : TCommonObject read FRenderProfile
       write FRenderProfile;
   end;
 
@@ -219,12 +219,12 @@ end;
 
 function TRendererProfileItem.Save : Boolean;
 begin
-  if (FRenderProfile = nil) or (FRenderProfile^.ID = -1) then
+  if (FRenderProfile = nil) or (FRenderProfile.ID = -1) then
     Exit(False);  
 
   if ID <> -1 then
   begin
-    Result := (UpdateRow.Update('profile_id', FRenderProfile^.ID)
+    Result := (UpdateRow.Update('profile_id', FRenderProfile.ID)
       .Update('name', FName)
       .Update('background', FBackground)
       .Update('background_fill_type', Integer(FBackgroundFill))
@@ -243,7 +243,7 @@ begin
       .Update('position_right', FPosition.Right).Get > 0);
   end else
   begin
-    Result := (InsertRow.Value('profile_id', FRenderProfile^.ID)
+    Result := (InsertRow.Value('profile_id', FRenderProfile.ID)
       .Value('name', FName)
       .Value('background', FBackground)
       .Value('background_fill_type', Integer(FBackgroundFill))

@@ -41,7 +41,7 @@ type
     const
       GREASE_BAG_TABLE_NAME = 'greasebag';
   public
-    constructor Create (AID : Int64); override;
+    constructor Create (AID : Int64; AObject : TCommonObject);
     destructor Destroy; override;
     
     { Check database table scheme. }
@@ -81,10 +81,8 @@ type
     { Get enumerator for in operator. }
     function GetEnumerator : TGreaseBundleList.TIterator;
   private
-    FObject : PCommonObject;
+    FObject : TCommonObject;
     FGreaseBundleList : TGreaseBundleList;
-  public
-    property Entity : PCommonObject read FObject write FObject;
   end;
 
 implementation
@@ -104,10 +102,10 @@ end;
 
 { TGreaseBag }
 
-constructor TGreaseBag.Create (AID : Int64);
+constructor TGreaseBag.Create (AID : Int64; AObject : TCommonObject);
 begin
   inherited Create (AID);
-  FObject := nil;
+  FObject := AObject;
   FGreaseBundleList := TGreaseBundleList.Create;
 end;
 
@@ -151,11 +149,11 @@ var
   row : TSQLite3ResultRow;
   GreaseBundle : TGreaseBundle;
 begin
-  if (FObject = nil) or (FObject^.ID = -1) then
+  if (FObject = nil) or (FObject.ID = -1) then
     Exit(False);
 
-  result_rows := FTable.Select.All.Where('object_id', FObject^.ID)
-    .Where('object_name', FObject^.Table).Get;
+  result_rows := FTable.Select.All.Where('object_id', FObject.ID)
+    .Where('object_name', FObject.Table).Get;
   FGreaseBundleList.Clear;
 
   for row in result_rows do
@@ -178,8 +176,8 @@ begin
   if FObject = nil then
     Exit(False);
 
-  if FObject^.ID = -1 then
-    FObject^.Save;
+  if FObject.ID = -1 then
+    FObject.Save;
 
   if not FGreaseBundleList.FirstEntry.HasValue then
     Exit(False);
@@ -189,14 +187,14 @@ begin
     GreaseBundle.Save;
     
     updated_rows := UpdateRow.Update('greasebundle_id', GreaseBundle.ID)
-      .Where('object_id', FObject^.ID).Where('object_name', FObject^.Table)
+      .Where('object_id', FObject.ID).Where('object_name', FObject.Table)
       .Where('greasebundle_id', GreaseBundle.ID).Get;
 
     if updated_rows > 0 then
       continue;
     
     InsertRow.Value('greasebundle_id', GreaseBundle.ID)
-      .Value('object_id', FObject^.ID).Value('object_name', FObject^.Table).Get;
+      .Value('object_id', FObject.ID).Value('object_name', FObject.Table).Get;
     UpdateObjectID;
   end;
 
@@ -224,20 +222,20 @@ var
 begin
   FGreaseBundleList.Append(AGreaseBundle);
 
-  if (FObject <> nil) and (FObject^.ID <> -1) then
+  if (FObject <> nil) and (FObject.ID <> -1) then
   begin
     if not AGreaseBundle.Save then
       Exit;
 
     updated_rows := UpdateRow.Update('greasebundle_id', AGreaseBundle.ID)
-      .Where('object_id', FObject^.ID).Where('object_name', FObject^.Table)
+      .Where('object_id', FObject.ID).Where('object_name', FObject.Table)
       .Where('greasebundle_id', AGreaseBundle.ID).Get;
 
     if updated_rows > 0 then
       Exit;
 
     InsertRow.Value('greasebundle_id', AGreaseBundle.ID)
-      .Value('object_id', FObject^.ID).Value('object_name', FObject^.Table).Get;
+      .Value('object_id', FObject.ID).Value('object_name', FObject.Table).Get;
   end;
 end;
 
@@ -251,10 +249,10 @@ begin
   begin
     FGreaseBundleList.Remove(Index);
     
-    if (FObject <> nil) and (FObject^.ID <> -1) then
+    if (FObject <> nil) and (FObject.ID <> -1) then
     begin
       FTable.Delete.Where('greasebundle_id', AGreaseBundle.ID)
-        .Where('object_id', FObject^.ID).Where('object_name', FObject^.Table)
+        .Where('object_id', FObject.ID).Where('object_name', FObject.Table)
         .Get;
     end;
   end;

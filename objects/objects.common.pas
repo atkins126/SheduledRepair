@@ -36,13 +36,12 @@ uses
   sqlite3.delete, sqlite3.result;
 
 type
-  PCommonObject = ^TCommonObject;
   TCommonObject = class
   public
     constructor Create (AID : Int64); virtual;
     destructor Destroy; override;
     
-    { Check database table scheme. }
+     { Check database table scheme. }
     function CheckSchema : Boolean; virtual; abstract;
 
     { Get object database table name. }
@@ -80,9 +79,6 @@ type
   protected
     FID : Int64;
     FTable : TSQLite3Table;
-    FProfile : TCommonObject;
-  public
-    property Profile : TCommonObject read FProfile write FProfile;
   end;
 
 implementation
@@ -93,7 +89,6 @@ constructor TCommonObject.Create (AID : Int64);
 begin
   FID := AID;
   FTable := TSQLite3Table.Create(DB.Errors, DB.Handle, Table);
-  FProfile := nil;
 end;
 
 destructor TCommonObject.Destroy;

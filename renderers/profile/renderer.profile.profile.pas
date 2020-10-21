@@ -236,7 +236,7 @@ begin
 
   for item in FItemsList do
   begin
-    item.RendererProfile := @Self;
+    item.RendererProfile := Self;
     item.Save;
   end;
 end;

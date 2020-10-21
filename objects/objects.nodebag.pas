@@ -41,7 +41,7 @@ type
     const
       NODE_BAG_TABLE_NAME = 'nodebag';
   public
-    constructor Create (AID : Int64); override;
+    constructor Create (AID : Int64; AObject : TCommonObject);
     destructor Destroy; override;
     
     { Check database table scheme. }
@@ -81,10 +81,8 @@ type
     { Get enumerator for in operator. }
     function GetEnumerator : TNodeList.TIterator;
   private
-    FObject : PCommonObject;
+    FObject : TCommonObject;
     FNodeList : TNodeList;
-  public
-    property Entity : PCommonObject read FObject write FObject;
   end;
 
 implementation
@@ -103,10 +101,10 @@ end;
 
 { TNodeBag }
 
-constructor TNodeBag.Create (AID : Int64);
+constructor TNodeBag.Create (AID : Int64; AObject : TCommonObject);
 begin
   inherited Create (AID);
-  FObject := nil;
+  FObject := AObject;
   FNodeList := TNodeList.Create;
 end;
 
@@ -150,11 +148,11 @@ var
   row : TSQLite3ResultRow;
   node : TNode;
 begin
-  if (FObject = nil) or (FObject^.ID = -1) then
+  if (FObject = nil) or (FObject.ID = -1) then
     Exit(False);
 
-  result_rows := FTable.Select.All.Where('object_id', FObject^.ID)
-    .Where('object_name', FObject^.Table).Get;
+  result_rows := FTable.Select.All.Where('object_id', FObject.ID)
+    .Where('object_name', FObject.Table).Get;
   FNodeList.Clear;
 
   for row in result_rows do
@@ -176,8 +174,8 @@ begin
   if FObject = nil then
     Exit(False);
 
-  if FObject^.ID = -1 then
-    FObject^.Save;
+  if FObject.ID = -1 then
+    FObject.Save;
 
   if not FNodeList.FirstEntry.HasValue then
     Exit(False);
@@ -187,14 +185,14 @@ begin
     node.Save;
     
     updated_rows := UpdateRow.Update('node_id', node.ID)
-      .Where('object_id', FObject^.ID).Where('object_name', FObject^.Table)
+      .Where('object_id', FObject.ID).Where('object_name', FObject.Table)
       .Where('node_id', node.ID).Get;
 
     if updated_rows > 0 then
       continue;
     
     InsertRow.Value('node_id', node.ID)
-      .Value('object_id', FObject^.ID).Value('object_name', FObject^.Table).Get;
+      .Value('object_id', FObject.ID).Value('object_name', FObject.Table).Get;
     UpdateObjectID;
   end;
 
@@ -222,20 +220,20 @@ var
 begin
   FNodeList.Append(ANode);
 
-  if (FObject <> nil) and (FObject^.ID <> -1) then
+  if (FObject <> nil) and (FObject.ID <> -1) then
   begin
     if not ANode.Save then
       Exit;
 
     updated_rows := UpdateRow.Update('node_id', ANode.ID)
-      .Where('object_id', FObject^.ID).Where('object_name', FObject^.Table)
+      .Where('object_id', FObject.ID).Where('object_name', FObject.Table)
       .Where('node_id', ANode.ID).Get;
 
     if updated_rows > 0 then
       Exit;
 
     InsertRow.Value('node_id', ANode.ID)
-      .Value('object_id', FObject^.ID).Value('object_name', FObject^.Table).Get;
+      .Value('object_id', FObject.ID).Value('object_name', FObject.Table).Get;
   end;
 end;
 
@@ -249,10 +247,10 @@ begin
   begin
     FNodeList.Remove(Index);
     
-    if (FObject <> nil) and (FObject^.ID <> -1) then
+    if (FObject <> nil) and (FObject.ID <> -1) then
     begin
       FTable.Delete.Where('node_id', ANode.ID)
-        .Where('object_id', FObject^.ID).Where('object_name', FObject^.Table)
+        .Where('object_id', FObject.ID).Where('object_name', FObject.Table)
         .Get;
     end;
   end;

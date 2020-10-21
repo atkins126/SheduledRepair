@@ -86,8 +86,8 @@ constructor TEntity.Create (AID : Int64);
 begin
   inherited Create (AID);
   FName := '';
-  FGreaseBag := TGreaseBag.Create(-1);
-  FNodeBag := TNodeBag.Create(-1);
+  FGreaseBag := TGreaseBag.Create(-1, Self);
+  FNodeBag := TNodeBag.Create(-1, Self);
   FShedule := TShedule.Create(-1);
   FQuantity := TQuantity.Create(-1);
   FPeriod := TPeriod.Create(-1);
@@ -144,9 +144,7 @@ begin
     Exit(False);
 
   FName := row.Row.GetStringValue('name');
-  FGreaseBag.Entity := @Self;
   FGreaseBag.Reload(-1);
-  FNodeBag.Entity := @Self;
   FNodeBag.Reload(-1);
 
   Result := FQuantity.Reload(row.Row.GetIntegerValue('quantity_id')) and
@@ -180,10 +178,7 @@ begin
     UpdateObjectID;
   end;
 
-  FGreaseBag.Entity := @Self;
   FGreaseBag.Save;
-
-  FNodeBag.Entity := @Self;
   FNodeBag.Save;
 
   Result := (updated_rows > 0);

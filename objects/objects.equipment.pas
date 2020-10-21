@@ -77,7 +77,7 @@ constructor TEquipment.Create (AID : Int64);
 begin
   inherited Create (AID);
   FName := '';
-  FEntityBag := TEntityBag.Create(-1);
+  FEntityBag := TEntityBag.Create(-1, Self);
 end;
 
 destructor TEquipment.Destroy;
@@ -122,7 +122,6 @@ begin
     Exit(False);
 
   FName := row.Row.GetStringValue('name');
-  FEntityBag.Entity := @Self;
   Result := FEntityBag.Reload(-1);
 end;
 
@@ -137,7 +136,6 @@ begin
     UpdateObjectID;
   end;
 
-  FEntityBag.Entity := @Self;
   FEntityBag.Save;
 end;
 

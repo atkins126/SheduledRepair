@@ -5,8 +5,8 @@ unit rendererobjectprofile_testcase;
 interface
 
 uses
-  Classes, SysUtils, fpcunit, testregistry, renderer.profile.profile, 
-  renderer.profile.objectprofile, BGRABitmap, BGRABitmapTypes;
+  Classes, SysUtils, Graphics, fpcunit, testregistry, renderer.profile.profile,
+  renderer.profile.objectprofile;
 
 type
   TRendererObjectProfileTestCase = class(TTestCase)
@@ -35,12 +35,10 @@ begin
   obj_profile := TRendererObjectProfile.Create(-1);
   AssertTrue('Database table schema is not correct', obj_profile.CheckSchema);
 
-  obj_profile.DefaultProfile.BorderRadius := 10;
-  obj_profile.DefaultProfile.Background := BGRA(10, 10, 10, 128);
+  obj_profile.DefaultProfile.Background := clDefault;
   obj_profile.DefaultProfile.Height := 25;
 
-  obj_profile.SelectedProfile.BorderRadius := 10;
-  obj_profile.SelectedProfile.Background := BGRA(128, 128, 128, 192);
+  obj_profile.SelectedProfile.Background := clDefault;
   obj_profile.SelectedProfile.Height := 40;
 
   AssertTrue('Object save error', obj_profile.Save);

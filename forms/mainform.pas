@@ -4,13 +4,14 @@ unit MainForm;
 interface
 
 uses
-  Classes, SysUtils, Forms;
+  Classes, SysUtils, Forms, StdCtrls;
 
 type
 
   { TMainWindow }
 
   TMainWindow = class(TForm)
+    ListBox1: TListBox;
 
   public
 
