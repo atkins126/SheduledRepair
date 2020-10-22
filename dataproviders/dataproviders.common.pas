@@ -99,23 +99,30 @@ end;
 
 function TCommonDataProvider.GetObject (AIndex : Cardinal) : TCommonObject;
 begin
-  
+  if not FObjectsList.FirstEntry.HasValue then
+    Exit(nil);
+
+  Result := FObjectsList.Value[AIndex];
 end;
 
 function TCommonDataProvider.DeleteObject (AIndex : Cardinal) : Boolean;
 begin
-  
+  if not FObjectsList.FirstEntry.HasValue then
+    Exit(False);
+
+  FObjectsList.Remove(AIndex);
+  Result := True;
 end;
 
 function TCommonDataProvider.GetObjectProfile (AIndex : Cardinal) :
   TRendererObjectProfile;
 begin
-  
+  Result := nil;
 end;
 
 function TCommonDataProvider.GetEnumerator : TObjectsList.TIterator;
 begin
-  
+  Result := FObjectsList.GetEnumerator;
 end;
 
 end.

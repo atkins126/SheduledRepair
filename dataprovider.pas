@@ -40,7 +40,6 @@ type
     constructor Create;
     destructor Destroy; override;
   private
-    FEditorParent : TComponent;
     FMeasure : TMeasureDataProvider;
 
     procedure LoadDataProviders;
@@ -59,7 +58,7 @@ constructor TDataProvider.Create;
 begin
   if not Assigned(Provider) then
   begin
-    FMeasure := TMeasureDataProvider.Create(nil);
+    FMeasure := TMeasureDataProvider.Create;
 
     LoadDataProviders;
     Provider := self;

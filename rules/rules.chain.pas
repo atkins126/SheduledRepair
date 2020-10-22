@@ -41,7 +41,7 @@ type
     const
       RULES_CHAIN_TABLE_NAME = 'rules_chain';
   public
-    class function CalculateProfile (AObject : PCommonObject) : 
+    class function CalculateProfile (AObject : TCommonObject) : 
       TRendererObjectProfile;
 
     constructor Create (AID : Int64); override;
@@ -62,10 +62,9 @@ type
     { Delete object from database. }
     function Delete : Boolean; override;
   protected
-    FObject : PCommonObject;
+    FObject : TCommonObject;
     FRendererProfile : TRendererObjectProfile;
   public
-    property Entity : PCommonObject read FObject write FObject;
     property RendererProfile : TRendererObjectProfile read FRendererProfile;
   end;
 
@@ -73,19 +72,19 @@ implementation
 
 { TRulesChain }
 
-class function TRulesChain.CalculateProfile (AObject : PCommonObject) : 
+class function TRulesChain.CalculateProfile (AObject : TCommonObject) : 
   TRendererObjectProfile;
 var
   rules : TSQLite3Table;
   chain : TSQLite3Result.TRowIterator;
   profile_item : TRendererObjectProfile;
 begin
-  if (AObject = nil) or (AObject^.ID = -1) then
+  if (AObject = nil) or (AObject.ID = -1) then
     Exit(TRendererObjectProfile.Create(-1));
 
   rules := TSQLite3Table.Create(DB.Errors, DB.Handle, RULES_CHAIN_TABLE_NAME);
   chain := rules.Select.Field('object_profile_id')
-    .Where('object_name', AObject^.Table)
+    .Where('object_name', AObject.Table)
     .Limit(1).Get.FirstRow;
   
   if not chain.HasRow then
@@ -145,7 +144,7 @@ function TRulesChain.Load : Boolean;
 var
   row : TSQLite3Result.TRowIterator;
 begin
-  if (FObject = nil) or (FObject^.ID = -1) then
+  if (FObject = nil) or (FObject.ID = -1) then
     Exit(False);  
 
   if ID = -1 then
@@ -163,18 +162,18 @@ end;
 
 function TRulesChain.Save : Boolean;
 begin
-  if (FObject = nil) or (FObject^.ID = -1) then
+  if (FObject = nil) or (FObject.ID = -1) then
     Exit(False);
 
   if ID <> -1 then
   begin
     Result := (UpdateRow.Update('object_profile_id', FRendererProfile.ID)
-      .Update('object_name', FObject^.Table)
-      .Update('object_id', FObject^.ID).Get > 0);
+      .Update('object_name', FObject.Table)
+      .Update('object_id', FObject.ID).Get > 0);
   end else 
   begin
     Result := (InsertRow.Value('object_profile_id', FRendererProfile.ID)
-      .Value('object_name', FObject^.Table).Value('object_id', FObject^.ID)  
+      .Value('object_name', FObject.Table).Value('object_id', FObject.ID)  
       .Get > 0);
     UpdateObjectID;
   end;

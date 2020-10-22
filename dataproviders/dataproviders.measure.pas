@@ -32,7 +32,9 @@ unit dataproviders.measure;
 interface
 
 uses
-  SysUtils, dataproviders.common, objects.measure, MeasureEditor, Controls;
+  SysUtils, dataproviders.common, objects.measure, MeasureEditor, Controls,
+  sqlite3.table, sqlite3.select, sqlite3.result, sqlite3.result_row,
+  database;
 
 type
   TMeasureDataProvider = class(TCommonDataProvider)
@@ -48,18 +50,34 @@ implementation
 function TMeasureDataProvider.Load : Boolean;
 var
   MeasureItem : TMeasure;
+  Table : TSQLite3Table;
+  ResultRows : TSQLite3Result;
+  Row : TSQLite3ResultRow;
 begin
   MeasureItem := TMeasure.Create(-1);
 
   if not MeasureItem.CheckSchema then
     Exit(False);
 
-  
+  Table := TSQLite3Table.Create(DB.Errors, DB.Handle, MeasureItem.Table);
+  ResultRows := Table.Select.All;
+
+  if not ResultRows.FirstRow.HasRow then
+    Exit(False);
+
+  FObjectsList.Clear;
+  for Row in ResultRows do
+  begin
+    MeasureItem.Reload(Row.GetIntegerValue('id'));
+    FObjectsList.Append(MeasureItem);
+  end;
+
+  Result := True;  
 end;
 
 function TMeasureDataProvider.CreateObject : TCommonObject;
 begin
-  
+  Result := TMeasure.Create(-1);
 end;
 
 end.

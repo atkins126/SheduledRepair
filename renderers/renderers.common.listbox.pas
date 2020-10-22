@@ -32,14 +32,40 @@ unit renderers.common.listbox;
 interface
 
 uses
-  SysUtils, StdCtrls;
+  SysUtils, StdCtrls, dataproviders.common;
 
 type
   TCommonListBoxRenderer = class
   public
-    constructor Create (AListBox : TCustomListBox; )
+    constructor Create (AListBox : TCustomListBox; ADataProvider : 
+      TCommonDataProvider);
+    destructor Destroy; override;
+
+    procedure Update;
+  private
+    FListBox : TCustomListBox;
+    FDataProvider : TCommonDataProvider;
   end;
 
 implementation
+
+{ TCommonListBoxRenderer }
+
+constructor TCommonListBoxRenderer.Create (AListBox : TCustomListBox;
+  ADataProvider : TCommonDataProvider);
+begin
+  FListBox := AListBox;
+  FDataProvider := ADataProvider;
+end;
+
+destructor TCommonListBoxRenderer.Destroy;
+begin
+  inherited Destroy;
+end;
+
+procedure TCommonListBoxRenderer.Update;
+begin
+  
+end;
 
 end.

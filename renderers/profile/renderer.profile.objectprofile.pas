@@ -36,7 +36,6 @@ uses
   renderer.profile.profile;
 
 type
-  PRendererObjectProfile = ^TRendererObjectProfile;
   TRendererObjectProfile = class(TCommonObject)
   private
     const
