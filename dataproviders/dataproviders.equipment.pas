@@ -22,7 +22,7 @@
 (* Floor, Boston, MA 02110-1335, USA.                                         *)
 (*                                                                            *)
 (******************************************************************************)
-unit dataprovider;
+unit dataproviders.equipment;
 
 {$mode objfpc}{$H+}
 {$IFOPT D+}
@@ -32,58 +32,53 @@ unit dataprovider;
 interface
 
 uses
-  SysUtils, Classes, dataproviders.measure, dataproviders.equipment;
+  SysUtils, dataproviders.common, objects.equipment, sqlite3.table, 
+  sqlite3.select, sqlite3.result, sqlite3.result_row, database;
 
 type
-  TDataProvider = class
+  TEquipmentDataProvider = class(TCommonDataProvider)
   public
-    constructor Create;
-    destructor Destroy; override;
-  private
-    FMeasure : TMeasureDataProvider;
-    FEquipment : TEquipmentDataProvider;
-
-    procedure LoadDataProviders;
-  public
-    property Measure : TMeasureDataProvider read FMeasure;
-    property Equipment : TEquipmentDataProvider read FEquipment;
+    function Load : Boolean; override;
+    function CreateObject : TCommonObject;
   end;
-
-var
-  Provider : TDataProvider = nil;
 
 implementation
 
-{ TDataProvider }
+{ TEquipmentDataProvider }
 
-constructor TDataProvider.Create;
+function TEquipmentDataProvider.Load : Boolean;
+var
+  EquipmentItem : TEquipment;
+  Table : TSQLite3Table;
+  ResultRows : TSQLite3Result;
+  Row : TSQLite3ResultRow;
 begin
-  if not Assigned(Provider) then
+  EquipmentItem := TMeasure.Create(-1);
+
+  if not EquipmentItem.CheckSchema then
+    Exit(False);
+
+  Table := TSQLite3Table.Create(DB.Errors, DB.Handle, EquipmentItem.Table);
+  ResultRows := Table.Select.All;
+
+  if not ResultRows.FirstRow.HasRow then
+    Exit(False);
+
+  FObjectsList.Clear;
+  for Row in ResultRows do
   begin
-    FMeasure := TMeasureDataProvider.Create;
-    FEquipment := TEquipmentDataProvider.Create;
+    EquipmentItem.Reload(Row.GetIntegerValue('id'));
+    FObjectsList.Append(EquipmentItem);
+  end;
 
-    LoadDataProviders;
-    Provider := self;
-  end else
-    self := Provider;
+  FreeAndNil(ResultRows);
+  FreeAndNil(Table);
+  Result := True;  
 end;
 
-destructor TDataProvider.Destroy;
+function TEquipmentDataProvider.CreateObject : TCommonObject;
 begin
-  FreeAndNil(FEquipment);
-  FreeAndNil(FMeasure);
-  inherited Destroy;
+  Result := TEquipment.Create(-1);
 end;
 
-procedure TDataProvider.LoadDataProviders;
-begin
-  FMeasure.Load;
-  FEquipment.Load;
-end;
-
-initialization
-  Provider := TDataProvider.Create;
-finalization
-  FreeAndNil(Provider);
 end.

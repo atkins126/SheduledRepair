@@ -32,9 +32,8 @@ unit dataproviders.measure;
 interface
 
 uses
-  SysUtils, dataproviders.common, objects.measure, MeasureEditor, Controls,
-  sqlite3.table, sqlite3.select, sqlite3.result, sqlite3.result_row,
-  database;
+  SysUtils, dataproviders.common, objects.measure, sqlite3.table, 
+  sqlite3.select, sqlite3.result, sqlite3.result_row, database;
 
 type
   TMeasureDataProvider = class(TCommonDataProvider)
@@ -72,6 +71,8 @@ begin
     FObjectsList.Append(MeasureItem);
   end;
 
+  FreeAndNil(ResultRows);
+  FreeAndNil(Table);
   Result := True;  
 end;
 

@@ -1,20 +1,8 @@
 object MainWindow: TMainWindow
-  Left = 2517
+  Left = 2516
   Height = 655
-  Top = 156
+  Top = 157
   Width = 974
   Caption = 'SheduledRepair'
-  ClientHeight = 655
-  ClientWidth = 974
   LCLVersion = '2.0.6.0'
-  object ListBox1: TListBox
-    Left = 216
-    Height = 336
-    Top = 159
-    Width = 336
-    ItemHeight = 0
-    ScrollWidth = 334
-    TabOrder = 0
-    TopIndex = -1
-  end
 end
