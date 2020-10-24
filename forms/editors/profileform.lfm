@@ -1,9 +1,8 @@
 object ProfileWindow: TProfileWindow
-  Left = 2740
+  Left = 2939
   Height = 650
-  Top = 134
-  Width = 800
-  BorderStyle = bsSingle
+  Top = 135
+  Width = 323
   Caption = 'Profile editor'
   LCLVersion = '2.0.6.0'
 end

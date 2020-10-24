@@ -5,8 +5,7 @@ unit profileform;
 interface
 
 uses
-  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, StdCtrls,
-  Buttons, Spin, ComCtrls, ColorBox, EditBtn, PopupNotifier;
+  Classes, SysUtils, Forms, ValEdit, VirtualTrees;
 
 type
 

@@ -1,8 +1,78 @@
 object MainWindow: TMainWindow
-  Left = 2516
+  Left = 2633
   Height = 655
-  Top = 157
-  Width = 974
+  Top = 136
+  Width = 1200
   Caption = 'SheduledRepair'
+  ClientHeight = 655
+  ClientWidth = 1200
+  OnCreate = FormCreate
   LCLVersion = '2.0.6.0'
+  object TopPanel: TPanel
+    Left = 0
+    Height = 50
+    Top = 0
+    Width = 1200
+    Align = alTop
+    TabOrder = 5
+  end
+  object MainMenu: TVirtualDrawTree
+    Left = 0
+    Height = 555
+    Top = 50
+    Width = 300
+    Align = alLeft
+    Header.AutoSizeIndex = 0
+    Header.Columns = <>
+    Header.MainColumn = -1
+    TabOrder = 0
+    TreeOptions.MiscOptions = [toFullRepaintOnResize, toInitOnSave, toToggleOnDblClick, toWheelPanning, toEditOnClick]
+  end
+  object MainMenuSplitter: TSplitter
+    Left = 300
+    Height = 555
+    Top = 50
+    Width = 5
+  end
+  object Settings: TVirtualDrawTree
+    Left = 900
+    Height = 555
+    Top = 50
+    Width = 300
+    Align = alRight
+    Header.AutoSizeIndex = 0
+    Header.Columns = <>
+    Header.MainColumn = -1
+    TabOrder = 1
+    Visible = False
+  end
+  object SettingsSplitter: TSplitter
+    Left = 895
+    Height = 555
+    Top = 50
+    Width = 5
+    Align = alRight
+    ResizeAnchor = akRight
+    Visible = False
+  end
+  object Content: TVirtualDrawTree
+    Left = 305
+    Height = 555
+    Top = 50
+    Width = 590
+    Align = alClient
+    Header.AutoSizeIndex = 0
+    Header.Columns = <>
+    Header.MainColumn = -1
+    TabOrder = 4
+  end
+  object BottomPanel: TPanel
+    Left = 0
+    Height = 50
+    Top = 605
+    Width = 1200
+    Align = alBottom
+    TabOrder = 6
+    Visible = False
+  end
 end

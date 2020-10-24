@@ -5,8 +5,7 @@ unit equipmentform;
 interface
 
 uses
-  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ComCtrls, StdCtrls,
-  ColorBox, Spin, ExtCtrls;
+  Classes, SysUtils, Forms;
 
 type
 
