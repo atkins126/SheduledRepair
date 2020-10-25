@@ -64,7 +64,7 @@ object MainWindow: TMainWindow
     Header.AutoSizeIndex = 0
     Header.Columns = <>
     Header.MainColumn = -1
-    TabOrder = 4
+    TabOrder = 3
   end
   object BottomPanel: TPanel
     Left = 0

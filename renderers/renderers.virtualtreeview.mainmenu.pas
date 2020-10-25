@@ -32,7 +32,7 @@ unit renderers.virtualtreeview.mainmenu;
 interface
 
 uses
-  SysUtils, Graphics, Types, VirtualTrees;
+  SysUtils, Classes, Graphics, Types, VirtualTrees;
 
 type
   generic TVirtualTreeViewRenderer<T> = class
@@ -40,21 +40,22 @@ type
     constructor Create (ATreeView : TVirtualDrawTree);
     destructor Destroy; override;
 
-    procedure Append (AData : T);
+    procedure Append (AItemType : Integer; AData : T);
 
-    procedure Draw (ACanvas : TCanvas; ARect : TRect; AData : T); virtual;
+    function ItemHeight (AIndex : Cardinal; AData : T) : Cardinal; virtual;
       abstract;
+    procedure Draw (AItemType : Integer; ACanvas : TCanvas; ARect : TRect; 
+      AData : T); virtual; abstract;
   private
     type
       PItem = ^TItem;
       TItem = record
         Data : T;
+        MenuItemType : Integer;
       end;
   private
     FTreeView : TVirtualDrawTree;
 
-    procedure NodeDataSizeEvent (ASender: TBaseVirtualTree; var ANodeDataSize:
-      Integer);
     procedure NodeInit (ASender: TBaseVirtualTree; AParentNode, ANode:
       PVirtualNode; var AInitialStates: TVirtualNodeInitStates);
     procedure NodeDraw (ASender: TBaseVirtualTree; const APaintInfo:
@@ -76,8 +77,8 @@ var
 begin
   FTreeView := ATreeView;
   FTreeView.NodeDataSize := Sizeof(TItem);
-  FTreeView.TreeOptions.PaintOptions:= [toShowRoot, toHideFocusRect,
-    toAlwaysHideSelection, toHideSelection, toUseBlendedImages];
+  FTreeView.TreeOptions.PaintOptions:= [toShowRoot, {toHideFocusRect,
+    toAlwaysHideSelection, toHideSelection,} toUseBlendedImages];
   FTreeView.TreeOptions.MiscOptions := [toFullRepaintOnResize,
     toVariableNodeHeight, toWheelPanning];
   FTreeView.TreeOptions.SelectionOptions:= [toFullRowSelect];
@@ -104,7 +105,7 @@ begin
   inherited Destroy;
 end;
 
-procedure TVirtualTreeViewRenderer.Append (AData : T);
+procedure TVirtualTreeViewRenderer.Append (AItemType : Integer; AData : T);
 var
   Item : PItem;
   Node : PVirtualNode;
@@ -113,14 +114,11 @@ begin
   Node := FTreeView.AddChild(nil);
   Item := PItem(FTreeView.GetNodeData(Node));
   if Assigned(Item) then
+  begin
     Item^.Data := AData;
+    Item^.MenuItemType := AItemType;
+  end;
   FTreeView.EndUpdate;
-end;
-
-procedure TVirtualTreeViewRenderer.NodeDataSizeEvent (ASender :
-  TBaseVirtualTree; var ANodeDataSize : Integer);
-begin
-  ANodeDataSize := Sizeof(TItem);
 end;
 
 procedure TVirtualTreeViewRenderer.NodeInit (ASender : TBaseVirtualTree;
@@ -133,7 +131,8 @@ end;
 procedure TVirtualTreeViewRenderer.NodeMeasure (ASender: TBaseVirtualTree;
   ATargetCanvas: TCanvas; ANode: PVirtualNode; var ANodeHeight: Integer);
 begin
-  ANodeHeight := 60;
+  ANodeHeight := ItemHeight(ANode^.Index,
+    PItem(ASender.GetNodeData(ANode))^.Data);
 end;
 
 procedure TVirtualTreeViewRenderer.NodeDraw (ASender : TBaseVirtualTree;
@@ -144,7 +143,8 @@ begin
   Item := PItem(ASender.GetNodeData(APaintInfo.Node));
   if Assigned(Item) then
   begin
-    Draw(APaintInfo.Canvas, APaintInfo.CellRect, Item^.Data);
+    Draw(Item^.MenuItemType, APaintInfo.Canvas, APaintInfo.CellRect,
+      Item^.Data);
   end;
 end;
 
