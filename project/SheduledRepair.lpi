@@ -123,7 +123,7 @@
         <ResourceBaseClass Value="Form"/>
       </Unit19>
       <Unit20>
-        <Filename Value="../renderers/renderers.virtualtreeview.mainmenu.pas"/>
+        <Filename Value="../renderers/renderers.virtualtreeview.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit20>
     </Units>

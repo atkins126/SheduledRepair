@@ -1,7 +1,7 @@
 object MainWindow: TMainWindow
-  Left = 2633
+  Left = 2640
   Height = 655
-  Top = 136
+  Top = 134
   Width = 1200
   Caption = 'SheduledRepair'
   ClientHeight = 655
@@ -64,7 +64,7 @@ object MainWindow: TMainWindow
     Header.AutoSizeIndex = 0
     Header.Columns = <>
     Header.MainColumn = -1
-    TabOrder = 3
+    TabOrder = 2
   end
   object BottomPanel: TPanel
     Left = 0

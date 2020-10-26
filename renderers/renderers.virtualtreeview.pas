@@ -22,7 +22,7 @@
 (* Floor, Boston, MA 02110-1335, USA.                                         *)
 (*                                                                            *)
 (******************************************************************************)
-unit renderers.virtualtreeview.mainmenu;
+unit renderers.virtualtreeview;
 
 {$mode objfpc}{$H+}
 {$IFOPT D+}
@@ -37,15 +37,35 @@ uses
 type
   generic TVirtualTreeViewRenderer<T> = class
   public
-    constructor Create (ATreeView : TVirtualDrawTree);
+    type
+      TDrawOption = (
+        ITEM_DRAW_FOCUS,
+        ITEM_DRAW_BUTTONS,
+        ITEM_DRAW_TREE_LINES
+      );
+      TDrawOptions = set of TDrawOption;
+  public
+    constructor Create (ATreeView : TVirtualDrawTree; ADrawOptions :
+      TDrawOptions = [ITEM_DRAW_BUTTONS]);
     destructor Destroy; override;
-
-    procedure Append (AItemType : Integer; AData : T);
+  protected
+    type
+      TItemState = (
+        ITEM_SELECTED,
+        ITEM_HOVER
+      );
+      TItemStates = set of TItemState;
+  protected
+    procedure AppendColumn (AWidth : Cardinal);
+    procedure AppendData (AItemType : Integer; AData : T);
 
     function ItemHeight (AIndex : Cardinal; AData : T) : Cardinal; virtual;
       abstract;
-    procedure Draw (AItemType : Integer; ACanvas : TCanvas; ARect : TRect; 
-      AData : T); virtual; abstract;
+    procedure ItemDraw (AItemType : Integer; ACanvas : TCanvas; ACellRect :
+      TRect; AContentRect : TRect; AState : TItemStates; AData : T); virtual;
+      abstract;
+    function ItemEditor (ANode : PVirtualNode; AColumn : TColumnIndex) :
+      IVTEditLink; virtual;
   private
     type
       PItem = ^TItem;
@@ -64,6 +84,12 @@ type
       ANode: PVirtualNode; var ANodeHeight: Integer);
     procedure NodeWidth (ASender: TBaseVirtualTree; AHintCanvas: TCanvas; ANode:
       PVirtualNode; AColumn: TColumnIndex; var ANodeWidth: Integer);
+    procedure NodeHotChange (ASender: TBaseVirtualTree; AOldNode, ANewNode:
+      PVirtualNode);
+    procedure NodeCreateEditor (ASender: TBaseVirtualTree; ANode: PVirtualNode;
+      AColumn: TColumnIndex; out AEditLink: IVTEditLink);
+    procedure NodeAllowEdit (ASender: TBaseVirtualTree; ANode: PVirtualNode;
+      AColumn: TColumnIndex; var Allowed: Boolean);
   end;
 
 implementation
@@ -71,32 +97,44 @@ implementation
 { TVirtualTreeViewRenderer }
 
 constructor TVirtualTreeViewRenderer.Create (ATreeView : 
-  TVirtualDrawTree);
-var
-  Column : TVirtualTreeColumn;
+  TVirtualDrawTree; ADrawOptions : TDrawOptions);
 begin
   FTreeView := ATreeView;
   FTreeView.NodeDataSize := Sizeof(TItem);
-  FTreeView.TreeOptions.PaintOptions:= [toShowRoot, {toHideFocusRect,
-    toAlwaysHideSelection, toHideSelection,} toUseBlendedImages];
+  FTreeView.TreeOptions.PaintOptions:= [toShowRoot, toUseBlendedImages,
+    toHotTrack];
   FTreeView.TreeOptions.MiscOptions := [toFullRepaintOnResize,
-    toVariableNodeHeight, toWheelPanning];
+    toVariableNodeHeight, toWheelPanning, toEditable];
   FTreeView.TreeOptions.SelectionOptions:= [toFullRowSelect];
+
+  if ITEM_DRAW_BUTTONS in ADrawOptions then
+  begin
+    FTreeView.TreeOptions.PaintOptions := FTreeView.TreeOptions.PaintOptions +
+      [toShowButtons];
+    FTreeView.TreeOptions.AutoOptions:= [toAutoHideButtons];
+  end;
+
+  if ITEM_DRAW_TREE_LINES in ADrawOptions then
+  begin
+    FTreeView.TreeOptions.PaintOptions := FTreeView.TreeOptions.PaintOptions +
+      [toShowTreeLines];
+  end;
+
+  if not (ITEM_DRAW_FOCUS in ADrawOptions) then
+  begin
+    FTreeView.TreeOptions.PaintOptions := FTreeView.TreeOptions.PaintOptions +
+      [toHideFocusRect, toAlwaysHideSelection, toHideSelection];
+  end;
+
+  FTreeView.Header.Columns.Clear;
 
   with FTreeView do
   begin
     OnMeasureItem := @NodeMeasure;
     OnDrawNode := @NodeDraw;
-    OnGetNodeWidth := @NodeWidth;
-
-    //Header.Columns.Clear;
-    //Column := Header.Columns.Add;
-
-    //with Column do
-    begin
-      //AutoSize := False;
-      //Style := vsOwnerDraw;
-    end;
+    OnCreateEditor := @NodeCreateEditor;
+    OnEditing := @NodeAllowEdit;
+    //OnGetNodeWidth := @NodeWidth;
   end;
 end;
 
@@ -105,13 +143,28 @@ begin
   inherited Destroy;
 end;
 
-procedure TVirtualTreeViewRenderer.Append (AItemType : Integer; AData : T);
+procedure TVirtualTreeViewRenderer.AppendColumn (AWidth : Cardinal);
+var
+  Column : TVirtualTreeColumn;
+begin
+  Column := FTreeView.Header.Columns.Add;
+
+  with Column do
+  begin
+    Width := AWidth;
+    Style := vsOwnerDraw;
+  end;
+end;
+
+procedure TVirtualTreeViewRenderer.AppendData (AItemType : Integer; AData : T);
 var
   Item : PItem;
   Node : PVirtualNode;
 begin
   FTreeView.BeginUpdate;
   Node := FTreeView.AddChild(nil);
+  if Node^.Index = 0 then
+    FTreeView.AddChild(Node);
   Item := PItem(FTreeView.GetNodeData(Node));
   if Assigned(Item) then
   begin
@@ -139,12 +192,25 @@ procedure TVirtualTreeViewRenderer.NodeDraw (ASender : TBaseVirtualTree;
   const APaintInfo : TVTPaintInfo);
 var
   Item : PItem;
+  State : TItemStates;
 begin
   Item := PItem(ASender.GetNodeData(APaintInfo.Node));
   if Assigned(Item) then
   begin
-    Draw(Item^.MenuItemType, APaintInfo.Canvas, APaintInfo.CellRect,
-      Item^.Data);
+    State := [];
+
+    if ASender.Selected[APaintInfo.Node] then
+    begin
+      State := State + [ITEM_SELECTED];
+    end;
+
+    if APaintInfo.Node = ASender.HotNode then
+    begin
+      State := State + [ITEM_HOVER];
+    end;
+
+    ItemDraw(Item^.MenuItemType, APaintInfo.Canvas, APaintInfo.CellRect,
+      APaintInfo.ContentRect, State, Item^.Data);
   end;
 end;
 
@@ -153,6 +219,31 @@ procedure TVirtualTreeViewRenderer.NodeWidth (ASender : TBaseVirtualTree;
   var ANodeWidth : Integer);
 begin
   ANodeWidth := ASender.Width;
+end;
+
+procedure TVirtualTreeViewRenderer.NodeHotChange (ASender : TBaseVirtualTree;
+  AOldNode, ANewNode : PVirtualNode);
+begin
+  FTreeView.InvalidateNode(AOldNode);
+  FTreeView.InvalidateNode(ANewNode);
+end;
+
+procedure TVirtualTreeViewRenderer.NodeCreateEditor (ASender : TBaseVirtualTree;
+  ANode : PVirtualNode; AColumn : TColumnIndex; out AEditLink : IVTEditLink);
+begin
+  AEditLink := ItemEditor(ANode, AColumn);
+end;
+
+procedure TVirtualTreeViewRenderer.NodeAllowEdit (ASender : TBaseVirtualTree;
+  ANode : PVirtualNode; AColumn : TColumnIndex; var Allowed : Boolean);
+begin
+  Allowed := ItemEditor(ANode, AColumn) <> nil;
+end;
+
+function TVirtualTreeViewRenderer.ItemEditor (ANode : PVirtualNode; AColumn :
+  TColumnIndex) : IVTEditLink;
+begin
+  Result := nil;
 end;
 
 end.
