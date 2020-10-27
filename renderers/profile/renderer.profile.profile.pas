@@ -103,7 +103,7 @@ constructor TRendererProfile.Create (AID : Int64);
 begin
   inherited Create(AID);
   FHeight := 20;
-  FBackground := clDefault;
+  FBackground := clWhite;
   FItemsList := TItemsList.Create;
 end;
 

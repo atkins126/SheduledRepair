@@ -1,7 +1,7 @@
 object MainWindow: TMainWindow
   Left = 2640
   Height = 655
-  Top = 134
+  Top = 135
   Width = 1200
   Caption = 'SheduledRepair'
   ClientHeight = 655

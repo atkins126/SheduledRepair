@@ -32,7 +32,8 @@ unit renderers.virtualtreeview;
 interface
 
 uses
-  SysUtils, Classes, Graphics, Types, VirtualTrees;
+  SysUtils, Classes, Graphics, Types, StdCtrls, LMessages, LCLType,
+  VirtualTrees;
 
 type
   generic TVirtualTreeViewRenderer<T> = class
@@ -59,13 +60,13 @@ type
     procedure AppendColumn (AWidth : Cardinal);
     procedure AppendData (AItemType : Integer; AData : T);
 
-    function ItemHeight (AIndex : Cardinal; AData : T) : Cardinal; virtual;
-      abstract;
-    procedure ItemDraw (AItemType : Integer; ACanvas : TCanvas; ACellRect :
-      TRect; AContentRect : TRect; AState : TItemStates; AData : T); virtual;
-      abstract;
-    function ItemEditor (ANode : PVirtualNode; AColumn : TColumnIndex) :
-      IVTEditLink; virtual;
+    function ItemHeight (ANode : PVirtualNode; AIndex : Cardinal; AData : T) : 
+      Cardinal; virtual; abstract;
+    procedure ItemDraw (ANode : PVirtualNode; AColumn : TColumnIndex; 
+      AItemType : Integer; ACanvas : TCanvas; ACellRect : TRect; AContentRect : 
+      TRect; AState : TItemStates; AData : T); virtual; abstract;
+    function ItemEditor (ANode : PVirtualNode; AColumn : TColumnIndex; 
+      AItemType : Integer; AData : T) : IVTEditLink; virtual;
   private
     type
       PItem = ^TItem;
@@ -74,10 +75,6 @@ type
         MenuItemType : Integer;
       end;
   private
-    FTreeView : TVirtualDrawTree;
-
-    procedure NodeInit (ASender: TBaseVirtualTree; AParentNode, ANode:
-      PVirtualNode; var AInitialStates: TVirtualNodeInitStates);
     procedure NodeDraw (ASender: TBaseVirtualTree; const APaintInfo:
       TVTPaintInfo);
     procedure NodeMeasure (ASender: TBaseVirtualTree; ATargetCanvas: TCanvas;
@@ -90,6 +87,29 @@ type
       AColumn: TColumnIndex; out AEditLink: IVTEditLink);
     procedure NodeAllowEdit (ASender: TBaseVirtualTree; ANode: PVirtualNode;
       AColumn: TColumnIndex; var Allowed: Boolean);
+  protected
+    FTreeView : TVirtualDrawTree;
+  end;
+
+  TEditEditor = class(TInterfacedObject, IVTEditLink)
+  private
+    FEdit : TEdit;
+    FTree : TVirtualDrawTree;
+    FNode : PVirtualNode;
+    FColumn : Integer;
+  protected
+    procedure EditKeyDown (ASender : TObject; var AKey : Word; AShift :
+      TShiftState);
+  public
+    destructor Destroy; override;
+    function BeginEdit : Boolean; stdcall;
+    function CancelEdit : Boolean; stdcall;
+    function EndEdit : Boolean; stdcall;
+    function GetBounds : TRect; stdcall;
+    function PrepareEdit (ATree : TBaseVirtualTree; ANode : PVirtualNode;
+      AColumn : TColumnIndex) : Boolean; stdcall;
+    procedure ProcessMessage (var AMessage : TLMessage); stdcall;
+    procedure SetBounds (ARect : TRect); stdcall;
   end;
 
 implementation
@@ -174,17 +194,10 @@ begin
   FTreeView.EndUpdate;
 end;
 
-procedure TVirtualTreeViewRenderer.NodeInit (ASender : TBaseVirtualTree;
-  AParentNode, ANode : PVirtualNode; var AInitialStates :
-  TVirtualNodeInitStates);
-begin
-
-end;
-
 procedure TVirtualTreeViewRenderer.NodeMeasure (ASender: TBaseVirtualTree;
   ATargetCanvas: TCanvas; ANode: PVirtualNode; var ANodeHeight: Integer);
 begin
-  ANodeHeight := ItemHeight(ANode^.Index,
+  ANodeHeight := ItemHeight(ANode, ANode^.Index,
     PItem(ASender.GetNodeData(ANode))^.Data);
 end;
 
@@ -209,8 +222,9 @@ begin
       State := State + [ITEM_HOVER];
     end;
 
-    ItemDraw(Item^.MenuItemType, APaintInfo.Canvas, APaintInfo.CellRect,
-      APaintInfo.ContentRect, State, Item^.Data);
+    ItemDraw(APaintInfo.Node, APaintInfo.Column, Item^.MenuItemType,
+      APaintInfo.Canvas, APaintInfo.CellRect, APaintInfo.ContentRect, State,
+      Item^.Data);
   end;
 end;
 
@@ -230,20 +244,105 @@ end;
 
 procedure TVirtualTreeViewRenderer.NodeCreateEditor (ASender : TBaseVirtualTree;
   ANode : PVirtualNode; AColumn : TColumnIndex; out AEditLink : IVTEditLink);
+var
+  Item : PItem;
 begin
-  AEditLink := ItemEditor(ANode, AColumn);
+  Item := PItem(ASender.GetNodeData(ANode));
+  AEditLink := ItemEditor(ANode, AColumn, Item^.MenuItemType, Item^.Data);
 end;
 
 procedure TVirtualTreeViewRenderer.NodeAllowEdit (ASender : TBaseVirtualTree;
   ANode : PVirtualNode; AColumn : TColumnIndex; var Allowed : Boolean);
+var
+  Item : PItem;
 begin
-  Allowed := ItemEditor(ANode, AColumn) <> nil;
+  Item := PItem(ASender.GetNodeData(ANode));
+  Allowed := ItemEditor(ANode, AColumn, Item^.MenuItemType, Item^.Data) <> nil;
 end;
 
-function TVirtualTreeViewRenderer.ItemEditor (ANode : PVirtualNode; AColumn :
-  TColumnIndex) : IVTEditLink;
+function TVirtualTreeViewRenderer.ItemEditor (ANode : PVirtualNode; AColumn : 
+  TColumnIndex; AItemType : Integer; AData : T) : IVTEditLink;
 begin
   Result := nil;
+end;
+
+{ TEditEditor }
+
+destructor TEditEditor.Destroy;
+begin
+  FreeAndNil(FEdit);
+  inherited Destroy;
+end;
+
+procedure TEditEditor.EditKeyDown (ASender : TObject; var AKey : Word; AShift :
+  TShiftState);
+begin
+  case AKey of
+    VK_ESCAPE : begin
+      FTree.CancelEditNode;
+      AKey := 0;
+    end;
+    VK_RETURN : begin
+      FTree.EndEditNode;
+      AKey := 0;
+    end;
+  end;
+end;
+
+function TEditEditor.BeginEdit : Boolean; stdcall;
+begin
+  FEdit.Show;
+  FEdit.SetFocus;
+  Result := True;
+end;
+
+function TEditEditor.CancelEdit : Boolean; stdcall;
+begin
+  FEdit.Hide;
+  Result := True;
+end;
+
+function TEditEditor.EndEdit : Boolean; stdcall;
+begin
+
+  FEdit.Hide;
+  FTree.SetFocus;
+  Result := True;
+end;
+
+function TEditEditor.GetBounds : TRect; stdcall;
+begin
+  Result := FEdit.BoundsRect;
+end;
+
+function TEditEditor.PrepareEdit (ATree : TBaseVirtualTree; ANode :
+  PVirtualNode; AColumn : TColumnIndex) : Boolean; stdcall;
+begin
+  FTree := TVirtualDrawTree(ATree);
+  FNode := ANode;
+  FColumn := AColumn;
+
+  FreeAndNil(FEdit);
+  FEdit := TEdit.Create(nil);
+  FEdit.AutoSize := False;
+  FEdit.Visible := False;
+  FEdit.Parent := ATree;
+  FEdit.OnKeyDown := @EditKeyDown;
+
+  Result := True;
+end;
+
+procedure TEditEditor.ProcessMessage (var AMessage : TLMessage); stdcall;
+begin
+  FEdit.WindowProc(AMessage);
+end;
+
+procedure TEditEditor.SetBounds (ARect : TRect); stdcall;
+var
+  Dummy : Integer;
+begin
+  FTree.Header.Columns.GetColumnBounds(FColumn, Dummy, ARect.Right);
+  FEdit.BoundsRect := ARect;
 end;
 
 end.

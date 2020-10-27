@@ -61,9 +61,11 @@ type
   protected
     FDefaultProfile : TRendererProfile;
     FSelectedProfile : TRendererProfile;
+    FHoverProfile : TRendererProfile;
   public
     property DefaultProfile : TRendererProfile read FDefaultProfile;
     property SelectedProfile : TRendererProfile read FSelectedProfile;
+    property HoverProfile : TRendererProfile read FHoverProfile;
   end;
 
 implementation
@@ -75,12 +77,14 @@ begin
   inherited Create (AID);
   FDefaultProfile := TRendererProfile.Create(-1);
   FSelectedProfile := TRendererProfile.Create(-1);
+  FHoverProfile := TRendererProfile.Create(-1);
 end;
 
 destructor TRendererObjectProfile.Destroy;
 begin
   FreeAndNil(FDefaultProfile);
   FreeAndNil(FSelectedProfile);
+  FreeAndNil(FHoverProfile);
   inherited Destroy;
 end;
 
@@ -93,7 +97,8 @@ begin
   Schema
     .Id
     .Integer('default_profile_id').NotNull
-    .Integer('selected_profile_id').NotNull;
+    .Integer('selected_profile_id').NotNull
+    .Integer('hover_profile_id').NotNull;
 
   if not FTable.Exists then
     FTable.New(Schema);
@@ -111,7 +116,7 @@ end;
 function TRendererObjectProfile.Load : Boolean;
 var
   row : TSQLite3Result.TRowIterator;
-  default_profile_id, selected_profile_id : Int64;
+  default_profile_id, selected_profile_id, hover_profile_id : Int64;
 begin
   if ID = -1 then
     Exit(False);
@@ -123,9 +128,11 @@ begin
 
   default_profile_id := row.Row.GetIntegerValue('default_profile_id');
   selected_profile_id := row.Row.GetIntegerValue('selected_profile_id');
+  hover_profile_id := row.Row.GetIntegerValue('hover_profile_id');
 
   Result := FDefaultProfile.Reload(default_profile_id) and
-    FSelectedProfile.Reload(selected_profile_id);
+    FSelectedProfile.Reload(selected_profile_id) and 
+    FHoverProfile.Reload(hover_profile_id);
 end;
 
 function TRendererObjectProfile.Save : Boolean;
@@ -136,14 +143,19 @@ begin
   if not FSelectedProfile.Save then
     Exit(False);
 
+  if not FHoverProfile.Save then
+    Exit(False);
+
   if ID <> -1 then
   begin
     Result := (UpdateRow.Update('default_profile_id', FDefaultProfile.ID)
-      .Update('selected_profile_id', FSelectedProfile.ID).Get > 0);
+      .Update('selected_profile_id', FSelectedProfile.ID)
+      .Update('hover_profile_id', FHoverProfile.ID).Get > 0);
   end else 
   begin
     Result := (InsertRow.Value('default_profile_id', FDefaultProfile.ID)
-      .Value('selected_profile_id', FSelectedProfile.ID).Get > 0);
+      .Value('selected_profile_id', FSelectedProfile.ID)
+      .Value('hover_profile_id', FHoverProfile.ID).Get > 0);
     UpdateObjectID;
   end;
 end;

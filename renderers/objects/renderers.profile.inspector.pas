@@ -22,7 +22,7 @@
 (* Floor, Boston, MA 02110-1335, USA.                                         *)
 (*                                                                            *)
 (******************************************************************************)
-unit renderers.objects.inspector;
+unit renderers.profile.inspector;
 
 {$mode objfpc}{$H+}
 {$IFOPT D+}
@@ -43,7 +43,7 @@ type
   
   end;  
 
-  TObjectsInspectorRenderer = class
+  TProfileInspectorRenderer = class
     (specialize TVirtualTreeViewRenderer<TObjectInspectorData>)
   public
     constructor Create (ATreeView : TVirtualDrawTree; ADrawOptions : 
@@ -82,7 +82,7 @@ end;
 
 { TObjectsInspectorRenderer }
 
-constructor TObjectsInspectorRenderer.Create (ATreeView : TVirtualDrawTree;
+constructor TProfileInspectorRenderer.Create (ATreeView : TVirtualDrawTree;
   ADrawOptions : TDrawOptions);
 begin
   inherited Create(ATreeView, ADrawOptions);
@@ -93,26 +93,26 @@ begin
   FTreeView.OnNodeClick := @NodeClick;
   FTreeView.OnResize := @TreeResize;
 
-  AppendColumn((FTreeView.Width div 2) - 10);
+  AppendColumn((FTreeView.Width div 2) - 2);
   AppendColumn(FTreeView.Width div 2);
 
   AppendData(0, TObjectInspectorData.Create);
   AppendData(0, TObjectInspectorData.Create);
 end;
 
-destructor TObjectsInspectorRenderer.Destroy;
+destructor TProfileInspectorRenderer.Destroy;
 begin
   FreeAndNil(FProfile);
   inherited Destroy;
 end;
 
-function TObjectsInspectorRenderer.ItemHeight (ANode : PVirtualNode; AIndex : 
+function TProfileInspectorRenderer.ItemHeight (ANode : PVirtualNode; AIndex : 
   Cardinal; AData : TObjectInspectorData) : Cardinal;
 begin
   Result := 29;
 end;
 
-procedure TObjectsInspectorRenderer.ItemDraw (ANode : PVirtualNode; AColumn : 
+procedure TProfileInspectorRenderer.ItemDraw (ANode : PVirtualNode; AColumn : 
   TColumnIndex; AItemType : Integer; ACanvas : TCanvas; ACellRect : TRect; 
   AContentRect : TRect; AState : TItemStates; AData : TObjectInspectorData);
 var
@@ -152,7 +152,7 @@ begin
   ACanvas.Brush := OldBrush;
 end;
 
-function TObjectsInspectorRenderer.ItemEditor (ANode : PVirtualNode; AColumn : 
+function TProfileInspectorRenderer.ItemEditor (ANode : PVirtualNode; AColumn : 
   TColumnIndex; AItemType : Integer; AData : TObjectInspectorData) : 
   IVTEditLink;
 begin
@@ -162,15 +162,15 @@ begin
   Result := TEditEditor.Create;
 end;
 
-procedure TObjectsInspectorRenderer.NodeClick (ASender : TBaseVirtualTree; 
+procedure TProfileInspectorRenderer.NodeClick (ASender : TBaseVirtualTree; 
   const AHitInfo : THitInfo);
 begin
   ASender.EditNode(AHitInfo.HitNode, 1);
 end;
 
-procedure TObjectsInspectorRenderer.TreeResize (ASender : TObject);
+procedure TProfileInspectorRenderer.TreeResize (ASender : TObject);
 begin
-  FTreeView.Header.Columns[0].Width := (FTreeView.Width div 2) - 10;
+  FTreeView.Header.Columns[0].Width := (FTreeView.Width div 2) - 2;
   FTreeView.Header.Columns[1].Width := FTreeView.Width div 2;
 end;
 
