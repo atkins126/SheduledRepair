@@ -32,15 +32,13 @@ unit renderers.profile.inspector;
 interface
 
 uses
-  SysUtils, renderers.virtualtreeview, renderer.profile.objectprofile,
+  SysUtils, renderers.virtualtreeview, renderer.profile.profile,
   VirtualTrees, Classes, Graphics, Types;
 
 type
-  TObjectInspectorData = class
-  public
-    constructor Create;
-    destructor Destroy; override;
-  
+  TObjectInspectorData = record
+    Text : String;
+    Editable : Boolean;
   end;  
 
   TProfileInspectorRenderer = class
@@ -49,9 +47,20 @@ type
     constructor Create (ATreeView : TVirtualDrawTree; ADrawOptions : 
       TDrawOptions = [ITEM_DRAW_BUTTONS]);
     destructor Destroy; override;
+
+    procedure UpdateProfile (AProfile : TRendererProfile);
   protected
-    function ItemHeight (ANode : PVirtualNode; AIndex : Cardinal; AData : 
-      TObjectInspectorData) : Cardinal; override;
+    type
+      TItemType = (
+        TYPE_TITLE,
+        TYPE_TEXT_VALUE,
+        TYPE_INTEGER_VALUE,
+        TYPE_COLOR_VALUE
+      );
+  protected
+    function ItemHeight (ANode : PVirtualNode; ACanvas : TCanvas; AIndex : 
+      Cardinal; AItemType : Integer; AData : TObjectInspectorData) : Cardinal; 
+      override;
     procedure ItemDraw (ANode : PVirtualNode; AColumn : TColumnIndex; 
       AItemType : Integer; ACanvas : TCanvas; ACellRect : TRect; AContentRect : 
       TRect; AState : TItemStates; AData : TObjectInspectorData); override;
@@ -59,26 +68,16 @@ type
       AItemType : Integer; AData : TObjectInspectorData) : IVTEditLink; 
       override;
   private
-    FProfile : TRendererObjectProfile;
+    FProfile : TRendererProfile;
 
     procedure NodeClick (ASender : TBaseVirtualTree; const AHitInfo : THitInfo);
     procedure TreeResize (ASender : TObject);
+
+    procedure DrawBackground (AItemType : Integer; AState : TItemStates; ARect : 
+      TRect; ACanvas : TCanvas);
   end;
 
 implementation
-
-{ TObjectInpectorData }
-
-constructor TObjectInspectorData.Create;
-begin
-  
-end;
-
-destructor TObjectInspectorData.Destroy;
-begin
-  
-  inherited Destroy;
-end;
 
 { TObjectsInspectorRenderer }
 
@@ -86,18 +85,13 @@ constructor TProfileInspectorRenderer.Create (ATreeView : TVirtualDrawTree;
   ADrawOptions : TDrawOptions);
 begin
   inherited Create(ATreeView, ADrawOptions);
-  FProfile := TRendererObjectProfile.Create(-1);
-  FProfile.SelectedProfile.Background := clYellow;
-  FProfile.HoverProfile.Background := clSilver;
+  FProfile := nil;
 
   FTreeView.OnNodeClick := @NodeClick;
   FTreeView.OnResize := @TreeResize;
 
   AppendColumn((FTreeView.Width div 2) - 2);
   AppendColumn(FTreeView.Width div 2);
-
-  AppendData(0, TObjectInspectorData.Create);
-  AppendData(0, TObjectInspectorData.Create);
 end;
 
 destructor TProfileInspectorRenderer.Destroy;
@@ -106,10 +100,41 @@ begin
   inherited Destroy;
 end;
 
-function TProfileInspectorRenderer.ItemHeight (ANode : PVirtualNode; AIndex : 
-  Cardinal; AData : TObjectInspectorData) : Cardinal;
+function TProfileInspectorRenderer.ItemHeight (ANode : PVirtualNode; ACanvas :
+  TCanvas; AIndex : Cardinal; AItemType : Integer; AData : 
+  TObjectInspectorData) : Cardinal;
 begin
-  Result := 29;
+  case AItemType of
+    Integer(TYPE_TITLE) : begin
+      ACanvas.Font.Style := [fsBold, fsItalic];
+      Result := ACanvas.TextHeight(AData.Text) + 2;
+    end
+    else
+      Result := 29;
+  end;
+end;
+
+procedure TProfileInspectorRenderer.DrawBackground (AItemType : Integer;
+  AState : TItemStates; ARect : TRect; ACanvas : TCanvas);
+var
+  OldBrush : TBrush;
+begin
+  OldBrush := ACanvas.Brush;
+
+  if AItemType <> Integer(TYPE_TITLE) then
+  begin
+    if ITEM_HOVER in AState then
+      ACanvas.Brush.Color := clSilver
+    else if ITEM_SELECTED in AState then
+      ACanvas.Brush.Color := clYellow
+    else
+      ACanvas.Brush.Color := clWhite;
+  end else
+    ACanvas.Brush.Color := clWhite;
+
+  ACanvas.FillRect(ARect);
+
+  ACanvas.Brush := OldBrush;
 end;
 
 procedure TProfileInspectorRenderer.ItemDraw (ANode : PVirtualNode; AColumn : 
@@ -120,33 +145,37 @@ var
 begin
   OldBrush := ACanvas.Brush;
 
-  if ITEM_HOVER in AState then
-    ACanvas.Brush.Color := FProfile.HoverProfile.Background
-  else if ITEM_SELECTED in AState then
-    ACanvas.Brush.Color := FProfile.SelectedProfile.Background
-  else
-    ACanvas.Brush.Color := FProfile.DefaultProfile.Background;
-
-  case AColumn of
-    0 : begin
-      ACanvas.FillRect(AContentRect.Left, ACellRect.Top, ACellRect.Right,
-        ACellRect.Bottom);
-    end;
-    1 : begin
-      ACanvas.FillRect(ACellRect);
-    end;
-  end;
-
-
-  if AColumn > 0 then
-  begin
-    ACanvas.TextOut(AContentRect.Left + 5, AContentRect.Top + 5, '32');
-    Exit;
-  end;
-
   if AColumn = 0 then
-  begin
-    ACanvas.TextOut(AContentRect.Left + 5, AContentRect.Top + 5, 'test');
+    DrawBackground(AItemType, AState, Rect(AContentRect.Left, ACellRect.Top,
+      ACellRect.Right, ACellRect.Bottom), ACanvas)
+  else
+    DrawBackground(AItemType, AState, ACellRect, ACanvas);
+
+  case AItemType of
+    Integer(TYPE_TITLE) : begin
+      if AColumn = 0 then
+      begin
+        ACanvas.Font.Style := [fsBold, fsItalic];
+        ACanvas.TextOut(AContentRect.Left + 1, AContentRect.Top + 1,
+          AData.Text);
+      end;
+    end else begin
+      ACanvas.Font.Style := [];
+
+      if AColumn > 0 then
+      begin
+        ACanvas.TextOut(AContentRect.Left + 5, AContentRect.Top + 5,
+          '110');
+        Exit;
+      end;
+
+      if AColumn = 0 then
+      begin
+        ACanvas.TextOut(AContentRect.Left + 5, AContentRect.Top + 5,
+          AData.Text);
+      end;
+
+    end;
   end;
 
   ACanvas.Brush := OldBrush;
@@ -156,10 +185,23 @@ function TProfileInspectorRenderer.ItemEditor (ANode : PVirtualNode; AColumn :
   TColumnIndex; AItemType : Integer; AData : TObjectInspectorData) : 
   IVTEditLink;
 begin
-  if (AColumn = 0) or (not FTreeView.Selected[ANode]) then
+  if (AColumn = 0) or (not FTreeView.Selected[ANode]) or not AData.Editable then
     Exit(nil);
 
-  Result := TEditEditor.Create;
+  case AItemType of
+    Integer(TYPE_TITLE) : begin
+      Result := nil;
+    end;
+    Integer(TYPE_TEXT_VALUE) : begin
+      Result := TEditEditor.Create;
+    end;
+    Integer(TYPE_INTEGER_VALUE) : begin
+      Result := TSpinEditEditor.Create;
+    end;
+    Integer(TYPE_COLOR_VALUE) : begin
+      Result := TColorEditor.Create;
+    end;
+  end;
 end;
 
 procedure TProfileInspectorRenderer.NodeClick (ASender : TBaseVirtualTree; 
@@ -172,6 +214,28 @@ procedure TProfileInspectorRenderer.TreeResize (ASender : TObject);
 begin
   FTreeView.Header.Columns[0].Width := (FTreeView.Width div 2) - 2;
   FTreeView.Header.Columns[1].Width := FTreeView.Width div 2;
+end;
+
+procedure TProfileInspectorRenderer.UpdateProfile (AProfile : TRendererProfile);
+var
+  Data : TObjectInspectorData;
+begin
+  if AProfile = nil then
+    Exit;
+
+  FTreeView.Clear;
+
+  Data.Text := 'Settings';
+  Data.Editable := False;  
+  AppendData(nil, Integer(TYPE_TITLE), Data);
+
+  Data.Text := 'Background';
+  Data.Editable := True;
+  AppendData(nil, Integer(TYPE_COLOR_VALUE), Data);
+
+  Data.Text := 'Height';
+  Data.Editable := True;
+  AppendData(nil, Integer(TYPE_INTEGER_VALUE), Data);
 end;
 
 end.

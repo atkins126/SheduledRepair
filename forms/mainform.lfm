@@ -1,12 +1,13 @@
 object MainWindow: TMainWindow
   Left = 2640
   Height = 655
-  Top = 135
+  Top = 157
   Width = 1200
   Caption = 'SheduledRepair'
   ClientHeight = 655
   ClientWidth = 1200
   OnCreate = FormCreate
+  OnDestroy = FormDestroy
   LCLVersion = '2.0.6.0'
   object TopPanel: TPanel
     Left = 0

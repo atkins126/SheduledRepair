@@ -17,8 +17,6 @@ begin
   Application.Scaled:=True;
   Application.Initialize;
   Application.CreateForm(TMainWindow, MainWindow);
-  Application.CreateForm(TEquipmentWindow, EquipmentWindow);
-  Application.CreateForm(TProfileWindow, ProfileWindow);
   Application.Run;
 end.
 

@@ -4,8 +4,8 @@ unit MainForm;
 interface
 
 uses
-  Classes, SysUtils, Forms, Controls, ExtCtrls, VirtualTrees,
-  renderers.virtualtreeview, renderers.profile.inspector;
+  Classes, SysUtils, Forms, Controls, ExtCtrls, ColorBox, VirtualTrees,
+  profileform;
 
 type
 
@@ -19,10 +19,13 @@ type
     MainMenuSplitter: TSplitter;
     SettingsSplitter: TSplitter;
     Content: TVirtualDrawTree;
-    procedure FormCreate(Sender: TObject);
 
+    FProfileEditor : TProfileWindow;
+
+    procedure FormCreate(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
   public
-    FRenderer : TProfileInspectorRenderer;
+
   end;
 
 var
@@ -36,7 +39,16 @@ implementation
 
 procedure TMainWindow.FormCreate(Sender: TObject);
 begin
-  FRenderer := TProfileInspectorRenderer.Create(MainMenu);
+  FProfileEditor := TProfileWindow.Create(Self);
+  FProfileEditor.Left := Self.Left - FProfileEditor.Width - 1;
+  FProfileEditor.Top := Self.Top;
+  FProfileEditor.Height := Self.Height;
+  FProfileEditor.Show;
+end;
+
+procedure TMainWindow.FormDestroy(Sender: TObject);
+begin
+  FreeAndNil(FProfileEditor);
 end;
 
 end.
