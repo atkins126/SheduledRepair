@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, ComCtrls, VirtualTrees, renderer.profile.profile,
-  renderers.profile.inspector;
+  renderer.profile.profileitem, renderers.profile.inspector;
 
 type
 
@@ -40,12 +40,17 @@ implementation
 { TProfileWindow }
 
 procedure TProfileWindow.FormCreate(Sender: TObject);
+var
+  Profile : TRendererProfile;
 begin
   FDefaultRenderer := TProfileInspectorRenderer.Create(DefaultProfileTree);
   FHoverRenderer := TProfileInspectorRenderer.Create(HoverProfileTree);
   FSelectedRenderer := TProfileInspectorRenderer.Create(SelectedProfileTree);
 
-  FDefaultRenderer.UpdateProfile(TRendererProfile.Create(-1));
+  Profile := TRendererProfile.Create(-1);
+  Profile.Items['Name'] := TRendererProfileItem.Create(-1);
+  Profile.Items['Measure'] := TRendererProfileItem.Create(-1);
+  FDefaultRenderer.UpdateProfile(Profile);
   FHoverRenderer.UpdateProfile(TRendererProfile.Create(-1));
   FSelectedRenderer.UpdateProfile(TRendererProfile.Create(-1));
 end;

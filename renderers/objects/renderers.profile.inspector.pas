@@ -33,11 +33,12 @@ interface
 
 uses
   SysUtils, renderers.virtualtreeview, renderer.profile.profile,
-  VirtualTrees, Classes, Graphics, Types;
+  renderer.profile.profileitem, VirtualTrees, Classes, Graphics, Types;
 
 type
   TObjectInspectorData = record
     Text : String;
+    Element : String;
     Editable : Boolean;
   end;  
 
@@ -66,7 +67,13 @@ type
       TItemType = (
         TYPE_ITEM_TITLE,
         TYPE_ITEM_BACKGROUND,
-        TYPE_ITEM_HEIGHT
+        TYPE_ITEM_HEIGHT,
+        TYPE_ELEMENT_BACKGROUND,
+        TYPE_ELEMENT_BACKGROUND_TYPE,
+        TYPE_ELEMENT_BACKGROUND_RADIUS,
+        TYPE_ELEMENT_POSITION,
+        TYPE_ELEMENT_POSITION_X,
+        TYPE_ELEMENT_POSITION_Y
       );
   protected
     function ItemHeight (ANode : PVirtualNode; ACanvas : TCanvas; AIndex : 
@@ -184,6 +191,7 @@ procedure TProfileInspectorRenderer.ItemDraw (ANode : PVirtualNode; AColumn :
   AContentRect : TRect; AState : TItemStates; AData : TObjectInspectorData);
 var
   OldBrush : TBrush;
+  Value : String;
 begin
   OldBrush := ACanvas.Brush;
 
@@ -214,6 +222,21 @@ begin
             DrawColorValue(FProfile.Background, ACellRect, ACanvas);
           Integer(TYPE_ITEM_HEIGHT) : 
             DrawTextValue(IntToStr(FProfile.Height), ACellRect, ACanvas);
+          Integer(TYPE_ELEMENT_BACKGROUND) :
+            DrawColorValue(FProfile.Items[AData.Element].Background, ACellRect,
+              ACanvas);
+          Integer(TYPE_ELEMENT_BACKGROUND_TYPE) : begin
+            case FProfile.Items[AData.Element].BackgroundFillType of
+              FILL_NONE : Value := 'Transparent';
+              FILL_SQUARE : Value := 'Rectangle';
+              FILL_SQUARE_ROUND_CORNER : Value := 'Rounded rectangle';
+            end;
+            DrawTextValue(Value, ACellRect, ACanvas);
+          end;
+          Integer(TYPE_ELEMENT_BACKGROUND_RADIUS) : 
+            DrawTextValue(
+              IntToStr(FProfile.Items[AData.Element].BackgroundRoundRadius),
+              ACellRect, ACanvas);
         end;
       end;
     end;
@@ -225,6 +248,8 @@ end;
 function TProfileInspectorRenderer.ItemEditor (ANode : PVirtualNode; AColumn : 
   TColumnIndex; AItemType : Integer; AData : TObjectInspectorData) : 
   IVTEditLink;
+var
+  Editor : TListEditor;
 begin
   if (AColumn = KEY_COLUMN) or (not FTreeView.Selected[ANode]) or 
     not AData.Editable then
@@ -240,6 +265,25 @@ begin
     end;
     Integer(TYPE_ITEM_HEIGHT) : begin
       Result := TSpinEditEditor.Create(FProfile.Height, AItemType,
+        @ValueChange);
+    end;
+    Integer(TYPE_ELEMENT_BACKGROUND) : begin
+      Result := TColorEditor.Create(FProfile.Items[AData.Element].Background, 
+        AItemType, @ValueChange);
+    end;
+    Integer(TYPE_ELEMENT_BACKGROUND_TYPE) : begin
+      Editor := TListEditor.Create(
+      Integer(FProfile.Items[AData.Element].BackgroundFillType), AItemType,
+        @ValueChange);
+      Editor.AppendItem('Transparent');
+      Editor.AppendItem('Rectangle');
+      Editor.AppendItem('Rounded rectangle');
+
+      Result := Editor;
+    end;
+    Integer(TYPE_ELEMENT_BACKGROUND_RADIUS) : begin
+      Result := TSpinEditEditor.Create(
+        FProfile.Items[AData.Element].BackgroundRoundRadius, AItemType,
         @ValueChange);
     end;
   end;
@@ -267,6 +311,17 @@ begin
     Integer(TYPE_ITEM_HEIGHT) : begin
       FProfile.Height := PInteger(AValue)^;
     end;
+    Integer(TYPE_ELEMENT_BACKGROUND) : begin
+      FProfile.Items[GetData(ANode).Element].Background := PColor(AValue)^;
+    end;
+    Integer(TYPE_ELEMENT_BACKGROUND_TYPE) : begin
+      FProfile.Items[GetData(ANode).Element].BackgroundFillType := 
+        TRendererProfileItem.TBackgroundFillType(PInteger(AValue)^);
+    end;
+    Integer(TYPE_ELEMENT_BACKGROUND_RADIUS) : begin
+      FProfile.Items[GetData(ANode).Element].BackgroundRoundRadius :=
+        PInteger(AValue)^;
+    end;
   end;
 
   FTreeView.InvalidateNode(ANode);
@@ -275,6 +330,8 @@ end;
 procedure TProfileInspectorRenderer.UpdateProfile (AProfile : TRendererProfile);
 var
   Data : TObjectInspectorData;
+  ProfileItem : TRendererProfileItem;
+  Parent : PVirtualNode;
 begin
   if AProfile = nil then
     Exit;
@@ -283,16 +340,57 @@ begin
   FTreeView.Clear;
 
   Data.Text := 'Properties';
+  Data.Element := '';
   Data.Editable := False;  
   AppendData(nil, Integer(TYPE_ITEM_TITLE), Data);
 
   Data.Text := 'Background';
+  Data.Element := '';
   Data.Editable := True;
   AppendData(nil, Integer(TYPE_ITEM_BACKGROUND), Data);
 
   Data.Text := 'Height';
+  Data.Element := '';
   Data.Editable := True;
   AppendData(nil, Integer(TYPE_ITEM_HEIGHT), Data);
+
+  for ProfileItem in FProfile.GetEnumerator do
+  begin
+    Data.Text := ProfileItem.Name;
+    Data.Element := ProfileItem.Name;
+    Data.Editable := False;
+    AppendData(nil, Integer(TYPE_ITEM_TITLE), Data);
+
+    Data.Text := 'Background';
+    Data.Element := ProfileItem.Name;
+    Data.Editable := True;
+    AppendData(nil, Integer(TYPE_ELEMENT_BACKGROUND), Data);
+
+    Data.Text := 'Background type';
+    Data.Element := ProfileItem.Name;
+    Data.Editable := True;
+    AppendData(nil, Integer(TYPE_ELEMENT_BACKGROUND_TYPE), Data);
+
+    Data.Text := 'Background corner radius';
+    Data.Element := ProfileItem.Name;
+    Data.Editable := True;
+    AppendData(nil, Integer(TYPE_ELEMENT_BACKGROUND_RADIUS), Data);
+
+    Data.Text := 'Position';
+    Data.Element := ProfileItem.Name;
+    Data.Editable := False;
+    Parent := AppendData(nil, Integer(TYPE_ELEMENT_POSITION), Data);
+
+    Data.Text := 'X';
+    Data.Element := ProfileItem.Name;
+    Data.Editable := False;
+    AppendData(Parent, Integer(TYPE_ELEMENT_POSITION_X), Data);
+
+    Data.Text := 'Y';
+    Data.Element := ProfileItem.Name;
+    Data.Editable := False;
+    AppendData(Parent, Integer(TYPE_ELEMENT_POSITION_X), Data);
+  end;
 end;
 
 end.

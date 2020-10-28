@@ -61,6 +61,8 @@ type
     function AppendData (AParentItem : PVirtualNode; AItemType : Integer; 
       AData : T) : PVirtualNode;
 
+    function GetData (ANode : PVirtualNode) : T;
+
     function ItemHeight (ANode : PVirtualNode; ACanvas : TCanvas; AIndex : 
       Cardinal; AItemType : Integer; AData : T) : Cardinal; virtual; abstract;
     procedure ItemDraw (ANode : PVirtualNode; AColumn : TColumnIndex; 
@@ -180,6 +182,40 @@ type
     FCallback : TValueChangeCallback;
   end;
 
+  TListEditor = class(TInterfacedObject, IVTEditLink)
+  public
+    type
+      TValueChangeCallback = procedure (ANode : PVirtualNode; AColumn :
+        TColumnIndex; AItemType : Integer; AValue : Pointer) of object;
+  public
+    constructor Create (ASelected : Integer; AItemType : Integer; ACallback : 
+      TValueChangeCallback);
+    destructor Destroy; override;
+
+    procedure AppendItem (AItem : String);
+
+    function BeginEdit : Boolean; stdcall;
+    function CancelEdit : Boolean; stdcall;
+    function EndEdit : Boolean; stdcall;
+    function GetBounds : TRect; stdcall;
+    function PrepareEdit (ATree : TBaseVirtualTree; ANode : PVirtualNode;
+      AColumn : TColumnIndex) : Boolean; stdcall;
+    procedure ProcessMessage (var AMessage : TLMessage); stdcall;
+    procedure SetBounds (ARect : TRect); stdcall;
+  protected
+    procedure EditKeyDown (ASender : TObject; var AKey : Word; AShift :
+      TShiftState);
+  private
+    FEdit : TComboBox;
+    FTree : TVirtualDrawTree;
+    FNode : PVirtualNode;
+    FColumn : Integer;
+    FItems : TStringList;
+    FSelected : Integer;
+    FItemType : Integer;
+    FCallback : TValueChangeCallback;
+  end;
+
 implementation
 
 { TVirtualTreeViewRenderer }
@@ -259,6 +295,11 @@ begin
   end;
   Result := Node;
   FTreeView.EndUpdate;
+end;
+
+function TVirtualTreeViewRenderer.GetData (ANode : PVirtualNode) : T;
+begin
+  Result := PItem(FTreeView.GetNodeData(ANode))^.Data;
 end;
 
 procedure TVirtualTreeViewRenderer.NodeMeasure (ASender: TBaseVirtualTree;
@@ -605,6 +646,109 @@ begin
 end;
 
 procedure TColorEditor.SetBounds (ARect : TRect); stdcall;
+var
+  Dummy : Integer;
+begin
+  FTree.Header.Columns.GetColumnBounds(FColumn, Dummy, ARect.Right);
+  FEdit.BoundsRect := ARect;
+end;
+
+{ TListEditor }
+
+constructor TListEditor.Create (ASelected : Integer; AItemType : Integer;
+  ACallback : TValueChangeCallback);
+begin
+  FSelected := ASelected;
+  FItemType := AItemType;
+  FCallback := ACallback;
+  FItems := TStringList.Create;
+end;
+
+destructor TListEditor.Destroy;
+begin
+  FreeAndNil(FItems);
+  FreeAndNil(FEdit);
+  inherited Destroy;
+end;
+
+procedure TListEditor.AppendItem (AItem : String);
+begin
+  FItems.Add(AItem);
+end;
+
+procedure TListEditor.EditKeyDown (ASender : TObject; var AKey : Word; AShift :
+  TShiftState);
+begin
+  case AKey of
+    VK_ESCAPE : begin
+      FTree.CancelEditNode;
+      AKey := 0;
+    end;
+    VK_RETURN : begin
+      FTree.EndEditNode;
+      AKey := 0;
+    end;
+  end;
+end;
+
+function TListEditor.BeginEdit : Boolean; stdcall;
+begin
+  FEdit.Show;
+  FEdit.SetFocus;
+  Result := True;
+end;
+
+function TListEditor.CancelEdit : Boolean; stdcall;
+begin
+  FEdit.Hide;
+  Result := True;
+end;
+
+function TListEditor.EndEdit : Boolean; stdcall;
+var
+  Selected : Integer;
+begin
+  if Assigned(FCallback) then
+  begin
+    Selected := FEdit.ItemIndex;
+    FCallback(FNode, FColumn, FItemType, @Selected);
+  end;
+  FEdit.Hide;
+  FTree.SetFocus;
+  Result := True;
+end;
+
+function TListEditor.GetBounds : TRect; stdcall;
+begin
+  Result := FEdit.BoundsRect;
+end;
+
+function TListEditor.PrepareEdit (ATree : TBaseVirtualTree; ANode :
+  PVirtualNode; AColumn : TColumnIndex) : Boolean; stdcall;
+begin
+  FTree := TVirtualDrawTree(ATree);
+  FNode := ANode;
+  FColumn := AColumn;
+
+  FreeAndNil(FEdit);
+  FEdit := TComboBox.Create(nil);
+  FEdit.AutoSize := False;
+  FEdit.Visible := False;
+  FEdit.Parent := ATree;
+  FEdit.Items := FItems;
+  FEdit.ItemIndex := FSelected;
+  FEdit.Style := csDropDownList;
+  FEdit.OnKeyDown := @EditKeyDown;
+
+  Result := True;
+end;
+
+procedure TListEditor.ProcessMessage (var AMessage : TLMessage); stdcall;
+begin
+  FEdit.WindowProc(AMessage);
+end;
+
+procedure TListEditor.SetBounds (ARect : TRect); stdcall;
 var
   Dummy : Integer;
 begin

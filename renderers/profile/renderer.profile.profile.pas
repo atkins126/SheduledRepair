@@ -78,6 +78,9 @@ type
     function GetItem (AName : String) : TRendererProfileItem;
     procedure SetItem (AName : String; AValue : TRendererProfileItem);
   public
+    { Get enumerator for in operator. }
+    function GetEnumerator : TItemsList.TIterator;
+  public
     property Height : Integer read FHeight write FHeight;
     property Background : TColor read FBackground write FBackground;
     property Items[Name : String] : TRendererProfileItem read GetItem
@@ -150,8 +153,13 @@ begin
     end;  
   end;
 
-  FItemsList.Append(TRendererProfileItem.Create(-1));
+  FItemsList.Append(AValue);
   FItemsList.LastEntry.Value.Name := AName;
+end;
+
+function TRendererProfile.GetEnumerator : TItemsList.TIterator;
+begin
+  Result := FItemsList.GetEnumerator;
 end;
 
 function TRendererProfile.CheckSchema : Boolean;
