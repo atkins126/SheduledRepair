@@ -50,12 +50,23 @@ type
 
     procedure UpdateProfile (AProfile : TRendererProfile);
   protected
+    const
+      KEY_COLUMN = 0;
+      VALUE_COLUMN = 1;
+
+      DEFAULT_ITEM_HEIGHT = 27;
+      ITEM_LEFT_PADDING = 5;
+      ITEM_RIGHT_PADDING = 5;
+      ITEM_TOP_PADDING = 2;
+      ITEM_BOTTOM_PADDING = 2;
+      ITEM_TEXT_TOP_PADDING = 1;
+      ITEM_TEXT_BOTTOM_PADDING = 1;
+
     type
       TItemType = (
-        TYPE_TITLE,
-        TYPE_TEXT_VALUE,
-        TYPE_INTEGER_VALUE,
-        TYPE_COLOR_VALUE
+        TYPE_ITEM_TITLE,
+        TYPE_ITEM_BACKGROUND,
+        TYPE_ITEM_HEIGHT
       );
   protected
     function ItemHeight (ANode : PVirtualNode; ACanvas : TCanvas; AIndex : 
@@ -75,6 +86,12 @@ type
 
     procedure DrawBackground (AItemType : Integer; AState : TItemStates; ARect : 
       TRect; ACanvas : TCanvas);
+    procedure DrawColorValue (AValue : TColor; ARect : TRect; ACanvas : 
+      TCanvas);
+    procedure DrawTextValue (AValue : String; ARect : TRect; ACanvas :
+      TCanvas);
+    procedure ValueChange (ANode : PVirtualNode; AColumn : TColumnIndex;
+      AItemType : Integer; AValue : Pointer);
   end;
 
 implementation
@@ -105,12 +122,13 @@ function TProfileInspectorRenderer.ItemHeight (ANode : PVirtualNode; ACanvas :
   TObjectInspectorData) : Cardinal;
 begin
   case AItemType of
-    Integer(TYPE_TITLE) : begin
+    Integer(TYPE_ITEM_TITLE) : begin
       ACanvas.Font.Style := [fsBold, fsItalic];
-      Result := ACanvas.TextHeight(AData.Text) + 2;
+      Result := ACanvas.TextHeight(AData.Text) + ITEM_TEXT_TOP_PADDING +
+        ITEM_TEXT_BOTTOM_PADDING;
     end
     else
-      Result := 29;
+      Result := DEFAULT_ITEM_HEIGHT;
   end;
 end;
 
@@ -120,21 +138,45 @@ var
   OldBrush : TBrush;
 begin
   OldBrush := ACanvas.Brush;
+  
+  ACanvas.Brush.Color := clWhite;
 
-  if AItemType <> Integer(TYPE_TITLE) then
+  if AItemType <> Integer(TYPE_ITEM_TITLE) then
   begin
     if ITEM_HOVER in AState then
-      ACanvas.Brush.Color := clSilver
-    else if ITEM_SELECTED in AState then
-      ACanvas.Brush.Color := clYellow
-    else
-      ACanvas.Brush.Color := clWhite;
-  end else
-    ACanvas.Brush.Color := clWhite;
+      ACanvas.Brush.Color := clSilver;
+  end;
 
   ACanvas.FillRect(ARect);
 
   ACanvas.Brush := OldBrush;
+end;
+
+procedure TProfileInspectorRenderer.DrawColorValue (AValue : TColor; ARect : 
+  TRect; ACanvas : TCanvas);
+begin
+  ACanvas.Brush.Color := AValue;
+  ACanvas.FillRect(ARect.Left + ITEM_LEFT_PADDING, 
+    ARect.Top + ITEM_TOP_PADDING, 
+    ARect.Right - ITEM_RIGHT_PADDING, 
+    ARect.Bottom - ITEM_BOTTOM_PADDING);
+  ACanvas.Pen.Style := psDot;
+  ACanvas.Pen.Color := clBlack;
+  ACanvas.Rectangle(ARect.Left + ITEM_LEFT_PADDING, 
+    ARect.Top + ITEM_TOP_PADDING, 
+    ARect.Right - ITEM_RIGHT_PADDING, 
+    ARect.Bottom - ITEM_BOTTOM_PADDING);
+end;
+
+procedure TProfileInspectorRenderer.DrawTextValue (AValue : String; ARect : 
+  TRect; ACanvas : TCanvas);
+var
+  TextHeight : Integer;
+begin
+  TextHeight := ACanvas.TextHeight(AValue);
+  ACanvas.TextOut(ARect.Left + ITEM_LEFT_PADDING, 
+    ARect.Top + (DEFAULT_ITEM_HEIGHT - TextHeight) div 2,
+    AValue);
 end;
 
 procedure TProfileInspectorRenderer.ItemDraw (ANode : PVirtualNode; AColumn : 
@@ -145,36 +187,35 @@ var
 begin
   OldBrush := ACanvas.Brush;
 
-  if AColumn = 0 then
+  if AColumn = KEY_COLUMN then
     DrawBackground(AItemType, AState, Rect(AContentRect.Left, ACellRect.Top,
       ACellRect.Right, ACellRect.Bottom), ACanvas)
   else
     DrawBackground(AItemType, AState, ACellRect, ACanvas);
 
   case AItemType of
-    Integer(TYPE_TITLE) : begin
-      if AColumn = 0 then
+    Integer(TYPE_ITEM_TITLE) : begin
+      if AColumn = KEY_COLUMN then
       begin
         ACanvas.Font.Style := [fsBold, fsItalic];
-        ACanvas.TextOut(AContentRect.Left + 1, AContentRect.Top + 1,
-          AData.Text);
+        ACanvas.TextOut(ACellRect.Left + ITEM_LEFT_PADDING, ACellRect.Top + 
+          ITEM_TEXT_TOP_PADDING, AData.Text);
       end;
     end else begin
       ACanvas.Font.Style := [];
-
-      if AColumn > 0 then
+      
+      if AColumn = KEY_COLUMN then
       begin
-        ACanvas.TextOut(AContentRect.Left + 5, AContentRect.Top + 5,
-          '110');
-        Exit;
-      end;
-
-      if AColumn = 0 then
+        DrawTextValue(AData.Text, AContentRect, ACanvas);
+      end else
       begin
-        ACanvas.TextOut(AContentRect.Left + 5, AContentRect.Top + 5,
-          AData.Text);
+        case AItemType of
+          Integer(TYPE_ITEM_BACKGROUND) : 
+            DrawColorValue(FProfile.Background, ACellRect, ACanvas);
+          Integer(TYPE_ITEM_HEIGHT) : 
+            DrawTextValue(IntToStr(FProfile.Height), ACellRect, ACanvas);
+        end;
       end;
-
     end;
   end;
 
@@ -185,21 +226,21 @@ function TProfileInspectorRenderer.ItemEditor (ANode : PVirtualNode; AColumn :
   TColumnIndex; AItemType : Integer; AData : TObjectInspectorData) : 
   IVTEditLink;
 begin
-  if (AColumn = 0) or (not FTreeView.Selected[ANode]) or not AData.Editable then
+  if (AColumn = KEY_COLUMN) or (not FTreeView.Selected[ANode]) or 
+    not AData.Editable then
     Exit(nil);
 
   case AItemType of
-    Integer(TYPE_TITLE) : begin
+    Integer(TYPE_ITEM_TITLE) : begin
       Result := nil;
     end;
-    Integer(TYPE_TEXT_VALUE) : begin
-      Result := TEditEditor.Create;
+    Integer(TYPE_ITEM_BACKGROUND) : begin
+      Result := TColorEditor.Create(FProfile.Background, AItemType,
+        @ValueChange);
     end;
-    Integer(TYPE_INTEGER_VALUE) : begin
-      Result := TSpinEditEditor.Create;
-    end;
-    Integer(TYPE_COLOR_VALUE) : begin
-      Result := TColorEditor.Create;
+    Integer(TYPE_ITEM_HEIGHT) : begin
+      Result := TSpinEditEditor.Create(FProfile.Height, AItemType,
+        @ValueChange);
     end;
   end;
 end;
@@ -207,13 +248,28 @@ end;
 procedure TProfileInspectorRenderer.NodeClick (ASender : TBaseVirtualTree; 
   const AHitInfo : THitInfo);
 begin
-  ASender.EditNode(AHitInfo.HitNode, 1);
+  ASender.EditNode(AHitInfo.HitNode, VALUE_COLUMN);
 end;
 
 procedure TProfileInspectorRenderer.TreeResize (ASender : TObject);
 begin
-  FTreeView.Header.Columns[0].Width := (FTreeView.Width div 2) - 2;
-  FTreeView.Header.Columns[1].Width := FTreeView.Width div 2;
+  FTreeView.Header.Columns[KEY_COLUMN].Width := (FTreeView.Width div 2) - 2;
+  FTreeView.Header.Columns[VALUE_COLUMN].Width := FTreeView.Width div 2;
+end;
+
+procedure TProfileInspectorRenderer.ValueChange (ANode : PVirtualNode; AColumn :
+  TColumnIndex; AItemType : Integer; AValue : Pointer);
+begin
+  case AItemType of
+    Integer(TYPE_ITEM_BACKGROUND) : begin
+      FProfile.Background := PColor(AValue)^;
+    end;
+    Integer(TYPE_ITEM_HEIGHT) : begin
+      FProfile.Height := PInteger(AValue)^;
+    end;
+  end;
+
+  FTreeView.InvalidateNode(ANode);
 end;
 
 procedure TProfileInspectorRenderer.UpdateProfile (AProfile : TRendererProfile);
@@ -223,19 +279,20 @@ begin
   if AProfile = nil then
     Exit;
 
+  FProfile := AProfile;
   FTreeView.Clear;
 
-  Data.Text := 'Settings';
+  Data.Text := 'Properties';
   Data.Editable := False;  
-  AppendData(nil, Integer(TYPE_TITLE), Data);
+  AppendData(nil, Integer(TYPE_ITEM_TITLE), Data);
 
   Data.Text := 'Background';
   Data.Editable := True;
-  AppendData(nil, Integer(TYPE_COLOR_VALUE), Data);
+  AppendData(nil, Integer(TYPE_ITEM_BACKGROUND), Data);
 
   Data.Text := 'Height';
   Data.Editable := True;
-  AppendData(nil, Integer(TYPE_INTEGER_VALUE), Data);
+  AppendData(nil, Integer(TYPE_ITEM_HEIGHT), Data);
 end;
 
 end.

@@ -4,7 +4,7 @@ unit MainForm;
 interface
 
 uses
-  Classes, SysUtils, Forms, Controls, ExtCtrls, ColorBox, VirtualTrees,
+  Classes, SysUtils, Forms, Controls, ExtCtrls, VirtualTrees,
   profileform;
 
 type
