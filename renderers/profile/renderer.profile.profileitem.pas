@@ -81,6 +81,7 @@ type
     function Delete : Boolean; override;
   protected
     FName : String;
+    FEnable : Boolean;
     FRenderProfile : TCommonObject;
     FBackground : TColor;
     FBackgroundFill : TBackgroundFillType;
@@ -93,6 +94,7 @@ type
     FPosition : TPosition;
   public
     property Name : String read FName write FName;
+    property Enable : Boolean read FEnable write FEnable;
     property Background : TColor read FBackground write FBackground;
     property BackgroundFillType : TBackgroundFillType read FBackgroundFill
       write FBackgroundFill;
@@ -120,6 +122,7 @@ begin
   FRenderProfile := nil;
 
   FName := '';
+  FEnable := False;
   FBackground := clDefault;
   FBackgroundFill := FILL_NONE;
   FBackgroundRoundRadius := 0;
@@ -156,6 +159,7 @@ begin
     .Id
     .Integer('profile_id').NotNull
     .Text('name').NotNull
+    .Integer('enable').NotNull
     .Integer('background').NotNull
     .Integer('background_fill_type').NotNull
     .Integer('background_round_radius').NotNull
@@ -198,6 +202,7 @@ begin
     Exit(False);
 
   FName := row.Row.GetStringValue('name');  
+  FEnable := Boolean(row.Row.GetIntegerValue('enable'));
   FBackground := TColor(row.Row.GetIntegerValue('background'));
   FBackgroundFill := 
     TBackgroundFillType(row.Row.GetIntegerValue('background_fill_type'));  
@@ -226,6 +231,7 @@ begin
   begin
     Result := (UpdateRow.Update('profile_id', FRenderProfile.ID)
       .Update('name', FName)
+      .Update('enable', Integer(FEnable))
       .Update('background', FBackground)
       .Update('background_fill_type', Integer(FBackgroundFill))
       .Update('background_round_radius', FBackgroundRoundRadius)
@@ -245,6 +251,7 @@ begin
   begin
     Result := (InsertRow.Value('profile_id', FRenderProfile.ID)
       .Value('name', FName)
+      .Value('enable', Integer(FEnable))
       .Value('background', FBackground)
       .Value('background_fill_type', Integer(FBackgroundFill))
       .Value('background_round_radius', FBackgroundRoundRadius)

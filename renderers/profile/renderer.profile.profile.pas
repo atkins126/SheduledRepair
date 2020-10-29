@@ -71,6 +71,7 @@ type
     { Delete object from database. }
     function Delete : Boolean; override;
   protected
+    FEnable : Boolean;
     FHeight : Integer;
     FBackground : TColor;
     FItemsList : TItemsList;
@@ -81,6 +82,7 @@ type
     { Get enumerator for in operator. }
     function GetEnumerator : TItemsList.TIterator;
   public
+    property Enable : Boolean read FEnable write FEnable;
     property Height : Integer read FHeight write FHeight;
     property Background : TColor read FBackground write FBackground;
     property Items[Name : String] : TRendererProfileItem read GetItem
@@ -105,6 +107,7 @@ end;
 constructor TRendererProfile.Create (AID : Int64);
 begin
   inherited Create(AID);
+  FEnable := False;
   FHeight := 20;
   FBackground := clWhite;
   FItemsList := TItemsList.Create;
@@ -172,6 +175,7 @@ begin
   
   Schema
     .Id
+    .Integer('enable').NotNull
     .Integer('height').NotNull
     .Integer('background').NotNull;
 
@@ -205,6 +209,7 @@ begin
   if not row.HasRow then
     Exit(False);
 
+  FEnable := Boolean(row.Row.GetIntegerValue('enable'));
   FHeight := row.Row.GetIntegerValue('height');
   FBackground := TColor(row.Row.GetIntegerValue('backgorund'));
 
@@ -230,7 +235,8 @@ var
 begin
   if ID <> -1 then
   begin
-    Result := (UpdateRow.Update('height', FHeight)
+    Result := (UpdateRow.Update('enable', Integer(FEnable))
+      .Update('height', FHeight)
       .Update('background', FBackground).Get > 0);
   end else
   begin

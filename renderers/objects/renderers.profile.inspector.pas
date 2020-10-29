@@ -33,7 +33,8 @@ interface
 
 uses
   SysUtils, renderers.virtualtreeview, renderer.profile.profile,
-  renderer.profile.profileitem, VirtualTrees, Classes, Graphics, Types;
+  renderer.profile.profileitem, VirtualTrees, Classes, Graphics, Types,
+  Dialogs;
 
 type
   TObjectInspectorData = record
@@ -45,8 +46,8 @@ type
   TProfileInspectorRenderer = class
     (specialize TVirtualTreeViewRenderer<TObjectInspectorData>)
   public
-    constructor Create (ATreeView : TVirtualDrawTree; ADrawOptions : 
-      TDrawOptions = [ITEM_DRAW_BUTTONS]);
+    constructor Create (ACanDisable : Boolean; ATreeView : TVirtualDrawTree; 
+      ADrawOptions : TDrawOptions = [ITEM_DRAW_BUTTONS]);
     destructor Destroy; override;
 
     procedure UpdateProfile (AProfile : TRendererProfile);
@@ -66,15 +67,29 @@ type
     type
       TItemType = (
         TYPE_ITEM_TITLE,
+        TYPE_ITEM_ENABLE,
         TYPE_ITEM_BACKGROUND,
         TYPE_ITEM_HEIGHT,
+        TYPE_ELEMENT_ENABLE,
         TYPE_ELEMENT_BACKGROUND,
         TYPE_ELEMENT_BACKGROUND_TYPE,
         TYPE_ELEMENT_BACKGROUND_RADIUS,
+        TYPE_ELEMENT_FONT,
+        TYPE_ELEMENT_FONT_NAME,
+        TYPE_ELEMENT_FONT_SIZE,
+        TYPE_ELEMENT_FONT_COLOR,
+        TYPE_ELEMENT_PADDING,
+        TYPE_ELEMENT_PADDING_TOP,
+        TYPE_ELEMENT_PADDING_LEFT,
+        TYPE_ELEMENT_PADDING_BOTTOM,
+        TYPE_ELEMENT_PADDING_RIGHT,
+
         TYPE_ELEMENT_POSITION,
         TYPE_ELEMENT_POSITION_X,
         TYPE_ELEMENT_POSITION_Y
       );
+
+      PFont = ^TFont;
   protected
     function ItemHeight (ANode : PVirtualNode; ACanvas : TCanvas; AIndex : 
       Cardinal; AItemType : Integer; AData : TObjectInspectorData) : Cardinal; 
@@ -87,9 +102,12 @@ type
       override;
   private
     FProfile : TRendererProfile;
+    FCanDisable : Boolean;
 
     procedure NodeClick (ASender : TBaseVirtualTree; const AHitInfo : THitInfo);
     procedure TreeResize (ASender : TObject);
+    procedure ShowScrollBar (ASender: TBaseVirtualTree; ABar: Integer; AShow: 
+      Boolean);
 
     procedure DrawBackground (AItemType : Integer; AState : TItemStates; ARect : 
       TRect; ACanvas : TCanvas);
@@ -99,23 +117,27 @@ type
       TCanvas);
     procedure ValueChange (ANode : PVirtualNode; AColumn : TColumnIndex;
       AItemType : Integer; AValue : Pointer);
+    procedure ValueEditorClick (ANode : PVirtualNode; AColumn : TColumnIndex;
+      AItemType : Integer; var AValue : Pointer);
   end;
 
 implementation
 
 { TObjectsInspectorRenderer }
 
-constructor TProfileInspectorRenderer.Create (ATreeView : TVirtualDrawTree;
-  ADrawOptions : TDrawOptions);
+constructor TProfileInspectorRenderer.Create (ACanDisable : Boolean; 
+  ATreeView : TVirtualDrawTree; ADrawOptions : TDrawOptions);
 begin
   inherited Create(ATreeView, ADrawOptions);
   FProfile := nil;
+  FCanDisable := ACanDisable;
 
   FTreeView.OnNodeClick := @NodeClick;
   FTreeView.OnResize := @TreeResize;
+  FTreeView.OnShowScrollBar := @ShowScrollBar;
 
-  AppendColumn((FTreeView.Width div 2) - 2);
-  AppendColumn(FTreeView.Width div 2);
+  AppendColumn((FTreeView.ClientWidth div 2) - 2);
+  AppendColumn(FTreeView.ClientWidth div 2);
 end;
 
 destructor TProfileInspectorRenderer.Destroy;
@@ -218,24 +240,67 @@ begin
       end else
       begin
         case AItemType of
+          Integer(TYPE_ITEM_ENABLE) : begin
+            if FProfile.Enable then
+              DrawTextValue('[Enable]', ACellRect, ACanvas)
+            else
+              DrawTextValue('[Disable]', ACellRect, ACanvas);
+            end;
           Integer(TYPE_ITEM_BACKGROUND) : 
             DrawColorValue(FProfile.Background, ACellRect, ACanvas);
           Integer(TYPE_ITEM_HEIGHT) : 
             DrawTextValue(IntToStr(FProfile.Height), ACellRect, ACanvas);
+          Integer(TYPE_ELEMENT_ENABLE) : begin
+            if FProfile.Items[AData.Element].Enable then
+              DrawTextValue('[Enable]', ACellRect, ACanvas)
+            else
+              DrawTextValue('[Disable]', ACellRect, ACanvas);
+            end;  
           Integer(TYPE_ELEMENT_BACKGROUND) :
             DrawColorValue(FProfile.Items[AData.Element].Background, ACellRect,
               ACanvas);
           Integer(TYPE_ELEMENT_BACKGROUND_TYPE) : begin
             case FProfile.Items[AData.Element].BackgroundFillType of
-              FILL_NONE : Value := 'Transparent';
-              FILL_SQUARE : Value := 'Rectangle';
-              FILL_SQUARE_ROUND_CORNER : Value := 'Rounded rectangle';
+              FILL_NONE : Value := '[Transparent]';
+              FILL_SQUARE : Value := '[Rectangle]';
+              FILL_SQUARE_ROUND_CORNER : Value := '[Rounded rectangle]';
             end;
             DrawTextValue(Value, ACellRect, ACanvas);
           end;
           Integer(TYPE_ELEMENT_BACKGROUND_RADIUS) : 
             DrawTextValue(
               IntToStr(FProfile.Items[AData.Element].BackgroundRoundRadius),
+              ACellRect, ACanvas);
+          Integer(TYPE_ELEMENT_FONT) : 
+            DrawTextValue('[Font]', ACellRect, ACanvas);
+          Integer(TYPE_ELEMENT_FONT_NAME) :
+            DrawTextValue(FProfile.Items[AData.Element].FontName, ACellRect, 
+              ACanvas);
+          Integer(TYPE_ELEMENT_FONT_SIZE) :
+            DrawTextValue(IntToStr(FProfile.Items[AData.Element].FontSize),
+              ACellRect, ACanvas);
+          Integer(TYPE_ELEMENT_FONT_COLOR) :
+            DrawColorValue(FProfile.Items[AData.Element].FontColor, ACellRect,
+              ACanvas);
+          Integer(TYPE_ELEMENT_PADDING) :
+            DrawTextValue('[' +
+              IntToStr(FProfile.Items[AData.Element].Padding.Top) +
+              ', ' + IntToStr(FProfile.Items[AData.Element].Padding.Left) +
+              ', ' + IntToStr(FProfile.Items[AData.Element].Padding.Bottom) +
+              ', ' + IntToStr(FProfile.Items[AData.Element].Padding.Right)
+              + ']',
+              ACellRect, ACanvas);
+          Integer(TYPE_ELEMENT_PADDING_TOP) :
+            DrawTextValue(IntToStr(FProfile.Items[AData.Element].Padding.Top), 
+              ACellRect, ACanvas);
+          Integer(TYPE_ELEMENT_PADDING_LEFT) : 
+            DrawTextValue(IntToStr(FProfile.Items[AData.Element].Padding.Left),
+              ACellRect, ACanvas);
+          Integer(TYPE_ELEMENT_PADDING_BOTTOM) :
+            DrawTextValue(IntToStr(FProfile.Items[AData.Element].Padding.Bottom),
+              ACellRect, ACanvas);
+          Integer(TYPE_ELEMENT_PADDING_RIGHT) :
+            DrawTextValue(IntToStr(FProfile.Items[AData.Element].Padding.Right),
               ACellRect, ACanvas);
         end;
       end;
@@ -259,6 +324,10 @@ begin
     Integer(TYPE_ITEM_TITLE) : begin
       Result := nil;
     end;
+    Integer(TYPE_ITEM_ENABLE) : begin
+      Result := TCheckEditor.Create(FProfile.Enable, 'Enable', AItemType, 
+        @ValueChange);
+    end;
     Integer(TYPE_ITEM_BACKGROUND) : begin
       Result := TColorEditor.Create(FProfile.Background, AItemType,
         @ValueChange);
@@ -266,6 +335,10 @@ begin
     Integer(TYPE_ITEM_HEIGHT) : begin
       Result := TSpinEditEditor.Create(FProfile.Height, AItemType,
         @ValueChange);
+    end;
+    Integer(TYPE_ELEMENT_ENABLE) : begin
+      Result := TCheckEditor.Create(FProfile.Items[AData.Element].Enable,
+        'Enable', AItemType, @ValueChange);
     end;
     Integer(TYPE_ELEMENT_BACKGROUND) : begin
       Result := TColorEditor.Create(FProfile.Items[AData.Element].Background, 
@@ -286,7 +359,58 @@ begin
         FProfile.Items[AData.Element].BackgroundRoundRadius, AItemType,
         @ValueChange);
     end;
+    Integer(TYPE_ELEMENT_FONT) : begin
+      Result := TEditButtonEditor.Create('[Font]', AItemType, @ValueEditorClick,
+        @ValueChange);
+    end;
+    Integer(TYPE_ELEMENT_FONT_NAME) : 
+      Result := TEditEditor.Create(FProfile.Items[AData.Element].FontName,
+        AItemType, @ValueChange);
+    Integer(TYPE_ELEMENT_FONT_SIZE) :
+      Result := TSpinEditEditor.Create(FProfile.Items[AData.Element].FontSize,
+        AItemType, @ValueChange);
+    Integer(TYPE_ELEMENT_FONT_COLOR) :
+      Result := TColorEditor.Create(FProfile.Items[AData.Element].FontColor,
+        AItemType, @ValueChange);
+    Integer(TYPE_ELEMENT_PADDING_TOP) :
+      Result := TSpinEditEditor.Create(
+        FProfile.Items[AData.Element].Padding.Top, AItemType, @ValueChange);
+    Integer(TYPE_ELEMENT_PADDING_LEFT) : 
+      Result := TSpinEditEditor.Create(
+        FProfile.Items[AData.Element].Padding.Left, AItemType, @ValueChange);
+    Integer(TYPE_ELEMENT_PADDING_BOTTOM) : 
+      Result := TSpinEditEditor.Create(
+        FProfile.Items[AData.Element].Padding.Bottom, AItemType, @ValueChange);
+    Integer(TYPE_ELEMENT_PADDING_RIGHT) : 
+      Result := TSpinEditEditor.Create(
+        FProfile.Items[AData.Element].Padding.Right, AItemType, @ValueChange);
   end;
+end;
+
+procedure TProfileInspectorRenderer.ValueEditorClick (ANode : PVirtualNode; 
+  AColumn : TColumnIndex; AItemType : Integer; var AValue : Pointer);
+var
+  FontDialog : TFontDialog;
+begin
+  case AItemType of
+    Integer(TYPE_ELEMENT_FONT) : begin
+      FontDialog := TFontDialog.Create(nil);
+      FontDialog.Font.Name := FProfile.Items[GetData(ANode).Element].FontName;
+      FontDialog.Font.Size := FProfile.Items[GetData(ANode).Element].FontSize;
+      FontDialog.Font.Color := FProfile.Items[GetData(ANode).Element].FontColor;
+
+      if not FontDialog.Execute then
+      begin
+        AValue := nil;
+        Exit;
+      end;
+
+      AValue := FontDialog.Font;
+      Exit;
+    end;
+  end;
+
+  AValue := nil;
 end;
 
 procedure TProfileInspectorRenderer.NodeClick (ASender : TBaseVirtualTree; 
@@ -297,19 +421,32 @@ end;
 
 procedure TProfileInspectorRenderer.TreeResize (ASender : TObject);
 begin
-  FTreeView.Header.Columns[KEY_COLUMN].Width := (FTreeView.Width div 2) - 2;
-  FTreeView.Header.Columns[VALUE_COLUMN].Width := FTreeView.Width div 2;
+  FTreeView.Header.Columns[KEY_COLUMN].Width := (FTreeView.ClientWidth div 2)
+    - 2;
+  FTreeView.Header.Columns[VALUE_COLUMN].Width := FTreeView.ClientWidth div 2;
+end;
+
+procedure TProfileInspectorRenderer.ShowScrollBar (ASender : TBaseVirtualTree; 
+  ABar : Integer; AShow : Boolean);
+begin
+  TreeResize(FTreeView);
 end;
 
 procedure TProfileInspectorRenderer.ValueChange (ANode : PVirtualNode; AColumn :
   TColumnIndex; AItemType : Integer; AValue : Pointer);
 begin
   case AItemType of
+    Integer(TYPE_ITEM_ENABLE) : begin
+      FProfile.Enable := PBoolean(AValue)^;
+    end;
     Integer(TYPE_ITEM_BACKGROUND) : begin
       FProfile.Background := PColor(AValue)^;
     end;
     Integer(TYPE_ITEM_HEIGHT) : begin
       FProfile.Height := PInteger(AValue)^;
+    end;
+    Integer(TYPE_ELEMENT_ENABLE) : begin
+      FProfile.Items[GetData(ANode).Element].Enable := PBoolean(AValue)^;
     end;
     Integer(TYPE_ELEMENT_BACKGROUND) : begin
       FProfile.Items[GetData(ANode).Element].Background := PColor(AValue)^;
@@ -322,6 +459,29 @@ begin
       FProfile.Items[GetData(ANode).Element].BackgroundRoundRadius :=
         PInteger(AValue)^;
     end;
+    Integer(TYPE_ELEMENT_FONT) : begin
+      if AValue <> nil then
+      begin
+        FProfile.Items[GetData(ANode).Element].FontName := TFont(AValue).Name;
+        FProfile.Items[GetData(ANode).Element].FontSize := TFont(AValue).Size;
+        FProfile.Items[GetData(ANode).Element].FontColor := TFont(AValue).Color;
+      end;
+    end;
+    Integer(TYPE_ELEMENT_FONT_NAME) : 
+      FProfile.Items[GetData(ANode).Element].FontName := PString(AValue)^;
+    Integer(TYPE_ELEMENT_FONT_SIZE) :
+      FProfile.Items[GetData(ANode).Element].FontSize := PInteger(AValue)^;
+    Integer(TYPE_ELEMENT_FONT_COLOR) :
+      FProfile.Items[GetData(ANode).Element].FontColor := PColor(AValue)^;
+    Integer(TYPE_ELEMENT_PADDING_TOP) :
+      FProfile.Items[GetData(ANode).Element].Padding.Top := PInteger(AValue)^;
+    Integer(TYPE_ELEMENT_PADDING_LEFT) :
+      FProfile.Items[GetData(ANode).Element].Padding.Left := PInteger(AValue)^;
+    Integer(TYPE_ELEMENT_PADDING_BOTTOM) :
+      FProfile.Items[GetData(ANode).Element].Padding.Bottom := 
+      PInteger(AValue)^;  
+    Integer(TYPE_ELEMENT_PADDING_RIGHT) :
+      FProfile.Items[GetData(ANode).Element].Padding.Right := PInteger(AValue)^;
   end;
 
   FTreeView.InvalidateNode(ANode);
@@ -344,6 +504,14 @@ begin
   Data.Editable := False;  
   AppendData(nil, Integer(TYPE_ITEM_TITLE), Data);
 
+  if FCanDisable then
+  begin
+    Data.Text := 'Enable';
+    Data.Element := '';
+    Data.Editable := True;
+    AppendData(nil, Integer(TYPE_ITEM_ENABLE), Data);
+  end;
+
   Data.Text := 'Background';
   Data.Element := '';
   Data.Editable := True;
@@ -361,6 +529,11 @@ begin
     Data.Editable := False;
     AppendData(nil, Integer(TYPE_ITEM_TITLE), Data);
 
+    Data.Text := 'Enable';
+    Data.Element := ProfileItem.Name;
+    Data.Editable := True;
+    AppendData(nil, Integer(TYPE_ELEMENT_ENABLE), Data);
+
     Data.Text := 'Background';
     Data.Element := ProfileItem.Name;
     Data.Editable := True;
@@ -375,6 +548,52 @@ begin
     Data.Element := ProfileItem.Name;
     Data.Editable := True;
     AppendData(nil, Integer(TYPE_ELEMENT_BACKGROUND_RADIUS), Data);
+
+    Data.Text := 'Font';
+    Data.Element := ProfileItem.Name;
+    Data.Editable := True;
+    Parent := AppendData(nil, Integer(TYPE_ELEMENT_FONT), Data);
+
+    Data.Text := 'Font name';
+    Data.Element := ProfileItem.Name;
+    Data.Editable := True;
+    AppendData(Parent, Integer(TYPE_ELEMENT_FONT_NAME), Data);
+
+    Data.Text := 'Font size';
+    Data.Element := ProfileItem.Name;
+    Data.Editable := True;
+    AppendData(Parent, Integer(TYPE_ELEMENT_FONT_SIZE), Data);
+
+    Data.Text := 'Font color';
+    Data.Element := ProfileItem.Name;
+    Data.Editable := True;
+    AppendData(Parent, Integer(TYPE_ELEMENT_FONT_COLOR), Data);
+
+    Data.Text := 'Padding';
+    Data.Element := ProfileItem.Name;
+    Data.Editable := False;
+    Parent := AppendData(nil, Integer(TYPE_ELEMENT_PADDING), Data);
+
+    Data.Text := 'Top';
+    Data.Element := ProfileItem.Name;
+    Data.Editable := True;
+    AppendData(Parent, Integer(TYPE_ELEMENT_PADDING_TOP), Data);
+
+    Data.Text := 'Left';
+    Data.Element := ProfileItem.Name;
+    Data.Editable := True;
+    AppendData(Parent, Integer(TYPE_ELEMENT_PADDING_LEFT), Data);
+
+    Data.Text := 'Bottom';
+    Data.Element := ProfileItem.Name;
+    Data.Editable := True;
+    AppendData(Parent, Integer(TYPE_ELEMENT_PADDING_BOTTOM), Data);
+
+    Data.Text := 'Right';
+    Data.Element := ProfileItem.Name;
+    Data.Editable := True;
+    AppendData(Parent, Integer(TYPE_ELEMENT_PADDING_RIGHT), Data);
+
 
     Data.Text := 'Position';
     Data.Element := ProfileItem.Name;

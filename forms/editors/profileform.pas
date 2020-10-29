@@ -43,9 +43,11 @@ procedure TProfileWindow.FormCreate(Sender: TObject);
 var
   Profile : TRendererProfile;
 begin
-  FDefaultRenderer := TProfileInspectorRenderer.Create(DefaultProfileTree);
-  FHoverRenderer := TProfileInspectorRenderer.Create(HoverProfileTree);
-  FSelectedRenderer := TProfileInspectorRenderer.Create(SelectedProfileTree);
+  FDefaultRenderer := TProfileInspectorRenderer.Create(False,
+    DefaultProfileTree);
+  FHoverRenderer := TProfileInspectorRenderer.Create(True, HoverProfileTree);
+  FSelectedRenderer := TProfileInspectorRenderer.Create(True,
+    SelectedProfileTree);
 
   Profile := TRendererProfile.Create(-1);
   Profile.Items['Name'] := TRendererProfileItem.Create(-1);

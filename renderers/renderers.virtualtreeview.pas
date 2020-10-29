@@ -33,7 +33,7 @@ interface
 
 uses
   SysUtils, Classes, Graphics, Types, StdCtrls, Spin, LMessages, LCLType,
-  ColorBox, VirtualTrees;
+  ColorBox, EditBtn, VirtualTrees;
 
 type
   generic TVirtualTreeViewRenderer<T> = class
@@ -213,6 +213,73 @@ type
     FItems : TStringList;
     FSelected : Integer;
     FItemType : Integer;
+    FCallback : TValueChangeCallback;
+  end;
+
+  TCheckEditor = class(TInterfacedObject, IVTEditLink)
+  public
+    type
+      TValueChangeCallback = procedure (ANode : PVirtualNode; AColumn :
+        TColumnIndex; AItemType : Integer; AValue : Pointer) of object;
+  public
+    constructor Create (AChecked : Boolean; ACaption : String; 
+      AItemType : Integer; ACallback : TValueChangeCallback);
+    destructor Destroy; override;
+    function BeginEdit : Boolean; stdcall;
+    function CancelEdit : Boolean; stdcall;
+    function EndEdit : Boolean; stdcall;
+    function GetBounds : TRect; stdcall;
+    function PrepareEdit (ATree : TBaseVirtualTree; ANode : PVirtualNode;
+      AColumn : TColumnIndex) : Boolean; stdcall;
+    procedure ProcessMessage (var AMessage : TLMessage); stdcall;
+    procedure SetBounds (ARect : TRect); stdcall;
+  protected
+    procedure EditKeyDown (ASender : TObject; var AKey : Word; AShift :
+      TShiftState);
+  private
+    FEdit : TCheckBox;
+    FTree : TVirtualDrawTree;
+    FNode : PVirtualNode;
+    FColumn : Integer;
+    FCaption : String;
+    FChecked : Boolean;
+    FItemType : Integer;
+    FCallback : TValueChangeCallback;
+  end;
+
+  TEditButtonEditor = class(TInterfacedObject, IVTEditLink)
+  public
+    type
+      TValueChangeCallback = procedure (ANode : PVirtualNode; AColumn :
+        TColumnIndex; AItemType : Integer; AValue : Pointer) of object;
+      TButtonClickCallback = procedure (ANode : PVirtualNode; AColumn :
+        TColumnIndex; AItemType : Integer; var AValue : Pointer) of object;  
+  public
+    constructor Create (AText : String; AItemType : Integer; 
+      AButtonClickCallback : TButtonClickCallback; ACallback : 
+      TValueChangeCallback);
+    destructor Destroy; override;
+    function BeginEdit : Boolean; stdcall;
+    function CancelEdit : Boolean; stdcall;
+    function EndEdit : Boolean; stdcall;
+    function GetBounds : TRect; stdcall;
+    function PrepareEdit (ATree : TBaseVirtualTree; ANode : PVirtualNode;
+      AColumn : TColumnIndex) : Boolean; stdcall;
+    procedure ProcessMessage (var AMessage : TLMessage); stdcall;
+    procedure SetBounds (ARect : TRect); stdcall;
+  protected
+    procedure EditKeyDown (ASender : TObject; var AKey : Word; AShift :
+      TShiftState);
+    procedure ButtonClick (ASender : TObject);
+  private
+    FEdit : TEditButton;
+    FTree : TVirtualDrawTree;
+    FNode : PVirtualNode;
+    FColumn : Integer;
+    FText : String;
+    FValue : Pointer;
+    FItemType : Integer;
+    FButtonCallback : TButtonClickCallback;
     FCallback : TValueChangeCallback;
   end;
 
@@ -749,6 +816,203 @@ begin
 end;
 
 procedure TListEditor.SetBounds (ARect : TRect); stdcall;
+var
+  Dummy : Integer;
+begin
+  FTree.Header.Columns.GetColumnBounds(FColumn, Dummy, ARect.Right);
+  FEdit.BoundsRect := ARect;
+end;
+
+{ TCheckEditor }
+
+constructor TCheckEditor.Create (AChecked : Boolean; ACaption : String; 
+  AItemType : Integer; ACallback : TValueChangeCallback);
+begin
+  FChecked := AChecked;
+  FCaption := ACaption;
+  FItemType := AItemType;
+  FCallback := ACallback;
+end;
+
+destructor TCheckEditor.Destroy;
+begin
+  FreeAndNil(FEdit);
+  inherited Destroy;
+end;
+
+procedure TCheckEditor.EditKeyDown (ASender : TObject; var AKey : Word; AShift :
+  TShiftState);
+begin
+  case AKey of
+    VK_ESCAPE : begin
+      FTree.CancelEditNode;
+      AKey := 0;
+    end;
+    VK_RETURN : begin
+      FTree.EndEditNode;
+      AKey := 0;
+    end;
+  end;
+end;
+
+function TCheckEditor.BeginEdit : Boolean; stdcall;
+begin
+  FEdit.Show;
+  FEdit.SetFocus;
+  Result := True;
+end;
+
+function TCheckEditor.CancelEdit : Boolean; stdcall;
+begin
+  FEdit.Hide;
+  Result := True;
+end;
+
+function TCheckEditor.EndEdit : Boolean; stdcall;
+var
+  Checked : Boolean;
+begin
+  if Assigned(FCallback) then
+  begin
+    Checked := FEdit.Checked;
+    FCallback(FNode, FColumn, FItemType, @Checked);
+  end;
+  FEdit.Hide;
+  FTree.SetFocus;
+  Result := True;
+end;
+
+function TCheckEditor.GetBounds : TRect; stdcall;
+begin
+  Result := FEdit.BoundsRect;
+end;
+
+function TCheckEditor.PrepareEdit (ATree : TBaseVirtualTree; ANode :
+  PVirtualNode; AColumn : TColumnIndex) : Boolean; stdcall;
+begin
+  FTree := TVirtualDrawTree(ATree);
+  FNode := ANode;
+  FColumn := AColumn;
+
+  FreeAndNil(FEdit);
+  FEdit := TCheckBox.Create(nil);
+  FEdit.AutoSize := False;
+  FEdit.Visible := False;
+  FEdit.Parent := ATree;
+  FEdit.Caption := FCaption;
+  FEdit.Checked := FChecked;
+  FEdit.OnKeyDown := @EditKeyDown;
+
+  Result := True;
+end;
+
+procedure TCheckEditor.ProcessMessage (var AMessage : TLMessage); stdcall;
+begin
+  FEdit.WindowProc(AMessage);
+end;
+
+procedure TCheckEditor.SetBounds (ARect : TRect); stdcall;
+var
+  Dummy : Integer;
+begin
+  FTree.Header.Columns.GetColumnBounds(FColumn, Dummy, ARect.Right);
+  FEdit.BoundsRect := ARect;
+end;
+
+{ TEditButtonEditor }
+
+constructor TEditButtonEditor.Create (AText : String; AItemType : Integer; 
+  AButtonClickCallback : TButtonClickCallback; ACallback : 
+  TValueChangeCallback);
+begin
+  FText := AText;
+  FItemType := AItemType;
+  FButtonCallback := AButtonClickCallback;
+  FCallback := ACallback;
+end;
+
+destructor TEditButtonEditor.Destroy;
+begin
+  FreeAndNil(FEdit);
+  inherited Destroy;
+end;
+
+procedure TEditButtonEditor.EditKeyDown (ASender : TObject; var AKey : Word; 
+  AShift : TShiftState);
+begin
+  case AKey of
+    VK_ESCAPE : begin
+      FTree.CancelEditNode;
+      AKey := 0;
+    end;
+    VK_RETURN : begin
+      FTree.EndEditNode;
+      AKey := 0;
+    end;
+  end;
+  AKey := 0;
+end;
+
+procedure TEditButtonEditor.ButtonClick (ASender : TObject);
+begin
+  FButtonCallback(FNode, FColumn, FItemType, FValue);
+end;
+
+function TEditButtonEditor.BeginEdit : Boolean; stdcall;
+begin
+  FEdit.Show;
+  FEdit.SetFocus;
+  Result := True;
+end;
+
+function TEditButtonEditor.CancelEdit : Boolean; stdcall;
+begin
+  FEdit.Hide;
+  Result := True;
+end;
+
+function TEditButtonEditor.EndEdit : Boolean; stdcall;
+begin
+  if Assigned(FCallback) then
+  begin
+    FCallback(FNode, FColumn, FItemType, FValue);
+  end;
+  FEdit.Hide;
+  FTree.SetFocus;
+  Result := True;
+end;
+
+function TEditButtonEditor.GetBounds : TRect; stdcall;
+begin
+  Result := FEdit.BoundsRect;
+end;
+
+function TEditButtonEditor.PrepareEdit (ATree : TBaseVirtualTree; ANode :
+  PVirtualNode; AColumn : TColumnIndex) : Boolean; stdcall;
+begin
+  FTree := TVirtualDrawTree(ATree);
+  FNode := ANode;
+  FColumn := AColumn;
+
+  FreeAndNil(FEdit);
+  FEdit := TEditButton.Create(nil);
+  FEdit.AutoSize := False;
+  FEdit.Visible := False;
+  FEdit.Parent := ATree;
+  FEdit.Text := FText;
+  FEdit.ButtonCaption := '...';
+  FEdit.OnKeyDown := @EditKeyDown;
+  FEdit.OnButtonClick := @ButtonClick;
+
+  Result := True;
+end;
+
+procedure TEditButtonEditor.ProcessMessage (var AMessage : TLMessage); stdcall;
+begin
+  FEdit.WindowProc(AMessage);
+end;
+
+procedure TEditButtonEditor.SetBounds (ARect : TRect); stdcall;
 var
   Dummy : Integer;
 begin
