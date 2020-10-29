@@ -3,7 +3,7 @@
 (*                                                                            *)
 (*                                                                            *)
 (* Copyright (c) 2020                                       Ivan Semenkov     *)
-(* https://github.com/isemenkov/libpassqlite                ivan@semenkov.pro *)
+(* https://github.com/isemenkov/SheduledRepair              ivan@semenkov.pro *)
 (*                                                          Ukraine           *)
 (******************************************************************************)
 (*                                                                            *)
@@ -44,9 +44,6 @@ type
     constructor Create (AID : Int64); override;
     destructor Destroy; override;
     
-    { Check database table scheme. }
-    function CheckSchema : Boolean; override;
-
     { Get object database table name. }
     function Table : String; override;
 
@@ -61,6 +58,12 @@ type
 
     { Object deep copy. }
     procedure Assign (AGreaseBundle : TGreaseBundle);
+  protected
+    { Prepare current object database table scheme. }
+    procedure PrepareSchema (var ASchema : TSQLite3Schema); override;
+
+    { Check all dependent schemes. }
+    function CheckDepentSchemes : Boolean; override;
   protected
     FGrease : TGrease;
     FQuantity : TQuantity;
@@ -87,24 +90,17 @@ begin
   inherited Destroy;
 end;
 
-function TGreaseBundle.CheckSchema : Boolean;
-var
-  Schema : TSQLite3Schema;
+procedure TGreaseBundle.PrepareSchema (var ASchema : TSQLite3Schema);
 begin
-  Schema := TSQLite3Schema.Create;
-  
-  Schema
+  ASchema
     .Id
     .Integer('grease_id').NotNull
     .Integer('quantity_id');
+end;
 
-  if not FTable.Exists then
-    FTable.New(Schema);
-
-  Result := FTable.CheckSchema(Schema) and FGrease.CheckSchema and
-    FQuantity.CheckSchema;  
-
-  FreeAndNil(Schema);
+function TGreaseBundle.CheckDepentSchemes : Boolean;
+begin
+  Result := FGrease.CheckSchema and FQuantity.CheckSchema;
 end;
 
 function TGreaseBundle.Table : String;

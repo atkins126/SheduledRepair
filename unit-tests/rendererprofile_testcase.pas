@@ -50,10 +50,8 @@ begin
   item.Padding.Bottom := 2;
   item.Padding.Right := 10;
   item.PositionType := POSITION_FIXED;
-  item.Position.Top := 15;
-  item.Position.Left := 0;
-  item.Position.Bottom := 0;
-  item.Position.Right := 25;
+  item.Position.X := 15;
+  item.Position.Y := 0;
 
   AssertTrue('Object save error', profile.Save);
 
@@ -91,14 +89,10 @@ begin
     profile.Items['name'].Padding.Right = 10);
   AssertTrue('RendererProfile object ''name'' item ''PositionType'' is not correct error', 
     profile.Items['name'].PositionType = POSITION_FIXED);
-  AssertTrue('RendererProfile object ''name'' item ''Posititon.Top'' is not correct error', 
-    profile.Items['name'].Position.Top = 15);
-  AssertTrue('RendererProfile object ''name'' item ''Posititon.Left'' is not correct error', 
-    profile.Items['name'].Position.Left = 0);
-  AssertTrue('RendererProfile object ''name'' item ''Posititon.Bottom'' is not correct error', 
-    profile.Items['name'].Position.Bottom = 0);
-  AssertTrue('RendererProfile object ''name'' item ''Posititon.Right'' is not correct error', 
-    profile.Items['name'].Position.Right = 25);
+  AssertTrue('RendererProfile object ''name'' item ''Posititon.X'' is not correct error',
+    profile.Items['name'].Position.X = 15);
+  AssertTrue('RendererProfile object ''name'' item ''Posititon.Y'' is not correct error',
+    profile.Items['name'].Position.Y = 0);
 
   FreeAndNil(profile);
 end;

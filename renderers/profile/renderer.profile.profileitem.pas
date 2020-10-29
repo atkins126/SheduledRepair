@@ -3,7 +3,7 @@
 (*                                                                            *)
 (*                                                                            *)
 (* Copyright (c) 2020                                       Ivan Semenkov     *)
-(* https://github.com/isemenkov/libpassqlite                ivan@semenkov.pro *)
+(* https://github.com/isemenkov/SheduledRepair              ivan@semenkov.pro *)
 (*                                                          Ukraine           *)
 (******************************************************************************)
 (*                                                                            *)
@@ -65,9 +65,6 @@ type
     constructor Create (AID : Int64); override;
     destructor Destroy; override;
     
-    { Check database table scheme. }
-    function CheckSchema : Boolean; override;
-
     { Get object database table name. }
     function Table : String; override;
 
@@ -79,6 +76,9 @@ type
 
     { Delete object from database. }
     function Delete : Boolean; override;
+  protected
+    { Prepare current object database table scheme. }
+    procedure PrepareSchema (var ASchema : TSQLite3Schema); override;
   protected
     FName : String;
     FEnable : Boolean;
@@ -147,13 +147,9 @@ begin
   inherited Destroy;
 end;
 
-function TRendererProfileItem.CheckSchema : Boolean;
-var
-  Schema : TSQLite3Schema;
+procedure TRendererProfileItem.PrepareSchema (var ASchema : TSQLite3Schema);
 begin
-  Schema := TSQLite3Schema.Create;
-  
-  Schema
+  ASchema
     .Id
     .Integer('profile_id').NotNull
     .Text('name').NotNull
@@ -171,13 +167,6 @@ begin
     .Integer('position_type').NotNull
     .Integer('position_x').NotNull
     .Integer('position_y').NotNull;
-
-  if not FTable.Exists then
-    FTable.New(Schema);
-
-  Result := FTable.CheckSchema(Schema);  
-
-  FreeAndNil(Schema);
 end;
 
 function TRendererProfileItem.Table : String;

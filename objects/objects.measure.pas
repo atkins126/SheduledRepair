@@ -3,7 +3,7 @@
 (*                                                                            *)
 (*                                                                            *)
 (* Copyright (c) 2020                                       Ivan Semenkov     *)
-(* https://github.com/isemenkov/libpassqlite                ivan@semenkov.pro *)
+(* https://github.com/isemenkov/SheduledRepair              ivan@semenkov.pro *)
 (*                                                          Ukraine           *)
 (******************************************************************************)
 (*                                                                            *)
@@ -43,9 +43,6 @@ type
     constructor Create (AID : Int64); override;
     destructor Destroy; override;
     
-    { Check database table scheme. }
-    function CheckSchema : Boolean; override;
-
     { Get object database table name. }
     function Table : String; override;
 
@@ -60,6 +57,9 @@ type
 
     { Object deep copy. }
     procedure Assign (AMeasure : TMeasure);
+  protected
+    { Prepare current object database table scheme. }
+    procedure PrepareSchema (var ASchema : TSQLite3Schema); override;
   protected
     FName : String;
   public
@@ -81,22 +81,11 @@ begin
   inherited Destroy;
 end;
 
-function TMeasure.CheckSchema : Boolean;
-var
-  Schema : TSQLite3Schema;
+procedure TMeasure.PrepareSchema (var ASchema : TSQLite3Schema);
 begin
-  Schema := TSQLite3Schema.Create;
-  
-  Schema
+  ASchema
     .Id
     .Text('name').NotNull;
-
-  if not FTable.Exists then
-    FTable.New(Schema);
-
-  Result := FTable.CheckSchema(Schema);  
-
-  FreeAndNil(Schema);
 end;
 
 function TMeasure.Table : String;

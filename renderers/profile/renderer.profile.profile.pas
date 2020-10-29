@@ -3,7 +3,7 @@
 (*                                                                            *)
 (*                                                                            *)
 (* Copyright (c) 2020                                       Ivan Semenkov     *)
-(* https://github.com/isemenkov/libpassqlite                ivan@semenkov.pro *)
+(* https://github.com/isemenkov/SheduledRepair              ivan@semenkov.pro *)
 (*                                                          Ukraine           *)
 (******************************************************************************)
 (*                                                                            *)
@@ -56,9 +56,6 @@ type
     constructor Create (AID : Int64); override;
     destructor Destroy; override;
     
-    { Check database table scheme. }
-    function CheckSchema : Boolean; override;
-
     { Get object database table name. }
     function Table : String; override;
 
@@ -70,6 +67,12 @@ type
 
     { Delete object from database. }
     function Delete : Boolean; override;
+  protected
+    { Prepare current object database table scheme. }
+    procedure PrepareSchema (var ASchema : TSQLite3Schema); override;
+
+    { Check all dependent schemes. }
+    function CheckDepentSchemes : Boolean; override;
   protected
     FEnable : Boolean;
     FHeight : Integer;
@@ -165,27 +168,22 @@ begin
   Result := FItemsList.GetEnumerator;
 end;
 
-function TRendererProfile.CheckSchema : Boolean;
-var
-  Schema : TSQLite3Schema;
-  Item : TRendererProfileItem;
+procedure TRendererProfile.PrepareSchema (var ASchema : TSQLite3Schema);
 begin
-  Schema := TSQLite3Schema.Create;
-  Item := TRendererProfileItem.Create(-1);
-  
-  Schema
+  ASchema
     .Id
     .Integer('enable').NotNull
     .Integer('height').NotNull
     .Integer('background').NotNull;
+end;
 
-  if not FTable.Exists then
-    FTable.New(Schema);
-
-  Result := FTable.CheckSchema(Schema) and Item.CheckSchema;  
-
-  FreeAndNil(Item);
-  FreeAndNil(Schema);
+function TRendererProfile.CheckDepentSchemes : Boolean;
+var 
+  ProfileItem : TRendererProfileItem;
+begin
+  ProfileItem := TRendererProfileItem.Create(-1);
+  Result := ProfileItem.CheckSchema;
+  FreeAndNil(ProfileItem);
 end;
 
 function TRendererProfile.Table : String;

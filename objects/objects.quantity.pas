@@ -3,7 +3,7 @@
 (*                                                                            *)
 (*                                                                            *)
 (* Copyright (c) 2020                                       Ivan Semenkov     *)
-(* https://github.com/isemenkov/libpassqlite                ivan@semenkov.pro *)
+(* https://github.com/isemenkov/SheduledRepair              ivan@semenkov.pro *)
 (*                                                          Ukraine           *)
 (******************************************************************************)
 (*                                                                            *)
@@ -44,9 +44,6 @@ type
     constructor Create (AID : Int64); override;
     destructor Destroy; override;
     
-    { Check database table scheme. }
-    function CheckSchema : Boolean; override;
-
     { Get object database table name. }
     function Table : String; override;
 
@@ -61,6 +58,12 @@ type
 
     { Object deep copy. }
     procedure Assign (AQuantity : TQuantity);
+  protected
+    { Prepare current object database table scheme. }
+    procedure PrepareSchema (var ASchema : TSQLite3Schema); override;
+
+    { Check all dependent schemes. }
+    function CheckDepentSchemes : Boolean; override;
   protected
     FCount : Double;
     FMeasure : TMeasure;
@@ -86,23 +89,17 @@ begin
   inherited Destroy;
 end;
 
-function TQuantity.CheckSchema : Boolean;
-var
-  Schema : TSQLite3Schema;
+procedure TQuantity.PrepareSchema (var ASchema : TSQLite3Schema);
 begin
-  Schema := TSQLite3Schema.Create;
-  
-  Schema
+  ASchema
     .Id
     .Float('count').NotNull
     .Integer('measure_id').NotNull;
+end;
 
-  if not FTable.Exists then
-    FTable.New(Schema);
-
-  Result := FTable.CheckSchema(Schema) and FMeasure.CheckSchema;  
-
-  FreeAndNil(Schema);
+function TQuantity.CheckDepentSchemes : Boolean;
+begin
+  Result := FMeasure.CheckSchema;
 end;
 
 function TQuantity.Table : String;

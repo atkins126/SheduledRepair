@@ -3,7 +3,7 @@
 (*                                                                            *)
 (*                                                                            *)
 (* Copyright (c) 2020                                       Ivan Semenkov     *)
-(* https://github.com/isemenkov/libpassqlite                ivan@semenkov.pro *)
+(* https://github.com/isemenkov/SheduledRepair              ivan@semenkov.pro *)
 (*                                                          Ukraine           *)
 (******************************************************************************)
 (*                                                                            *)
@@ -44,9 +44,6 @@ type
     constructor Create (AID : Int64; AObject : TCommonObject);
     destructor Destroy; override;
     
-    { Check database table scheme. }
-    function CheckSchema : Boolean; override;
-
     { Get object database table name. }
     function Table : String; override;
 
@@ -67,6 +64,12 @@ type
 
     { Object deep copy. }
     procedure Assign (AEntityBag : TEntityBag);
+  protected
+    { Prepare current object database table scheme. }
+    procedure PrepareSchema (var ASchema : TSQLite3Schema); override;
+
+    { Check all dependent schemes. }
+    function CheckDepentSchemes : Boolean; override;
   public
     type
       TEntityCompareFunctor = class
@@ -115,27 +118,22 @@ begin
   inherited Destroy;
 end;
 
-function TEntityBag.CheckSchema : Boolean;
-var
-  Schema : TSQLite3Schema;
-  Ent : TEntity;
+procedure TEntityBag.PrepareSchema (var ASchema : TSQLite3Schema);
 begin
-  Schema := TSQLite3Schema.Create;
-  Ent := TEntity.Create(-1);
-  
-  Schema
+  ASchema
     .Id
     .Integer('entity_id').NotNull
     .Text('object_name').NotNull
     .Integer('object_id').NotNull;
+end;
 
-  if not FTable.Exists then
-    FTable.New(Schema);
-
-  Result := FTable.CheckSchema(Schema) and Ent.CheckSchema;
-
-  FreeAndNil(Ent);
-  FreeAndNil(Schema);
+function TEntityBag.CheckDepentSchemes : Boolean;
+var
+  Entity : TEntity;
+begin
+  Entity := TEntity.Create(-1);
+  Result := Entity.CheckSchema;
+  FreeAndNil(Entity); 
 end;
 
 function TEntityBag.Table : String;
@@ -172,13 +170,8 @@ var
   Ent : TEntity;
   updated_rows : Integer;
 begin
-  if FObject = nil then
-    Exit(False);
-
-  if FObject.ID = -1 then
-    FObject.Save;
-
-  if not FEntityList.FirstEntry.HasValue then
+  if (FObject = nil) or (FObject.ID = -1) or 
+    (not FEntityList.FirstEntry.HasValue) then
     Exit(False);
 
   for Ent in FEntityList do

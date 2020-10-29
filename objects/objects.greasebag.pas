@@ -3,7 +3,7 @@
 (*                                                                            *)
 (*                                                                            *)
 (* Copyright (c) 2020                                       Ivan Semenkov     *)
-(* https://github.com/isemenkov/libpassqlite                ivan@semenkov.pro *)
+(* https://github.com/isemenkov/SheduledRepair              ivan@semenkov.pro *)
 (*                                                          Ukraine           *)
 (******************************************************************************)
 (*                                                                            *)
@@ -44,9 +44,6 @@ type
     constructor Create (AID : Int64; AObject : TCommonObject);
     destructor Destroy; override;
     
-    { Check database table scheme. }
-    function CheckSchema : Boolean; override;
-
     { Get object database table name. }
     function Table : String; override;
 
@@ -67,6 +64,12 @@ type
 
     { Object deep copy. }
     procedure Assign (AGreaseBag : TGreaseBag);
+  protected
+    { Prepare current object database table scheme. }
+    procedure PrepareSchema (var ASchema : TSQLite3Schema); override;
+
+    { Check all dependent schemes. }
+    function CheckDepentSchemes : Boolean; override;
   public
     type
       TGreaseBundleCompareFunctor = class
@@ -115,27 +118,22 @@ begin
   inherited Destroy;
 end;
 
-function TGreaseBag.CheckSchema : Boolean;
-var
-  Schema : TSQLite3Schema;
-  GreaseBundle : TGreaseBundle;
+procedure TGreaseBag.PrepareSchema (var ASchema : TSQLite3Schema);
 begin
-  Schema := TSQLite3Schema.Create;
-  GreaseBundle := TGreaseBundle.Create(-1);
-  
-  Schema
+  ASchema
     .Id
     .Integer('greasebundle_id').NotNull
     .Text('object_name').NotNull
     .Integer('object_id').NotNull;
+end;
 
-  if not FTable.Exists then
-    FTable.New(Schema);
-
-  Result := FTable.CheckSchema(Schema) and GreaseBundle.CheckSchema;  
-
-  FreeAndNil(GreaseBundle);
-  FreeAndNil(Schema);
+function TGreaseBag.CheckDepentSchemes : Boolean;
+var
+  Bundle : TGreaseBundle;
+begin
+  Bundle := TGreaseBundle.Create(-1);
+  Result := Bundle.CheckSchema;
+  FreeAndNil(Bundle);
 end;
 
 function TGreaseBag.Table : String;

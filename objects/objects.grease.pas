@@ -3,7 +3,7 @@
 (*                                                                            *)
 (*                                                                            *)
 (* Copyright (c) 2020                                       Ivan Semenkov     *)
-(* https://github.com/isemenkov/libpassqlite                ivan@semenkov.pro *)
+(* https://github.com/isemenkov/SheduledRepair              ivan@semenkov.pro *)
 (*                                                          Ukraine           *)
 (******************************************************************************)
 (*                                                                            *)
@@ -44,9 +44,6 @@ type
     constructor Create (AID : Int64); override;
     destructor Destroy; override;
     
-    { Check database table scheme. }
-    function CheckSchema : Boolean; override;
-
     { Get object database table name. }
     function Table : String; override;
 
@@ -61,6 +58,12 @@ type
 
     { Object deep copy. }
     procedure Assign (AGrease : TGrease);
+  protected
+    { Prepare current object database table scheme. }
+    procedure PrepareSchema (var ASchema : TSQLite3Schema); override;
+
+    { Check all dependent schemes. }
+    function CheckDepentSchemes : Boolean; override;
   protected
     FSupplier : TSupplier;
     FGrade : TGrade;
@@ -87,24 +90,17 @@ begin
   inherited Destroy;
 end;
 
-function TGrease.CheckSchema : Boolean;
-var
-  Schema : TSQLite3Schema;
+procedure TGrease.PrepareSchema (var ASchema : TSQLite3Schema);
 begin
-  Schema := TSQLite3Schema.Create;
-  
-  Schema
+  ASchema
     .Id
     .Integer('supplier_id').NotNull
     .Integer('grade_id').NotNull;
+end;
 
-  if not FTable.Exists then
-    FTable.New(Schema);
-
-  Result := FTable.CheckSchema(Schema) and FSupplier.CheckSchema and 
-    FGrade.CheckSchema;  
-
-  FreeAndNil(Schema);
+function TGrease.CheckDepentSchemes : Boolean;
+begin
+  Result := FSupplier.CheckSchema and FGrade.CheckSchema;
 end;
 
 function TGrease.Table : String;

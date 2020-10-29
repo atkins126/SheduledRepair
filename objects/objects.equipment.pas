@@ -3,7 +3,7 @@
 (*                                                                            *)
 (*                                                                            *)
 (* Copyright (c) 2020                                       Ivan Semenkov     *)
-(* https://github.com/isemenkov/libpassqlite                ivan@semenkov.pro *)
+(* https://github.com/isemenkov/SheduledRepair              ivan@semenkov.pro *)
 (*                                                          Ukraine           *)
 (******************************************************************************)
 (*                                                                            *)
@@ -44,9 +44,6 @@ type
     constructor Create (AID : Int64); override;
     destructor Destroy; override;
     
-    { Check database table scheme. }
-    function CheckSchema : Boolean; override;
-
     { Get object database table name. }
     function Table : String; override;
 
@@ -61,6 +58,12 @@ type
 
     { Object deep copy. }
     procedure Assign (AEquipment : TEquipment);
+  protected
+    { Prepare current object database table scheme. }
+    procedure PrepareSchema (var ASchema : TSQLite3Schema); override;
+
+    { Check all dependent schemes. }
+    function CheckDepentSchemes : Boolean; override;
   protected
     FName : String;
     FEntityBag : TEntityBag;
@@ -86,22 +89,16 @@ begin
   inherited Destroy;
 end;
 
-function TEquipment.CheckSchema : Boolean;
-var
-  Schema : TSQLite3Schema;
+procedure TEquipment.PrepareSchema (var ASchema : TSQLite3Schema);
 begin
-  Schema := TSQLite3Schema.Create;
-  
-  Schema
+  ASchema
     .Id
     .Text('name').NotNull;
+end;
 
-  if not FTable.Exists then
-    FTable.New(Schema);
-
-  Result := FTable.CheckSchema(Schema) and FEntityBag.CheckSchema;
-
-  FreeAndNil(Schema);
+function TEquipment.CheckDepentSchemes : Boolean;
+begin
+  Result := FEntityBag.CheckSchema;
 end;
 
 function TEquipment.Table : String;

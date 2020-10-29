@@ -46,9 +46,6 @@ type
     constructor Create (AID : Int64); override;
     destructor Destroy; override;
 
-    { Check database table scheme. }
-    function CheckSchema : Boolean; override;
-
     { Get object database table name. }
     function Table : String; override;
 
@@ -73,6 +70,9 @@ type
 
     { Delete value. }
     function RemoveValue(AKey : String) : Boolean;
+  protected
+    { Prepare current object database table scheme. }
+    procedure PrepareSchema (var ASchema : TSQLite3Schema); override;
   private
     type
       TKeyValue = class(specialize TPair<String, String>);
@@ -126,23 +126,12 @@ begin
   inherited Destroy;
 end;
 
-function TConfig.CheckSchema : Boolean;
-var
-  Schema : TSQLite3Schema;
+procedure TConfig.PrepareSchema (var ASchema : TSQLite3Schema);
 begin
-  Schema := TSQLite3Schema.Create;
-
-  Schema
+  ASchema
     .Id
     .Text('key').NotNull
     .Text('value');
-
-  if not FTable.Exists then
-    FTable.New(Schema);
-
-  Result := FTable.CheckSchema(Schema);
-
-  FreeAndNil(Schema);
 end;
 
 function TConfig.Table : String;

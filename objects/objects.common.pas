@@ -3,7 +3,7 @@
 (*                                                                            *)
 (*                                                                            *)
 (* Copyright (c) 2020                                       Ivan Semenkov     *)
-(* https://github.com/isemenkov/libpassqlite                ivan@semenkov.pro *)
+(* https://github.com/isemenkov/SheduledRepair              ivan@semenkov.pro *)
 (*                                                          Ukraine           *)
 (******************************************************************************)
 (*                                                                            *)
@@ -33,7 +33,7 @@ interface
 
 uses
   SysUtils, database, sqlite3.table, sqlite3.insert, sqlite3.update, 
-  sqlite3.delete, sqlite3.result;
+  sqlite3.delete, sqlite3.result, sqlite3.schema;
 
 type
   TCommonObject = class
@@ -42,7 +42,7 @@ type
     destructor Destroy; override;
     
      { Check database table scheme. }
-    function CheckSchema : Boolean; virtual; abstract;
+    function CheckSchema : Boolean;
 
     { Get object database table name. }
     function Table : String; virtual; abstract;
@@ -62,6 +62,12 @@ type
     { Return object ID. }
     function ID : Int64;
   protected
+    { Prepare current object database table scheme. }
+    procedure PrepareSchema (var ASchema : TSQLite3Schema); virtual; abstract;
+
+    { Check all dependent schemes. }
+    function CheckDepentSchemes : Boolean; virtual;
+
     { Return row by object id. }
     function GetRowIterator : TSQLite3Result.TRowIterator;
 
@@ -95,6 +101,25 @@ destructor TCommonObject.Destroy;
 begin
   FreeAndNil(FTable);
   inherited Destroy;
+end;
+
+function TCommonObject.CheckSchema : Boolean;
+var
+  Schema : TSQLite3Schema;
+begin
+  Schema := TSQLite3Schema.Create;
+  PrepareSchema(Schema);
+
+  if not FTable.Exists then
+    FTable.New(Schema);
+
+  Result := FTable.CheckSchema(Schema) and CheckDepentSchemes;
+  FreeAndNil(Schema);  
+end;
+
+function TCommonObject.CheckDepentSchemes : Boolean;
+begin
+  Result := True;
 end;
 
 function TCommonObject.Reload (AID : Int64) : Boolean;

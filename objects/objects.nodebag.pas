@@ -3,7 +3,7 @@
 (*                                                                            *)
 (*                                                                            *)
 (* Copyright (c) 2020                                       Ivan Semenkov     *)
-(* https://github.com/isemenkov/libpassqlite                ivan@semenkov.pro *)
+(* https://github.com/isemenkov/SheduledRepair              ivan@semenkov.pro *)
 (*                                                          Ukraine           *)
 (******************************************************************************)
 (*                                                                            *)
@@ -44,9 +44,6 @@ type
     constructor Create (AID : Int64; AObject : TCommonObject);
     destructor Destroy; override;
     
-    { Check database table scheme. }
-    function CheckSchema : Boolean; override;
-
     { Get object database table name. }
     function Table : String; override;
 
@@ -67,6 +64,12 @@ type
 
     { Object deep copy. }
     procedure Assign (ANodeBag : TNodeBag);
+  protected
+    { Prepare current object database table scheme. }
+    procedure PrepareSchema (var ASchema : TSQLite3Schema); override;
+
+    { Check all dependent schemes. }
+    function CheckDepentSchemes : Boolean; override;
   public
     type
       TNodeCompareFunctor = class
@@ -114,27 +117,22 @@ begin
   inherited Destroy;
 end;
 
-function TNodeBag.CheckSchema : Boolean;
-var
-  Schema : TSQLite3Schema;
-  Node : TNode;
+procedure TNodeBag.PrepareSchema (var ASchema : TSQLite3Schema);
 begin
-  Schema := TSQLite3Schema.Create;
-  Node := TNode.Create(-1);
-  
-  Schema
+  ASchema
     .Id
     .Integer('node_id').NotNull
     .Text('object_name').NotNull
     .Integer('object_id').NotNull;
+end;
 
-  if not FTable.Exists then
-    FTable.New(Schema);
-
-  Result := FTable.CheckSchema(Schema) and Node.CheckSchema;  
-
+function TNodeBag.CheckDepentSchemes : Boolean;
+var
+  Node : TNode;
+begin
+  Node := TNode.Create(-1);
+  Result := Node.CheckSchema;
   FreeAndNil(Node);
-  FreeAndNil(Schema);
 end;
 
 function TNodeBag.Table : String;
@@ -171,7 +169,7 @@ var
   node : TNode;
   updated_rows : Integer;
 begin
-  if FObject = nil then
+  if (FObject = nil) then
     Exit(False);
 
   if FObject.ID = -1 then

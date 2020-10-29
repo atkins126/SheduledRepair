@@ -3,7 +3,7 @@
 (*                                                                            *)
 (*                                                                            *)
 (* Copyright (c) 2020                                       Ivan Semenkov     *)
-(* https://github.com/isemenkov/libpassqlite                ivan@semenkov.pro *)
+(* https://github.com/isemenkov/SheduledRepair              ivan@semenkov.pro *)
 (*                                                          Ukraine           *)
 (******************************************************************************)
 (*                                                                            *)
@@ -45,9 +45,6 @@ type
     constructor Create (AID : Int64); override;
     destructor Destroy; override;
     
-    { Check database table scheme. }
-    function CheckSchema : Boolean; override;
-
     { Get object database table name. }
     function Table : String; override;
 
@@ -62,6 +59,12 @@ type
 
     { Object deep copy. }
     procedure Assign (AEntity : TEntity);
+  protected
+    { Prepare current object database table scheme. }
+    procedure PrepareSchema (var ASchema : TSQLite3Schema); override;
+
+    { Check all dependent schemes. }
+    function CheckDepentSchemes : Boolean; override;
   protected
     FName : String;
     FGreaseBag : TGreaseBag;
@@ -103,27 +106,20 @@ begin
   inherited Destroy;
 end;
 
-function TEntity.CheckSchema : Boolean;
-var
-  Schema : TSQLite3Schema;
+procedure TEntity.PrepareSchema (var ASchema : TSQLite3Schema);
 begin
-  Schema := TSQLite3Schema.Create;
-  
-  Schema
+  ASchema
     .Id
     .Text('name').NotNull
     .Integer('quantity_id')
     .Integer('period_id')
     .Integer('shedule_id');
+end;
 
-  if not FTable.Exists then
-    FTable.New(Schema);
-
-  Result := FTable.CheckSchema(Schema) and FGreaseBag.CheckSchema and
-    FNodeBag.CheckSchema and FQuantity.CheckSchema and FPeriod.CheckSchema and
-    FShedule.CheckSchema;
-
-  FreeAndNil(Schema);
+function TEntity.CheckDepentSchemes : Boolean;
+begin
+  Result := FGreaseBag.CheckSchema and FNodeBag.CheckSchema and
+    FShedule.CheckSchema and FQuantity.CheckSchema and FPeriod.CheckSchema;
 end;
 
 function TEntity.Table : String;
