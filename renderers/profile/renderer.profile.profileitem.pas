@@ -59,7 +59,7 @@ type
       );  
   
       TPosition = class
-        Top, Left, Bottom, Right : Integer;
+        X, Y : Integer;
       end;
   public
     constructor Create (AID : Int64); override;
@@ -136,10 +136,8 @@ begin
   FPadding.Right := 0;
   FPositionType := POSITION_FIXED;
   FPosition := TPosition.Create;
-  FPosition.Top := 0;
-  FPosition.Left := 0;
-  FPosition.Bottom := 0;
-  FPosition.Right := 0;
+  FPosition.X := 0;
+  FPosition.Y := 0;
 end;
 
 destructor TRendererProfileItem.Destroy;
@@ -171,10 +169,8 @@ begin
     .Integer('padding_bottom').NotNull
     .Integer('padding_right').NotNull
     .Integer('position_type').NotNull
-    .Integer('position_top').NotNull
-    .Integer('position_left').NotNull
-    .Integer('position_bottom').NotNull
-    .Integer('position_right').NotNull;
+    .Integer('position_x').NotNull
+    .Integer('position_y').NotNull;
 
   if not FTable.Exists then
     FTable.New(Schema);
@@ -215,10 +211,8 @@ begin
   FPadding.Bottom := row.Row.GetIntegerValue('padding_bottom');
   FPadding.Right := row.Row.GetIntegerValue('padding_right'); 
   FPositionType := TPositionType(row.Row.GetIntegerValue('position_type'));
-  FPosition.Top := row.Row.GetIntegerValue('position_top');
-  FPosition.Left := row.Row.GetIntegerValue('position_left');
-  FPosition.Bottom := row.Row.GetIntegerValue('position_bottom');
-  FPosition.Right := row.Row.GetIntegerValue('position_right');  
+  FPosition.X := row.Row.GetIntegerValue('position_x');
+  FPosition.Y := row.Row.GetIntegerValue('position_y');
   Result := True;
 end;
 
@@ -243,10 +237,8 @@ begin
       .Update('padding_bottom', FPadding.Bottom)
       .Update('padding_right', FPadding.Right)
       .Update('position_type', Integer(FPositionType))
-      .Update('position_top', FPosition.Top)
-      .Update('position_left', FPosition.Left)
-      .Update('position_bottom', FPosition.Bottom)
-      .Update('position_right', FPosition.Right).Get > 0);
+      .Update('position_x', FPosition.X)
+      .Update('position_y', FPosition.Y).Get > 0);
   end else
   begin
     Result := (InsertRow.Value('profile_id', FRenderProfile.ID)
@@ -263,10 +255,8 @@ begin
       .Value('padding_bottom', FPadding.Bottom)
       .Value('padding_right', FPadding.Right)
       .Value('position_type', Integer(FPositionType))
-      .Value('position_top', FPosition.Top)
-      .Value('position_left', FPosition.Left)
-      .Value('position_bottom', FPosition.Bottom)
-      .Value('position_right', FPosition.Right).Get > 0);
+      .Value('position_x', FPosition.X)
+      .Value('position_y', FPosition.Y).Get > 0);
       UpdateObjectID;
   end;
 end;

@@ -83,13 +83,11 @@ type
         TYPE_ELEMENT_PADDING_LEFT,
         TYPE_ELEMENT_PADDING_BOTTOM,
         TYPE_ELEMENT_PADDING_RIGHT,
-
+        TYPE_ELEMENT_POSITION_TYPE,
         TYPE_ELEMENT_POSITION,
         TYPE_ELEMENT_POSITION_X,
         TYPE_ELEMENT_POSITION_Y
       );
-
-      PFont = ^TFont;
   protected
     function ItemHeight (ANode : PVirtualNode; ACanvas : TCanvas; AIndex : 
       Cardinal; AItemType : Integer; AData : TObjectInspectorData) : Cardinal; 
@@ -152,7 +150,7 @@ function TProfileInspectorRenderer.ItemHeight (ANode : PVirtualNode; ACanvas :
 begin
   case AItemType of
     Integer(TYPE_ITEM_TITLE) : begin
-      ACanvas.Font.Style := [fsBold, fsItalic];
+      ACanvas.Font.Style := [fsBold];
       Result := ACanvas.TextHeight(AData.Text) + ITEM_TEXT_TOP_PADDING +
         ITEM_TEXT_BOTTOM_PADDING;
     end
@@ -227,7 +225,7 @@ begin
     Integer(TYPE_ITEM_TITLE) : begin
       if AColumn = KEY_COLUMN then
       begin
-        ACanvas.Font.Style := [fsBold, fsItalic];
+        ACanvas.Font.Style := [fsBold];
         ACanvas.TextOut(ACellRect.Left + ITEM_LEFT_PADDING, ACellRect.Top + 
           ITEM_TEXT_TOP_PADDING, AData.Text);
       end;
@@ -288,8 +286,7 @@ begin
               ', ' + IntToStr(FProfile.Items[AData.Element].Padding.Left) +
               ', ' + IntToStr(FProfile.Items[AData.Element].Padding.Bottom) +
               ', ' + IntToStr(FProfile.Items[AData.Element].Padding.Right)
-              + ']',
-              ACellRect, ACanvas);
+              + ']', ACellRect, ACanvas);
           Integer(TYPE_ELEMENT_PADDING_TOP) :
             DrawTextValue(IntToStr(FProfile.Items[AData.Element].Padding.Top), 
               ACellRect, ACanvas);
@@ -301,6 +298,24 @@ begin
               ACellRect, ACanvas);
           Integer(TYPE_ELEMENT_PADDING_RIGHT) :
             DrawTextValue(IntToStr(FProfile.Items[AData.Element].Padding.Right),
+              ACellRect, ACanvas);
+          Integer(TYPE_ELEMENT_POSITION_TYPE) : begin
+            case FProfile.Items[AData.Element].PositionType of
+              POSITION_FIXED : Value := '[Fixed]';
+              POSITION_FLOAT : Value := '[Float]';
+            end;
+            DrawTextValue(Value, ACellRect, ACanvas);
+          end;
+          Integer(TYPE_ELEMENT_POSITION) :
+            DrawTextValue('[' + 
+              IntToStr(FProfile.Items[AData.Element].Position.X) +
+              ', ' + IntToStr(FProfile.Items[AData.Element].Position.Y)
+              + ']', ACellRect, ACanvas);
+          Integer(TYPE_ELEMENT_POSITION_X) :
+            DrawTextValue(IntToStr(FProfile.Items[AData.Element].Position.X),
+              ACellRect, ACanvas);
+          Integer(TYPE_ELEMENT_POSITION_Y) :
+            DrawTextValue(IntToStr(FProfile.Items[AData.Element].Position.Y),
               ACellRect, ACanvas);
         end;
       end;
@@ -384,6 +399,21 @@ begin
     Integer(TYPE_ELEMENT_PADDING_RIGHT) : 
       Result := TSpinEditEditor.Create(
         FProfile.Items[AData.Element].Padding.Right, AItemType, @ValueChange);
+    Integer(TYPE_ELEMENT_POSITION_TYPE) : begin
+      Editor := TListEditor.Create(
+        Integer(FProfile.Items[AData.Element].PositionType), AItemType,
+        @ValueChange);
+      Editor.AppendItem('Fixed');
+      Editor.AppendItem('Float');
+
+      Result := Editor; 
+    end;
+    Integer(TYPE_ELEMENT_POSITION_X) :
+      Result := TSpinEditEditor.Create(
+        FProfile.Items[AData.Element].Position.X, AItemType, @ValueChange);
+    Integer(TYPE_ELEMENT_POSITION_Y) :
+      Result := TSpinEditEditor.Create(
+        FProfile.Items[AData.Element].Position.Y, AItemType, @ValueChange);
   end;
 end;
 
@@ -482,6 +512,14 @@ begin
       PInteger(AValue)^;  
     Integer(TYPE_ELEMENT_PADDING_RIGHT) :
       FProfile.Items[GetData(ANode).Element].Padding.Right := PInteger(AValue)^;
+    Integer(TYPE_ELEMENT_POSITION_TYPE) : begin
+      FProfile.Items[GetData(ANode).Element].PositionType := 
+        TRendererProfileItem.TPositionType(PInteger(AValue)^);
+    end;
+    Integer(TYPE_ELEMENT_POSITION_X) : 
+      FProfile.Items[GetData(ANode).Element].Position.X := PInteger(AValue)^;
+    Integer(TYPE_ELEMENT_POSITION_Y) :
+      FProfile.Items[GetData(ANode).Element].Position.Y := PInteger(AValue)^;
   end;
 
   FTreeView.InvalidateNode(ANode);
@@ -594,6 +632,10 @@ begin
     Data.Editable := True;
     AppendData(Parent, Integer(TYPE_ELEMENT_PADDING_RIGHT), Data);
 
+    Data.Text := 'Position type';
+    Data.Element := ProfileItem.Name;
+    Data.Editable := True;
+    AppendData(nil, Integer(TYPE_ELEMENT_POSITION_TYPE), Data);
 
     Data.Text := 'Position';
     Data.Element := ProfileItem.Name;
@@ -602,13 +644,13 @@ begin
 
     Data.Text := 'X';
     Data.Element := ProfileItem.Name;
-    Data.Editable := False;
+    Data.Editable := True;
     AppendData(Parent, Integer(TYPE_ELEMENT_POSITION_X), Data);
 
     Data.Text := 'Y';
     Data.Element := ProfileItem.Name;
-    Data.Editable := False;
-    AppendData(Parent, Integer(TYPE_ELEMENT_POSITION_X), Data);
+    Data.Editable := True;
+    AppendData(Parent, Integer(TYPE_ELEMENT_POSITION_Y), Data);
   end;
 end;
 
