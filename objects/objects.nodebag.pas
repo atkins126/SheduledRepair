@@ -209,7 +209,7 @@ begin
     node.Delete;
   end;  
 
-  Result := (DeleteRow.Get > 0);
+  Result := DeleteCurrentObject;
 end;
 
 procedure TNodeBag.Append (ANode : TNode);

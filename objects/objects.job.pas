@@ -119,21 +119,14 @@ begin
 end;
 
 function TJob.Load : Boolean;
-var
-  row : TSQLite3Result.TRowIterator;
 begin
-  if ID = -1 then
+  if not LoadCurrentObject then
     Exit(False);
 
-  row := GetRowIterator;
-
-  if not row.HasRow then
-    Exit(False);
-
-  FName := row.Row.GetStringValue('name');
-  Result := FEntity.Reload(row.Row.GetIntegerValue('entity_id')) and
-    FPeriod.Reload(row.Row.GetIntegerValue('period_id')) and
-    FShedule.Reload(row.Row.GetIntegerValue('shedule_id'));
+  FName := GetStringProperty('name');
+  Result := FEntity.Reload(GetIntegerProperty('entity_id')) and
+    FPeriod.Reload(GetIntegerProperty('period_id')) and
+    FShedule.Reload(GetIntegerProperty('shedule_id'));
 end;
 
 function TJob.Save : Boolean;
@@ -163,11 +156,8 @@ end;
 
 function TJob.Delete : Boolean;
 begin
-  if ID <> -1 then
-    Result := FEntity.Delete and FPeriod.Delete and FShedule.Delete and
-      (DeleteRow.Get > 0)
-  else
-    Result := False;
+  Result := FEntity.Delete and FPeriod.Delete and FShedule.Delete and
+    DeleteCurrentObject;
 end;
 
 procedure TJob.Assign (AJob : TJob);

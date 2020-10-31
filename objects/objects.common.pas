@@ -68,8 +68,14 @@ type
     { Check all dependent schemes. }
     function CheckDepentSchemes : Boolean; virtual;
 
-    { Return row by object id. }
-    function GetRowIterator : TSQLite3Result.TRowIterator;
+    { Load current object form database. }
+    function LoadCurrentObject : Boolean;
+
+    { Get current object property from database result row. }
+    function GetStringProperty (AName : String) : String;
+    function GetIntegerProperty (AName : String) : Integer;
+    function GetDoubleProperty (AName : String) : Double;
+
 
     { Return TSQLite3Insert for current object. }
     function InsertRow : TSQLite3Insert;
@@ -77,14 +83,15 @@ type
     { Return TSQLite3Update for current object. }
     function UpdateRow : TSQLite3Update;
 
-    { Return TSQLite3Delete for current object. }
-    function DeleteRow : TSQLite3Delete;
+    { Delete current object from database. }
+    function DeleteCurrentObject : Boolean;
 
     { Update object ID. }
     procedure UpdateObjectID;
   protected
     FID : Int64;
     FTable : TSQLite3Table;
+    FRow : TSQLite3Result.TRowIterator;
   end;
 
 implementation
@@ -95,10 +102,12 @@ constructor TCommonObject.Create (AID : Int64);
 begin
   FID := AID;
   FTable := TSQLite3Table.Create(DB.Errors, DB.Handle, Table);
+  FRow := nil;
 end;
 
 destructor TCommonObject.Destroy;
 begin
+  FreeAndNil(FRow);
   FreeAndNil(FTable);
   inherited Destroy;
 end;
@@ -133,9 +142,41 @@ begin
   Result := FID;
 end;
 
-function TCommonObject.GetRowIterator : TSQLite3Result.TRowIterator;
+function TCommonObject.LoadCurrentObject : Boolean;
 begin
-  Result := FTable.Select.All.Where('id', ID).Get.FirstRow;
+  if FID = -1 then
+    Exit(False);
+
+  FRow := FTable.Select.All.Where('id', FID).Get.FirstRow;
+
+  if not FRow.HasRow then
+    Exit(False);
+
+  Result := True;
+end;
+
+function TCommonObject.GetStringProperty (AName : String) : String;
+begin
+  if FRow = nil then
+    Exit('');
+
+  Result := FRow.Row.GetStringValue(AName);
+end;
+
+function TCommonObject.GetIntegerProperty (AName : String) : Integer;
+begin
+  if FRow = nil then
+    Exit(0);
+
+  Result := FRow.Row.GetIntegerValue(AName);
+end;
+
+function TCommonObject.GetDoubleProperty (AName : String) : Double;
+begin
+  if FRow = nil then
+    Exit(0);
+
+  Result := FRow.Row.GetDoubleValue(AName);
 end;
 
 function TCommonObject.InsertRow : TSQLite3Insert;
@@ -145,12 +186,16 @@ end;
 
 function TCommonObject.UpdateRow : TSQLite3Update;
 begin
-  Result := FTable.Update.Where('id', ID);
+  Result := FTable.Update.Where('id', FID);
 end;
 
-function TCommonObject.DeleteRow : TSQLite3Delete;
+function TCommonObject.DeleteCurrentObject : Boolean;
 begin
-  Result := FTable.Delete.Where('id', ID);
+  if ID = -1 then
+    Exit(False);
+
+  Result := (FTable.Delete.Where('id', FID).Get > 0);
+  FID := -1;
 end;
 
 procedure TCommonObject.UpdateObjectID;

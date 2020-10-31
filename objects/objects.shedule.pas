@@ -98,19 +98,12 @@ begin
 end;
 
 function TShedule.Load : Boolean;
-var
-  row : TSQLite3Result.TRowIterator;
 begin
-  if ID = -1 then
+  if not LoadCurrentObject then
     Exit(False);
 
-  row := GetRowIterator;
-
-  if not row.HasRow then
-    Exit(False);
-
-  FPrevDate := StrToDateDef(row.Row.GetStringValue('prev_date'), Now);
-  FNextDate := StrToDateDef(row.Row.GetStringValue('next_date'), Now);
+  FPrevDate := StrToDateDef(GetStringProperty('prev_date'), Now);
+  FNextDate := StrToDateDef(GetStringProperty('next_date'), Now);
   Result := True;
 end;
 
@@ -130,10 +123,7 @@ end;
 
 function TShedule.Delete : Boolean;
 begin
-  if ID <> -1 then
-    Result := (DeleteRow.Get > 0)
-  else
-    Result := False;
+  Result := DeleteCurrentObject;
 end;
 
 procedure TShedule.Assign (AShedule : TShedule);

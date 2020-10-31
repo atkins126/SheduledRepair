@@ -108,19 +108,12 @@ begin
 end;
 
 function TQuantity.Load : Boolean;
-var
-  row : TSQLite3Result.TRowIterator;
 begin
-  if ID = -1 then
+  if not LoadCurrentObject then
     Exit(False);
 
-  row := GetRowIterator;
-
-  if not row.HasRow then
-    Exit(False);
-
-  FCount := row.Row.GetDoubleValue('count');
-  Result := FMeasure.Reload(row.Row.GetIntegerValue('measure_id'));
+  FCount := GetDoubleProperty('count');
+  Result := FMeasure.Reload(GetIntegerProperty('measure_id'));
 end;
 
 function TQuantity.Save : Boolean;
@@ -142,10 +135,7 @@ end;
 
 function TQuantity.Delete : Boolean;
 begin
-  if ID <> -1 then
-    Result := FMeasure.Delete and (DeleteRow.Get > 0)
-  else
-    Result := False;
+  Result := DeleteCurrentObject;
 end;
 
 procedure TQuantity.Assign (AQuantity : TQuantity);

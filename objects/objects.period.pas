@@ -104,18 +104,11 @@ begin
 end;
 
 function TPeriod.Load : Boolean;
-var
-  row : TSQLite3Result.TRowIterator;
 begin
-  if ID = -1 then
+  if not LoadCurrentObject then
     Exit(False);
 
-  row := GetRowIterator;
-
-  if not row.HasRow then
-    Exit(False);
-
-  FQuantity.Reload(row.Row.GetIntegerValue('quantity_id'));
+  FQuantity.Reload(GetIntegerProperty('quantity_id'));
   Result := True;
 end;
 
@@ -136,10 +129,7 @@ end;
 
 function TPeriod.Delete : Boolean;
 begin
-  if ID <> -1 then
-    Result := FQuantity.Delete and (DeleteRow.Get > 0)
-  else
-    Result := False;
+  Result := FQuantity.Delete and DeleteCurrentObject;
 end;
 
 procedure TPeriod.Assign (APeriod : TPeriod);

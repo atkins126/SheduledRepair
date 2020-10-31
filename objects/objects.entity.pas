@@ -128,24 +128,17 @@ begin
 end;
 
 function TEntity.Load : Boolean;
-var
-  row : TSQLite3Result.TRowIterator;
 begin
-  if ID = -1 then
+  if not LoadCurrentObject then
     Exit(False);
 
-  row := GetRowIterator;
-
-  if not row.HasRow then
-    Exit(False);
-
-  FName := row.Row.GetStringValue('name');
+  FName := GetStringProperty('name');
   FGreaseBag.Reload(-1);
   FNodeBag.Reload(-1);
 
-  Result := FQuantity.Reload(row.Row.GetIntegerValue('quantity_id')) and
-    FPeriod.Reload(row.Row.GetIntegerValue('period_id')) and
-    FShedule.Reload(row.Row.GetIntegerValue('shedule_id'));
+  Result := FQuantity.Reload(GetIntegerProperty('quantity_id')) and
+    FPeriod.Reload(GetIntegerProperty('period_id')) and
+    FShedule.Reload(GetIntegerProperty('shedule_id'));
 end;
 
 function TEntity.Save : Boolean;
@@ -182,11 +175,8 @@ end;
 
 function TEntity.Delete : Boolean;
 begin
-  if ID <> -1 then
     Result := FShedule.Delete and FQuantity.Delete and FPeriod.Delete and
-      (DeleteRow.Get > 0)
-  else
-    Result := False;
+      DeleteCurrentObject;
 end;
 
 procedure TEntity.Assign (AEntity : TEntity);

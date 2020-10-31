@@ -109,19 +109,12 @@ begin
 end;
 
 function TGrease.Load : Boolean;
-var
-  row : TSQLite3Result.TRowIterator;
 begin
-  if ID = -1 then
+  if not LoadCurrentObject then
     Exit(False);
 
-  row := GetRowIterator;
-
-  if not row.HasRow then
-    Exit(False);
-
-  Result := FSupplier.Reload(row.Row.GetIntegerValue('supplier_id')) and
-    FGrade.Reload(row.Row.GetIntegerValue('grade_id'));
+  Result := FSupplier.Reload(GetIntegerProperty('supplier_id')) and
+    FGrade.Reload(GetIntegerProperty('grade_id'));
 end;
 
 function TGrease.Save : Boolean;
@@ -146,10 +139,7 @@ end;
 
 function TGrease.Delete : Boolean;
 begin
-  if ID <> -1 then
-    Result := FSupplier.Delete and FGrade.Delete and (DeleteRow.Get > 0)
-  else
-    Result := False;
+  Result := FSupplier.Delete and FGrade.Delete and DeleteCurrentObject;
 end;
 
 procedure TGrease.Assign (AGrease : TGrease);

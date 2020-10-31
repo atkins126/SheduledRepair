@@ -175,33 +175,26 @@ begin
 end;
 
 function TRendererProfileItem.Load : Boolean;
-var
-  row : TSQLite3Result.TRowIterator;
 begin
-  if ID = -1 then
+  if not LoadCurrentObject then
     Exit(False);
 
-  row := GetRowIterator;
-
-  if not row.HasRow then
-    Exit(False);
-
-  FName := row.Row.GetStringValue('name');  
-  FEnable := Boolean(row.Row.GetIntegerValue('enable'));
-  FBackground := TColor(row.Row.GetIntegerValue('background'));
-  FBackgroundFill := 
-    TBackgroundFillType(row.Row.GetIntegerValue('background_fill_type'));  
-  FBackgroundRoundRadius := row.Row.GetIntegerValue('background_round_radius');
-  FFontName := row.Row.GetStringValue('font_name');
-  FFontSize := row.Row.GetIntegerValue('font_size');
-  FFontColor := TColor(row.Row.GetIntegerValue('font_color'));
-  FPadding.Top := row.Row.GetIntegerValue('padding_top');
-  FPadding.Left := row.Row.GetIntegerValue('padding_left');
-  FPadding.Bottom := row.Row.GetIntegerValue('padding_bottom');
-  FPadding.Right := row.Row.GetIntegerValue('padding_right'); 
-  FPositionType := TPositionType(row.Row.GetIntegerValue('position_type'));
-  FPosition.X := row.Row.GetIntegerValue('position_x');
-  FPosition.Y := row.Row.GetIntegerValue('position_y');
+  FName := GetStringProperty('name');
+  FEnable := Boolean(GetIntegerProperty('enable'));
+  FBackground := TColor(GetIntegerProperty('background'));
+  FBackgroundFill :=
+    TBackgroundFillType(GetIntegerProperty('background_fill_type'));
+  FBackgroundRoundRadius := GetIntegerProperty('background_round_radius');
+  FFontName := GetStringProperty('font_name');
+  FFontSize := GetIntegerProperty('font_size');
+  FFontColor := TColor(GetIntegerProperty('font_color'));
+  FPadding.Top := GetIntegerProperty('padding_top');
+  FPadding.Left := GetIntegerProperty('padding_left');
+  FPadding.Bottom := GetIntegerProperty('padding_bottom');
+  FPadding.Right := GetIntegerProperty('padding_right');
+  FPositionType := TPositionType(GetIntegerProperty('position_type'));
+  FPosition.X := GetIntegerProperty('position_x');
+  FPosition.Y := GetIntegerProperty('position_y');
   Result := True;
 end;
 
@@ -252,10 +245,7 @@ end;
 
 function TRendererProfileItem.Delete : Boolean;
 begin
-  if ID <> -1 then
-    Result := (DeleteRow.Get > 0)
-  else
-    Result := False;
+  Result := DeleteCurrentObject;
 end;
 
 end.

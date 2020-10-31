@@ -112,20 +112,14 @@ end;
 
 function TRendererObjectProfile.Load : Boolean;
 var
-  row : TSQLite3Result.TRowIterator;
   default_profile_id, selected_profile_id, hover_profile_id : Int64;
 begin
-  if ID = -1 then
+  if not LoadCurrentObject then
     Exit(False);
 
-  row := GetRowIterator;
-
-  if not row.HasRow then
-    Exit(False);
-
-  default_profile_id := row.Row.GetIntegerValue('default_profile_id');
-  selected_profile_id := row.Row.GetIntegerValue('selected_profile_id');
-  hover_profile_id := row.Row.GetIntegerValue('hover_profile_id');
+  default_profile_id := GetIntegerProperty('default_profile_id');
+  selected_profile_id := GetIntegerProperty('selected_profile_id');
+  hover_profile_id := GetIntegerProperty('hover_profile_id');
 
   Result := FDefaultProfile.Reload(default_profile_id) and
     FSelectedProfile.Reload(selected_profile_id) and 
@@ -159,10 +153,7 @@ end;
 
 function TRendererObjectProfile.Delete : Boolean;
 begin
-  if ID <> -1 then
-    Result := (DeleteRow.Get > 0)
-  else 
-    Result := False;
+  Result := DeleteCurrentObject;
 end;
 
 end.

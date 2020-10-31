@@ -94,18 +94,11 @@ begin
 end;
 
 function TGrade.Load : Boolean;
-var
-  row : TSQLite3Result.TRowIterator;
 begin
-  if ID = -1 then
+  if not LoadCurrentObject then
     Exit(False);
 
-  row := GetRowIterator;
-
-  if not row.HasRow then
-    Exit(False);
-
-  FName := row.Row.GetStringValue('name');
+  FName := GetStringProperty('name');
   Result := True;
 end;
 
@@ -123,10 +116,7 @@ end;
 
 function TGrade.Delete : Boolean;
 begin
-  if ID <> -1 then
-    Result := (DeleteRow.Get > 0)
-  else
-    Result := False;
+  Result := DeleteCurrentObject;
 end;
 
 procedure TGrade.Assign (AGrade : TGrade);

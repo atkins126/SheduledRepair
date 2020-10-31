@@ -109,19 +109,12 @@ begin
 end;
 
 function TGreaseBundle.Load : Boolean;
-var
-  row : TSQLite3Result.TRowIterator;
 begin
-  if ID = -1 then
+  if not LoadCurrentObject then
     Exit(False);
 
-  row := GetRowIterator;
-
-  if not row.HasRow then
-    Exit(False);
-
-  FQuantity.Reload(row.Row.GetIntegerValue('quantity_id'));
-  Result := FGrease.Reload(row.Row.GetIntegerValue('grease_id'));
+  FQuantity.Reload(GetIntegerProperty('quantity_id'));
+  Result := FGrease.Reload(GetIntegerProperty('grease_id'));
 end;
 
 function TGreaseBundle.Save : Boolean;
@@ -146,10 +139,7 @@ end;
 
 function TGreaseBundle.Delete : Boolean;
 begin
-  if ID <> -1 then
-    Result := FGrease.Delete and FQuantity.Delete and (DeleteRow.Get > 0)
-  else
-    Result := False;
+  Result := FGrease.Delete and FQuantity.Delete and DeleteCurrentObject;
 end;
 
 procedure TGreaseBundle.Assign (AGreaseBundle : TGreaseBundle);

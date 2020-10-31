@@ -205,7 +205,7 @@ begin
     Ent.Delete;
   end;
 
-  Result := (DeleteRow.Get > 0);
+  Result := DeleteCurrentObject;
 end;
 
 procedure TEntityBag.Append (AEntity : TEntity);

@@ -195,21 +195,15 @@ function TRendererProfile.Load : Boolean;
 var
   result_row : TSQLite3Result;
   item_row : TSQLite3ResultRow;
-  row : TSQLite3Result.TRowIterator;
   item : TRendererProfileItem;
   items_table : TSQLite3Table;
 begin
-  if ID = -1 then
+  if not LoadCurrentObject then
     Exit(False);
 
-  row := GetRowIterator;
-
-  if not row.HasRow then
-    Exit(False);
-
-  FEnable := Boolean(row.Row.GetIntegerValue('enable'));
-  FHeight := row.Row.GetIntegerValue('height');
-  FBackground := TColor(row.Row.GetIntegerValue('backgorund'));
+  FEnable := Boolean(GetIntegerProperty('enable'));
+  FHeight := GetIntegerProperty('height');
+  FBackground := TColor(GetIntegerProperty('backgorund'));
 
   item := TRendererProfileItem.Create(-1);
   items_table := TSQLite3Table.Create(DB.Errors, DB.Handle, item.Table);
@@ -255,10 +249,7 @@ end;
 
 function TRendererProfile.Delete : Boolean;
 begin
-  if ID <> -1 then
-    Result := (DeleteRow.Get > 0)
-  else
-    Result := False;
+  Result := DeleteCurrentObject;
 end;
 
 end.

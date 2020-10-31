@@ -118,21 +118,14 @@ begin
 end;
 
 function TNode.Load : Boolean;
-var
-  row : TSQLite3Result.TRowIterator;
 begin
-  if ID = -1 then
+  if not LoadCurrentObject then
     Exit(False);
 
-  row := GetRowIterator;
-
-  if not row.HasRow then
-    Exit(False);
-
-  FName := row.Row.GetStringValue('name');
+  FName := GetStringProperty('name');
   Result := FGreaseBag.Reload(-1) and
-    FPeriod.Reload(row.Row.GetIntegerValue('period_id')) and
-    FShedule.Reload(row.Row.GetIntegerValue('shedule_id'));
+    FPeriod.Reload(GetIntegerProperty('period_id')) and
+    FShedule.Reload(GetIntegerProperty('shedule_id'));
 end;
 
 function TNode.Save : Boolean;
@@ -169,7 +162,7 @@ begin
   if ID <> -1 then
   begin
     FGreaseBag.Delete;
-    Result := FPeriod.Delete and FShedule.Delete and (DeleteRow.Get > 0)
+    Result := FPeriod.Delete and FShedule.Delete and DeleteCurrentObject;
   end
   else
     Result := False;

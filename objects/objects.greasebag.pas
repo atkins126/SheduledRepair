@@ -211,7 +211,7 @@ begin
     GreaseBundle.Delete;
   end; 
 
-  Result := (DeleteRow.Get > 0);
+  Result := DeleteCurrentObject;
 end;
 
 procedure TGreaseBag.Append (AGreaseBundle : TGreaseBundle);
