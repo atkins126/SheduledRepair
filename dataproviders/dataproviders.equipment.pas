@@ -3,7 +3,7 @@
 (*                                                                            *)
 (*                                                                            *)
 (* Copyright (c) 2020                                       Ivan Semenkov     *)
-(* https://github.com/isemenkov/libpassqlite                ivan@semenkov.pro *)
+(* https://github.com/isemenkov/SheduledRepair              ivan@semenkov.pro *)
 (*                                                          Ukraine           *)
 (******************************************************************************)
 (*                                                                            *)
