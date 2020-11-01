@@ -33,7 +33,7 @@ interface
 
 uses
   SysUtils, database, sqlite3.table, sqlite3.insert, sqlite3.update, 
-  sqlite3.delete, sqlite3.result, sqlite3.schema;
+  sqlite3.delete, sqlite3.result, sqlite3.schema, container.list, utils.functor;
 
 type
   TCommonObject = class
@@ -54,13 +54,34 @@ type
     function Reload (AID : Int64) : Boolean;
 
     { Save object to database. }
-    function Save : Boolean; virtual; abstract;
+    function Save : Boolean; virtual;
 
     { Delete object from database. }
     function Delete : Boolean; virtual;
 
     { Return object ID. }
     function ID : Int64;
+  protected
+    type
+      { Object property value types. }
+      TValueType = (
+        TYPE_INTEGER,
+        TYPE_DOUBLE,
+        TYPE_STRING
+      );
+
+      { Object property value type. }
+      TValue = record
+        Name : String;
+        ValueType : TValueType;
+        IntegerValue : Integer;
+        DoubleValue : Double;
+        StringValue : String;
+      end;
+
+      { Object properties list. }
+      TValueUnsortableFunctor = class(specialize TUnsortableFunctor<TValue>);
+      TValuesList = class(specialize TList<TValue, TValueUnsortableFunctor>);
   protected
     { Prepare current object database table scheme. }
     procedure PrepareSchema (var ASchema : TSQLite3Schema); virtual; abstract;
@@ -79,14 +100,32 @@ type
     function GetIntegerProperty (AName : String) : Integer;
     function GetDoubleProperty (AName : String) : Double;
 
+    { Store current object to database. }
+    function SaveCurrentObject : Boolean; virtual;
+
+    { Save all dependent objects. }
+    function SaveDepentObjects : Boolean; virtual;
+
+    { Set current object property. }
+    procedure SetStringProperty (AName : String; AValue : String);
+    procedure SetIntegerProperty (AName : String; AValue : Integer);
+    procedure SetDoubleProperty (AName : String; AValue : Double);
+
+    { Delete current object from database. }
+    function DeleteCurrentObject : Boolean;
+
+
+    { Return row by object id. }
+    function GetRowIterator : TSQLite3Result.TRowIterator;
+
     { Return TSQLite3Insert for current object. }
     function InsertRow : TSQLite3Insert;
 
     { Return TSQLite3Update for current object. }
     function UpdateRow : TSQLite3Update;
 
-    { Delete current object from database. }
-    function DeleteCurrentObject : Boolean;
+    { Return TSQLite3Delete for current object. }
+    function DeleteRow : TSQLite3Delete;
 
     { Update object ID. }
     procedure UpdateObjectID;
@@ -94,6 +133,7 @@ type
     FID : Int64;
     FTable : TSQLite3Table;
     FRow : TSQLite3Result.TRowIterator;
+    FPropertiesList : TValuesList;
   end;
 
 implementation
@@ -105,12 +145,14 @@ begin
   FID := AID;
   FTable := TSQLite3Table.Create(DB.Errors, DB.Handle, Table);
   FRow := nil;
+  FPropertiesList := TValuesList.Create;
 end;
 
 destructor TCommonObject.Destroy;
 begin
   FreeAndNil(FRow);
   FreeAndNil(FTable);
+  FreeAndNil(FPropertiesList);
   inherited Destroy;
 end;
 
@@ -194,14 +236,86 @@ begin
   Result := FRow.Row.GetDoubleValue(AName);
 end;
 
-function TCommonObject.InsertRow : TSQLite3Insert;
+procedure TCommonObject.SetStringProperty (AName : String; AValue : String);
+var
+  Value : TValue;
 begin
-  Result := FTable.Insert;
+  Value.Name := AName;
+  Value.ValueType := TYPE_STRING;
+  Value.StringValue := AValue;
+  FPropertiesList.Append(Value);
 end;
 
-function TCommonObject.UpdateRow : TSQLite3Update;
+procedure TCommonObject.SetIntegerProperty (AName : String; AValue : Integer);
+var
+  Value : TValue;
 begin
-  Result := FTable.Update.Where('id', FID);
+  Value.Name := AName;
+  Value.ValueType := TYPE_INTEGER;
+  Value.IntegerValue := AValue;
+  FPropertiesList.Append(Value);
+end;
+
+procedure TCommonObject.SetDoubleProperty (AName : String; AValue : Double);
+var
+  Value : TValue;
+begin
+  Value.Name := AName;
+  Value.ValueType := TYPE_DOUBLE;
+  Value.DoubleValue := AValue;
+  FPropertiesList.Append(Value);
+end;
+
+function TCommonObject.Save : Boolean;
+begin
+  if not SaveDepentObjects then
+    Exit(False);
+
+  Result := SaveCurrentObject;
+end;
+
+function TCommonObject.SaveCurrentObject : Boolean;
+var
+  Value : TValue;
+  Update : TSQLite3Update;
+  Insert : TSQLite3Insert;
+begin
+  if not FPropertiesList.FirstEntry.HasValue then
+    Exit(True);
+
+  if FID = -1 then
+  begin
+    Update := FTable.Update.Where('id', FID);
+    for Value in FPropertiesList do
+    begin
+      case Value.ValueType of
+        TYPE_INTEGER : Update.Update(Value.Name, Value.IntegerValue);
+        TYPE_DOUBLE  : Update.Update(Value.Name, Value.DoubleValue);
+        TYPE_STRING  : Update.Update(Value.Name, Value.StringValue);
+      end;
+    end;
+    Result := Update.Get > 0;
+  end else
+  begin
+    Insert := FTable.Insert;
+    for Value in FPropertiesList do
+    begin
+      case Value.ValueType of
+        TYPE_INTEGER : Insert.Value(Value.Name, Value.IntegerValue);
+        TYPE_DOUBLE  : Insert.Value(Value.Name, Value.DoubleValue);
+        TYPE_STRING  : Insert.Value(Value.Name, Value.StringValue);
+      end;
+    end;
+    Result := Insert.Get > 0;
+
+    if Result then
+      FID := DB.GetLastInsertID;
+  end;
+end;
+
+function TCommonObject.SaveDepentObjects : Boolean;
+begin
+  Result := True;
 end;
 
 function TCommonObject.Delete : Boolean;
@@ -216,6 +330,28 @@ begin
 
   Result := (FTable.Delete.Where('id', FID).Get > 0);
   FID := -1;
+end;
+
+
+
+function TCommonObject.GetRowIterator : TSQLite3Result.TRowIterator;
+begin
+  Result := FTable.Select.All.Where('id', ID).Get.FirstRow;
+end;
+
+function TCommonObject.InsertRow : TSQLite3Insert;
+begin
+  Result := FTable.Insert;
+end;
+
+function TCommonObject.UpdateRow : TSQLite3Update;
+begin
+  Result := FTable.Update.Where('id', ID);
+end;
+
+function TCommonObject.DeleteRow : TSQLite3Delete;
+begin
+  Result := FTable.Delete.Where('id', ID);
 end;
 
 procedure TCommonObject.UpdateObjectID;

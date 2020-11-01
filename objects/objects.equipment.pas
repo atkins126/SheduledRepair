@@ -112,7 +112,6 @@ end;
 function TEquipment.LoadCurrentObject : Boolean;
 begin
   Result := inherited LoadCurrentObject;
-
   FName := GetStringProperty('name');
 end;
 
@@ -123,14 +122,8 @@ end;
 
 function TEquipment.Save : Boolean;
 begin
-  if ID <> -1 then
-  begin
-    Result := (UpdateRow.Update('name', FName).Get > 0);
-  end else 
-  begin
-    Result := (InsertRow.Value('name', FName).Get > 0);
-    UpdateObjectID;
-  end;
+  SetStringProperty('name', FName);
+  Result := inherited Save;
 
   FEntityBag.Save;
 end;

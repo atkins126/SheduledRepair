@@ -67,6 +67,9 @@ type
 
     { Load all dependent objects. }
     function LoadDepentObjects : Boolean; override;
+
+    { Save all dependent objects. }
+    function SaveDepentObjects : Boolean; override;
   protected
     FName : String;
     FEntity : TEntity;
@@ -135,29 +138,18 @@ begin
     FShedule.Reload(GetIntegerProperty('shedule_id'));
 end;
 
+function TJob.SaveDepentObjects : Boolean;
+begin
+  Result := FEntity.Save and FPeriod.Save and FShedule.Save;
+end;
+
 function TJob.Save : Boolean;
 begin
-  if not FEntity.Save then
-    Exit(False);
-
-  if not FPeriod.Save then
-    Exit(False);
-
-  if not FShedule.Save then
-    Exit(False);
-
-  if ID <> -1 then
-  begin
-    Result := (UpdateRow.Update('name', FName)
-      .Update('entity_id', FEntity.Id).Update('period_id', FPeriod.ID)
-      .Update('shedule_id', FShedule.ID).Get > 0);
-  end else 
-  begin
-    Result := (InsertRow.Value('name', FName)
-      .Value('entity_id', FEntity.ID).Value('period_id', FPeriod.ID)
-      .Value('shedule_id', FShedule.ID).Get > 0);
-    UpdateObjectID;
-  end;
+  SetStringProperty('name', FName);
+  SetIntegerProperty('entity_id', FEntity.ID);
+  SetIntegerProperty('period_id', FPeriod.ID);
+  SetIntegerProperty('shedule_id', FShedule.ID);
+  Result := inherited Save;
 end;
 
 function TJob.Delete : Boolean;

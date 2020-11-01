@@ -64,6 +64,9 @@ type
 
     { Load all dependent objects. }
     function LoadDepentObjects : Boolean; override;
+
+    { Save all dependent objects. }
+    function SaveDepentObjects : Boolean; override;
   protected
     FGrease : TGrease;
     FQuantity : TQuantity;
@@ -114,24 +117,16 @@ begin
     FGrease.Reload(GetIntegerProperty('grease_id'));
 end;
 
+function TGreaseBundle.SaveDepentObjects : Boolean;
+begin
+  Result := FGrease.Save and FQuantity.Save;
+end;
+
 function TGreaseBundle.Save : Boolean;
 begin
-  if not FGrease.Save then
-    Exit(False);
-
-  if not FQuantity.Save then
-    Exit(False);
-
-  if ID <> -1 then
-  begin
-    Result := (UpdateRow.Update('quantity_id', FQuantity.ID)
-      .Update('grease_id', FGrease.ID).Get > 0);
-  end else 
-  begin
-    Result := (InsertRow.Value('quantity_id', FQuantity.ID)
-      .Value('grease_id', FGrease.ID).Get > 0);
-    UpdateObjectID;
-  end;
+  SetIntegerProperty('quantity_id', FQuantity.ID);
+  SetIntegerProperty('grease_id', FGrease.ID);
+  Result := inherited Save;
 end;
 
 function TGreaseBundle.Delete : Boolean;

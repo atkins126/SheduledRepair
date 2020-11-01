@@ -32,8 +32,7 @@ unit objects.grease;
 interface
 
 uses
-  SysUtils, objects.common, sqlite3.schema, sqlite3.result, sqlite3.result_row,
-  objects.supplier, objects.grade;
+  SysUtils, objects.common, sqlite3.schema, objects.supplier, objects.grade;
 
 type
   TGrease = class(TCommonObject)
@@ -61,6 +60,9 @@ type
 
     { Load all dependent objects. }
     function LoadDepentObjects : Boolean; override;
+
+    { Save all dependent objects. }
+    function SaveDepentObjects : Boolean; override;
   protected
     FSupplier : TSupplier;
     FGrade : TGrade;
@@ -111,24 +113,16 @@ begin
     FGrade.Reload(GetIntegerProperty('grade_id'));
 end;
 
+function TGrease.SaveDepentObjects : Boolean;
+begin
+  Result := FSupplier.Save and FGrade.Save;
+end;
+
 function TGrease.Save : Boolean;
 begin
-  if not FSupplier.Save then
-    Exit(False);
-
-  if not FGrade.Save then
-    Exit(False);
-
-  if ID <> -1 then
-  begin
-    Result := (UpdateRow.Update('supplier_id', FSupplier.ID)
-      .Update('grade_id', FGrade.ID).Get > 0);
-  end else 
-  begin
-    Result := (InsertRow.Value('supplier_id', FSupplier.ID)
-      .Value('grade_id', FGrade.ID).Get > 0);
-    UpdateObjectID;
-  end;
+  SetIntegerProperty('supplier_id', FSupplier.ID);
+  SetIntegerProperty('grade_id', FGrade.ID);
+  Result := inherited Save;
 end;
 
 procedure TGrease.Assign (AGrease : TGrease);

@@ -32,7 +32,7 @@ unit objects.grade;
 interface
 
 uses
-  SysUtils, objects.common, sqlite3.schema, sqlite3.result, sqlite3.result_row;
+  SysUtils, objects.common, sqlite3.schema;
 
 type
   TGrade = class(TCommonObject)
@@ -93,20 +93,13 @@ end;
 function TGrade.LoadCurrentObject : Boolean;
 begin
   Result := inherited LoadCurrentObject;
-
   FName := GetStringProperty('name');
 end;
 
 function TGrade.Save : Boolean;
 begin
-  if ID <> -1 then
-  begin
-    Result := (UpdateRow.Update('name', FName).Get > 0);
-  end else 
-  begin
-    Result := (InsertRow.Value('name', FName).Get > 0);
-    UpdateObjectID;
-  end;
+  SetStringProperty('name', FName);
+  Result := inherited Save;
 end;
 
 procedure TGrade.Assign (AGrade : TGrade);

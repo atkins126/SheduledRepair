@@ -64,6 +64,9 @@ type
 
     { Load all dependent objects. }
     function LoadDepentObjects : Boolean; override;
+
+    { Save all dependent objects. }
+    function SaveDepentObjects : Boolean; override;
   protected
     FQuantity : TQuantity;
   public
@@ -108,19 +111,15 @@ begin
   Result := FQuantity.Reload(GetIntegerProperty('quantity_id'));
 end;
 
+function TPeriod.SaveDepentObjects : Boolean;
+begin
+  Result := FQuantity.Save;
+end;
+
 function TPeriod.Save : Boolean;
 begin
-  if not FQuantity.Save then
-    Exit(False);  
-
-  if ID <> -1 then
-  begin
-    Result := (UpdateRow.Update('quantity_id', FQuantity.ID).Get > 0);
-  end else 
-  begin
-    Result := (InsertRow.Value('quantity_id', FQuantity.ID).Get > 0);
-    UpdateObjectID;
-  end;
+  SetIntegerProperty('quantity_id', FQuantity.ID);
+  Result := inherited Save;
 end;
 
 function TPeriod.Delete : Boolean;

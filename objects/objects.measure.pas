@@ -93,20 +93,13 @@ end;
 function TMeasure.LoadCurrentObject : Boolean;
 begin
   Result := inherited LoadCurrentObject;
-
   FName := GetStringProperty('name');
 end;
 
 function TMeasure.Save : Boolean;
 begin
-  if ID <> -1 then
-  begin
-    Result := (UpdateRow.Update('name', FName).Get > 0);
-  end else 
-  begin
-    Result := (InsertRow.Value('name', FName).Get > 0);
-    UpdateObjectID;
-  end;
+  SetStringProperty('name', FName);
+  Result := inherited Save;
 end;
 
 procedure TMeasure.Assign (AMeasure : TMeasure);

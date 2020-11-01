@@ -32,8 +32,7 @@ unit objects.quantity;
 interface
 
 uses
-  SysUtils, objects.common, sqlite3.schema, sqlite3.result, sqlite3.result_row,
-  objects.measure;
+  SysUtils, objects.common, sqlite3.schema, objects.measure;
 
 type
   TQuantity = class(TCommonObject)
@@ -64,6 +63,9 @@ type
 
     { Load all dependent objects. }
     function LoadDepentObjects : Boolean; override;
+
+    { Save all dependent objects. }
+    function SaveDepentObjects : Boolean; override;
   protected
     FCount : Double;
     FMeasure : TMeasure;
@@ -110,7 +112,6 @@ end;
 function TQuantity.LoadCurrentObject : Boolean;
 begin
   Result := inherited LoadCurrentObject;
-
   FCount := GetDoubleProperty('count');
 end;
 
@@ -119,21 +120,16 @@ begin
   Result := FMeasure.Reload(GetIntegerProperty('measure_id'));
 end;
 
+function TQuantity.SaveDepentObjects : Boolean;
+begin
+  Result := FMeasure.Save;
+end;
+
 function TQuantity.Save : Boolean;
 begin
-  if not FMeasure.Save then
-    Exit(False);
-
-  if ID <> -1 then
-  begin
-    Result := (UpdateRow.Update('count', FCount)
-      .Update('measure_id', FMeasure.ID).Get > 0);
-  end else 
-  begin
-    Result := (InsertRow.Value('count', FCount)
-      .Value('measure_id', FMeasure.ID).Get > 0);
-    UpdateObjectID;
-  end;
+  SetDoubleProperty('count', FCount);
+  SetIntegerProperty('measure_id', FMeasure.ID);
+  Result := inherited Save;
 end;
 
 procedure TQuantity.Assign (AQuantity : TQuantity);

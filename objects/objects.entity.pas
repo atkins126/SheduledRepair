@@ -64,10 +64,13 @@ type
     function CheckDepentSchemes : Boolean; override;
 
     { Load current object form database. }
-    function LoadCurrentObject : Boolean; virtual;
+    function LoadCurrentObject : Boolean; override;
 
     { Load all dependent objects. }
-    function LoadDepentObjects : Boolean; virtual;
+    function LoadDepentObjects : Boolean; override;
+
+    { Save all dependent objects. }
+    function SaveDepentObjects : Boolean; override;
   protected
     FName : String;
     FGreaseBag : TGreaseBag;
@@ -147,36 +150,21 @@ begin
     FShedule.Reload(GetIntegerProperty('shedule_id'));
 end;
 
-function TEntity.Save : Boolean;
-var
-  updated_rows : Integer;
+function TEntity.SaveDepentObjects : Boolean;
 begin
-  if not FShedule.Save then
-    Exit(False);
+  Result := FShedule.Save and FQuantity.Save and FPeriod.Save;
+end;
 
-  if not FQuantity.Save then
-    Exit(False);
-
-  if not FPeriod.Save then
-    Exit(False);
-
-  if ID <> -1 then
-  begin
-    updated_rows := UpdateRow.Update('name', FName)
-      .Update('quantity_id', FQuantity.ID).Update('period_id', FPeriod.ID)
-      .Update('shedule_id', FShedule.ID).Get;
-  end else 
-  begin
-    updated_rows := InsertRow.Value('name', FName)
-      .Value('quantity_id', FQuantity.ID).Value('period_id', FPeriod.ID)
-      .Value('shedule_id', FShedule.ID).Get;
-    UpdateObjectID;
-  end;
+function TEntity.Save : Boolean;
+begin
+  SetStringProperty('name', FName);
+  SetIntegerProperty('quantity_id', FQuantity.ID);
+  SetIntegerProperty('period_id', FPeriod.ID);
+  SetIntegerProperty('shedule_id', FShedule.ID);
+  Result := inherited Save;
 
   FGreaseBag.Save;
   FNodeBag.Save;
-
-  Result := (updated_rows > 0);
 end;
 
 function TEntity.Delete : Boolean;

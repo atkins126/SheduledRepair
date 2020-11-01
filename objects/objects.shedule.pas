@@ -104,16 +104,9 @@ end;
 
 function TShedule.Save : Boolean;
 begin
-  if ID <> -1 then
-  begin
-    Result := (UpdateRow.Update('prev_date', DateToStr(FPrevDate))
-      .Update('next_date', DateToStr(FNextDate)).Get > 0);
-  end else 
-  begin
-    Result := (InsertRow.Value('prev_date', DateToStr(FPrevDate))
-      .Value('next_date', DateToStr(FNextDate)).Get > 0);
-    UpdateObjectID;
-  end;
+  SetStringProperty('prev_date', DateToStr(FPrevDate));
+  SetStringProperty('next_date', DateToStr(FNextDate));
+  Result := inherited Save;
 end;
 
 procedure TShedule.Assign (AShedule : TShedule);

@@ -67,6 +67,9 @@ type
 
     { Load all dependent objects. }
     function LoadDepentObjects : Boolean; override;
+
+    { Save all dependent objects. }
+    function SaveDepentObjects : Boolean; override;
   protected
     FName : String;
     FGreaseBag : TGreaseBag;
@@ -134,33 +137,18 @@ begin
     FShedule.Reload(GetIntegerProperty('shedule_id'));
 end;
 
-function TNode.Save : Boolean;
-var
-  updated_rows : Integer;
+function TNode.SaveDepentObjects : Boolean;
 begin
-  if not FPeriod.Save then
-    Exit(False);
+  Result := FPeriod.Save and FShedule.Save;
+end;
 
-  if not FShedule.Save then
-    Exit(False);    
+function TNode.Save : Boolean;
+begin
+  SetStringProperty('name', FName);
+  SetIntegerProperty('period_id', FPeriod.ID);
+  SetIntegerProperty('shedule_id', FShedule.ID);
 
-  if ID <> -1 then
-  begin
-    updated_rows := UpdateRow.Update('name', FName)
-      .Update('period_id', FPeriod.ID)
-      .Update('shedule_id', FShedule.ID).Get;
-  end else 
-  begin
-    updated_rows := InsertRow.Value('name', FName)
-      .Value('period_id', FPeriod.ID)
-      .Value('shedule_id', FShedule.ID).Get;
-    UpdateObjectID;
-  end;
-
-  if not FGreaseBag.Save then
-    Exit(False);
-
-  Result := (updated_rows > 0);
+  Result := inherited Save and FGreaseBag.Save;
 end;
 
 function TNode.Delete : Boolean;
