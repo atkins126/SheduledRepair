@@ -213,7 +213,7 @@ begin
     GreaseBundle.Delete;
   end; 
 
-  Result := DeleteCurrentObject;
+  Result := inherited Delete;
 end;
 
 procedure TGreaseBag.Append (AGreaseBundle : TGreaseBundle);

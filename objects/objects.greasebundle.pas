@@ -136,7 +136,7 @@ end;
 
 function TGreaseBundle.Delete : Boolean;
 begin
-  Result := FGrease.Delete and FQuantity.Delete and DeleteCurrentObject;
+  Result := FQuantity.Delete and inherited Delete;
 end;
 
 procedure TGreaseBundle.Assign (AGreaseBundle : TGreaseBundle);

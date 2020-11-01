@@ -49,9 +49,6 @@ type
     { Save object to database. }
     function Save : Boolean; override;
 
-    { Delete object from database. }
-    function Delete : Boolean; override;
-
     { Object deep copy. }
     procedure Assign (AGrade : TGrade);
   protected
@@ -110,11 +107,6 @@ begin
     Result := (InsertRow.Value('name', FName).Get > 0);
     UpdateObjectID;
   end;
-end;
-
-function TGrade.Delete : Boolean;
-begin
-  Result := DeleteCurrentObject;
 end;
 
 procedure TGrade.Assign (AGrade : TGrade);

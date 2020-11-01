@@ -50,9 +50,6 @@ type
     { Save object to database. }
     function Save : Boolean; override;
 
-    { Delete object from database. }
-    function Delete : Boolean; override;
-
     { Object deep copy. }
     procedure Assign (AGrease : TGrease);
   protected
@@ -132,11 +129,6 @@ begin
       .Value('grade_id', FGrade.ID).Get > 0);
     UpdateObjectID;
   end;
-end;
-
-function TGrease.Delete : Boolean;
-begin
-  Result := FSupplier.Delete and FGrade.Delete and DeleteCurrentObject;
 end;
 
 procedure TGrease.Assign (AGrease : TGrease);

@@ -125,7 +125,7 @@ end;
 
 function TPeriod.Delete : Boolean;
 begin
-  Result := FQuantity.Delete and DeleteCurrentObject;
+  Result := FQuantity.Delete and inherited Delete;
 end;
 
 procedure TPeriod.Assign (APeriod : TPeriod);

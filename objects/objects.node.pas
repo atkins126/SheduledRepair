@@ -168,7 +168,7 @@ begin
   if ID <> -1 then
   begin
     FGreaseBag.Delete;
-    Result := FPeriod.Delete and FShedule.Delete and DeleteCurrentObject;
+    Result := FPeriod.Delete and FShedule.Delete and inherited Delete;
   end
   else
     Result := False;

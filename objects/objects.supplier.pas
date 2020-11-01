@@ -49,9 +49,6 @@ type
     { Save object to database. }
     function Save : Boolean; override;
 
-    { Delete object from database. }
-    function Delete : Boolean; override;
-
     { Object deep copy. }
     procedure Assign (ASupplier : TSupplier);
   protected
@@ -110,11 +107,6 @@ begin
     Result := (InsertRow.Value('name', FName).Get > 0);
     UpdateObjectID;
   end;
-end;
-
-function TSupplier.Delete : Boolean;
-begin
-  Result := DeleteCurrentObject;
 end;
 
 procedure TSupplier.Assign (ASupplier : TSupplier);

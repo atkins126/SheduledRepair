@@ -50,9 +50,6 @@ type
     { Save object to database. }
     function Save : Boolean; override;
 
-    { Delete object from database. }
-    function Delete : Boolean; override;
-
     { Object deep copy. }
     procedure Assign (AQuantity : TQuantity);
   protected
@@ -137,11 +134,6 @@ begin
       .Value('measure_id', FMeasure.ID).Get > 0);
     UpdateObjectID;
   end;
-end;
-
-function TQuantity.Delete : Boolean;
-begin
-  Result := DeleteCurrentObject;
 end;
 
 procedure TQuantity.Assign (AQuantity : TQuantity);

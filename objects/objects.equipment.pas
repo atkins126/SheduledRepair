@@ -140,7 +140,7 @@ begin
   if ID <> -1 then
   begin
     FEntityBag.Delete;
-    Result := DeleteCurrentObject;
+    Result := inherited Delete;
   end else 
     Result := False;
 end;

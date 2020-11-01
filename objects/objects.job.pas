@@ -163,7 +163,7 @@ end;
 function TJob.Delete : Boolean;
 begin
   Result := FEntity.Delete and FPeriod.Delete and FShedule.Delete and
-    DeleteCurrentObject;
+    inherited Delete;
 end;
 
 procedure TJob.Assign (AJob : TJob);

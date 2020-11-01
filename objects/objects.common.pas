@@ -57,7 +57,7 @@ type
     function Save : Boolean; virtual; abstract;
 
     { Delete object from database. }
-    function Delete : Boolean; virtual; abstract;
+    function Delete : Boolean; virtual;
 
     { Return object ID. }
     function ID : Int64;
@@ -202,6 +202,11 @@ end;
 function TCommonObject.UpdateRow : TSQLite3Update;
 begin
   Result := FTable.Update.Where('id', FID);
+end;
+
+function TCommonObject.Delete : Boolean;
+begin
+  Result := DeleteCurrentObject;
 end;
 
 function TCommonObject.DeleteCurrentObject : Boolean;

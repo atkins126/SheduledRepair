@@ -182,7 +182,7 @@ end;
 function TEntity.Delete : Boolean;
 begin
     Result := FShedule.Delete and FQuantity.Delete and FPeriod.Delete and
-      DeleteCurrentObject;
+      inherited Delete;
 end;
 
 procedure TEntity.Assign (AEntity : TEntity);

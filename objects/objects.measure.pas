@@ -32,7 +32,7 @@ unit objects.measure;
 interface
 
 uses
-  SysUtils, objects.common, sqlite3.schema, sqlite3.result, sqlite3.result_row;
+  SysUtils, objects.common, sqlite3.schema;
 
 type
   TMeasure = class(TCommonObject)
@@ -48,9 +48,6 @@ type
 
     { Save object to database. }
     function Save : Boolean; override;
-
-    { Delete object from database. }
-    function Delete : Boolean; override;
 
     { Object deep copy. }
     procedure Assign (AMeasure : TMeasure);
@@ -110,11 +107,6 @@ begin
     Result := (InsertRow.Value('name', FName).Get > 0);
     UpdateObjectID;
   end;
-end;
-
-function TMeasure.Delete : Boolean;
-begin
-  Result := DeleteCurrentObject;
 end;
 
 procedure TMeasure.Assign (AMeasure : TMeasure);

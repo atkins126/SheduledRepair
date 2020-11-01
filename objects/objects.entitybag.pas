@@ -207,7 +207,7 @@ begin
     Ent.Delete;
   end;
 
-  Result := DeleteCurrentObject;
+  Result := inherited Delete;
 end;
 
 procedure TEntityBag.Append (AEntity : TEntity);

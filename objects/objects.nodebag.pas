@@ -211,7 +211,7 @@ begin
     node.Delete;
   end;  
 
-  Result := DeleteCurrentObject;
+  Result := inherited Delete;
 end;
 
 procedure TNodeBag.Append (ANode : TNode);

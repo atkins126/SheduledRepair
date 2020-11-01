@@ -49,9 +49,6 @@ type
     { Save object to database. }
     function Save : Boolean; override;
 
-    { Delete object from database. }
-    function Delete : Boolean; override;
-
     { Object deep copy. }
     procedure Assign (AShedule : TShedule);
   protected
@@ -117,11 +114,6 @@ begin
       .Value('next_date', DateToStr(FNextDate)).Get > 0);
     UpdateObjectID;
   end;
-end;
-
-function TShedule.Delete : Boolean;
-begin
-  Result := DeleteCurrentObject;
 end;
 
 procedure TShedule.Assign (AShedule : TShedule);
