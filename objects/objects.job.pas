@@ -47,9 +47,6 @@ type
     { Get object database table name. }
     function Table : String; override;
 
-    { Save object to database. }
-    function Save : Boolean; override;
-
     { Delete object from database. }
     function Delete : Boolean; override;
 
@@ -67,6 +64,9 @@ type
 
     { Load all dependent objects. }
     function LoadDepentObjects : Boolean; override;
+
+    { Store current object to database. }
+    procedure SaveCurrentObject; override;
 
     { Save all dependent objects. }
     function SaveDepentObjects : Boolean; override;
@@ -143,13 +143,12 @@ begin
   Result := FEntity.Save and FPeriod.Save and FShedule.Save;
 end;
 
-function TJob.Save : Boolean;
+procedure TJob.SaveCurrentObject;
 begin
   SetStringProperty('name', FName);
   SetIntegerProperty('entity_id', FEntity.ID);
   SetIntegerProperty('period_id', FPeriod.ID);
   SetIntegerProperty('shedule_id', FShedule.ID);
-  Result := inherited Save;
 end;
 
 function TJob.Delete : Boolean;

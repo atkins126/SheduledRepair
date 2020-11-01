@@ -46,9 +46,6 @@ type
     { Get object database table name. }
     function Table : String; override;
 
-    { Save object to database. }
-    function Save : Boolean; override;
-
     { Object deep copy. }
     procedure Assign (AGrease : TGrease);
   protected
@@ -60,6 +57,9 @@ type
 
     { Load all dependent objects. }
     function LoadDepentObjects : Boolean; override;
+
+    { Store current object to database. }
+    procedure SaveCurrentObject; override;
 
     { Save all dependent objects. }
     function SaveDepentObjects : Boolean; override;
@@ -118,11 +118,10 @@ begin
   Result := FSupplier.Save and FGrade.Save;
 end;
 
-function TGrease.Save : Boolean;
+procedure TGrease.SaveCurrentObject;
 begin
   SetIntegerProperty('supplier_id', FSupplier.ID);
   SetIntegerProperty('grade_id', FGrade.ID);
-  Result := inherited Save;
 end;
 
 procedure TGrease.Assign (AGrease : TGrease);

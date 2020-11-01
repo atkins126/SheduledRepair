@@ -47,9 +47,6 @@ type
     { Get object database table name. }
     function Table : String; override;
 
-    { Save object to database. }
-    function Save : Boolean; override;
-
     { Delete object from database. }
     function Delete : Boolean; override;
 
@@ -67,6 +64,9 @@ type
 
     { Load all dependent objects. }
     function LoadDepentObjects : Boolean; override;
+
+    { Store current object to database. }
+    procedure SaveCurrentObject; override;
   protected
     FName : String;
     FEntityBag : TEntityBag;
@@ -120,11 +120,9 @@ begin
   Result := FEntityBag.Reload(-1);
 end;
 
-function TEquipment.Save : Boolean;
+procedure TEquipment.SaveCurrentObject;
 begin
   SetStringProperty('name', FName);
-  Result := inherited Save;
-
   FEntityBag.Save;
 end;
 

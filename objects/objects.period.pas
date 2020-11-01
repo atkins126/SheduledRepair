@@ -47,9 +47,6 @@ type
     { Get object database table name. }
     function Table : String; override;
 
-    { Save object to database. }
-    function Save : Boolean; override;
-
     { Delete object from database. }
     function Delete : Boolean; override;
 
@@ -64,6 +61,9 @@ type
 
     { Load all dependent objects. }
     function LoadDepentObjects : Boolean; override;
+
+    { Store current object to database. }
+    procedure SaveCurrentObject; override;
 
     { Save all dependent objects. }
     function SaveDepentObjects : Boolean; override;
@@ -116,10 +116,9 @@ begin
   Result := FQuantity.Save;
 end;
 
-function TPeriod.Save : Boolean;
+procedure TPeriod.SaveCurrentObject;
 begin
   SetIntegerProperty('quantity_id', FQuantity.ID);
-  Result := inherited Save;
 end;
 
 function TPeriod.Delete : Boolean;

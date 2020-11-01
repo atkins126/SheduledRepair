@@ -46,9 +46,6 @@ type
     { Get object database table name. }
     function Table : String; override;
 
-    { Save object to database. }
-    function Save : Boolean; override;
-
     { Object deep copy. }
     procedure Assign (ASupplier : TSupplier);
   protected
@@ -57,6 +54,9 @@ type
 
     { Load current object form database. }
     function LoadCurrentObject : Boolean; override;
+
+    { Store current object to database. }
+    procedure SaveCurrentObject; override;
   protected
     FName : String;
   public
@@ -96,10 +96,9 @@ begin
   FName := GetStringProperty('name');
 end;
 
-function TSupplier.Save : Boolean;
+procedure TSupplier.SaveCurrentObject;
 begin
   SetStringProperty('name', FName);
-  Result := inherited Save;
 end;
 
 procedure TSupplier.Assign (ASupplier : TSupplier);

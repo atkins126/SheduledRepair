@@ -101,7 +101,7 @@ type
     function GetDoubleProperty (AName : String) : Double;
 
     { Store current object to database. }
-    function SaveCurrentObject : Boolean; virtual;
+    procedure SaveCurrentObject; virtual; abstract;
 
     { Save all dependent objects. }
     function SaveDepentObjects : Boolean; virtual;
@@ -267,35 +267,20 @@ begin
 end;
 
 function TCommonObject.Save : Boolean;
-begin
-  if not SaveDepentObjects then
-    Exit(False);
-
-  Result := SaveCurrentObject;
-end;
-
-function TCommonObject.SaveCurrentObject : Boolean;
 var
   Value : TValue;
   Update : TSQLite3Update;
   Insert : TSQLite3Insert;
 begin
+  if not SaveDepentObjects then
+    Exit(False);
+
+  SaveCurrentObject;
+
   if not FPropertiesList.FirstEntry.HasValue then
     Exit(True);
 
   if FID = -1 then
-  begin
-    Update := FTable.Update.Where('id', FID);
-    for Value in FPropertiesList do
-    begin
-      case Value.ValueType of
-        TYPE_INTEGER : Update.Update(Value.Name, Value.IntegerValue);
-        TYPE_DOUBLE  : Update.Update(Value.Name, Value.DoubleValue);
-        TYPE_STRING  : Update.Update(Value.Name, Value.StringValue);
-      end;
-    end;
-    Result := Update.Get > 0;
-  end else
   begin
     Insert := FTable.Insert;
     for Value in FPropertiesList do
@@ -310,6 +295,18 @@ begin
 
     if Result then
       FID := DB.GetLastInsertID;
+  end else
+  begin
+    Update := FTable.Update.Where('id', FID);
+    for Value in FPropertiesList do
+    begin
+      case Value.ValueType of
+        TYPE_INTEGER : Update.Update(Value.Name, Value.IntegerValue);
+        TYPE_DOUBLE  : Update.Update(Value.Name, Value.DoubleValue);
+        TYPE_STRING  : Update.Update(Value.Name, Value.StringValue);
+      end;
+    end;
+    Result := Update.Get > 0;
   end;
 end;
 

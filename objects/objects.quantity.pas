@@ -46,9 +46,6 @@ type
     { Get object database table name. }
     function Table : String; override;
 
-    { Save object to database. }
-    function Save : Boolean; override;
-
     { Object deep copy. }
     procedure Assign (AQuantity : TQuantity);
   protected
@@ -63,6 +60,9 @@ type
 
     { Load all dependent objects. }
     function LoadDepentObjects : Boolean; override;
+
+    { Store current object to database. }
+    procedure SaveCurrentObject; override;
 
     { Save all dependent objects. }
     function SaveDepentObjects : Boolean; override;
@@ -125,11 +125,10 @@ begin
   Result := FMeasure.Save;
 end;
 
-function TQuantity.Save : Boolean;
+procedure TQuantity.SaveCurrentObject;
 begin
   SetDoubleProperty('count', FCount);
   SetIntegerProperty('measure_id', FMeasure.ID);
-  Result := inherited Save;
 end;
 
 procedure TQuantity.Assign (AQuantity : TQuantity);

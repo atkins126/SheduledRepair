@@ -46,9 +46,6 @@ type
     { Get object database table name. }
     function Table : String; override;
 
-    { Save object to database. }
-    function Save : Boolean; override;
-
     { Object deep copy. }
     procedure Assign (AShedule : TShedule);
   protected
@@ -57,6 +54,9 @@ type
 
     { Load current object form database. }
     function LoadCurrentObject : Boolean; override;
+
+    { Store current object to database. }
+    procedure SaveCurrentObject; override;
   protected
     FPrevDate : TDate;
     FNextDate : TDate;
@@ -102,11 +102,10 @@ begin
   FNextDate := StrToDateDef(GetStringProperty('next_date'), Now);
 end;
 
-function TShedule.Save : Boolean;
+procedure TShedule.SaveCurrentObject;
 begin
   SetStringProperty('prev_date', DateToStr(FPrevDate));
   SetStringProperty('next_date', DateToStr(FNextDate));
-  Result := inherited Save;
 end;
 
 procedure TShedule.Assign (AShedule : TShedule);
