@@ -46,9 +46,6 @@ type
     { Get object database table name. }
     function Table : String; override;
 
-    { Load object from database. }
-    function Load : Boolean; override;
-
     { Save object to database. }
     function Save : Boolean; override;
 
@@ -60,6 +57,9 @@ type
   protected
     { Prepare current object database table scheme. }
     procedure PrepareSchema (var ASchema : TSQLite3Schema); override;
+
+    { Load current object form database. }
+    function LoadCurrentObject : Boolean; override;
   protected
     FPrevDate : TDate;
     FNextDate : TDate;
@@ -97,14 +97,12 @@ begin
   Result := SHEDULE_TABLE_NAME;
 end;
 
-function TShedule.Load : Boolean;
+function TShedule.LoadCurrentObject : Boolean;
 begin
-  if not LoadCurrentObject then
-    Exit(False);
+  Result := inherited LoadCurrentObject;
 
   FPrevDate := StrToDateDef(GetStringProperty('prev_date'), Now);
   FNextDate := StrToDateDef(GetStringProperty('next_date'), Now);
-  Result := True;
 end;
 
 function TShedule.Save : Boolean;

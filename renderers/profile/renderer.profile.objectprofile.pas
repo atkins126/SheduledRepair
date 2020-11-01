@@ -47,9 +47,6 @@ type
     { Get object database table name. }
     function Table : String; override;
 
-    { Load object from database. }
-    function Load : Boolean; override;
-
     { Save object to database. }
     function Save : Boolean; override;
 
@@ -61,6 +58,9 @@ type
 
     { Check all dependent schemes. }
     function CheckDepentSchemes : Boolean; override;
+
+    { Load all dependent objects. }
+    function LoadDepentObjects : Boolean; override;
   protected
     FDefaultProfile : TRendererProfile;
     FSelectedProfile : TRendererProfile;
@@ -110,20 +110,11 @@ begin
   Result := RENDERER_OBJECT_PROFILE_TABLE_NAME;
 end;
 
-function TRendererObjectProfile.Load : Boolean;
-var
-  default_profile_id, selected_profile_id, hover_profile_id : Int64;
+function TRendererObjectProfile.LoadDepentObjects : Boolean;
 begin
-  if not LoadCurrentObject then
-    Exit(False);
-
-  default_profile_id := GetIntegerProperty('default_profile_id');
-  selected_profile_id := GetIntegerProperty('selected_profile_id');
-  hover_profile_id := GetIntegerProperty('hover_profile_id');
-
-  Result := FDefaultProfile.Reload(default_profile_id) and
-    FSelectedProfile.Reload(selected_profile_id) and 
-    FHoverProfile.Reload(hover_profile_id);
+  Result := FDefaultProfile.Reload(GetIntegerProperty('default_profile_id')) and
+    FSelectedProfile.Reload(GetIntegerProperty('selected_profile_id')) and
+    FHoverProfile.Reload(GetIntegerProperty('hover_profile_id'));
 end;
 
 function TRendererObjectProfile.Save : Boolean;

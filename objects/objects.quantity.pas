@@ -47,9 +47,6 @@ type
     { Get object database table name. }
     function Table : String; override;
 
-    { Load object from database. }
-    function Load : Boolean; override;
-
     { Save object to database. }
     function Save : Boolean; override;
 
@@ -64,6 +61,12 @@ type
 
     { Check all dependent schemes. }
     function CheckDepentSchemes : Boolean; override;
+
+    { Load current object form database. }
+    function LoadCurrentObject : Boolean; override;
+
+    { Load all dependent objects. }
+    function LoadDepentObjects : Boolean; override;
   protected
     FCount : Double;
     FMeasure : TMeasure;
@@ -107,12 +110,15 @@ begin
   Result := QUANTITY_TABLE_NAME;
 end;
 
-function TQuantity.Load : Boolean;
+function TQuantity.LoadCurrentObject : Boolean;
 begin
-  if not LoadCurrentObject then
-    Exit(False);
+  Result := inherited LoadCurrentObject;
 
   FCount := GetDoubleProperty('count');
+end;
+
+function TQuantity.LoadDepentObjects : Boolean;
+begin
   Result := FMeasure.Reload(GetIntegerProperty('measure_id'));
 end;
 

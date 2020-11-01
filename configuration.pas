@@ -49,9 +49,6 @@ type
     { Get object database table name. }
     function Table : String; override;
 
-    { Load object from database. }
-    function Load : Boolean; override;
-
     { Save object to database. }
     function Save : Boolean; override;
 
@@ -73,6 +70,9 @@ type
   protected
     { Prepare current object database table scheme. }
     procedure PrepareSchema (var ASchema : TSQLite3Schema); override;
+
+    { Load current object form database. }
+    function LoadCurrentObject : Boolean; override;
   private
     type
       TKeyValue = class(specialize TPair<String, String>);
@@ -139,11 +139,13 @@ begin
   Result := CONFIG_TABLE_NAME;
 end;
 
-function TConfig.Load : Boolean;
+function TConfig.LoadCurrentObject : Boolean;
 var
   result_rows : TSQLite3Result;
   row : TSQLite3ResultRow;
 begin
+  Result := inherited LoadCurrentObject;
+
   FKeyValueList.Clear;
 
   result_rows := FTable.Select.All.Get;

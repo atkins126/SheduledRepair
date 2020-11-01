@@ -47,9 +47,6 @@ type
     { Get object database table name. }
     function Table : String; override;
 
-    { Load object from database. }
-    function Load : Boolean; override;
-
     { Save object to database. }
     function Save : Boolean; override;
 
@@ -64,6 +61,12 @@ type
 
     { Check all dependent schemes. }
     function CheckDepentSchemes : Boolean; override;
+
+    { Load current object form database. }
+    function LoadCurrentObject : Boolean; override;
+
+    { Load all dependent objects. }
+    function LoadDepentObjects : Boolean; override;
   protected
     FName : String;
     FEntityBag : TEntityBag;
@@ -106,12 +109,15 @@ begin
   Result := EQUIPMENT_TABLE_NAME;
 end;
 
-function TEquipment.Load : Boolean;
+function TEquipment.LoadCurrentObject : Boolean;
 begin
-  if not LoadCurrentObject then
-    Exit(False);
+  Result := inherited LoadCurrentObject;
 
   FName := GetStringProperty('name');
+end;
+
+function TEquipment.LoadDepentObjects : Boolean;
+begin
   Result := FEntityBag.Reload(-1);
 end;
 

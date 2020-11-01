@@ -47,9 +47,6 @@ type
     { Get object database table name. }
     function Table : String; override;
 
-    { Load object from database. }
-    function Load : Boolean; override;
-
     { Save object to database. }
     function Save : Boolean; override;
 
@@ -64,6 +61,9 @@ type
 
     { Check all dependent schemes. }
     function CheckDepentSchemes : Boolean; override;
+
+    { Load all dependent objects. }
+    function LoadDepentObjects : Boolean; override;
   protected
     FSupplier : TSupplier;
     FGrade : TGrade;
@@ -108,11 +108,8 @@ begin
   Result := GREASE_TABLE_NAME;
 end;
 
-function TGrease.Load : Boolean;
+function TGrease.LoadDepentObjects : Boolean;
 begin
-  if not LoadCurrentObject then
-    Exit(False);
-
   Result := FSupplier.Reload(GetIntegerProperty('supplier_id')) and
     FGrade.Reload(GetIntegerProperty('grade_id'));
 end;

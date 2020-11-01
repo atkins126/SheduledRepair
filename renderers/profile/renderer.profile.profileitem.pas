@@ -68,9 +68,6 @@ type
     { Get object database table name. }
     function Table : String; override;
 
-    { Load object from database. }
-    function Load : Boolean; override;
-
     { Save object to database. }
     function Save : Boolean; override;
 
@@ -79,6 +76,9 @@ type
   protected
     { Prepare current object database table scheme. }
     procedure PrepareSchema (var ASchema : TSQLite3Schema); override;
+
+    { Load current object form database. }
+    function LoadCurrentObject : Boolean; override;
   protected
     FName : String;
     FEnable : Boolean;
@@ -174,10 +174,9 @@ begin
   Result := RENDERER_PROFILE_ITEM_TABLE_NAME;
 end;
 
-function TRendererProfileItem.Load : Boolean;
+function TRendererProfileItem.LoadCurrentObject : Boolean;
 begin
-  if not LoadCurrentObject then
-    Exit(False);
+  Result := inherited LoadCurrentObject;
 
   FName := GetStringProperty('name');
   FEnable := Boolean(GetIntegerProperty('enable'));
@@ -195,7 +194,6 @@ begin
   FPositionType := TPositionType(GetIntegerProperty('position_type'));
   FPosition.X := GetIntegerProperty('position_x');
   FPosition.Y := GetIntegerProperty('position_y');
-  Result := True;
 end;
 
 function TRendererProfileItem.Save : Boolean;

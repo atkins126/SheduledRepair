@@ -48,9 +48,11 @@ type
 
     function CheckSchema : Boolean; override;
     function Table : String; override;
-    function Load : Boolean; override;
     function Save : Boolean; override;
-    function Delete : Boolean; override; 
+    function Delete : Boolean; override;
+  protected
+    { Load current object form database. }
+    function LoadCurrentObject : Boolean; override; 
   protected
     FItemType : TItemType;
   public
@@ -82,7 +84,7 @@ begin
   Result := 'main_menu';
 end;
 
-function TMainMenuItem.Load : Boolean;
+function TMainMenuItem.LoadCurrentObject : Boolean;
 begin
   Result := True;
 end;

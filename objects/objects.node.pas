@@ -47,9 +47,6 @@ type
     { Get object database table name. }
     function Table : String; override;
 
-    { Load object from database. }
-    function Load : Boolean; override;
-
     { Save object to database. }
     function Save : Boolean; override;
 
@@ -64,6 +61,12 @@ type
 
     { Check all dependent schemes. }
     function CheckDepentSchemes : Boolean; override;
+
+    { Load current object form database. }
+    function LoadCurrentObject : Boolean; override;
+
+    { Load all dependent objects. }
+    function LoadDepentObjects : Boolean; override;
   protected
     FName : String;
     FGreaseBag : TGreaseBag;
@@ -117,14 +120,17 @@ begin
   Result := NODE_TABLE_NAME;
 end;
 
-function TNode.Load : Boolean;
+function TNode.LoadCurrentObject : Boolean;
 begin
-  if not LoadCurrentObject then
-    Exit(False);
+  Result := inherited LoadCurrentObject;
 
   FName := GetStringProperty('name');
-  Result := FGreaseBag.Reload(-1) and
-    FPeriod.Reload(GetIntegerProperty('period_id')) and
+end;
+
+function TNode.LoadDepentObjects : Boolean;
+begin
+  FGreaseBag.Reload(-1);
+  Result := FPeriod.Reload(GetIntegerProperty('period_id')) and
     FShedule.Reload(GetIntegerProperty('shedule_id'));
 end;
 

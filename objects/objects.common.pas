@@ -48,7 +48,7 @@ type
     function Table : String; virtual; abstract;
 
     { Load object from database. }
-    function Load : Boolean; virtual; abstract;
+    function Load : Boolean;
 
     { Reload object from database. }
     function Reload (AID : Int64) : Boolean;
@@ -69,13 +69,15 @@ type
     function CheckDepentSchemes : Boolean; virtual;
 
     { Load current object form database. }
-    function LoadCurrentObject : Boolean;
+    function LoadCurrentObject : Boolean; virtual;
+
+    { Load all dependent objects. }
+    function LoadDepentObjects : Boolean; virtual;
 
     { Get current object property from database result row. }
     function GetStringProperty (AName : String) : String;
     function GetIntegerProperty (AName : String) : Integer;
     function GetDoubleProperty (AName : String) : Double;
-
 
     { Return TSQLite3Insert for current object. }
     function InsertRow : TSQLite3Insert;
@@ -142,6 +144,14 @@ begin
   Result := FID;
 end;
 
+function TCommonObject.Load : Boolean;
+begin
+  if not LoadCurrentObject then
+    Exit(False);
+  
+  Result := LoadDepentObjects;
+end;
+
 function TCommonObject.LoadCurrentObject : Boolean;
 begin
   if FID = -1 then
@@ -152,6 +162,11 @@ begin
   if not FRow.HasRow then
     Exit(False);
 
+  Result := True;
+end;
+
+function TCommonObject.LoadDepentObjects : Boolean;
+begin
   Result := True;
 end;
 

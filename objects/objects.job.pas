@@ -47,9 +47,6 @@ type
     { Get object database table name. }
     function Table : String; override;
 
-    { Load object from database. }
-    function Load : Boolean; override;
-
     { Save object to database. }
     function Save : Boolean; override;
 
@@ -64,6 +61,12 @@ type
 
     { Check all dependent schemes. }
     function CheckDepentSchemes : Boolean; override;
+
+    { Load current object form database. }
+    function LoadCurrentObject : Boolean; override;
+
+    { Load all dependent objects. }
+    function LoadDepentObjects : Boolean; override;
   protected
     FName : String;
     FEntity : TEntity;
@@ -118,12 +121,15 @@ begin
   Result := JOB_TABLE_NAME;
 end;
 
-function TJob.Load : Boolean;
+function TJob.LoadCurrentObject : Boolean;
 begin
-  if not LoadCurrentObject then
-    Exit(False);
+  Result := inherited LoadCurrentObject;
 
   FName := GetStringProperty('name');
+end;
+
+function TJob.LoadDepentObjects : Boolean;
+begin
   Result := FEntity.Reload(GetIntegerProperty('entity_id')) and
     FPeriod.Reload(GetIntegerProperty('period_id')) and
     FShedule.Reload(GetIntegerProperty('shedule_id'));

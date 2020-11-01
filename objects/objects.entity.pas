@@ -48,9 +48,6 @@ type
     { Get object database table name. }
     function Table : String; override;
 
-    { Load object from database. }
-    function Load : Boolean; override;
-
     { Save object to database. }
     function Save : Boolean; override;
 
@@ -65,6 +62,12 @@ type
 
     { Check all dependent schemes. }
     function CheckDepentSchemes : Boolean; override;
+
+    { Load current object form database. }
+    function LoadCurrentObject : Boolean; virtual;
+
+    { Load all dependent objects. }
+    function LoadDepentObjects : Boolean; virtual;
   protected
     FName : String;
     FGreaseBag : TGreaseBag;
@@ -127,12 +130,15 @@ begin
   Result := ENTITY_TABLE_NAME;
 end;
 
-function TEntity.Load : Boolean;
+function TEntity.LoadCurrentObject : Boolean;
 begin
-  if not LoadCurrentObject then
-    Exit(False);
+  Result := inherited LoadCurrentObject;
 
   FName := GetStringProperty('name');
+end;
+
+function TEntity.LoadDepentObjects : Boolean;
+begin
   FGreaseBag.Reload(-1);
   FNodeBag.Reload(-1);
 

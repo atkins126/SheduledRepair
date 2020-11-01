@@ -59,9 +59,6 @@ type
     { Get object database table name. }
     function Table : String; override;
 
-    { Load object from database. }
-    function Load : Boolean; override;
-
     { Save object to database. }
     function Save : Boolean; override;
 
@@ -73,6 +70,9 @@ type
 
     { Check all dependent schemes. }
     function CheckDepentSchemes : Boolean; override;
+
+    { Load current object form database. }
+    function LoadCurrentObject : Boolean; override;
   protected
     FEnable : Boolean;
     FHeight : Integer;
@@ -191,15 +191,14 @@ begin
   Result := RENDERER_PROFILE_TABLE_NAME;
 end;
 
-function TRendererProfile.Load : Boolean;
+function TRendererProfile.LoadCurrentObject : Boolean;
 var
   result_row : TSQLite3Result;
   item_row : TSQLite3ResultRow;
   item : TRendererProfileItem;
   items_table : TSQLite3Table;
 begin
-  if not LoadCurrentObject then
-    Exit(False);
+  Result := inherited LoadCurrentObject;
 
   FEnable := Boolean(GetIntegerProperty('enable'));
   FHeight := GetIntegerProperty('height');

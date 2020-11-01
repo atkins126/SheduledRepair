@@ -47,9 +47,6 @@ type
     { Get object database table name. }
     function Table : String; override;
 
-    { Load object from database. }
-    function Load : Boolean; override;
-
     { Save object to database. }
     function Save : Boolean; override;
 
@@ -70,6 +67,9 @@ type
 
     { Check all dependent schemes. }
     function CheckDepentSchemes : Boolean; override;
+
+    { Load all dependent objects. }
+    function LoadDepentObjects : Boolean; override;
   public
     type
       TGreaseBundleCompareFunctor = class
@@ -141,7 +141,7 @@ begin
   Result := GREASE_BAG_TABLE_NAME;
 end;
 
-function TGreaseBag.Load : Boolean;
+function TGreaseBag.LoadDepentObjects : Boolean;
 var
   result_rows : TSQLite3Result;
   row : TSQLite3ResultRow;
@@ -149,6 +149,8 @@ var
 begin
   if (FObject = nil) or (FObject.ID = -1) then
     Exit(False);
+
+  Result := inherited LoadCurrentObject;
 
   result_rows := FTable.Select.All.Where('object_id', FObject.ID)
     .Where('object_name', FObject.Table).Get;

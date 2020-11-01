@@ -46,9 +46,6 @@ type
     { Get object database table name. }
     function Table : String; override;
 
-    { Load object from database. }
-    function Load : Boolean; override;
-
     { Save object to database. }
     function Save : Boolean; override;
 
@@ -60,6 +57,9 @@ type
   protected
     { Prepare current object database table scheme. }
     procedure PrepareSchema (var ASchema : TSQLite3Schema); override;
+
+    { Load current object form database. }
+    function LoadCurrentObject : Boolean; override;
   protected
     FName : String;
   public
@@ -93,13 +93,11 @@ begin
   Result := GRADE_TABLE_NAME;
 end;
 
-function TGrade.Load : Boolean;
+function TGrade.LoadCurrentObject : Boolean;
 begin
-  if not LoadCurrentObject then
-    Exit(False);
+  Result := inherited LoadCurrentObject;
 
   FName := GetStringProperty('name');
-  Result := True;
 end;
 
 function TGrade.Save : Boolean;

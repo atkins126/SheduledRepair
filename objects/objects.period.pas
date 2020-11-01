@@ -47,9 +47,6 @@ type
     { Get object database table name. }
     function Table : String; override;
 
-    { Load object from database. }
-    function Load : Boolean; override;
-
     { Save object to database. }
     function Save : Boolean; override;
 
@@ -64,6 +61,9 @@ type
 
     { Check all dependent schemes. }
     function CheckDepentSchemes : Boolean; override;
+
+    { Load all dependent objects. }
+    function LoadDepentObjects : Boolean; override;
   protected
     FQuantity : TQuantity;
   public
@@ -103,13 +103,9 @@ begin
   Result := PERIOD_TABLE_NAME;
 end;
 
-function TPeriod.Load : Boolean;
+function TPeriod.LoadDepentObjects : Boolean;
 begin
-  if not LoadCurrentObject then
-    Exit(False);
-
-  FQuantity.Reload(GetIntegerProperty('quantity_id'));
-  Result := True;
+  Result := FQuantity.Reload(GetIntegerProperty('quantity_id'));
 end;
 
 function TPeriod.Save : Boolean;
