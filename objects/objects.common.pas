@@ -114,6 +114,8 @@ type
     { Delete current object from database. }
     function DeleteCurrentObject : Boolean;
 
+    { Delete all dependent objects. }
+    function DeleteDepentObjects : Boolean; virtual;
 
     { Return row by object id. }
     function GetRowIterator : TSQLite3Result.TRowIterator;
@@ -325,8 +327,13 @@ begin
   if ID = -1 then
     Exit(False);
 
-  Result := (FTable.Delete.Where('id', FID).Get > 0);
+  Result := DeleteDepentObjects and (FTable.Delete.Where('id', FID).Get > 0);
   FID := -1;
+end;
+
+function TCommonObject.DeleteDepentObjects : Boolean;
+begin
+  Result := True;
 end;
 
 

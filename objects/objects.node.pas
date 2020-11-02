@@ -47,8 +47,8 @@ type
     { Get object database table name. }
     function Table : String; override;
 
-    { Delete object from database. }
-    function Delete : Boolean; override;
+    { Save object to database. }
+    function Save : Boolean; override;
 
     { Object deep copy. }
     procedure Assign (ANode : TNode);
@@ -70,6 +70,9 @@ type
 
     { Save all dependent objects. }
     function SaveDepentObjects : Boolean; override;
+
+    { Delete all dependent objects. }
+    function DeleteDepentObjects : Boolean; override;
   protected
     FName : String;
     FGreaseBag : TGreaseBag;
@@ -139,7 +142,7 @@ end;
 
 function TNode.SaveDepentObjects : Boolean;
 begin
-  Result := FPeriod.Save and FShedule.Save and FGreaseBag.Save;
+  Result := FPeriod.Save and FShedule.Save;
 end;
 
 procedure TNode.SaveCurrentObject;
@@ -149,15 +152,14 @@ begin
   SetIntegerProperty('shedule_id', FShedule.ID);
 end;
 
-function TNode.Delete : Boolean;
+function TNode.Save : Boolean;
 begin
-  if ID <> -1 then
-  begin
-    FGreaseBag.Delete;
-    Result := FPeriod.Delete and FShedule.Delete and inherited Delete;
-  end
-  else
-    Result := False;
+  Result := inherited Save and FGreaseBag.Save;
+end;
+
+function TNode.DeleteDepentObjects : Boolean;
+begin
+  Result := FPeriod.Delete and FShedule.Delete and FGreaseBag.Delete;
 end;
 
 procedure TNode.Assign (ANode : TNode);

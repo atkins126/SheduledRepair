@@ -70,14 +70,26 @@ type
 
     { Load all dependent objects. }
     function LoadDepentObjects : Boolean; override;
-  public
+
+    { Store current object to database. }
+    procedure SaveCurrentObject; override;
+
+    { Save all dependent objects. }
+    function SaveDepentObjects : Boolean; override;
+
+    { Save all grease bundles associated with current object. }
+    function SaveGreaseBundles : Boolean;
+
+    { Load all grease bundles associated with current object. }
+    function LoadGreaseBundles : Boolean;
+
+    { Delete all grease bundles associated with current object. }
+    function DeleteGreaseBundles : Boolean;
+  protected
     type
       TGreaseBundleCompareFunctor = class
-        (specialize TBinaryFunctor<TGreaseBundle, Integer>)
-      public
-        function Call (AValue1, AValue2 : TGreaseBundle) : Integer; override;
-      end;
-
+        (specialize TUnsortableFunctor<TGreaseBundle>);
+      
       TGreaseBundleList = class
         (specialize TArrayList<TGreaseBundle, TGreaseBundleCompareFunctor>);  
   public
@@ -89,19 +101,6 @@ type
   end;
 
 implementation
-
-{ TGreaseBag.TGreaseBundleCompareFunctor }
-
-function TGreaseBag.TGreaseBundleCompareFunctor.Call (AValue1, AValue2 :
-  TGreaseBundle) : Integer;
-begin
-  if AValue1.ID < AValue2.ID then
-    Result := -1
-  else if AValue2.ID < AValue1.ID then
-    Result := 1
-  else
-    Result := 0;
-end;
 
 { TGreaseBag }
 
@@ -168,6 +167,52 @@ begin
   Result := True;
 end;
 
+function TGreaseBag.SaveDepentObjects : Boolean;
+begin
+  
+end;
+
+procedure TGreaseBag.SaveCurrentObject;
+begin
+  
+end;
+
+function TGreaseBag.SaveGreaseBundles : Boolean;
+var
+  GreaseBundle : TGreaseBundle;
+begin
+  if not FGreaseBundleList.FirstEntry.HasValue then
+    Exit(True);
+
+  Result := True;
+  for GreaseBundle in FGreaseBundleList do
+  begin
+    if not GreaseBundle.Save then
+      Continue;
+
+    { Check if current grease bundle stored in database. }  
+    if FTable.Update
+      .Update('greasebundle_id', GreaseBundle.ID)
+      .Where('greasebundle_id', GreaseBundle.ID)
+      .Where('object_name', FObject.Table)
+      .Where('object_id', FObject.ID)
+      .Get > 0 then
+      Continue;
+
+    { Save current grease bundle in database. }
+    Result := Result and (FTable.Insert
+      .Value('greasebundle_id', GreaseBundle.ID)
+      .Value('object_name', FObject.Table)
+      .Value('object_id', FObject.ID)
+      .Get > 0);
+  end;
+end;
+
+function TGreaseBag.LoadGreaseBundles : Boolean;
+begin
+
+end;
+
 function TGreaseBag.Save : Boolean;
 var
   GreaseBundle : TGreaseBundle;
@@ -201,6 +246,14 @@ begin
   Result := True;
 end;
 
+function TGreaseBag.DeleteGreaseBundles : Boolean;
+begin
+  Result := FTable.Delete
+    .Where('object_name', FObject.Table)
+    .Where('object_id', FObject.ID)
+    .Get > 0;
+end;
+
 function TGreaseBag.Delete : Boolean;
 var
   GreaseBundle : TGreaseBundle;
@@ -222,7 +275,7 @@ var
 begin
   FGreaseBundleList.Append(AGreaseBundle);
 
-  if (FObject <> nil) and (FObject.ID <> -1) then
+  {if (FObject <> nil) and (FObject.ID <> -1) then
   begin
     if not AGreaseBundle.Save then
       Exit;
@@ -236,7 +289,7 @@ begin
 
     InsertRow.Value('greasebundle_id', AGreaseBundle.ID)
       .Value('object_id', FObject.ID).Value('object_name', FObject.Table).Get;
-  end;
+  end;}
 end;
 
 procedure TGreaseBag.Remove (AGreaseBundle : TGreaseBundle);
@@ -248,13 +301,13 @@ begin
   if Index <> -1 then
   begin
     FGreaseBundleList.Remove(Index);
-    
+    {
     if (FObject <> nil) and (FObject.ID <> -1) then
     begin
       FTable.Delete.Where('greasebundle_id', AGreaseBundle.ID)
         .Where('object_id', FObject.ID).Where('object_name', FObject.Table)
         .Get;
-    end;
+    end;}
   end;
 end;
 
