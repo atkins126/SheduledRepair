@@ -32,8 +32,7 @@ unit renderer.profile.objectprofile;
 interface
 
 uses
-  SysUtils, objects.common, sqlite3.schema, sqlite3.result, sqlite3.result_row,
-  renderer.profile.profile;
+  SysUtils, objects.common, sqlite3.schema, renderer.profile.profile;
 
 type
   TRendererObjectProfile = class(TCommonObject)
@@ -47,11 +46,8 @@ type
     { Get object database table name. }
     function Table : String; override;
 
-    { Save object to database. }
-    function Save : Boolean; override;
-
-    { Delete object from database. }
-    function Delete : Boolean; override;
+    { Object deep copy. }
+    procedure Assign (AObjectProfile : TRendererObjectProfile);
   protected
     { Prepare current object database table scheme. }
     procedure PrepareSchema (var ASchema : TSQLite3Schema); override;
@@ -61,6 +57,15 @@ type
 
     { Load all dependent objects. }
     function LoadDepentObjects : Boolean; override;
+
+    { Store current object to database. }
+    procedure SaveCurrentObject; override;
+
+    { Save all dependent objects. }
+    function SaveDepentObjects : Boolean; override;
+
+    { Delete all dependent objects. }
+    function DeleteDepentObjects : Boolean; override;
   protected
     FDefaultProfile : TRendererProfile;
     FSelectedProfile : TRendererProfile;
@@ -110,6 +115,19 @@ begin
   Result := RENDERER_OBJECT_PROFILE_TABLE_NAME;
 end;
 
+procedure TRendererObjectProfile.SaveCurrentObject;
+begin
+  SetIntegerProperty('default_profile_id', FDefaultProfile.ID);
+  SetIntegerProperty('selected_profile_id', FSelectedProfile.ID);
+  SetIntegerProperty('hover_profile_id', FHoverProfile.ID);
+end;
+
+function TRendererObjectProfile.SaveDepentObjects : Boolean;
+begin
+  Result := FDefaultProfile.Save and FSelectedProfile.Save and
+    FHoverProfile.Save;
+end;
+
 function TRendererObjectProfile.LoadDepentObjects : Boolean;
 begin
   Result := FDefaultProfile.Reload(GetIntegerProperty('default_profile_id')) and
@@ -117,34 +135,18 @@ begin
     FHoverProfile.Reload(GetIntegerProperty('hover_profile_id'));
 end;
 
-function TRendererObjectProfile.Save : Boolean;
+function TRendererObjectProfile.DeleteDepentObjects : Boolean;
 begin
-  if not FDefaultProfile.Save then
-    Exit(False);  
-
-  if not FSelectedProfile.Save then
-    Exit(False);
-
-  if not FHoverProfile.Save then
-    Exit(False);
-
-  if ID <> -1 then
-  begin
-    Result := (UpdateRow.Update('default_profile_id', FDefaultProfile.ID)
-      .Update('selected_profile_id', FSelectedProfile.ID)
-      .Update('hover_profile_id', FHoverProfile.ID).Get > 0);
-  end else 
-  begin
-    Result := (InsertRow.Value('default_profile_id', FDefaultProfile.ID)
-      .Value('selected_profile_id', FSelectedProfile.ID)
-      .Value('hover_profile_id', FHoverProfile.ID).Get > 0);
-    UpdateObjectID;
-  end;
+  Result := FDefaultProfile.Delete and FSelectedProfile.Delete and
+    FHoverProfile.Delete;
 end;
 
-function TRendererObjectProfile.Delete : Boolean;
+procedure TRendererObjectProfile.Assign (AObjectProfile :
+  TRendererObjectProfile);
 begin
-  Result := DeleteCurrentObject;
+  FDefaultProfile.Assign(AObjectProfile.DefaultProfile);
+  FSelectedProfile.Assign(AObjectProfile.SelectedProfile);
+  FHoverProfile.Assign(AObjectProfile.HoverProfile);
 end;
 
 end.

@@ -32,8 +32,8 @@ unit objects.node;
 interface
 
 uses
-  SysUtils, objects.common, sqlite3.schema, sqlite3.result, sqlite3.result_row,
-  objects.greasebag, objects.period, objects.shedule;
+  SysUtils, objects.common, sqlite3.schema, objects.greasebag, objects.period, 
+  objects.shedule;
 
 type
   TNode = class(TCommonObject)

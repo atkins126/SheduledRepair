@@ -33,8 +33,7 @@ interface
 
 uses
   SysUtils, objects.common, Graphics, container.arraylist, utils.functor, 
-  sqlite3.schema, sqlite3.result, sqlite3.result_row, 
-  renderer.profile.profileitem, sqlite3.table, database;
+  sqlite3.schema, renderer.profile.profileitem, renderer.profile.itembag;
 
 type
   TRendererProfile = class(TCommonObject)
@@ -62,8 +61,11 @@ type
     { Save object to database. }
     function Save : Boolean; override;
 
-    { Delete object from database. }
-    function Delete : Boolean; override;
+    { Load object from database. }
+    function Load : Boolean; override;
+
+    { Object deep copy. }
+    procedure Assign (AProfile : TRendererProfile);
   protected
     { Prepare current object database table scheme. }
     procedure PrepareSchema (var ASchema : TSQLite3Schema); override;
@@ -73,11 +75,17 @@ type
 
     { Load current object form database. }
     function LoadCurrentObject : Boolean; override;
+
+    { Store current object to database. }
+    procedure SaveCurrentObject; override;
+
+    { Delete all dependent objects. }
+    function DeleteDepentObjects : Boolean; override;
   protected
     FEnable : Boolean;
     FHeight : Integer;
     FBackground : TColor;
-    FItemsList : TItemsList;
+    FItems : TProfileItemBag;
 
     function GetItem (AName : String) : TRendererProfileItem;
     procedure SetItem (AName : String; AValue : TRendererProfileItem);
@@ -113,59 +121,55 @@ begin
   FEnable := False;
   FHeight := 20;
   FBackground := clWhite;
-  FItemsList := TItemsList.Create;
+  FItems := TProfileItemBag.Create(-1, Self);
 end;
 
 destructor TRendererProfile.Destroy;
 begin
-  FreeAndNil(FItemsList);
+  FreeAndNil(FItems);
   inherited Destroy;
 end;
 
 function TRendererProfile.GetItem (AName : String) : TRendererProfileItem;
 var
-  item : TRendererProfileItem;
+  ProfileItem : TRendererProfileItem;
 begin
-  for item in FItemsList do
-  begin
-    if item.Name = AName then
-      Exit(item);
-  end;  
+  ProfileItem := FItems.Search(AName);
 
-  FItemsList.Append(TRendererProfileItem.Create(-1));
-  FItemsList.LastEntry.Value.Name := AName;
-  Result := FItemsList.LastEntry.Value;
+  if ProfileItem = nil then
+  begin
+    ProfileItem := TRendererProfileItem.Create(-1);
+    ProfileItem.Name := AName;
+    FItems.Append(ProfileItem);
+    Exit(ProfileItem);
+  end;
+
+  Result := ProfileItem;
 end;
 
 procedure TRendererProfile.SetItem (AName : String; AValue :
   TRendererProfileItem);
 var
-  item : TRendererProfileItem;
+  ProfileItem : TRendererProfileItem;
 begin
-  for item in FItemsList do
+  ProfileItem := FItems.Search(AName);
+
+  if ProfileItem = nil then
   begin
-    if item.Name = AName then
-    begin
-      item.Background := AValue.Background;
-      item.BackgroundFillType := AValue.BackgroundFillType;
-      item.BackgroundRoundRadius := AValue.BackgroundRoundRadius;
-      item.FontName := AValue.FontName;
-      item.FontSize := AValue.FontSize;
-      item.FontColor := AValue.FontColor;
-      item.Padding := AValue.Padding;
-      item.PositionType := AValue.PositionType;
-      item.Position := AValue.Position;
-      Exit;
-    end;  
+    AValue.Name := AName;
+    FItems.Append(AValue);
+    Exit;
   end;
 
-  FItemsList.Append(AValue);
-  FItemsList.LastEntry.Value.Name := AName;
+  ProfileItem := TRendererProfileItem.Create(-1);
+  ProfileItem.Assign(AValue);
+  ProfileItem.Name := AName;
+  FItems.Append(ProfileItem);
 end;
 
 function TRendererProfile.GetEnumerator : TItemsList.TIterator;
 begin
-  Result := FItemsList.GetEnumerator;
+  Result := FItems.GetEnumerator;
 end;
 
 procedure TRendererProfile.PrepareSchema (var ASchema : TSQLite3Schema);
@@ -178,12 +182,8 @@ begin
 end;
 
 function TRendererProfile.CheckDepentSchemes : Boolean;
-var 
-  ProfileItem : TRendererProfileItem;
 begin
-  ProfileItem := TRendererProfileItem.Create(-1);
-  Result := ProfileItem.CheckSchema;
-  FreeAndNil(ProfileItem);
+  Result := FItems.CheckSchema;
 end;
 
 function TRendererProfile.Table : String;
@@ -192,63 +192,44 @@ begin
 end;
 
 function TRendererProfile.LoadCurrentObject : Boolean;
-var
-  result_row : TSQLite3Result;
-  item_row : TSQLite3ResultRow;
-  item : TRendererProfileItem;
-  items_table : TSQLite3Table;
 begin
   Result := inherited LoadCurrentObject;
 
   FEnable := Boolean(GetIntegerProperty('enable'));
   FHeight := GetIntegerProperty('height');
-  FBackground := TColor(GetIntegerProperty('backgorund'));
-
-  item := TRendererProfileItem.Create(-1);
-  items_table := TSQLite3Table.Create(DB.Errors, DB.Handle, item.Table);
-  result_row := items_table.Select.Field('id').Where('profile_id', ID).Get;
-  FItemsList.Clear;
-
-  for item_row in result_row do
-  begin
-    item := TRendererProfileItem.Create(item_row.GetIntegerValue('id'));
-
-    if item.Load then
-      FItemsList.Append(item);    
-  end;
+  FBackground := TColor(GetIntegerProperty('background'));
 
   Result := True;
 end;
 
-function TRendererProfile.Save : Boolean;
-var
-  item : TRendererProfileItem;
+function TRendererProfile.Load : Boolean;
 begin
-  if ID <> -1 then
-  begin
-    Result := (UpdateRow.Update('enable', Integer(FEnable))
-      .Update('height', FHeight)
-      .Update('background', FBackground).Get > 0);
-  end else
-  begin
-    Result := (InsertRow.Value('height', FHeight)
-      .Value('background', FBackground).Get > 0);
-      UpdateObjectID;
-  end;
-
-  if not FItemsList.FirstEntry.HasValue then
-    Exit;
-
-  for item in FItemsList do
-  begin
-    item.RendererProfile := Self;
-    item.Save;
-  end;
+  Result := inherited Load and FItems.Reload(-1);
 end;
 
-function TRendererProfile.Delete : Boolean;
+procedure TRendererProfile.SaveCurrentObject;
 begin
-  Result := DeleteCurrentObject;
+  SetIntegerProperty('enable', Integer(FEnable));
+  SetIntegerProperty('height', FHeight);
+  SetIntegerProperty('background', FBackground);
+end;
+
+function TRendererProfile.Save : Boolean;
+begin
+  Result := inherited Save and FItems.Save;
+end;
+
+function TRendererProfile.DeleteDepentObjects : Boolean;
+begin
+  Result := FItems.Delete;
+end;
+
+procedure TRendererProfile.Assign (AProfile : TRendererProfile);
+begin
+  FEnable := AProfile.Enable;
+  FHeight := AProfile.Height;
+  FBackground := AProfile.Background;
+  FItems.Assign(AProfile.FItems);
 end;
 
 end.

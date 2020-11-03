@@ -68,21 +68,20 @@ type
     { Get object database table name. }
     function Table : String; override;
 
-    { Save object to database. }
-    function Save : Boolean; override;
-
-    { Delete object from database. }
-    function Delete : Boolean; override;
+    { Object deep copy. }
+    procedure Assign (AProfileItem : TRendererProfileItem);
   protected
     { Prepare current object database table scheme. }
     procedure PrepareSchema (var ASchema : TSQLite3Schema); override;
 
     { Load current object form database. }
     function LoadCurrentObject : Boolean; override;
+
+    { Store current object to database. }
+    procedure SaveCurrentObject; override;
   protected
     FName : String;
     FEnable : Boolean;
-    FRenderProfile : TCommonObject;
     FBackground : TColor;
     FBackgroundFill : TBackgroundFillType;
     FBackgroundRoundRadius : Integer;
@@ -107,9 +106,6 @@ type
     property PositionType : TPositionType read FPositionType 
       write FPositionType;
     property Position : TPosition read FPosition write FPosition;
-
-    property RendererProfile : TCommonObject read FRenderProfile
-      write FRenderProfile;
   end;
 
 implementation
@@ -119,7 +115,6 @@ implementation
 constructor TRendererProfileItem.Create (AID : Int64);
 begin
   inherited Create(AID);
-  FRenderProfile := nil;
 
   FName := '';
   FEnable := False;
@@ -151,7 +146,6 @@ procedure TRendererProfileItem.PrepareSchema (var ASchema : TSQLite3Schema);
 begin
   ASchema
     .Id
-    .Integer('profile_id').NotNull
     .Text('name').NotNull
     .Integer('enable').NotNull
     .Integer('background').NotNull
@@ -196,54 +190,42 @@ begin
   FPosition.Y := GetIntegerProperty('position_y');
 end;
 
-function TRendererProfileItem.Save : Boolean;
+procedure TRendererProfileItem.SaveCurrentObject;
 begin
-  if (FRenderProfile = nil) or (FRenderProfile.ID = -1) then
-    Exit(False);  
-
-  if ID <> -1 then
-  begin
-    Result := (UpdateRow.Update('profile_id', FRenderProfile.ID)
-      .Update('name', FName)
-      .Update('enable', Integer(FEnable))
-      .Update('background', FBackground)
-      .Update('background_fill_type', Integer(FBackgroundFill))
-      .Update('background_round_radius', FBackgroundRoundRadius)
-      .Update('font_name', FFontName)
-      .Update('font_size', FFontSize)
-      .Update('font_color', FFontColor)
-      .Update('padding_top', FPadding.Top)
-      .Update('padding_left', FPadding.Left)
-      .Update('padding_bottom', FPadding.Bottom)
-      .Update('padding_right', FPadding.Right)
-      .Update('position_type', Integer(FPositionType))
-      .Update('position_x', FPosition.X)
-      .Update('position_y', FPosition.Y).Get > 0);
-  end else
-  begin
-    Result := (InsertRow.Value('profile_id', FRenderProfile.ID)
-      .Value('name', FName)
-      .Value('enable', Integer(FEnable))
-      .Value('background', FBackground)
-      .Value('background_fill_type', Integer(FBackgroundFill))
-      .Value('background_round_radius', FBackgroundRoundRadius)
-      .Value('font_name', FFontName)
-      .Value('font_size', FFontSize)
-      .Value('font_color', FFontColor)
-      .Value('padding_top', FPadding.Top)
-      .Value('padding_left', FPadding.Left)
-      .Value('padding_bottom', FPadding.Bottom)
-      .Value('padding_right', FPadding.Right)
-      .Value('position_type', Integer(FPositionType))
-      .Value('position_x', FPosition.X)
-      .Value('position_y', FPosition.Y).Get > 0);
-      UpdateObjectID;
-  end;
+  SetStringProperty('name', FName);
+  SetIntegerProperty('enable', Integer(FEnable));
+  SetIntegerProperty('background', FBackground);
+  SetIntegerProperty('background_fill_type', Integer(FBackgroundFill));
+  SetIntegerProperty('background_round_radius', FBackgroundRoundRadius);
+  SetStringProperty('font_name', FFontName);
+  SetIntegerProperty('font_size', FFontSize);
+  SetIntegerProperty('font_color', FFontColor);
+  SetIntegerProperty('padding_top', FPadding.Top);
+  SetIntegerProperty('padding_left', FPadding.Left);
+  SetIntegerProperty('padding_bottom', FPadding.Bottom);
+  SetIntegerProperty('padding_right', FPadding.Right);
+  SetIntegerProperty('position_type', Integer(FPositionType));
+  SetIntegerProperty('position_x', FPosition.X);
+  SetIntegerProperty('position_y', FPosition.Y);
 end;
 
-function TRendererProfileItem.Delete : Boolean;
+procedure TRendererProfileItem.Assign (AProfileItem : TRendererProfileItem);
 begin
-  Result := DeleteCurrentObject;
+  FName := AProfileItem.Name;
+  FEnable := AProfileItem.Enable;
+  FBackground := AProfileItem.Background;
+  FBackgroundFill := AProfileItem.BackgroundFillType;
+  FBackgroundRoundRadius := AProfileItem.BackgroundRoundRadius;
+  FFontName := AProfileItem.FontName;
+  FFontSize := AProfileItem.FontSize;
+  FFontColor := AProfileItem.FontColor;
+  FPadding.Top := AProfileItem.Padding.Top;
+  FPadding.Left := AProfileItem.Padding.Left;
+  FPadding.Bottom := AProfileItem.Padding.Bottom;
+  FPadding.Right := AProfileItem.Padding.Right;
+  FPositionType := AProfileItem.PositionType;
+  FPosition.X := AProfileItem.Position.X;
+  FPosition.Y := AProfileItem.Position.Y;
 end;
 
 end.
