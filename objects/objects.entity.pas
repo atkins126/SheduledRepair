@@ -32,9 +32,8 @@ unit objects.entity;
 interface
 
 uses
-  SysUtils, objects.common, sqlite3.schema, sqlite3.result, sqlite3.result_row,
-  objects.greasebag, objects.nodebag, objects.shedule, objects.period,
-  objects.quantity;
+  SysUtils, objects.common, sqlite3.schema, objects.greasebag, objects.nodebag, 
+  objects.shedule, objects.period, objects.quantity;
 
 type
   TEntity = class(TCommonObject)
@@ -48,8 +47,11 @@ type
     { Get object database table name. }
     function Table : String; override;
 
-    { Delete object from database. }
-    function Delete : Boolean; override;
+    { Save object to database. }
+    function Save : Boolean; override;
+
+    { Load object from database. }
+    function Load : Boolean; override;
 
     { Object deep copy. }
     procedure Assign (AEntity : TEntity);
@@ -71,6 +73,9 @@ type
 
     { Save all dependent objects. }
     function SaveDepentObjects : Boolean; override;
+
+    { Delete all dependent objects. }
+    function DeleteDepentObjects : Boolean; override;
   protected
     FName : String;
     FGreaseBag : TGreaseBag;
@@ -142,12 +147,14 @@ end;
 
 function TEntity.LoadDepentObjects : Boolean;
 begin
-  FGreaseBag.Reload(-1);
-  FNodeBag.Reload(-1);
-
   Result := FQuantity.Reload(GetIntegerProperty('quantity_id')) and
     FPeriod.Reload(GetIntegerProperty('period_id')) and
     FShedule.Reload(GetIntegerProperty('shedule_id'));
+end;
+
+function TEntity.Load : Boolean;
+begin
+  Result := inherited Load and FGreaseBag.Reload(-1) and FNodeBag.Reload(-1);
 end;
 
 function TEntity.SaveDepentObjects : Boolean;
@@ -161,15 +168,16 @@ begin
   SetIntegerProperty('quantity_id', FQuantity.ID);
   SetIntegerProperty('period_id', FPeriod.ID);
   SetIntegerProperty('shedule_id', FShedule.ID);
-
-  FGreaseBag.Save;
-  FNodeBag.Save;
 end;
 
-function TEntity.Delete : Boolean;
+function TEntity.Save : Boolean;
 begin
-    Result := FShedule.Delete and FQuantity.Delete and FPeriod.Delete and
-      inherited Delete;
+  Result := inherited Save and FGreaseBag.Save and FNodeBag.Save;
+end;
+
+function TEntity.DeleteDepentObjects : Boolean;
+begin
+  Result := FShedule.Delete and FQuantity.Delete and FPeriod.Delete;
 end;
 
 procedure TEntity.Assign (AEntity : TEntity);

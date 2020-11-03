@@ -50,6 +50,9 @@ type
     { Save object to database. }
     function Save : Boolean; override;
 
+    { Load object from database. }
+    function Load : Boolean; override;
+
     { Object deep copy. }
     procedure Assign (ANode : TNode);
   protected
@@ -135,9 +138,13 @@ end;
 
 function TNode.LoadDepentObjects : Boolean;
 begin
-  FGreaseBag.Reload(-1);
   Result := FPeriod.Reload(GetIntegerProperty('period_id')) and
     FShedule.Reload(GetIntegerProperty('shedule_id'));
+end;
+
+function TNode.Load : Boolean;
+begin
+  Result := inherited Load and FGreaseBag.Reload(-1);
 end;
 
 function TNode.SaveDepentObjects : Boolean;

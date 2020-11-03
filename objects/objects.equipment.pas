@@ -32,8 +32,7 @@ unit objects.equipment;
 interface
 
 uses
-  SysUtils, objects.common, sqlite3.schema, sqlite3.result, sqlite3.result_row,
-  objects.entitybag;
+  SysUtils, objects.common, sqlite3.schema, objects.entitybag;
 
 type
   TEquipment = class(TCommonObject)
@@ -47,8 +46,11 @@ type
     { Get object database table name. }
     function Table : String; override;
 
-    { Delete object from database. }
-    function Delete : Boolean; override;
+    { Save object to database. }
+    function Save : Boolean; override;
+
+    { Load object from database. }
+    function Load : Boolean; override;
 
     { Object deep copy. }
     procedure Assign (AEquipment : TEquipment);
@@ -62,11 +64,11 @@ type
     { Load current object form database. }
     function LoadCurrentObject : Boolean; override;
 
-    { Load all dependent objects. }
-    function LoadDepentObjects : Boolean; override;
-
     { Store current object to database. }
     procedure SaveCurrentObject; override;
+
+    { Delete all dependent objects. }
+    function DeleteDepentObjects : Boolean; override;
   protected
     FName : String;
     FEntityBag : TEntityBag;
@@ -115,25 +117,24 @@ begin
   FName := GetStringProperty('name');
 end;
 
-function TEquipment.LoadDepentObjects : Boolean;
+function TEquipment.Load : Boolean;
 begin
-  Result := FEntityBag.Reload(-1);
+  Result := inherited Load and FEntityBag.Reload(-1);
 end;
 
 procedure TEquipment.SaveCurrentObject;
 begin
   SetStringProperty('name', FName);
-  FEntityBag.Save;
 end;
 
-function TEquipment.Delete : Boolean;
+function TEquipment.Save : Boolean;
 begin
-  if ID <> -1 then
-  begin
-    FEntityBag.Delete;
-    Result := inherited Delete;
-  end else 
-    Result := False;
+  Result := inherited Save and FEntityBag.Save;
+end;
+
+function TEquipment.DeleteDepentObjects : Boolean;
+begin
+  FEntityBag.Delete;
 end;
 
 procedure TEquipment.Assign (AEquipment : TEquipment);

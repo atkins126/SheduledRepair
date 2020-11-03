@@ -47,12 +47,6 @@ type
     { Get object database table name. }
     function Table : String; override;
 
-    { Save object to database. }
-    function Save : Boolean; override;
-
-    { Delete object from database. }
-    function Delete : Boolean; override;
-
     { Add new grease bundle to current bag. }
     procedure Append (AEntity : TEntity);
 
@@ -70,14 +64,31 @@ type
 
     { Load current object form database. }
     function LoadCurrentObject : Boolean; override;
+
+    { Load all dependent objects. }
+    function LoadDepentObjects : Boolean; override;
+
+    { Save all dependent objects. }
+    function SaveDepentObjects : Boolean; override;
+
+    { Save all grease bundles associated with current object. }
+    function SaveEntities : Boolean;
+
+    { Load all grease bundles associated with current object. }
+    function LoadEntities : Boolean;
+
+    { Delete current object from database. }
+    function DeleteCurrentObject : Boolean; override;
+
+    { Delete all grease bundles associated with current object. }
+    function DeleteEntities : Boolean;
+
+    { Delete all dependent objects. }
+    function DeleteDepentObjects : Boolean; override;
   public
     type
-      TEntityCompareFunctor = class
-        (specialize TBinaryFunctor<TEntity, Integer>)
-      public
-        function Call (AValue1, AValue2 : TEntity) : Integer; override;
-      end;
-
+      TEntityCompareFunctor = class (specialize TUnsortableFunctor<TEntity>);
+      
       TEntityList = class
         (specialize TArrayList<TEntity, TEntityCompareFunctor>);  
   public
@@ -89,19 +100,6 @@ type
   end;
 
 implementation
-
-{ TEntityBag.TEntityCompareFunctor }
-
-function TEntityBag.TEntityCompareFunctor.Call (AValue1, AValue2 :
-  TEntity) : Integer;
-begin
-  if AValue1.ID < AValue2.ID then
-    Result := -1
-  else if AValue2.ID < AValue1.ID then
-    Result := 1
-  else
-    Result := 0;
-end;
 
 { TEntityBag }
 
@@ -142,95 +140,116 @@ begin
 end;
 
 function TEntityBag.LoadCurrentObject : Boolean;
-var
-  result_rows : TSQLite3Result;
-  row : TSQLite3ResultRow;
-  Ent : TEntity;
+begin
+  Result := True;
+end;
+
+function TEntityBag.LoadDepentObjects : Boolean;
 begin
   if (FObject = nil) or (FObject.ID = -1) then
     Exit(False);
 
-  Result := inherited LoadCurrentObject;
+  Result := LoadEntities;
+end;
 
-  result_rows := FTable.Select.All.Where('object_id', FObject.ID)
-    .Where('object_name', FObject.Table).Get;
+function TEntityBag.SaveDepentObjects : Boolean;
+begin
+  if (FObject = nil) or (FObject.ID = -1) then
+    Exit(False);
+
+  Result := SaveEntities;
+end;
+
+function TEntityBag.SaveEntities : Boolean;
+var
+  Entity : TEntity;
+begin
+  if not FEntityList.FirstEntry.HasValue then
+    Exit(True);
+
+  Result := True;
+  for Entity in FEntityList do
+  begin
+    if not Entity.Save then
+      Continue;
+
+    { Check if current entity stored in database. }
+    if FTable.Update
+      .Update('entity_id', Entity.ID)
+      .Where('entity_id', Entity.ID)
+      .Where('object_name', FObject.Table)
+      .Where('object_id', FObject.ID)
+      .Get > 0 then
+      Continue;
+
+    { Save current entity in database. }
+    Result := Result and (FTable.Insert
+      .Value('entity_id', Entity.ID)
+      .Value('object_name', FObject.Table)
+      .Value('object_id', FObject.ID)
+      .Get > 0);
+  end;
+end;
+
+function TEntityBag.LoadEntities : Boolean;
+var
+  ResultRows : TSQLite3Result;
+  Row : TSQLite3ResultRow;
+  Entity : TEntity;
+begin
+  ResultRows := FTable.Select.All
+    .Where('object_name', FObject.Table)
+    .Where('object_id', FObject.ID)
+    .Get;
+
+  for Row in ResultRows do
+  begin
+    Entity := TEntity.Create(Row.GetIntegerValue('entity_id'));
+
+    if Entity.Load then
+      FEntityList.Append(Entity);
+  end;
+
+  Result := True;
+end;
+
+function TEntityBag.DeleteCurrentObject : Boolean;
+begin
+  Result := True;
+end;
+
+function TEntityBag.DeleteEntities : Boolean;
+var
+  Entity : TEntity;
+begin
+  if not FEntityList.FirstEntry.HasValue then
+    Exit(True);
+
+  for Entity in FEntityList do
+  begin
+    Entity.Delete;
+  end;
+
+  FTable.Delete
+    .Where('object_name', FObject.Table)
+    .Where('object_id', FObject.ID)
+    .Get;
+
   FEntityList.Clear;
-
-  for row in result_rows do
-  begin
-    Ent := TEntity.Create(row.GetIntegerValue('entity_id'));
-
-    if Ent.Load then
-      FEntityList.Append(Ent);
-  end;
-
   Result := True;
 end;
 
-function TEntityBag.Save : Boolean;
-var
-  Ent : TEntity;
-  updated_rows : Integer;
+function TEntityBag.DeleteDepentObjects : Boolean;
 begin
-  if (FObject = nil) or (FObject.ID = -1) or 
-    (not FEntityList.FirstEntry.HasValue) then
+  if (FObject = nil) or (FObject.ID = -1) then
     Exit(False);
 
-  for Ent in FEntityList do
-  begin
-    Ent.Save;
-    
-    updated_rows := UpdateRow.Update('entity_id', Ent.ID)
-      .Where('object_id', FObject.ID).Where('object_name', FObject.Table)
-      .Where('entity_id', Ent.ID).Get;
-
-    if updated_rows > 0 then
-      continue;
-    
-    InsertRow.Value('entity_id', Ent.ID)
-      .Value('object_id', FObject.ID).Value('object_name', FObject.Table).Get;
-    UpdateObjectID;
-  end;
-
-  Result := True;
-end;
-
-function TEntityBag.Delete : Boolean;
-var
-  Ent : TEntity;
-begin
-  if (FObject = nil) or (ID = -1) then
-    Exit(False);
-
-  for Ent in FEntityList do
-  begin
-    Ent.Delete;
-  end;
-
-  Result := inherited Delete;
+  Result := DeleteEntities;
 end;
 
 procedure TEntityBag.Append (AEntity : TEntity);
-var
-  updated_rows : Integer;
 begin
   FEntityList.Append(AEntity);
-
-  if (FObject <> nil) and (FObject.ID <> -1) then
-  begin
-    if not AEntity.Save then
-      Exit;
-
-    updated_rows := UpdateRow.Update('entity_id', AEntity.ID)
-      .Where('object_id', FObject.ID).Where('object_name', FObject.Table)
-      .Where('entity_id', AEntity.ID).Get;
-
-    if updated_rows > 0 then
-      Exit;
-
-    InsertRow.Value('entity_id', AEntity.ID)
-      .Value('object_id', FObject.ID).Value('object_name', FObject.Table).Get;
-  end;
 end;
 
 procedure TEntityBag.Remove (AEntity : TEntity);
@@ -240,16 +259,7 @@ begin
   Index := FEntityList.IndexOf(AEntity);
 
   if Index <> -1 then
-  begin
     FEntityList.Remove(Index);
-    
-    if (FObject <> nil) and (FObject.ID <> -1) then
-    begin
-      FTable.Delete.Where('entity_id', AEntity.ID)
-        .Where('object_id', FObject.ID).Where('object_name', FObject.Table)
-        .Get;
-    end;
-  end;
 end;
 
 function TEntityBag.GetEnumerator : TEntityList.TIterator;

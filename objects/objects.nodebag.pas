@@ -47,12 +47,6 @@ type
     { Get object database table name. }
     function Table : String; override;
 
-    { Save object to database. }
-    function Save : Boolean; override;
-
-    { Delete object from database. }
-    function Delete : Boolean; override;
-
     { Add new grease bundle to current bag. }
     procedure Append (ANode : TNode);
 
@@ -69,38 +63,43 @@ type
     function CheckDepentSchemes : Boolean; override;
 
     { Load current object form database. }
-    function LoadCurrentObject : Boolean; virtual;
+    function LoadCurrentObject : Boolean; override;
+
+    { Load all dependent objects. }
+    function LoadDepentObjects : Boolean; override;
+
+    { Save all dependent objects. }
+    function SaveDepentObjects : Boolean; override;
+
+    { Save all grease bundles associated with current object. }
+    function SaveNodes : Boolean;
+
+    { Load all grease bundles associated with current object. }
+    function LoadNodes : Boolean;
+
+    { Delete current object from database. }
+    function DeleteCurrentObject : Boolean; override;
+
+    { Delete all grease bundles associated with current object. }
+    function DeleteNodes : Boolean;
+
+    { Delete all dependent objects. }
+    function DeleteDepentObjects : Boolean; override;
   public
     type
-      TNodeCompareFunctor = class
-        (specialize TBinaryFunctor<TNode, Integer>)
-      public
-        function Call (AValue1, AValue2 : TNode) : Integer; override;
-      end;
-
-      TNodeList = class
+      TNodeCompareFunctor = class (specialize TUnsortableFunctor<TNode>);
+      
+      TNodesList = class
         (specialize TArrayList<TNode, TNodeCompareFunctor>);  
   public
     { Get enumerator for in operator. }
-    function GetEnumerator : TNodeList.TIterator;
+    function GetEnumerator : TNodesList.TIterator;
   private
     FObject : TCommonObject;
-    FNodeList : TNodeList;
+    FNodesList : TNodesList;
   end;
 
 implementation
-
-{ TGreaseBag.TGreaseBundleCompareFunctor }
-
-function TNodeBag.TNodeCompareFunctor.Call (AValue1, AValue2 : TNode) : Integer;
-begin
-  if AValue1.ID < AValue2.ID then
-    Result := -1
-  else if AValue2.ID < AValue1.ID then
-    Result := 1
-  else
-    Result := 0;
-end;
 
 { TNodeBag }
 
@@ -108,12 +107,12 @@ constructor TNodeBag.Create (AID : Int64; AObject : TCommonObject);
 begin
   inherited Create (AID);
   FObject := AObject;
-  FNodeList := TNodeList.Create;
+  FNodesList := TNodesList.Create;
 end;
 
 destructor TNodeBag.Destroy;
 begin
-  FreeAndNil(FNodeList);
+  FreeAndNil(FNodesList);
   inherited Destroy;
 end;
 
@@ -141,138 +140,145 @@ begin
 end;
 
 function TNodeBag.LoadCurrentObject : Boolean;
-var
-  result_rows : TSQLite3Result;
-  row : TSQLite3ResultRow;
-  node : TNode;
+begin
+  Result := True;
+end;
+
+function TNodeBag.LoadDepentObjects : Boolean;
 begin
   if (FObject = nil) or (FObject.ID = -1) then
     Exit(False);
 
-  Result := inherited LoadCurrentObject;  
+  Result := LoadNodes;
+end;
 
-  result_rows := FTable.Select.All.Where('object_id', FObject.ID)
-    .Where('object_name', FObject.Table).Get;
-  FNodeList.Clear;
+function TNodeBag.SaveDepentObjects : Boolean;
+begin
+  if (FObject = nil) or (FObject.ID = -1) then
+    Exit(False);
 
-  for row in result_rows do
+  Result := SaveNodes;
+end;
+
+function TNodeBag.SaveNodes : Boolean;
+var
+  Node : TNode;
+begin
+  if not FNodesList.FirstEntry.HasValue then
+    Exit(True);
+
+  Result := True;
+  for Node in FNodesList do
   begin
-    node := TNode.Create(row.GetIntegerValue('node_id'));
+    if not Node.Save then
+      Continue;
 
-    if node.Load then
-      FNodeList.Append(node);
+    { Check if current node stored in database. }
+    if FTable.Update
+      .Update('node_id', Node.ID)
+      .Where('node_id', Node.ID)
+      .Where('object_name', FObject.Table)
+      .Where('object_id', FObject.ID)
+      .Get > 0 then
+      Continue;
+
+    { Save current node in database. }
+    Result := Result and (FTable.Insert
+      .Value('node_id', Node.ID)
+      .Value('object_name', FObject.Table)
+      .Value('object_id', FObject.ID)
+      .Get > 0);
+  end;
+end;
+
+function TNodeBag.LoadNodes : Boolean;
+var
+  ResultRows : TSQLite3Result;
+  Row : TSQLite3ResultRow;
+  Node : TNode;
+begin
+  ResultRows := FTable.Select.All
+    .Where('object_name', FObject.Table)
+    .Where('object_id', FObject.ID)
+    .Get;
+
+  for Row in ResultRows do
+  begin
+    Node := TNode.Create(Row.GetIntegerValue('node_id'));
+
+    if Node.Load then
+      FNodesList.Append(Node);
   end;
 
   Result := True;
 end;
 
-function TNodeBag.Save : Boolean;
-var
-  node : TNode;
-  updated_rows : Integer;
+function TNodeBag.DeleteCurrentObject : Boolean;
 begin
-  if (FObject = nil) then
-    Exit(False);
-
-  if FObject.ID = -1 then
-    FObject.Save;
-
-  if not FNodeList.FirstEntry.HasValue then
-    Exit(False);
-
-  for node in FNodeList do
-  begin
-    node.Save;
-    
-    updated_rows := UpdateRow.Update('node_id', node.ID)
-      .Where('object_id', FObject.ID).Where('object_name', FObject.Table)
-      .Where('node_id', node.ID).Get;
-
-    if updated_rows > 0 then
-      continue;
-    
-    InsertRow.Value('node_id', node.ID)
-      .Value('object_id', FObject.ID).Value('object_name', FObject.Table).Get;
-    UpdateObjectID;
-  end;
-
   Result := True;
 end;
 
-function TNodeBag.Delete : Boolean;
+function TNodeBag.DeleteNodes : Boolean;
 var
-  node : TNode;
+  Node : TNode;
 begin
-  if (FObject = nil) or (ID = -1) then
+  if not FNodesList.FirstEntry.HasValue then
+    Exit(True);
+
+  for Node in FNodesList do
+  begin
+    Node.Delete;
+  end;
+
+  FTable.Delete
+    .Where('object_name', FObject.Table)
+    .Where('object_id', FObject.ID)
+    .Get;
+
+  FNodesList.Clear;
+  Result := True;
+end;
+
+function TNodeBag.DeleteDepentObjects : Boolean;
+begin
+  if (FObject = nil) or (FObject.ID = -1) then
     Exit(False);
 
-  for node in FNodeList do
-  begin
-    node.Delete;
-  end;  
-
-  Result := inherited Delete;
+  Result := DeleteNodes;
 end;
 
 procedure TNodeBag.Append (ANode : TNode);
-var
-  updated_rows : Integer;
 begin
-  FNodeList.Append(ANode);
-
-  if (FObject <> nil) and (FObject.ID <> -1) then
-  begin
-    if not ANode.Save then
-      Exit;
-
-    updated_rows := UpdateRow.Update('node_id', ANode.ID)
-      .Where('object_id', FObject.ID).Where('object_name', FObject.Table)
-      .Where('node_id', ANode.ID).Get;
-
-    if updated_rows > 0 then
-      Exit;
-
-    InsertRow.Value('node_id', ANode.ID)
-      .Value('object_id', FObject.ID).Value('object_name', FObject.Table).Get;
-  end;
+  FNodesList.Append(ANode);
 end;
 
 procedure TNodeBag.Remove (ANode : TNode);
 var
   Index : Integer;
 begin
-  Index := FNodeList.IndexOf(ANode);
+  Index := FNodesList.IndexOf(ANode);
 
   if Index <> -1 then
-  begin
-    FNodeList.Remove(Index);
-    
-    if (FObject <> nil) and (FObject.ID <> -1) then
-    begin
-      FTable.Delete.Where('node_id', ANode.ID)
-        .Where('object_id', FObject.ID).Where('object_name', FObject.Table)
-        .Get;
-    end;
-  end;
+    FNodesList.Remove(Index);
 end;
 
-function TNodeBag.GetEnumerator : TNodeList.TIterator;
+function TNodeBag.GetEnumerator : TNodesList.TIterator;
 begin
-  Result := FNodeList.GetEnumerator;
+  Result := FNodesList.GetEnumerator;
 end;
 
 procedure TNodeBag.Assign (ANodeBag : TNodeBag);
 var
   node_item, node : TNode;
 begin
-  if not ANodeBag.FNodeList.FirstEntry.HasValue then
+  if not ANodeBag.FNodesList.FirstEntry.HasValue then
     Exit;
 
-  for node_item in ANodeBag.FNodeList do
+  for node_item in ANodeBag.FNodesList do
   begin
     node := TNode.Create(-1);
     node.Assign(node_item);
-    FNodeList.Append(node);
+    FNodesList.Append(node);
   end;
 end;
 

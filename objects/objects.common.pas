@@ -48,7 +48,7 @@ type
     function Table : String; virtual; abstract;
 
     { Load object from database. }
-    function Load : Boolean;
+    function Load : Boolean; virtual;
 
     { Reload object from database. }
     function Reload (AID : Int64) : Boolean;
@@ -101,7 +101,7 @@ type
     function GetDoubleProperty (AName : String) : Double;
 
     { Store current object to database. }
-    procedure SaveCurrentObject; virtual; abstract;
+    procedure SaveCurrentObject; virtual;
 
     { Save all dependent objects. }
     function SaveDepentObjects : Boolean; virtual;
@@ -112,7 +112,7 @@ type
     procedure SetDoubleProperty (AName : String; AValue : Double);
 
     { Delete current object from database. }
-    function DeleteCurrentObject : Boolean;
+    function DeleteCurrentObject : Boolean; virtual;
 
     { Delete all dependent objects. }
     function DeleteDepentObjects : Boolean; virtual;
@@ -268,6 +268,11 @@ begin
   FPropertiesList.Append(Value);
 end;
 
+procedure TCommonObject.SaveCurrentObject;
+begin
+  { Default do nothing. }
+end;
+
 function TCommonObject.Save : Boolean;
 var
   Value : TValue;
@@ -319,6 +324,9 @@ end;
 
 function TCommonObject.Delete : Boolean;
 begin
+  if not DeleteDepentObjects then
+    Exit(False);
+
   Result := DeleteCurrentObject;
 end;
 
@@ -327,7 +335,7 @@ begin
   if ID = -1 then
     Exit(False);
 
-  Result := DeleteDepentObjects and (FTable.Delete.Where('id', FID).Get > 0);
+  Result := FTable.Delete.Where('id', FID).Get > 0;
   FID := -1;
 end;
 
