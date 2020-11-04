@@ -9,7 +9,8 @@ uses
   config_testcase, measure_testcase, grade_testcase, supplier_testcase,
   grease_testcase, greasebundle_testcase, period_testcase, shedule_testcase,
   node_testcase, entity_testcase, job_testcase, equipment_testcase,
-  rendererprofile_testcase, utils.functor, rendererobjectprofile_testcase;
+  rendererprofile_testcase, utils.functor, rendererobjectprofile_testcase,
+  rule_testcase;
 
 {$R *.res}
 

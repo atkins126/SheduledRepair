@@ -32,7 +32,7 @@ unit rules.rule;
 interface
 
 uses
-  SysUtils, objects.common, sqlite3.schema, sqlite3.result, sqlite3.result_row;
+  SysUtils, objects.common, sqlite3.schema, renderer.profile.objectprofile;
 
 type
   TRule = class(TCommonObject)
@@ -43,55 +43,50 @@ type
     constructor Create (AID : Int64); override;
     destructor Destroy; override;
     
-    { Check database table scheme. }
-    function CheckSchema : Boolean; override;
-
     { Get object database table name. }
     function Table : String; override;
 
-    { Load object from database. }
-    function Load : Boolean; override;
-
-    { Save object to database. }
-    function Save : Boolean; override;
-
-    { Delete object from database. }
-    function Delete : Boolean; override;
+    { Object deep copy. }
+    procedure Assign (ARule : TRule);
   protected
-    
+    { Prepare current object database table scheme. }
+    procedure PrepareSchema (var ASchema : TSQLite3Schema); override;
+
+    { Load all dependent objects. }
+    function LoadDepentObjects : Boolean; override;
+
+    { Store current object to database. }
+    procedure SaveCurrentObject; override;
+
+    { Save all dependent objects. }
+    function SaveDepentObjects : Boolean; override;
+  protected
+    FProfile : TRendererObjectProfile;
   public
-    
+    property Profile : TRendererObjectProfile read FProfile write FProfile;
   end;
 
 implementation
 
-{ TCommonObject }
+{ TRule }
 
 constructor TRule.Create (AID : Int64);
 begin
   inherited Create (AID);
+  FProfile := TRendererObjectProfile.Create(-1);
 end;
 
 destructor TRule.Destroy;
 begin
+  FreeAndNil(FProfile);
   inherited Destroy;
 end;
 
-function TRule.CheckSchema : Boolean;
-var
-  Schema : TSQLite3Schema;
+procedure TRule.PrepareSchema (var ASchema : TSQLite3Schema);
 begin
-  Schema := TSQLite3Schema.Create;
-  
-  Schema
-    .Id;
-
-  if not FTable.Exists then
-    FTable.New(Schema);
-
-  Result := FTable.CheckSchema(Schema);  
-
-  FreeAndNil(Schema);
+  ASchema
+    .Id
+    .Integer('object_profile_id').NotNull;
 end;
 
 function TRule.Table : String;
@@ -99,39 +94,24 @@ begin
   Result := RULE_TABLE_NAME;
 end;
 
-function TRule.Load : Boolean;
-var
-  row : TSQLite3Result.TRowIterator;
+function TRule.LoadDepentObjects : Boolean;
 begin
-  if ID = -1 then
-    Exit(False);
-
-  row := GetRowIterator;
-
-  if not row.HasRow then
-    Exit(False);
-
-  Result := True;
+  Result := FProfile.Reload(GetIntegerProperty('object_profile_id'));
 end;
 
-function TRule.Save : Boolean;
+procedure TRule.SaveCurrentObject;
 begin
-  if ID <> -1 then
-  begin
-    Result := (UpdateRow.Get > 0);
-  end else 
-  begin
-    Result := (InsertRow.Get > 0);
-    UpdateObjectID;
-  end;
+  SetIntegerProperty('object_profile_id', FProfile.ID);
 end;
 
-function TRule.Delete : Boolean;
+function TRule.SaveDepentObjects : Boolean;
 begin
-  if ID <> -1 then
-    Result := (DeleteRow.Get > 0)
-  else 
-    Result := False;
+  Result := FProfile.Save;
+end;
+
+procedure TRule.Assign (ARule : TRule);
+begin
+  FProfile.Assign(ARule.Profile);
 end;
 
 end.

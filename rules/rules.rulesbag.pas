@@ -22,7 +22,7 @@
 (* Floor, Boston, MA 02110-1335, USA.                                         *)
 (*                                                                            *)
 (******************************************************************************)
-unit objects.nodebag;
+unit rules.rulesbag;
 
 {$mode objfpc}{$H+}
 {$IFOPT D+}
@@ -33,13 +33,13 @@ interface
 
 uses
   SysUtils, objects.common, sqlite3.schema, sqlite3.result, sqlite3.result_row,
-  container.arraylist, utils.functor, objects.node;
+  container.arraylist, utils.functor, rules.rule;
 
 type
-  TNodeBag = class(TCommonObject)
+  TRulesBag = class(TCommonObject)
   private
     const
-      NODE_BAG_TABLE_NAME = 'nodebag';
+      RULES_BAG_TABLE_NAME = 'rulesbag';
   public
     constructor Create (AID : Int64; AObject : TCommonObject);
     destructor Destroy; override;
@@ -47,14 +47,14 @@ type
     { Get object database table name. }
     function Table : String; override;
 
-    { Add new grease bundle to current bag. }
-    procedure Append (ANode : TNode);
+    { Add new rule to current bag. }
+    procedure Append (ARule : TRule);
 
-    { Remove grease bundle from current bag. }
-    procedure Remove (ANode : TNode);
+    { Remove rule from current bag. }
+    procedure Remove (ARule : TRule);
 
     { Object deep copy. }
-    procedure Assign (ANodeBag : TNodeBag);
+    procedure Assign (ARulesBag : TRulesBag);
   protected
     { Prepare current object database table scheme. }
     procedure PrepareSchema (var ASchema : TSQLite3Schema); override;
@@ -71,147 +71,148 @@ type
     { Save all dependent objects. }
     function SaveDepentObjects : Boolean; override;
 
-    { Save all grease bundles associated with current object. }
-    function SaveNodes : Boolean;
+    { Save all rules associated with current object. }
+    function SaveRules : Boolean;
 
-    { Load all grease bundles associated with current object. }
-    function LoadNodes : Boolean;
+    { Load all rules associated with current object. }
+    function LoadRules : Boolean;
 
     { Delete current object from database. }
     function DeleteCurrentObject : Boolean; override;
 
-    { Delete all grease bundles associated with current object. }
-    function DeleteNodes : Boolean;
+    { Delete all rules associated with current object. }
+    function DeleteRules : Boolean;
 
     { Delete all dependent objects. }
     function DeleteDepentObjects : Boolean; override;
-  public
+  protected
     type
-      TNodeCompareFunctor = class (specialize TBinaryFunctor<TNode, Integer>)
+      TRulesCompareFunctor = class
+        (specialize TBinaryFunctor<TRule, Integer>)
       public
-        function Call (AValue1, AValue2 : TNode) : Integer; override;
+        function Call (AValue1, AValue2 : TRule) : Integer; override;
       end;
       
-      TNodesList = class
-        (specialize TArrayList<TNode, TNodeCompareFunctor>);  
+      TRulesList = class
+        (specialize TArrayList<TRule, TRulesCompareFunctor>);  
   public
     { Get enumerator for in operator. }
-    function GetEnumerator : TNodesList.TIterator;
+    function GetEnumerator : TRulesList.TIterator;
   private
     FObject : TCommonObject;
-    FNodesList : TNodesList;
+    FRulesList : TRulesList;
   end;
 
 implementation
 
-{ TNodeBag.TNodeCompareFunctor }
+{ TRulesBag.TRulesCompareFunctor }
 
-function TNodeBag.TNodeCompareFunctor.Call (AValue1, AValue2 : TNode) :
-  Integer;
+function TRulesBag.TRulesCompareFunctor.Call (AValue1, AValue2 : 
+  TGreaseBundle) : Integer;
 begin
-  if AValue1.Name < AValue2.Name then
+  if AValue1.ID < AValue2.ID then
     Result := -1
-  else if AValue2.Name < AValue1.Name then
+  else if AValue2.ID < AValue1.ID then
     Result := 1
   else
     Result := 0;
 end;
 
-{ TNodeBag }
+{ TGreaseBag }
 
-constructor TNodeBag.Create (AID : Int64; AObject : TCommonObject);
+constructor TRulesBag.Create (AID : Int64; AObject : TCommonObject);
 begin
   inherited Create (AID);
   FObject := AObject;
-  FNodesList := TNodesList.Create;
+  FRulesList := TRulesList.Create;
 end;
 
-destructor TNodeBag.Destroy;
+destructor TRulesBag.Destroy;
 begin
-  FreeAndNil(FNodesList);
+  FreeAndNil(FRulesList);
   inherited Destroy;
 end;
 
-procedure TNodeBag.PrepareSchema (var ASchema : TSQLite3Schema);
+procedure TRulesBag.PrepareSchema (var ASchema : TSQLite3Schema);
 begin
   ASchema
     .Id
-    .Integer('node_id').NotNull
+    .Integer('rule_id').NotNull
     .Text('object_name').NotNull
     .Integer('object_id').NotNull;
 end;
 
-function TNodeBag.CheckDepentSchemes : Boolean;
+function TRulesBag.CheckDepentSchemes : Boolean;
 var
-  Node : TNode;
+  Rule : TRule;
 begin
-  Node := TNode.Create(-1);
-  Result := Node.CheckSchema;
-  FreeAndNil(Node);
+  Rule := TRule.Create(-1);
+  Result := Rule.CheckSchema;
+  FreeAndNil(Rule);
 end;
 
-function TNodeBag.Table : String;
+function TRulesBag.Table : String;
 begin
-  Result := NODE_BAG_TABLE_NAME;
+  Result := RULES_BAG_TABLE_NAME;
 end;
 
-function TNodeBag.LoadCurrentObject : Boolean;
+function TRulesBag.LoadCurrentObject : Boolean;
 begin
   Result := True;
 end;
 
-function TNodeBag.LoadDepentObjects : Boolean;
+function TRulesBag.LoadDepentObjects : Boolean;
 begin
   if (FObject = nil) or (FObject.ID = -1) then
     Exit(False);
 
-  Result := LoadNodes;
+  Result := LoadRules;
 end;
 
-function TNodeBag.SaveDepentObjects : Boolean;
+function TRulesBag.SaveDepentObjects : Boolean;
 begin
   if (FObject = nil) or (FObject.ID = -1) then
     Exit(False);
 
-  Result := SaveNodes;
+  Result := SaveRules;
 end;
 
-function TNodeBag.SaveNodes : Boolean;
+function TRulesBag.SaveRules : Boolean;
 var
-  Node : TNode;
+  Rule : TRule;
 begin
-  if not FNodesList.FirstEntry.HasValue then
+  if not FRulesList.FirstEntry.HasValue then
     Exit(True);
 
   Result := True;
-  for Node in FNodesList do
+  for Rule in FRulesList do
   begin
-    if not Node.Save then
+    if not Rule.Save then
       Continue;
 
-    { Check if current node stored in database. }
+    { Check if current rule stored in database. }  
     if FTable.Update
-      .Update('node_id', Node.ID)
-      .Where('node_id', Node.ID)
+      .Update('rule_id', Rule.ID)
+      .Where('rule_id', Rule.ID)
       .Where('object_name', FObject.Table)
       .Where('object_id', FObject.ID)
       .Get > 0 then
       Continue;
 
-    { Save current node in database. }
+    { Save current rule in database. }
     Result := Result and (FTable.Insert
-      .Value('node_id', Node.ID)
+      .Value('rule_id', Rule.ID)
       .Value('object_name', FObject.Table)
       .Value('object_id', FObject.ID)
       .Get > 0);
   end;
 end;
 
-function TNodeBag.LoadNodes : Boolean;
+function TRulesBag.LoadRules : Boolean;
 var
   ResultRows : TSQLite3Result;
   Row : TSQLite3ResultRow;
-  Node : TNode;
+  Rule : TRules;
 begin
   ResultRows := FTable.Select.All
     .Where('object_name', FObject.Table)
@@ -220,30 +221,30 @@ begin
 
   for Row in ResultRows do
   begin
-    Node := TNode.Create(Row.GetIntegerValue('node_id'));
+    Rule := TRule.Create(Row.GetIntegerValue('rule_id'));
 
-    if Node.Load then
-      FNodesList.Append(Node);
+    if Rule.Load then
+      FRulesList.Append(Rule);
   end;
 
   Result := True;
 end;
 
-function TNodeBag.DeleteCurrentObject : Boolean;
+function TRulesBag.DeleteCurrentObject : Boolean;
 begin
   Result := True;
 end;
 
-function TNodeBag.DeleteNodes : Boolean;
+function TRulesBag.DeleteRules : Boolean;
 var
-  Node : TNode;
+  Rule : TRules;
 begin
-  if not FNodesList.FirstEntry.HasValue then
+  if not FRulesList.FirstEntry.HasValue then
     Exit(True);
 
-  for Node in FNodesList do
+  for Rule in FRulesList do
   begin
-    Node.Delete;
+    Rule.Delete;
   end;
 
   FTable.Delete
@@ -251,50 +252,50 @@ begin
     .Where('object_id', FObject.ID)
     .Get;
 
-  FNodesList.Clear;
+  FRulesList.Clear;
   Result := True;
 end;
 
-function TNodeBag.DeleteDepentObjects : Boolean;
+function TRulesBag.DeleteDepentObjects : Boolean;
 begin
   if (FObject = nil) or (FObject.ID = -1) then
     Exit(False);
 
-  Result := DeleteNodes;
+  Result := DeleteRules;
 end;
 
-procedure TNodeBag.Append (ANode : TNode);
+procedure TRulesBag.Append (ARule : TRule);
 begin
-  FNodesList.Append(ANode);
+  FRulesList.Append(ARule);
 end;
 
-procedure TNodeBag.Remove (ANode : TNode);
+procedure TRulesBag.Remove (ARule : TRule);
 var
   Index : Integer;
 begin
-  Index := FNodesList.IndexOf(ANode);
+  Index := FRulesList.IndexOf(ARule);
 
   if Index <> -1 then
-    FNodesList.Remove(Index);
+    FRulesList.Remove(Index);
 end;
 
-function TNodeBag.GetEnumerator : TNodesList.TIterator;
+function TRulesBag.GetEnumerator : TRulesList.TIterator;
 begin
-  Result := FNodesList.GetEnumerator;
+  Result := FRulesList.GetEnumerator;
 end;
 
-procedure TNodeBag.Assign (ANodeBag : TNodeBag);
+procedure TRulesBag.Assign (ARulesBag : TRulesBag);
 var
-  node_item, node : TNode;
+  Rule, CopyRule : TRule;
 begin
-  if not ANodeBag.FNodesList.FirstEntry.HasValue then
+  if not ARulesBag.FRulesList.FirstEntry.HasValue then
     Exit;
 
-  for node_item in ANodeBag.FNodesList do
+  for Rule in ARulesBag.FRulesList do
   begin
-    node := TNode.Create(-1);
-    node.Assign(node_item);
-    FNodesList.Append(node);
+    CopyRule := TRule.Create(-1);
+    CopyRule.Assign(Rule);
+    FRulesList.Append(CopyRule);
   end;
 end;
 

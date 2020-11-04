@@ -33,7 +33,8 @@ interface
 
 uses
   SysUtils, objects.common, sqlite3.schema, sqlite3.result, sqlite3.result_row,
-  container.arraylist, utils.functor, objects.greasebundle;
+  container.arraylist, utils.functor, objects.greasebundle, objects.supplier,
+  objects.grade;
 
 type
   TGreaseBag = class(TCommonObject)
@@ -88,7 +89,14 @@ type
   protected
     type
       TGreaseBundleCompareFunctor = class
-        (specialize TUnsortableFunctor<TGreaseBundle>);
+        (specialize TBinaryFunctor<TGreaseBundle, Integer>)
+      protected
+        function CompareGreaseSupplier (ASupplier1, ASupplier2 : TSupplier) :
+          Integer;
+        function CompareGreaseGrade (AGrade1, AGrade2 : TGrade) : Integer;
+      public
+        function Call (AValue1, AValue2 : TGreaseBundle) : Integer; override;
+      end;
       
       TGreaseBundleList = class
         (specialize TArrayList<TGreaseBundle, TGreaseBundleCompareFunctor>);  
@@ -101,6 +109,56 @@ type
   end;
 
 implementation
+
+{ TGreaseBag.TGreaseBundleCompareFunctor }
+
+function TGreaseBag.TGreaseBundleCompareFunctor.CompareGreaseSupplier 
+  (ASupplier1, ASupplier2 : TSupplier) : Integer;
+begin
+  if ASupplier1.Name < ASupplier2.Name then
+    Result := -1
+  else if ASupplier2.Name < ASupplier1.Name then
+    Result := 1
+  else
+    Result := 0;
+end;
+
+function TGreaseBag.TGreaseBundleCompareFunctor.CompareGreaseGrade 
+  (AGrade1, AGrade2 : TGrade) : Integer;
+begin
+  if AGrade1.Name < AGrade2.Name then
+    Result := -1
+  else if AGrade2.Name < AGrade1.Name then
+    Result := 1
+  else
+    Result := 0;
+end;
+
+function TGreaseBag.TGreaseBundleCompareFunctor.Call (AValue1, AValue2 : 
+  TGreaseBundle) : Integer;
+begin
+  if CompareGreaseSupplier(AValue1.Grease.Supplier, 
+    AValue2.Grease.Supplier) < 1 then
+    Result := -1
+  else if CompareGreaseSupplier(AValue2.Grease.Supplier, 
+    AValue1.Grease.Supplier) < 1 then
+    Result := 1
+  else begin
+    if CompareGreaseGrade(AValue1.Grease.Grade, AValue2.Grease.Grade) < 1 then
+      Result := -1
+    else if CompareGreaseGrade(AValue2.Grease.Grade, 
+      AValue2.Grease.Grade) < 1 then
+      Result := 1
+    else begin
+      if AValue1.Quantity.Count < AValue2.Quantity.Count then
+        Result := -1
+      else if AValue2.Quantity.Count < AValue1.Quantity.Count then
+        Result := 1
+      else
+        Result := 0; 
+    end;
+  end;
+end;
 
 { TGreaseBag }
 

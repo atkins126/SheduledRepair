@@ -87,7 +87,11 @@ type
     function DeleteDepentObjects : Boolean; override;
   public
     type
-      TEntityCompareFunctor = class (specialize TUnsortableFunctor<TEntity>);
+      TEntityCompareFunctor = class
+       (specialize TBinaryFunctor<TEntity, Integer>)
+      public
+        function Call (AValue1, AValue2 : TEntity) : Integer; override;
+      end;
       
       TEntityList = class
         (specialize TArrayList<TEntity, TEntityCompareFunctor>);  
@@ -100,6 +104,19 @@ type
   end;
 
 implementation
+
+{ TEntityBag.TEntityCompareFunctor }
+
+function TEntityBag.TEntityCompareFunctor.Call (AValue1, AValue2 : TEntity) :
+  Integer;
+begin
+  if AValue1.Name < AValue2.Name then
+    Result := -1
+  else if AValue2.Name < AValue1.Name then
+    Result := 1
+  else
+    Result := 0;
+end;
 
 { TEntityBag }
 
