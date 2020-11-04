@@ -32,53 +32,44 @@ unit dataproviders.measure;
 interface
 
 uses
-  SysUtils, dataproviders.common, objects.measure, sqlite3.table, 
-  sqlite3.select, sqlite3.result, sqlite3.result_row, database;
+  SysUtils, dataproviders.common, objects.common, objects.measure;
 
 type
   TMeasureDataProvider = class(TCommonDataProvider)
   public
-    function Load : Boolean; override;
-    function CreateObject : TCommonObject;
+    { Get current loaded objects table name. }
+    function LoadObjectsTableName : String; override;
+
+    { Load concrete object. }
+    function LoadConcreteObject (AID : Int64) : TCommonObject; override;
   end;
 
 implementation
 
 { TMeasureDataProvider }
 
-function TMeasureDataProvider.Load : Boolean;
+function TMeasureDataProvider.LoadObjectsTableName : String;
 var
-  MeasureItem : TMeasure;
-  Table : TSQLite3Table;
-  ResultRows : TSQLite3Result;
-  Row : TSQLite3ResultRow;
+  Measure : TMeasure;
 begin
-  MeasureItem := TMeasure.Create(-1);
-
-  if not MeasureItem.CheckSchema then
-    Exit(False);
-
-  Table := TSQLite3Table.Create(DB.Errors, DB.Handle, MeasureItem.Table);
-  ResultRows := Table.Select.All;
-
-  if not ResultRows.FirstRow.HasRow then
-    Exit(False);
-
-  FObjectsList.Clear;
-  for Row in ResultRows do
-  begin
-    MeasureItem.Reload(Row.GetIntegerValue('id'));
-    FObjectsList.Append(MeasureItem);
-  end;
-
-  FreeAndNil(ResultRows);
-  FreeAndNil(Table);
-  Result := True;  
+  Measure := TMeasure.Create(-1);
+  Result := Measure.Table;
+  FreeAndNil(Measure);
 end;
 
-function TMeasureDataProvider.CreateObject : TCommonObject;
+function TMeasureDataProvider.LoadConcreteObject (AID : Int64) :
+  TCommonObject;
+var
+  Measure : TMeasure;
 begin
-  Result := TMeasure.Create(-1);
+  Measure := TMeasure.Create(AID);
+  if not Measure.Load then
+  begin
+    FreeAndNil(Measure);
+    Exit(nil);
+  end;
+
+  Result := Measure;
 end;
 
 end.
