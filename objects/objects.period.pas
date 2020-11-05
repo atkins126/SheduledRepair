@@ -32,8 +32,7 @@ unit objects.period;
 interface
 
 uses
-  SysUtils, objects.common, sqlite3.schema, sqlite3.result, sqlite3.result_row,
-  objects.quantity;
+  SysUtils, objects.common, sqlite3.schema, objects.quantity;
 
 type
   TPeriod = class(TCommonObject)

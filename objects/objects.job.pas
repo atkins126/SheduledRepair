@@ -32,8 +32,8 @@ unit objects.job;
 interface
 
 uses
-  SysUtils, objects.common, sqlite3.schema, sqlite3.result, sqlite3.result_row,
-  objects.entity, objects.period, objects.shedule;
+  SysUtils, objects.common, sqlite3.schema, objects.entity, objects.period,
+  objects.shedule;
 
 type
   TJob = class(TCommonObject)

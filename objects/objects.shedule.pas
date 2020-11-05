@@ -32,7 +32,7 @@ unit objects.shedule;
 interface
 
 uses
-  SysUtils, objects.common, sqlite3.schema, sqlite3.result, sqlite3.result_row;
+  SysUtils, objects.common, sqlite3.schema;
 
 type
   TShedule = class(TCommonObject)

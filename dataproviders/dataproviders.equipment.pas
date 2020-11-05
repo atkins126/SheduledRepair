@@ -32,53 +32,44 @@ unit dataproviders.equipment;
 interface
 
 uses
-  SysUtils, dataproviders.common, objects.equipment, sqlite3.table, 
-  sqlite3.select, sqlite3.result, sqlite3.result_row, database;
+  SysUtils, dataproviders.common, objects.common, objects.equipment;
 
 type
   TEquipmentDataProvider = class(TCommonDataProvider)
   public
-    function Load : Boolean; override;
-    function CreateObject : TCommonObject;
+    { Get current loaded objects table name. }
+    function LoadObjectsTableName : String; override;
+
+    { Load concrete object. }
+    function LoadConcreteObject (AID : Int64) : TCommonObject; override;
   end;
 
 implementation
 
 { TEquipmentDataProvider }
 
-function TEquipmentDataProvider.Load : Boolean;
+function TEquipmentDataProvider.LoadObjectsTableName : String;
 var
-  EquipmentItem : TEquipment;
-  Table : TSQLite3Table;
-  ResultRows : TSQLite3Result;
-  Row : TSQLite3ResultRow;
+  Equipment : TEquipment;
 begin
-  EquipmentItem := TMeasure.Create(-1);
-
-  if not EquipmentItem.CheckSchema then
-    Exit(False);
-
-  Table := TSQLite3Table.Create(DB.Errors, DB.Handle, EquipmentItem.Table);
-  ResultRows := Table.Select.All;
-
-  if not ResultRows.FirstRow.HasRow then
-    Exit(False);
-
-  FObjectsList.Clear;
-  for Row in ResultRows do
-  begin
-    EquipmentItem.Reload(Row.GetIntegerValue('id'));
-    FObjectsList.Append(EquipmentItem);
-  end;
-
-  FreeAndNil(ResultRows);
-  FreeAndNil(Table);
-  Result := True;  
+  Equipment := TEquipment.Create(-1);
+  Result := Equipment.Table;
+  FreeAndNil(Equipment);
 end;
 
-function TEquipmentDataProvider.CreateObject : TCommonObject;
+function TEquipmentDataProvider.LoadConcreteObject (AID : Int64) :
+  TCommonObject;
+var
+  Equipment : TEquipment;
 begin
-  Result := TEquipment.Create(-1);
+  Equipment := TEquipment.Create(AID);
+  if not Equipment.Load then
+  begin
+    FreeAndNil(Equipment);
+    Exit(nil);
+  end;
+
+  Result := Equipment;
 end;
 
 end.

@@ -134,7 +134,7 @@ end;
 
 function TEquipment.DeleteDepentObjects : Boolean;
 begin
-  FEntityBag.Delete;
+  Result := FEntityBag.Delete;
 end;
 
 procedure TEquipment.Assign (AEquipment : TEquipment);

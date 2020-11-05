@@ -32,8 +32,7 @@ unit renderer.profile.profileitem;
 interface
 
 uses
-  SysUtils, objects.common, Graphics, sqlite3.schema, sqlite3.result, 
-  sqlite3.result_row;
+  SysUtils, objects.common, Graphics, sqlite3.schema;
 
 type
   TRendererProfileItem = class(TCommonObject)

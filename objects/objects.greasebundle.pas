@@ -32,8 +32,7 @@ unit objects.greasebundle;
 interface
 
 uses
-  SysUtils, objects.common, sqlite3.schema, sqlite3.result, sqlite3.result_row,
-  objects.grease, objects.quantity;
+  SysUtils, objects.common, sqlite3.schema, objects.grease, objects.quantity;
 
 type
   TGreaseBundle = class(TCommonObject)
