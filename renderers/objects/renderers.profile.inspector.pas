@@ -32,24 +32,26 @@ unit renderers.profile.inspector;
 interface
 
 uses
-  SysUtils, renderers.virtualtreeview, renderer.profile.profile,
-  renderer.profile.profileitem, VirtualTrees, Classes, Graphics, Types,
-  Dialogs;
+  SysUtils, Classes, Graphics, Types, Dialogs, VirtualTrees, 
+  renderers.virtualtreeview, renderer.profile.profile, 
+  renderer.profile.profileitem;
 
 type
+  { Tree view connected item data. }
   TObjectInspectorData = record
     Text : String;
     Element : String;
     Editable : Boolean;
   end;  
 
+  { Profile inspector. }
   TProfileInspectorRenderer = class
     (specialize TVirtualTreeViewRenderer<TObjectInspectorData>)
   public
-    constructor Create (ACanDisable : Boolean; ATreeView : TVirtualDrawTree; 
-      ADrawOptions : TDrawOptions = [ITEM_DRAW_BUTTONS]);
+    constructor Create (ACanDisable : Boolean; ATreeView : TVirtualDrawTree);
     destructor Destroy; override;
 
+    { Reread profile data and redraw inspector. }
     procedure UpdateProfile (AProfile : TRendererProfile);
   protected
     const
@@ -70,6 +72,7 @@ type
         TYPE_ITEM_ENABLE,
         TYPE_ITEM_BACKGROUND,
         TYPE_ITEM_HEIGHT,
+
         TYPE_ELEMENT_ENABLE,
         TYPE_ELEMENT_BACKGROUND,
         TYPE_ELEMENT_BACKGROUND_TYPE,
@@ -98,6 +101,10 @@ type
     function ItemEditor (ANode : PVirtualNode; AColumn : TColumnIndex; 
       AItemType : Integer; AData : TObjectInspectorData) : IVTEditLink; 
       override;
+
+    { Create inspector view columns. }
+    procedure CreateColumns; 
+      {$IFNDEF DEBUG}inline;{$ENDIF}
   private
     FProfile : TRendererProfile;
     FCanDisable : Boolean;
@@ -107,16 +114,21 @@ type
     procedure ShowScrollBar (ASender: TBaseVirtualTree; ABar: Integer; AShow: 
       Boolean);
 
-    procedure DrawBackground (AItemType : Integer; AState : TItemStates; ARect : 
-      TRect; ACanvas : TCanvas);
-    procedure DrawColorValue (AValue : TColor; ARect : TRect; ACanvas : 
-      TCanvas);
-    procedure DrawTextValue (AValue : String; ARect : TRect; ACanvas :
-      TCanvas);
     procedure ValueChange (ANode : PVirtualNode; AColumn : TColumnIndex;
       AItemType : Integer; AValue : Pointer);
     procedure ValueEditorClick (ANode : PVirtualNode; AColumn : TColumnIndex;
       AItemType : Integer; var AValue : Pointer);
+
+    procedure DrawBackground (AItemType : Integer; AState : TItemStates; ARect : 
+      TRect; ACanvas : TCanvas);
+      {$IFNDEF DEBUG}inline;{$ENDIF}
+    procedure DrawColorValue (AValue : TColor; ARect : TRect; ACanvas : 
+      TCanvas);
+      {$IFNDEF DEBUG}inline;{$ENDIF}
+    procedure DrawTextValue (AValue : String; ARect : TRect; ACanvas :
+      TCanvas);
+      {$IFNDEF DEBUG}inline;{$ENDIF}
+    
   end;
 
 implementation
@@ -124,9 +136,9 @@ implementation
 { TObjectsInspectorRenderer }
 
 constructor TProfileInspectorRenderer.Create (ACanDisable : Boolean; 
-  ATreeView : TVirtualDrawTree; ADrawOptions : TDrawOptions);
+  ATreeView : TVirtualDrawTree);
 begin
-  inherited Create(ATreeView, ADrawOptions);
+  inherited Create(ATreeView, [ITEM_DRAW_BUTTONS]);
   FProfile := nil;
   FCanDisable := ACanDisable;
 
@@ -134,8 +146,8 @@ begin
   FTreeView.OnResize := @TreeResize;
   FTreeView.OnShowScrollBar := @ShowScrollBar;
 
-  AppendColumn((FTreeView.ClientWidth div 2) - 2);
-  AppendColumn(FTreeView.ClientWidth div 2);
+  { Create inspector view columns. }
+  CreateColumns;
 end;
 
 destructor TProfileInspectorRenderer.Destroy;
@@ -144,12 +156,19 @@ begin
   inherited Destroy;
 end;
 
+procedure TProfileInspectorRenderer.CreateColumns;
+begin
+  AppendColumn((FTreeView.ClientWidth div 2) - 2); { Key column. }
+  AppendColumn(FTreeView.ClientWidth div 2);       { Data column. }
+end;
+
 function TProfileInspectorRenderer.ItemHeight (ANode : PVirtualNode; ACanvas :
   TCanvas; AIndex : Cardinal; AItemType : Integer; AData : 
   TObjectInspectorData) : Cardinal;
 begin
-  case AItemType of
-    Integer(TYPE_ITEM_TITLE) : begin
+  case TItemType(AItemType) of
+    TYPE_ITEM_TITLE : begin
+      { Calculate title item height. }
       ACanvas.Font.Style := [fsBold];
       Result := ACanvas.TextHeight(AData.Text) + ITEM_TEXT_TOP_PADDING +
         ITEM_TEXT_BOTTOM_PADDING;
@@ -237,27 +256,27 @@ begin
         DrawTextValue(AData.Text, AContentRect, ACanvas);
       end else
       begin
-        case AItemType of
-          Integer(TYPE_ITEM_ENABLE) : begin
+        case TItemType(AItemType) of
+          TYPE_ITEM_ENABLE : begin
             if FProfile.Enable then
               DrawTextValue('[Enable]', ACellRect, ACanvas)
             else
               DrawTextValue('[Disable]', ACellRect, ACanvas);
             end;
-          Integer(TYPE_ITEM_BACKGROUND) : 
+          TYPE_ITEM_BACKGROUND : 
             DrawColorValue(FProfile.Background, ACellRect, ACanvas);
-          Integer(TYPE_ITEM_HEIGHT) : 
+          TYPE_ITEM_HEIGHT : 
             DrawTextValue(IntToStr(FProfile.Height), ACellRect, ACanvas);
-          Integer(TYPE_ELEMENT_ENABLE) : begin
+          TYPE_ELEMENT_ENABLE : begin
             if FProfile.Items[AData.Element].Enable then
               DrawTextValue('[Enable]', ACellRect, ACanvas)
             else
               DrawTextValue('[Disable]', ACellRect, ACanvas);
             end;  
-          Integer(TYPE_ELEMENT_BACKGROUND) :
+          TYPE_ELEMENT_BACKGROUND :
             DrawColorValue(FProfile.Items[AData.Element].Background, ACellRect,
               ACanvas);
-          Integer(TYPE_ELEMENT_BACKGROUND_TYPE) : begin
+          TYPE_ELEMENT_BACKGROUND_TYPE : begin
             case FProfile.Items[AData.Element].BackgroundFillType of
               FILL_NONE : Value := '[Transparent]';
               FILL_SQUARE : Value := '[Rectangle]';
@@ -265,56 +284,56 @@ begin
             end;
             DrawTextValue(Value, ACellRect, ACanvas);
           end;
-          Integer(TYPE_ELEMENT_BACKGROUND_RADIUS) : 
+          TYPE_ELEMENT_BACKGROUND_RADIUS : 
             DrawTextValue(
               IntToStr(FProfile.Items[AData.Element].BackgroundRoundRadius),
               ACellRect, ACanvas);
-          Integer(TYPE_ELEMENT_FONT) : 
+          TYPE_ELEMENT_FONT : 
             DrawTextValue('[Font]', ACellRect, ACanvas);
-          Integer(TYPE_ELEMENT_FONT_NAME) :
+          TYPE_ELEMENT_FONT_NAME :
             DrawTextValue(FProfile.Items[AData.Element].FontName, ACellRect, 
               ACanvas);
-          Integer(TYPE_ELEMENT_FONT_SIZE) :
+          TYPE_ELEMENT_FONT_SIZE :
             DrawTextValue(IntToStr(FProfile.Items[AData.Element].FontSize),
               ACellRect, ACanvas);
-          Integer(TYPE_ELEMENT_FONT_COLOR) :
+          TYPE_ELEMENT_FONT_COLOR :
             DrawColorValue(FProfile.Items[AData.Element].FontColor, ACellRect,
               ACanvas);
-          Integer(TYPE_ELEMENT_PADDING) :
+          TYPE_ELEMENT_PADDING :
             DrawTextValue('[' +
               IntToStr(FProfile.Items[AData.Element].Padding.Top) +
               ', ' + IntToStr(FProfile.Items[AData.Element].Padding.Left) +
               ', ' + IntToStr(FProfile.Items[AData.Element].Padding.Bottom) +
               ', ' + IntToStr(FProfile.Items[AData.Element].Padding.Right)
               + ']', ACellRect, ACanvas);
-          Integer(TYPE_ELEMENT_PADDING_TOP) :
+          TYPE_ELEMENT_PADDING_TOP :
             DrawTextValue(IntToStr(FProfile.Items[AData.Element].Padding.Top), 
               ACellRect, ACanvas);
-          Integer(TYPE_ELEMENT_PADDING_LEFT) : 
+          TYPE_ELEMENT_PADDING_LEFT : 
             DrawTextValue(IntToStr(FProfile.Items[AData.Element].Padding.Left),
               ACellRect, ACanvas);
-          Integer(TYPE_ELEMENT_PADDING_BOTTOM) :
+          TYPE_ELEMENT_PADDING_BOTTOM :
             DrawTextValue(IntToStr(FProfile.Items[AData.Element].Padding.Bottom),
               ACellRect, ACanvas);
-          Integer(TYPE_ELEMENT_PADDING_RIGHT) :
+          TYPE_ELEMENT_PADDING_RIGHT :
             DrawTextValue(IntToStr(FProfile.Items[AData.Element].Padding.Right),
               ACellRect, ACanvas);
-          Integer(TYPE_ELEMENT_POSITION_TYPE) : begin
+          TYPE_ELEMENT_POSITION_TYPE : begin
             case FProfile.Items[AData.Element].PositionType of
               POSITION_FIXED : Value := '[Fixed]';
               POSITION_FLOAT : Value := '[Float]';
             end;
             DrawTextValue(Value, ACellRect, ACanvas);
           end;
-          Integer(TYPE_ELEMENT_POSITION) :
+          TYPE_ELEMENT_POSITION :
             DrawTextValue('[' + 
               IntToStr(FProfile.Items[AData.Element].Position.X) +
               ', ' + IntToStr(FProfile.Items[AData.Element].Position.Y)
               + ']', ACellRect, ACanvas);
-          Integer(TYPE_ELEMENT_POSITION_X) :
+          TYPE_ELEMENT_POSITION_X :
             DrawTextValue(IntToStr(FProfile.Items[AData.Element].Position.X),
               ACellRect, ACanvas);
-          Integer(TYPE_ELEMENT_POSITION_Y) :
+          TYPE_ELEMENT_POSITION_Y :
             DrawTextValue(IntToStr(FProfile.Items[AData.Element].Position.Y),
               ACellRect, ACanvas);
         end;
