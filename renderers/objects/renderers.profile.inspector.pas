@@ -354,31 +354,31 @@ begin
     not AData.Editable then
     Exit(nil);
 
-  case AItemType of
-    Integer(TYPE_ITEM_TITLE) : begin
+  case TItemType(AItemType) of
+    TYPE_ITEM_TITLE : begin
       Result := nil;
     end;
-    Integer(TYPE_ITEM_ENABLE) : begin
+    TYPE_ITEM_ENABLE : begin
       Result := TCheckEditor.Create(FProfile.Enable, 'Enable', AItemType, 
         @ValueChange);
     end;
-    Integer(TYPE_ITEM_BACKGROUND) : begin
+    TYPE_ITEM_BACKGROUND : begin
       Result := TColorEditor.Create(FProfile.Background, AItemType,
         @ValueChange);
     end;
-    Integer(TYPE_ITEM_HEIGHT) : begin
+    TYPE_ITEM_HEIGHT : begin
       Result := TSpinEditEditor.Create(FProfile.Height, AItemType,
         @ValueChange);
     end;
-    Integer(TYPE_ELEMENT_ENABLE) : begin
+    TYPE_ELEMENT_ENABLE : begin
       Result := TCheckEditor.Create(FProfile.Items[AData.Element].Enable,
         'Enable', AItemType, @ValueChange);
     end;
-    Integer(TYPE_ELEMENT_BACKGROUND) : begin
+    TYPE_ELEMENT_BACKGROUND : begin
       Result := TColorEditor.Create(FProfile.Items[AData.Element].Background, 
         AItemType, @ValueChange);
     end;
-    Integer(TYPE_ELEMENT_BACKGROUND_TYPE) : begin
+    TYPE_ELEMENT_BACKGROUND_TYPE : begin
       Editor := TListEditor.Create(
       Integer(FProfile.Items[AData.Element].BackgroundFillType), AItemType,
         @ValueChange);
@@ -388,37 +388,37 @@ begin
 
       Result := Editor;
     end;
-    Integer(TYPE_ELEMENT_BACKGROUND_RADIUS) : begin
+    TYPE_ELEMENT_BACKGROUND_RADIUS : begin
       Result := TSpinEditEditor.Create(
         FProfile.Items[AData.Element].BackgroundRoundRadius, AItemType,
         @ValueChange);
     end;
-    Integer(TYPE_ELEMENT_FONT) : begin
+    TYPE_ELEMENT_FONT : begin
       Result := TEditButtonEditor.Create('[Font]', AItemType, @ValueEditorClick,
         @ValueChange);
     end;
-    Integer(TYPE_ELEMENT_FONT_NAME) : 
+    TYPE_ELEMENT_FONT_NAME : 
       Result := TEditEditor.Create(FProfile.Items[AData.Element].FontName,
         AItemType, @ValueChange);
-    Integer(TYPE_ELEMENT_FONT_SIZE) :
+    TYPE_ELEMENT_FONT_SIZE :
       Result := TSpinEditEditor.Create(FProfile.Items[AData.Element].FontSize,
         AItemType, @ValueChange);
-    Integer(TYPE_ELEMENT_FONT_COLOR) :
+    TYPE_ELEMENT_FONT_COLOR :
       Result := TColorEditor.Create(FProfile.Items[AData.Element].FontColor,
         AItemType, @ValueChange);
-    Integer(TYPE_ELEMENT_PADDING_TOP) :
+    TYPE_ELEMENT_PADDING_TOP :
       Result := TSpinEditEditor.Create(
         FProfile.Items[AData.Element].Padding.Top, AItemType, @ValueChange);
-    Integer(TYPE_ELEMENT_PADDING_LEFT) : 
+    TYPE_ELEMENT_PADDING_LEFT : 
       Result := TSpinEditEditor.Create(
         FProfile.Items[AData.Element].Padding.Left, AItemType, @ValueChange);
-    Integer(TYPE_ELEMENT_PADDING_BOTTOM) : 
+    TYPE_ELEMENT_PADDING_BOTTOM : 
       Result := TSpinEditEditor.Create(
         FProfile.Items[AData.Element].Padding.Bottom, AItemType, @ValueChange);
-    Integer(TYPE_ELEMENT_PADDING_RIGHT) : 
+    TYPE_ELEMENT_PADDING_RIGHT : 
       Result := TSpinEditEditor.Create(
         FProfile.Items[AData.Element].Padding.Right, AItemType, @ValueChange);
-    Integer(TYPE_ELEMENT_POSITION_TYPE) : begin
+    TYPE_ELEMENT_POSITION_TYPE : begin
       Editor := TListEditor.Create(
         Integer(FProfile.Items[AData.Element].PositionType), AItemType,
         @ValueChange);
@@ -427,10 +427,10 @@ begin
 
       Result := Editor; 
     end;
-    Integer(TYPE_ELEMENT_POSITION_X) :
+    TYPE_ELEMENT_POSITION_X :
       Result := TSpinEditEditor.Create(
         FProfile.Items[AData.Element].Position.X, AItemType, @ValueChange);
-    Integer(TYPE_ELEMENT_POSITION_Y) :
+    TYPE_ELEMENT_POSITION_Y :
       Result := TSpinEditEditor.Create(
         FProfile.Items[AData.Element].Position.Y, AItemType, @ValueChange);
   end;
@@ -441,8 +441,8 @@ procedure TProfileInspectorRenderer.ValueEditorClick (ANode : PVirtualNode;
 var
   FontDialog : TFontDialog;
 begin
-  case AItemType of
-    Integer(TYPE_ELEMENT_FONT) : begin
+  case TItemType(AItemType) of
+    TYPE_ELEMENT_FONT : begin
       FontDialog := TFontDialog.Create(nil);
       FontDialog.Font.Name := FProfile.Items[GetData(ANode).Element].FontName;
       FontDialog.Font.Size := FProfile.Items[GetData(ANode).Element].FontSize;
@@ -484,31 +484,31 @@ end;
 procedure TProfileInspectorRenderer.ValueChange (ANode : PVirtualNode; AColumn :
   TColumnIndex; AItemType : Integer; AValue : Pointer);
 begin
-  case AItemType of
-    Integer(TYPE_ITEM_ENABLE) : begin
+  case TItemType(AItemType) of
+    TYPE_ITEM_ENABLE : begin
       FProfile.Enable := PBoolean(AValue)^;
     end;
-    Integer(TYPE_ITEM_BACKGROUND) : begin
+    TYPE_ITEM_BACKGROUND : begin
       FProfile.Background := PColor(AValue)^;
     end;
-    Integer(TYPE_ITEM_HEIGHT) : begin
+    TYPE_ITEM_HEIGHT : begin
       FProfile.Height := PInteger(AValue)^;
     end;
-    Integer(TYPE_ELEMENT_ENABLE) : begin
+    TYPE_ELEMENT_ENABLE : begin
       FProfile.Items[GetData(ANode).Element].Enable := PBoolean(AValue)^;
     end;
-    Integer(TYPE_ELEMENT_BACKGROUND) : begin
+    TYPE_ELEMENT_BACKGROUND : begin
       FProfile.Items[GetData(ANode).Element].Background := PColor(AValue)^;
     end;
-    Integer(TYPE_ELEMENT_BACKGROUND_TYPE) : begin
+    TYPE_ELEMENT_BACKGROUND_TYPE : begin
       FProfile.Items[GetData(ANode).Element].BackgroundFillType := 
         TRendererProfileItem.TBackgroundFillType(PInteger(AValue)^);
     end;
-    Integer(TYPE_ELEMENT_BACKGROUND_RADIUS) : begin
+    TYPE_ELEMENT_BACKGROUND_RADIUS : begin
       FProfile.Items[GetData(ANode).Element].BackgroundRoundRadius :=
         PInteger(AValue)^;
     end;
-    Integer(TYPE_ELEMENT_FONT) : begin
+    TYPE_ELEMENT_FONT : begin
       if AValue <> nil then
       begin
         FProfile.Items[GetData(ANode).Element].FontName := TFont(AValue).Name;
@@ -516,28 +516,28 @@ begin
         FProfile.Items[GetData(ANode).Element].FontColor := TFont(AValue).Color;
       end;
     end;
-    Integer(TYPE_ELEMENT_FONT_NAME) : 
+    TYPE_ELEMENT_FONT_NAME : 
       FProfile.Items[GetData(ANode).Element].FontName := PString(AValue)^;
-    Integer(TYPE_ELEMENT_FONT_SIZE) :
+    TYPE_ELEMENT_FONT_SIZE :
       FProfile.Items[GetData(ANode).Element].FontSize := PInteger(AValue)^;
-    Integer(TYPE_ELEMENT_FONT_COLOR) :
+    TYPE_ELEMENT_FONT_COLOR :
       FProfile.Items[GetData(ANode).Element].FontColor := PColor(AValue)^;
-    Integer(TYPE_ELEMENT_PADDING_TOP) :
+    TYPE_ELEMENT_PADDING_TOP :
       FProfile.Items[GetData(ANode).Element].Padding.Top := PInteger(AValue)^;
-    Integer(TYPE_ELEMENT_PADDING_LEFT) :
+    TYPE_ELEMENT_PADDING_LEFT :
       FProfile.Items[GetData(ANode).Element].Padding.Left := PInteger(AValue)^;
-    Integer(TYPE_ELEMENT_PADDING_BOTTOM) :
+    TYPE_ELEMENT_PADDING_BOTTOM :
       FProfile.Items[GetData(ANode).Element].Padding.Bottom := 
       PInteger(AValue)^;  
-    Integer(TYPE_ELEMENT_PADDING_RIGHT) :
+    TYPE_ELEMENT_PADDING_RIGHT :
       FProfile.Items[GetData(ANode).Element].Padding.Right := PInteger(AValue)^;
-    Integer(TYPE_ELEMENT_POSITION_TYPE) : begin
+    TYPE_ELEMENT_POSITION_TYPE : begin
       FProfile.Items[GetData(ANode).Element].PositionType := 
         TRendererProfileItem.TPositionType(PInteger(AValue)^);
     end;
-    Integer(TYPE_ELEMENT_POSITION_X) : 
+    TYPE_ELEMENT_POSITION_X : 
       FProfile.Items[GetData(ANode).Element].Position.X := PInteger(AValue)^;
-    Integer(TYPE_ELEMENT_POSITION_Y) :
+    TYPE_ELEMENT_POSITION_Y :
       FProfile.Items[GetData(ANode).Element].Position.Y := PInteger(AValue)^;
   end;
 

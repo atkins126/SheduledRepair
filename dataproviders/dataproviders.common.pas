@@ -79,7 +79,7 @@ type
       end;
 
       TObjectItemCompareFunctor = class
-        (specialize TBinaryFunctor<TObjectItem, Integer)
+        (specialize TBinaryFunctor<TObjectItem, Integer>)
       public
         function Call (AValue1, AValue2 : TObjectItem) : Integer; override;
       end;

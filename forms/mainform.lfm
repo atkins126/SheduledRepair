@@ -1,78 +1,84 @@
 object MainWindow: TMainWindow
-  Left = 2638
-  Height = 655
-  Top = 133
-  Width = 1200
+  Left = 2576
+  Height = 689
+  Top = 143
+  Width = 1262
   Caption = 'SheduledRepair'
-  ClientHeight = 655
-  ClientWidth = 1200
+  ClientHeight = 689
+  ClientWidth = 1262
+  DesignTimePPI = 101
   OnCreate = FormCreate
   OnDestroy = FormDestroy
-  LCLVersion = '2.0.6.0'
+  LCLVersion = '2.0.10.0'
   object TopPanel: TPanel
     Left = 0
-    Height = 50
+    Height = 53
     Top = 0
-    Width = 1200
+    Width = 1262
     Align = alTop
+    ParentFont = False
     TabOrder = 5
   end
   object MainMenu: TVirtualDrawTree
     Left = 0
-    Height = 555
-    Top = 50
-    Width = 300
+    Height = 583
+    Top = 53
+    Width = 316
     Align = alLeft
     Header.AutoSizeIndex = 0
     Header.Columns = <>
     Header.MainColumn = -1
+    ParentFont = False
     TabOrder = 0
     TreeOptions.MiscOptions = [toFullRepaintOnResize, toInitOnSave, toToggleOnDblClick, toWheelPanning, toEditOnClick]
   end
   object MainMenuSplitter: TSplitter
-    Left = 300
-    Height = 555
-    Top = 50
+    Left = 316
+    Height = 583
+    Top = 53
     Width = 5
   end
   object Settings: TVirtualDrawTree
-    Left = 900
-    Height = 555
-    Top = 50
-    Width = 300
+    Left = 946
+    Height = 583
+    Top = 53
+    Width = 316
     Align = alRight
     Header.AutoSizeIndex = 0
     Header.Columns = <>
     Header.MainColumn = -1
+    ParentFont = False
     TabOrder = 1
     Visible = False
   end
   object SettingsSplitter: TSplitter
-    Left = 895
-    Height = 555
-    Top = 50
+    Left = 941
+    Height = 583
+    Top = 53
     Width = 5
     Align = alRight
     ResizeAnchor = akRight
     Visible = False
   end
   object Content: TVirtualDrawTree
-    Left = 305
-    Height = 555
-    Top = 50
-    Width = 590
+    Left = 321
+    Height = 583
+    Top = 53
+    Width = 620
     Align = alClient
     Header.AutoSizeIndex = 0
     Header.Columns = <>
     Header.MainColumn = -1
+    ParentFont = False
     TabOrder = 2
   end
   object BottomPanel: TPanel
     Left = 0
-    Height = 50
-    Top = 605
-    Width = 1200
+    Height = 53
+    Top = 636
+    Width = 1262
     Align = alBottom
+    ParentFont = False
     TabOrder = 6
     Visible = False
   end

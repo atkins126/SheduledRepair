@@ -32,13 +32,19 @@ unit dataproviders.mainmenu;
 interface
 
 uses
-  SysUtils, objects.mainmenu.item;
+  SysUtils, dataproviders.common, objects.common, objects.mainmenu.item,
+  renderer.profile.objectprofile, renderer.profile.profileitem;
 
 type
   TMainMenuDataProvider = class(TCommonDataProvider)
   public
     function Load : Boolean; override;
-    function CreateObject : TCommonObject; override;
+  protected
+    { Set default object renderer profile. }
+    function DefaultObjectProfile :  TRendererObjectProfile; override;
+
+    { Get current loaded objects table name. }
+    function LoadObjectsTableName : String; override;
   end;
 
 implementation
@@ -49,18 +55,37 @@ function TMainMenuDataProvider.Load : Boolean;
 var
   MenuItem : TMainMenuItem;
 begin
-  MenuItem := TMainMenuItem.Create(0);  
-  MenuItem.ItemType := MENU_ITEM_LOGO;  
+  MenuItem := TMainMenuItem.Create(0);
+  MenuItem.ItemType := MENU_ITEM_LOGO;
+  MenuItem.Title := '';
   FObjectsList.Append(MenuItem);
 
   MenuItem := TMainMenuItem.Create(1);
   MenuItem.ItemType := MENU_ITEM;
+  MenuItem.Title := 'Equipment';
   FObjectsList.Append(MenuItem);
 end;
 
-function TMainMenuDataProvider.CreateObject : TCommonObject;
+function TMainMenuDataProvider.DefaultObjectProfile :  TRendererObjectProfile;
 begin
-  Result := nil;
+  Result := TRendererObjectProfile.Create(-1);
+
+  { Set default profile items. }
+  Result.DefaultProfile.Items['Icon'] := TRendererProfileItem.Create(-1);
+  Result.DefaultProfile.Items['Title'] := TRendererProfileItem.Create(-1);
+
+  { Set selected profile items. }
+  Result.SelectedProfile.Items['Icon'] := TRendererProfileItem.Create(-1);
+  Result.SelectedProfile.Items['Title'] := TRendererProfileItem.Create(-1);
+
+  { Set hover profile items. } 
+  Result.HoverProfile.Items['Icon'] := TRendererProfileItem.Create(-1);
+  Result.HoverProfile.Items['Title'] := TRendererProfileItem.Create(-1);
+end;
+
+function TMainMenuDataProvider.LoadObjectsTableName : String;
+begin
+  Result := '';
 end;
 
 end.

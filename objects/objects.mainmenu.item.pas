@@ -32,10 +32,13 @@ unit objects.mainmenu.item;
 interface
 
 uses
-  SysUtils, objects.common;
+  SysUtils, objects.common, sqlite3.schema;
 
 type
   TMainMenuItem = class(TCommonObject)
+  private
+    const
+      MAIN_MENU_TABLE_NAME = 'mainmenu';
   public
     type
       TItemType = (
@@ -43,30 +46,42 @@ type
         MENU_ITEM
       );
   public
-    constructor Create (AID : Int64; AItemType : TItemType); override;
+    constructor Create (AID : Int64; AItemType : TItemType; ATitle : String); 
+      override;
     destructor Destroy; override; 
 
-    function CheckSchema : Boolean; override;
+    { Get object database table name. }
     function Table : String; override;
-    function Save : Boolean; override;
-    function Delete : Boolean; override;
+
+    { Object deep copy. }
+    procedure Assign (AMainMenuItem : TMainMenuItem);
   protected
+    { Prepare current object database table scheme. }
+    procedure PrepareSchema (var ASchema : TSQLite3Schema); override; 
+
     { Load current object form database. }
-    function LoadCurrentObject : Boolean; override; 
+    function LoadCurrentObject : Boolean; override;
+
+    { Store current object to database. }
+    procedure SaveCurrentObject; override;
   protected
     FItemType : TItemType;
+    FTitle : String;
   public
     property ItemType : TItemType read FItemType;
+    property Title : String read FTitle;
   end;
 
 implementation
 
 { TMainMenuItem }
 
-constructor TMainMenuItem.Create (AID : Int64; AItemType : TItemType);
+constructor TMainMenuItem.Create (AID : Int64; AItemType : TItemType; ATitle : 
+  String);
 begin
   inherited Create(AID);
   FItemType := AItemType;
+  FTitle := ATitle;
 end;
 
 destructor TMainMenuItem.Destroy;
@@ -74,27 +89,27 @@ begin
   inherited Destroy;
 end;
 
-function TMainMenuItem.CheckSchema : Boolean;
-begin
-  Result := True;
-end;
-
 function TMainMenuItem.Table : String;
 begin
-  Result := 'main_menu';
+  Result := MAIN_MENU_TABLE_NAME;
+end;
+
+procedure TMainMenuItem.Assign (AMainMenuItem : TMainMenuItem);
+begin
+  FItemType := AMainMenuItem.ItemType;
+end;
+
+procedure TMainMenuItem.PrepareSchema (var ASchema : TSQLite3Schema);
+begin
+  { Do nothing. }
 end;
 
 function TMainMenuItem.LoadCurrentObject : Boolean;
 begin
-  Result := True;
+  Result := True;  
 end;
 
-function TMainMenuItem.Save : Boolean;
-begin
-  Result := True;
-end;
-
-function TMainMenuItem.Delete : Boolean;
+procedure TMainMenuItem.SaveCurrentObject;
 begin
   Result := True;
 end;

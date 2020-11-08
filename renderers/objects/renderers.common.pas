@@ -22,7 +22,7 @@
 (* Floor, Boston, MA 02110-1335, USA.                                         *)
 (*                                                                            *)
 (******************************************************************************)
-unit renderers.profile.inspector;
+unit renderers.common;
 
 {$mode objfpc}{$H+}
 {$IFOPT D+}
@@ -32,19 +32,28 @@ unit renderers.profile.inspector;
 interface
 
 uses
-  SysUtils, renderers.virtualtreeview, renderer.profile.profile,
-  renderer.profile.profileitem, objects.mainmenu.item, dataproviders.mainmenu;
+  SysUtils, Classes, Graphics, Types, renderers.virtualtreeview, 
+  renderer.profile.profile, renderer.profile.profileitem, objects.mainmenu.item, 
+  dataproviders.common;
 
 type
-  TMainMenuRenderer = class
+  TCommonRenderer = class
     (specialize TVirtualTreeViewRenderer<Cardinal>)
   public
     constructor Create (ATreeView : TVirtualDrawTree; ADataProvider : 
-      TMainMenuDataProvider);
+      TCommonDataProvider);
     destructor Destroy; override;
+  protected
+    { Get tree item height. }
+    function ItemHeight (ANode : PVirtualNode; ACanvas : TCanvas; AIndex : 
+      Cardinal; AItemType : Integer; AData : T) : Cardinal; override;
 
-  private
-    FDataProvider : TMainMenuDataProvider;
+    { Draw tree item. }
+    procedure ItemDraw (ANode : PVirtualNode; AColumn : TColumnIndex; 
+      AItemType : Integer; ACanvas : TCanvas; ACellRect : TRect; AContentRect : 
+      TRect; AState : TItemStates; AData : T); override;
+  protected
+    FDataProvider : TCommonDataProvider;
   end;
 
 implementation
@@ -52,7 +61,7 @@ implementation
 { TMainMenuRenderer }
 
 constructor TMainMenuRenderer.Create (ATreeView : TVirtualDrawTree;
-  ADataProvider : TMainMenuDataProvider);
+  ADataProvider : TCommonDataProvider);
 begin
   inherited Create(ATreeView, []);
   FDataProvider := ADataProvider;
@@ -61,6 +70,30 @@ end;
 destructor TMainMenuRenderer.Destroy;
 begin
   inherited Destroy;
+end;
+
+function TCommonRenderer.ItemHeight (ANode : PVirtualNode; ACanvas : TCanvas;
+  AIndex : Cardinal; AItemType : Integer; AData : Cardinal) : Cardinal;
+begin
+  { Get hover item profile item height. }
+  if (FDataProvider.GetObjectProfile(AIndex).HoverProfile.Enable) and
+     (FTreeView.HotNode = ANode) then
+    Exit(FDataProvider.GetObjectProfile(AIndex).HoverProfile.Height);
+
+  { Get selected item profile item height. }
+  if (FDataProvider.GetObjectProfile(AIndex).SelectedProfile.Enable) and
+     (FTreeView.Selected[ANode]) then
+    Exit(FDataProvider.GetObjectProfile(AIndex).SelectedProfile.Height;
+
+  { Get default item profile item height. }
+  Result := FDataProvider.GetObjectProfile(AIndex).DefaultProfile.Height;
+end;
+
+procedure TCommonRenderer.ItemDraw (ANode : PVirtualNode; AColumn : 
+  TColumnIndex; AItemType : Integer; ACanvas : TCanvas; ACellRect : TRect; 
+  AContentRect :  TRect; AState : TItemStates; AData : Cardinal);
+begin
+  
 end;
 
 end.
