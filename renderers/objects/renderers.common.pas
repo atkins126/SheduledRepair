@@ -33,25 +33,38 @@ interface
 
 uses
   SysUtils, Classes, Graphics, Types, renderers.virtualtreeview, 
-  renderer.profile.profile, renderer.profile.profileitem, objects.mainmenu.item, 
-  dataproviders.common;
+  renderer.profile.profile, renderer.profile.profileitem, objects.common, 
+  objects.mainmenu.item, dataproviders.common;
 
 type
   TCommonRenderer = class
-    (specialize TVirtualTreeViewRenderer<Cardinal>)
+    (specialize TVirtualTreeViewRenderer<TCommonObject>)
   public
     constructor Create (ATreeView : TVirtualDrawTree; ADataProvider : 
       TCommonDataProvider);
     destructor Destroy; override;
   protected
+    { Draw item. }
+    procedure Draw (AItemType : Integer; ACanvas : TCanvas; ARect : TRect;
+      AState : TItemState; AObject : TCommonObject; AProfile :
+      TRendererProfile); virtual; abstract;
+  protected
     { Get tree item height. }
     function ItemHeight (ANode : PVirtualNode; ACanvas : TCanvas; AIndex : 
-      Cardinal; AItemType : Integer; AData : T) : Cardinal; override;
+      Cardinal; AItemType : Integer; AData : TCommonObject) : Cardinal; 
+      override;
 
     { Draw tree item. }
     procedure ItemDraw (ANode : PVirtualNode; AColumn : TColumnIndex; 
       AItemType : Integer; ACanvas : TCanvas; ACellRect : TRect; AContentRect : 
-      TRect; AState : TItemStates; AData : T); override;
+      TRect; AState : TItemStates; AData : TCommonObject); override;
+
+    { Resize virtual tree view event. }
+    procedure TreeResize (ASender : TObject);
+
+    { Scroll virtual tree view event. }
+    procedure ShowScrollBar (ASender: TBaseVirtualTree; ABar: Integer; AShow: 
+      Boolean);
   protected
     FDataProvider : TCommonDataProvider;
   end;
@@ -65,6 +78,12 @@ constructor TMainMenuRenderer.Create (ATreeView : TVirtualDrawTree;
 begin
   inherited Create(ATreeView, []);
   FDataProvider := ADataProvider;
+
+  FTreeView.OnResize := @TreeResize;
+  FTreeView.OnShowScrollBar := @ShowScrollBar;
+
+  { Create one column. }
+  AppendColumn (FTreeView.ClientWidth);
 end;
 
 destructor TMainMenuRenderer.Destroy;
@@ -72,8 +91,19 @@ begin
   inherited Destroy;
 end;
 
+procedure TCommonRenderer.TreeResize (ASender : TObject);
+begin
+  FTreeView.Header.Columns[0].Width := FTreeView.ClientWidth;
+end;
+
+procedure TCommonRenderer.ShowScrollBar (ASender : TBaseVirtualTree; 
+  ABar : Integer; AShow : Boolean);
+begin
+  TreeResize(FTreeView);
+end;
+
 function TCommonRenderer.ItemHeight (ANode : PVirtualNode; ACanvas : TCanvas;
-  AIndex : Cardinal; AItemType : Integer; AData : Cardinal) : Cardinal;
+  AIndex : Cardinal; AItemType : Integer; AData : TCommonObject) : Cardinal;
 begin
   { Get hover item profile item height. }
   if (FDataProvider.GetObjectProfile(AIndex).HoverProfile.Enable) and
@@ -91,9 +121,11 @@ end;
 
 procedure TCommonRenderer.ItemDraw (ANode : PVirtualNode; AColumn : 
   TColumnIndex; AItemType : Integer; ACanvas : TCanvas; ACellRect : TRect; 
-  AContentRect :  TRect; AState : TItemStates; AData : Cardinal);
+  AContentRect :  TRect; AState : TItemStates; AData : TCommonObject);
 begin
-  
+  { Draw a row. }
+  Draw(AItemType, ACanvas, ACellRect, AState, AData, 
+    FDataProvider.GetObjectProfile(ANode^.Index));
 end;
 
 end.
