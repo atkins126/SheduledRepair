@@ -108,7 +108,7 @@ implementation
 { TRulesBag.TRulesCompareFunctor }
 
 function TRulesBag.TRulesCompareFunctor.Call (AValue1, AValue2 : 
-  TGreaseBundle) : Integer;
+  TRule) : Integer;
 begin
   if AValue1.ID < AValue2.ID then
     Result := -1
@@ -212,7 +212,7 @@ function TRulesBag.LoadRules : Boolean;
 var
   ResultRows : TSQLite3Result;
   Row : TSQLite3ResultRow;
-  Rule : TRules;
+  Rule : TRule;
 begin
   ResultRows := FTable.Select.All
     .Where('object_name', FObject.Table)
@@ -237,7 +237,7 @@ end;
 
 function TRulesBag.DeleteRules : Boolean;
 var
-  Rule : TRules;
+  Rule : TRule;
 begin
   if not FRulesList.FirstEntry.HasValue then
     Exit(True);

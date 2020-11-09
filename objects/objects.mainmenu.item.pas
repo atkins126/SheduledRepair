@@ -46,8 +46,7 @@ type
         MENU_ITEM
       );
   public
-    constructor Create (AID : Int64; AItemType : TItemType; ATitle : String); 
-      override;
+    constructor Create (AID : Int64; AItemType : TItemType; ATitle : String);
     destructor Destroy; override; 
 
     { Get object database table name. }
@@ -111,7 +110,7 @@ end;
 
 procedure TMainMenuItem.SaveCurrentObject;
 begin
-  Result := True;
+  { Do nothing. }
 end;
 
 end.

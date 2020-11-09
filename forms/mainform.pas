@@ -5,7 +5,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, ExtCtrls, StdCtrls,
-  VirtualTrees, profileform;
+  VirtualTrees, profileform, renderers.mainmenu, dataproviders.mainmenu;
 
 type
 
@@ -20,12 +20,12 @@ type
     SettingsSplitter: TSplitter;
     Content: TVirtualDrawTree;
 
-    FProfileEditor : TProfileWindow;
-
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
-  public
-
+  private
+    FProfileEditor : TProfileWindow;
+    FMainMenuRenderer : TMainMenuRenderer;
+    FMainMenuDataProvider : TMainMenuDataProvider;
   end;
 
 var
@@ -44,6 +44,10 @@ begin
   FProfileEditor.Top := Self.Top;
   FProfileEditor.Height := Self.Height;
   FProfileEditor.Show;
+
+  FMainMenuDataProvider := TMainMenuDataProvider.Create;
+  FMainMenuRenderer := TMainMenuRenderer.Create(MainMenu, FMainMenuDataProvider);
+  FMainMenuRenderer.Update;
 end;
 
 procedure TMainWindow.FormDestroy(Sender: TObject);

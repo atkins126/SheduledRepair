@@ -22,7 +22,7 @@
 (* Floor, Boston, MA 02110-1335, USA.                                         *)
 (*                                                                            *)
 (******************************************************************************)
-unit dataproviders.mainmenu;
+unit renderers.mainmenu;
 
 {$mode objfpc}{$H+}
 {$IFOPT D+}
@@ -32,70 +32,37 @@ unit dataproviders.mainmenu;
 interface
 
 uses
-  SysUtils, Graphics, dataproviders.common, objects.common,
-  objects.mainmenu.item, renderer.profile.objectprofile,
-  renderer.profile.profileitem;
+  SysUtils, Classes, Graphics, Types, renderers.common, 
+  renderers.virtualtreeview, renderer.profile.objectprofile,
+  renderer.profile.profileitem, objects.common, objects.mainmenu.item, 
+  dataproviders.common;
 
 type
-  TMainMenuDataProvider = class(TCommonDataProvider)
-  public
-    function Load : Boolean; override;
+  TMainMenuRenderer = class(TCommonRenderer)
   protected
-    { Set default object renderer profile. }
-    function DefaultObjectProfile :  TRendererObjectProfile; override;
-
-    { Get current loaded objects table name. }
-    function LoadObjectsTableName : String; override;
-
-    { Load concrete object. }
-    function LoadConcreteObject (AID : Int64) : TCommonObject; override;
+    { Draw item. }
+    procedure Draw (AItemType : Integer; ACanvas : TCanvas; ARect : TRect;
+      AState : TItemStates; AObject : TCommonObject; AProfile :
+      TRendererObjectProfile); override;
   end;
 
 implementation
 
-{ TMainMenuDataProvider }
+{ TMainMenuRenderer }
 
-function TMainMenuDataProvider.Load : Boolean;
-var
-  MenuItem : TMainMenuItem;
+procedure TMainMenuRenderer.Draw(AItemType : Integer; ACanvas : TCanvas; 
+  ARect : TRect; AState : TItemStates; AObject : TCommonObject; AProfile : 
+  TRendererObjectProfile);
 begin
-  MenuItem := TMainMenuItem.Create(0, MENU_ITEM_LOGO, '');
-  Append(MenuItem);
+  ACanvas.Brush.Color := AProfile.DefaultProfile.Background;
 
-  MenuItem := TMainMenuItem.Create(1, MENU_ITEM, 'Equipment');
-  Append(MenuItem);
+  if ITEM_SELECTED in AState then
+    ACanvas.Brush.Color := AProfile.SelectedProfile.Background;
 
-  Result := True;
-end;
+  if ITEM_HOVER in AState then
+    ACanvas.Brush.Color := AProfile.HoverProfile.Background;
 
-function TMainMenuDataProvider.DefaultObjectProfile :  TRendererObjectProfile;
-begin
-  Result := TRendererObjectProfile.Create(-1);
-
-  { Set default profile items. }
-  Result.DefaultProfile.Background := clWhite;
-  Result.DefaultProfile.Items['Icon'] := TRendererProfileItem.Create(-1);
-  Result.DefaultProfile.Items['Title'] := TRendererProfileItem.Create(-1);
-
-  { Set selected profile items. }
-  Result.SelectedProfile.Background := clYellow;
-  Result.SelectedProfile.Items['Icon'] := TRendererProfileItem.Create(-1);
-  Result.SelectedProfile.Items['Title'] := TRendererProfileItem.Create(-1);
-
-  { Set hover profile items. }
-  Result.HoverProfile.Background := clSilver;
-  Result.HoverProfile.Items['Icon'] := TRendererProfileItem.Create(-1);
-  Result.HoverProfile.Items['Title'] := TRendererProfileItem.Create(-1);
-end;
-
-function TMainMenuDataProvider.LoadObjectsTableName : String;
-begin
-  Result := '';
-end;
-
-function TMainMenuDataProvider.LoadConcreteObject (AID : Int64) : TCommonObject;
-begin
-  Result := nil;
+  ACanvas.FillRect(ARect);
 end;
 
 end.

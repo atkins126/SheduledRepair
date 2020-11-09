@@ -32,8 +32,8 @@ unit renderers.common;
 interface
 
 uses
-  SysUtils, Classes, Graphics, Types, renderers.virtualtreeview, 
-  renderer.profile.profile, renderer.profile.profileitem, objects.common, 
+  SysUtils, Classes, Graphics, Types, VirtualTrees, renderers.virtualtreeview,
+  renderer.profile.objectprofile, renderer.profile.profileitem, objects.common, 
   objects.mainmenu.item, dataproviders.common;
 
 type
@@ -43,11 +43,14 @@ type
     constructor Create (ATreeView : TVirtualDrawTree; ADataProvider : 
       TCommonDataProvider);
     destructor Destroy; override;
+
+    { Update rendered data. }
+    procedure Update;
   protected
     { Draw item. }
     procedure Draw (AItemType : Integer; ACanvas : TCanvas; ARect : TRect;
-      AState : TItemState; AObject : TCommonObject; AProfile :
-      TRendererProfile); virtual; abstract;
+      AState : TItemStates; AObject : TCommonObject; AProfile :
+      TRendererObjectProfile); virtual; abstract;
   protected
     { Get tree item height. }
     function ItemHeight (ANode : PVirtualNode; ACanvas : TCanvas; AIndex : 
@@ -63,7 +66,7 @@ type
     procedure TreeResize (ASender : TObject);
 
     { Scroll virtual tree view event. }
-    procedure ShowScrollBar (ASender: TBaseVirtualTree; ABar: Integer; AShow: 
+    procedure ShowScrollBar (ASender : TBaseVirtualTree; ABar : Integer; AShow : 
       Boolean);
   protected
     FDataProvider : TCommonDataProvider;
@@ -73,7 +76,7 @@ implementation
 
 { TMainMenuRenderer }
 
-constructor TMainMenuRenderer.Create (ATreeView : TVirtualDrawTree;
+constructor TCommonRenderer.Create (ATreeView : TVirtualDrawTree;
   ADataProvider : TCommonDataProvider);
 begin
   inherited Create(ATreeView, []);
@@ -86,7 +89,7 @@ begin
   AppendColumn (FTreeView.ClientWidth);
 end;
 
-destructor TMainMenuRenderer.Destroy;
+destructor TCommonRenderer.Destroy;
 begin
   inherited Destroy;
 end;
@@ -113,7 +116,7 @@ begin
   { Get selected item profile item height. }
   if (FDataProvider.GetObjectProfile(AIndex).SelectedProfile.Enable) and
      (FTreeView.Selected[ANode]) then
-    Exit(FDataProvider.GetObjectProfile(AIndex).SelectedProfile.Height;
+    Exit(FDataProvider.GetObjectProfile(AIndex).SelectedProfile.Height);
 
   { Get default item profile item height. }
   Result := FDataProvider.GetObjectProfile(AIndex).DefaultProfile.Height;
@@ -126,6 +129,24 @@ begin
   { Draw a row. }
   Draw(AItemType, ACanvas, ACellRect, AState, AData, 
     FDataProvider.GetObjectProfile(ANode^.Index));
+end;
+
+procedure TCommonRenderer.Update;
+var
+  i : Integer;
+begin
+  if not FDataProvider.Load then
+    Exit;
+
+  FTreeView.BeginUpdate;
+  FTreeView.Clear;
+
+  for i := 0 to FDataProvider.GetObjectsCount - 1 do
+  begin
+    AppendData(nil, 0, FDataProvider.GetObject(i));
+  end;
+
+  FTreeView.EndUpdate;
 end;
 
 end.

@@ -34,7 +34,7 @@ interface
 uses
   SysUtils, database, sqlite3.table, container.arraylist, utils.functor,
   sqlite3.result, sqlite3.result_row, renderer.profile.objectprofile, 
-  objects.common, rules.rulesbag;
+  objects.common, rules.rulesbag, rules.rule;
 
 type
   TCommonDataProvider = class
@@ -50,6 +50,8 @@ type
     function GetObject (AObjectIndex : Cardinal) : TCommonObject;
     function GetObjectProfile (AObjectIndex : Cardinal) : 
       TRendererObjectProfile;
+
+    function GetObjectsCount : Cardinal;
   protected
     { Calculate object renderer profile by rules. }
     function CalculateObjectProfile (AObject : TCommonObject) : 
@@ -89,6 +91,7 @@ type
   protected
     FObjectsList : TObjectsList;
     FRulesBag : TRulesBag;
+    FDefaultProfile : TRendererObjectProfile;
   end;
 
 implementation
@@ -121,6 +124,7 @@ constructor TCommonDataProvider.Create;
 begin
   FObjectsList := TObjectsList.Create;
   FRulesBag := TRulesBag.Create(-1, nil);
+  FDefaultProfile := nil;
 end;
 
 destructor TCommonDataProvider.Destroy;
@@ -137,11 +141,15 @@ end;
 
 function TCommonDataProvider.CalculateObjectProfile (AObject : TCommonObject) : 
   TRendererObjectProfile;
+var
+  Rule : TRule;
 begin
-  if not FRulesBag.FirstEntry.HasValue then
-    Exit(DefaultObjectProfile);
+  for Rule in FRulesBag do
+  begin
+    Exit(Rule.Profile);
+  end;
 
-  Result := FRulesBag.FirstEntry.Value.Profile;  
+  Result := DefaultObjectProfile;
 end;
 
 procedure TCommonDataProvider.Append (AObject : TCommonObject);
@@ -175,6 +183,7 @@ begin
 end;
 
 function TCommonDataProvider.Load : Boolean;
+var
   Table : TSQLite3Table;
   ResultRows : TSQLite3Result;
   Row : TSQLite3ResultRow;
@@ -195,6 +204,9 @@ begin
   end;
 end;
 
-
+function TCommonDataProvider.GetObjectsCount : Cardinal;
+begin
+  Result := FObjectsList.Length;
+end;
 
 end.
