@@ -149,7 +149,11 @@ begin
     Exit(Rule.Profile);
   end;
 
-  Result := DefaultObjectProfile;
+  { Store default profile. }
+  if FDefaultProfile = nil then
+    FDefaultProfile := DefaultObjectProfile;
+
+  Result := FDefaultProfile;
 end;
 
 procedure TCommonDataProvider.Append (AObject : TCommonObject);
