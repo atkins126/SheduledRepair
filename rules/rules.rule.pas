@@ -73,7 +73,7 @@ implementation
 constructor TRule.Create (AID : Int64);
 begin
   inherited Create (AID);
-  FProfile := TRendererObjectProfile.Create(-1);
+  FProfile := TRendererObjectProfile.Create(-1, nil);
 end;
 
 destructor TRule.Destroy;

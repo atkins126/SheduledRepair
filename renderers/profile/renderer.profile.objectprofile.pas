@@ -40,7 +40,7 @@ type
     const
       RENDERER_OBJECT_PROFILE_TABLE_NAME = 'renderer_object_profile';
   public
-    constructor Create (AID : Int64); override;
+    constructor Create (AID : Int64; AObject : TCommonObject);
     destructor Destroy; override;
     
     { Get object database table name. }
@@ -67,6 +67,7 @@ type
     { Delete all dependent objects. }
     function DeleteDepentObjects : Boolean; override;
   protected
+    FObject : TCommonObject;
     FDefaultProfile : TRendererProfile;
     FSelectedProfile : TRendererProfile;
     FHoverProfile : TRendererProfile;
@@ -80,9 +81,11 @@ implementation
 
 { TRendererObjectProfile }
 
-constructor TRendererObjectProfile.Create (AID : Int64);
+constructor TRendererObjectProfile.Create (AID : Int64; AObject : 
+  TCommonObject);
 begin
   inherited Create (AID);
+  FObject := AObject;
   FDefaultProfile := TRendererProfile.Create(-1);
   FSelectedProfile := TRendererProfile.Create(-1);
   FHoverProfile := TRendererProfile.Create(-1);
@@ -100,6 +103,7 @@ procedure TRendererObjectProfile.PrepareSchema (var ASchema : TSQLite3Schema);
 begin
   ASchema
     .Id
+    .Text('object_name').NotNull
     .Integer('default_profile_id').NotNull
     .Integer('selected_profile_id').NotNull
     .Integer('hover_profile_id').NotNull;
@@ -117,6 +121,9 @@ end;
 
 procedure TRendererObjectProfile.SaveCurrentObject;
 begin
+  if FObject <> nil then
+    SetStringProperty('object_name', FObject.Table);
+  
   SetIntegerProperty('default_profile_id', FDefaultProfile.ID);
   SetIntegerProperty('selected_profile_id', FSelectedProfile.ID);
   SetIntegerProperty('hover_profile_id', FHoverProfile.ID);

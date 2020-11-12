@@ -140,6 +140,8 @@ begin
     
     FObjectsList.Append(Item);
   end;
+
+  Result := True;
 end;
 
 end.

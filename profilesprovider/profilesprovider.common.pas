@@ -51,7 +51,7 @@ type
     procedure Remove (AProfileIndex : Cardinal);
 
     { Get profile by index. }
-    function GetObject (AProfileIndex : Cardinal) : TRendererObjectProfile;
+    function GetProfile (AProfileIndex : Cardinal) : TRendererObjectProfile;
   protected
       TProfilesCompareFunctor = class
         (specialize TBinaryFunctor<TRendererObjectProfile, Integer>)
@@ -106,7 +106,7 @@ begin
     FProfilesList.Remove(AProfileIndex);
 end;
 
-function TCommonProfilesProvider.GetObject (AProfileIndex : Cardinal) : 
+function TCommonProfilesProvider.GetProfile (AProfileIndex : Cardinal) : 
   TRendererObjectProfile;
 begin
   if AProfileIndex < FProfilesList.Length then
@@ -117,28 +117,25 @@ end;
 
 function TCommonProfilesProvider.Load : Boolean;
 var
-{
   Table : TSQLite3Table;
   ResultRows : TSQLite3Result;
   Row : TSQLite3ResultRow;
   Profile : TRendererObjectProfile;
-}
 begin
-  {
-  Table := TSQLite3Table.Create(DB.Errors, DB.Handle, LoadObjectsTableName);
+  Profile := TRendererObjectProfile.Create(-1);
+
+  Table := TSQLite3Table.Create(DB.Errors, DB.Handle, Profile.Table);
   ResultRows := Table.Select.Field('id').Get;
+
+  FreeAndNil(Profile);
 
   for Row in ResultRows do
   begin
-    Item := LoadConcreteObject(Row.GetIntegerValue('id'));
-
-    if Item = nil then
-      Continue;
-    
-    FObjectsList.Append(Item);
+    Profile := TRendererObjectProfile.Create(Row.GetIntegerValue('id'));
+    FObjectsList.Append(Profile);
   end;
-  }
-  Result := False;
+
+  Result := True;
 end;
 
 end.

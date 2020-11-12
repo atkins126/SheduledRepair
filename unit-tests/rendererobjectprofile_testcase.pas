@@ -5,8 +5,9 @@ unit rendererobjectprofile_testcase;
 interface
 
 uses
-  Classes, SysUtils, Graphics, fpcunit, testregistry, renderer.profile.profile,
-  renderer.profile.objectprofile, renderer.profile.profileitem;
+  Classes, SysUtils, Graphics, fpcunit, testregistry, objects.measure,
+  renderer.profile.profile, renderer.profile.objectprofile,
+  renderer.profile.profileitem;
 
 type
   TRendererObjectProfileTestCase = class(TTestCase)
@@ -22,7 +23,7 @@ procedure TRendererObjectProfileTestCase.Test_RendererObjectProfile_CheckSchema;
 var
   obj_profile : TRendererObjectProfile;
 begin
-  obj_profile := TRendererObjectProfile.Create(-1);
+  obj_profile := TRendererObjectProfile.Create(-1, nil);
   AssertTrue('Database table schema is not correct', obj_profile.CheckSchema);
   FreeAndNil(obj_profile);
 end;
@@ -30,10 +31,12 @@ end;
 procedure TRendererObjectProfileTestCase.Test_RendererObjectProfile_SaveAndLoad;
 var
   obj_profile : TRendererObjectProfile;
+  measure : TMeasure;
   item : TRendererProfileItem;
   id : Int64;
 begin
-  obj_profile := TRendererObjectProfile.Create(-1);
+  measure := TMeasure.Create(-1);
+  obj_profile := TRendererObjectProfile.Create(-1, measure);
   AssertTrue('Database table schema is not correct', obj_profile.CheckSchema);
 
   obj_profile.DefaultProfile.Background := clDefault;
@@ -140,7 +143,7 @@ begin
   id := obj_profile.ID;
   FreeAndNil(obj_profile);
 
-  obj_profile := TRendererObjectProfile.Create(id);
+  obj_profile := TRendererObjectProfile.Create(id, measure);
   AssertTrue('RendererObjectProfile object load error', obj_profile.Load);
   AssertTrue('RendererObjectProfile object ''ID'' is not correct error', 
     obj_profile.ID = id);
@@ -321,16 +324,19 @@ begin
   AssertTrue('RendererObjectProfile object ''HoverProfile'' item ''value.Position.Y'' is not correct error', 
     obj_profile.HoverProfile.Items['value'].Position.Y = 0); 
 
-  FreeAndNil(obj_profile);  
+  FreeAndNil(obj_profile);
+  FreeAndNil(measure);
 end;
 
 procedure TRendererObjectProfileTestCase.Test_RendererObjectProfile_Delete;
 var
   obj_profile : TRendererObjectProfile;
+  measure : TMeasure;
   item : TRendererProfileItem;
   id : Int64;
 begin
-  obj_profile := TRendererObjectProfile.Create(-1);
+  measure := TMeasure.Create(-1);
+  obj_profile := TRendererObjectProfile.Create(-1, measure);
   AssertTrue('Database table schema is not correct', obj_profile.CheckSchema);
 
   obj_profile.DefaultProfile.Background := clDefault;
@@ -437,7 +443,7 @@ begin
   id := obj_profile.ID;
   FreeAndNil(obj_profile);
 
-  obj_profile := TRendererObjectProfile.Create(id);
+  obj_profile := TRendererObjectProfile.Create(id, measure);
   AssertTrue('RendererObjectProfile object load error', obj_profile.Load);
   AssertTrue('RendererObjectProfile object ''ID'' is not correct error', 
     obj_profile.ID = id);
@@ -622,7 +628,8 @@ begin
   AssertTrue('RendererObjectProfile object impossible load', 
     not obj_profile.Load);
 
-  FreeAndNil(obj_profile); 
+  FreeAndNil(obj_profile);
+  FreeAndNil(measure);
 end;
 
 initialization
