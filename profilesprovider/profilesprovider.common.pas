@@ -22,7 +22,7 @@
 (* Floor, Boston, MA 02110-1335, USA.                                         *)
 (*                                                                            *)
 (******************************************************************************)
-unit dataproviders.common;
+unit profilesprovider.common;
 
 {$mode objfpc}{$H+}
 {$IFOPT D+}
@@ -33,52 +33,46 @@ interface
 
 uses
   SysUtils, database, sqlite3.table, container.arraylist, utils.functor,
-  sqlite3.result, sqlite3.result_row, objects.common;
+  sqlite3.result, sqlite3.result_row, renderer.profile.objectprofile;
 
 type
-  TCommonDataProvider = class
+  TCommonProfilesProvider = class
   public
     constructor Create;
     destructor Destroy; override;
     
-    { Load objects. }
+    { Load profiles. }
     function Load : Boolean; virtual;
 
-    { Append new object to list. }
-    procedure Append (AObject : TCommonObject);
+    { Append new profile to list. }
+    procedure Append (AProfile : TRendererObjectProfile);
 
-    { Remove object from list by index. }
-    procedure Remove (AObjectIndex : Cardinal);
+    { Remove profile from list by index. }
+    procedure Remove (AProfileIndex : Cardinal);
 
-    { Get object by index. }
-    function GetObject (AObjectIndex : Cardinal) : TCommonObject;
+    { Get profile by index. }
+    function GetObject (AProfileIndex : Cardinal) : TRendererObjectProfile;
   protected
-    { Get current loaded objects table name. }
-    function LoadObjectsTableName : String; virtual; abstract;
-
-    { Load concrete object. }
-    function LoadConcreteObject (AID : Int64) : TCommonObject; virtual; 
-      abstract;
-  protected
-    type
-      TObjectsCompareFunctor = class
-        (specialize TBinaryFunctor<TCommonObject, Integer>)
+      TProfilesCompareFunctor = class
+        (specialize TBinaryFunctor<TRendererObjectProfile, Integer>)
       public
-        function Call (AValue1, AValue2 : TCommonObject) : Integer; override;
+        function Call (AValue1, AValue2 : TRendererObjectProfile) : Integer; 
+          override;
       end;
 
-      TObjectsList = class
-        (specialize TArrayList<TCommonObject, TObjectsCompareFunctor>);
+      TProfilesList = class
+        (specialize TArrayList<TRendererObjectProfile, 
+        TProfilesCompareFunctor>);
   protected
-    FObjectsList : TObjectsList;
+    FProfilesList : TProfilesList;
   end;
 
 implementation
 
-{ TCommonDataProvider.TObjectsCompareFunctor }
+{ TCommonProfilesProvider.TProfilesCompareFunctor }
 
-function TCommonDataProvider.TObjectsCompareFunctor.Call (AValue1, AValue2 :
-  TCommonObject) : Integer;
+function TCommonProfilesProvider.TProfilesCompareFunctor.Call (AValue1, 
+  AValue2 : TRendererObjectProfile) : Integer;
 begin
   if AValue1.ID < AValue2.ID then
     Result := -1
@@ -88,46 +82,49 @@ begin
     Result := 0;
 end;
 
-{ TCommonDataProvider }
+{ TCommonProfilesProvider }
 
-constructor TCommonDataProvider.Create;
+constructor TCommonProfilesProvider.Create;
 begin
-  FObjectsList := TObjectsList.Create;
+  FProfilesList := TProfilesList.Create;
 end;
 
-destructor TCommonDataProvider.Destroy;
+destructor TCommonProfilesProvider.Destroy;
 begin
-  FreeAndNil(FObjectsList);
+  FreeAndNil(FProfilesList);
   inherited Destroy;
 end;
 
-procedure TCommonDataProvider.Append (AObject : TCommonObject);
+procedure TCommonProfilesProvider.Append (AProfile : TRendererObjectProfile);
 begin
-  FObjectsList.Append(AObject);
+  FProfilesList.Append(AProfile);
 end;
 
-procedure TCommonDataProvider.Remove (AObjectIndex : Cardinal);
+procedure TCommonProfilesProvider.Remove (AProfileIndex : Cardinal);
 begin
-  if AObjectIndex < FObjectsList.Length then
-    FObjectsList.Remove(AObjectIndex);
+  if AProfileIndex < FProfilesList.Length then
+    FProfilesList.Remove(AProfileIndex);
 end;
 
-function TCommonDataProvider.GetObject (AObjectIndex : Cardinal) : 
-  TCommonObject;
+function TCommonProfilesProvider.GetObject (AProfileIndex : Cardinal) : 
+  TRendererObjectProfile;
 begin
-  if AObjectIndex < FObjectsList.Length then
-    Exit(FObjectsList.Value[AObjectIndex]);
+  if AProfileIndex < FProfilesList.Length then
+    Exit(FProfilesList.Value[AProfileIndex]);
   
   Result := nil;
 end;
 
-function TCommonDataProvider.Load : Boolean;
+function TCommonProfilesProvider.Load : Boolean;
 var
+{
   Table : TSQLite3Table;
   ResultRows : TSQLite3Result;
   Row : TSQLite3ResultRow;
-  Item : TCommonObject;
+  Profile : TRendererObjectProfile;
+}
 begin
+  {
   Table := TSQLite3Table.Create(DB.Errors, DB.Handle, LoadObjectsTableName);
   ResultRows := Table.Select.Field('id').Get;
 
@@ -140,6 +137,8 @@ begin
     
     FObjectsList.Append(Item);
   end;
+  }
+  Result := False;
 end;
 
 end.

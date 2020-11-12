@@ -32,18 +32,13 @@ unit dataproviders.mainmenu;
 interface
 
 uses
-  SysUtils, Graphics, dataproviders.common, objects.common,
-  objects.mainmenu.item, renderer.profile.objectprofile,
-  renderer.profile.profileitem;
+  SysUtils, dataproviders.common, objects.common, objects.mainmenu.item;
 
 type
   TMainMenuDataProvider = class(TCommonDataProvider)
   public
     function Load : Boolean; override;
   protected
-    { Set default object renderer profile. }
-    function DefaultObjectProfile :  TRendererObjectProfile; override;
-
     { Get current loaded objects table name. }
     function LoadObjectsTableName : String; override;
 
@@ -66,26 +61,6 @@ begin
   Append(MenuItem);
 
   Result := True;
-end;
-
-function TMainMenuDataProvider.DefaultObjectProfile :  TRendererObjectProfile;
-begin
-  Result := TRendererObjectProfile.Create(-1);
-
-  { Set default profile items. }
-  Result.DefaultProfile.Background := clWhite;
-  Result.DefaultProfile.Items['Icon'] := TRendererProfileItem.Create(-1);
-  Result.DefaultProfile.Items['Title'] := TRendererProfileItem.Create(-1);
-
-  { Set selected profile items. }
-  Result.SelectedProfile.Background := clYellow;
-  Result.SelectedProfile.Items['Icon'] := TRendererProfileItem.Create(-1);
-  Result.SelectedProfile.Items['Title'] := TRendererProfileItem.Create(-1);
-
-  { Set hover profile items. }
-  Result.HoverProfile.Background := clSilver;
-  Result.HoverProfile.Items['Icon'] := TRendererProfileItem.Create(-1);
-  Result.HoverProfile.Items['Title'] := TRendererProfileItem.Create(-1);
 end;
 
 function TMainMenuDataProvider.LoadObjectsTableName : String;

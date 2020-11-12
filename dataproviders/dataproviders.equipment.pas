@@ -32,8 +32,7 @@ unit dataproviders.equipment;
 interface
 
 uses
-  SysUtils, dataproviders.common, objects.common, objects.equipment,
-  renderer.profile.objectprofile, renderer.profile.profileitem;
+  SysUtils, dataproviders.common, objects.common, objects.equipment;
 
 type
   TEquipmentDataProvider = class(TCommonDataProvider)
@@ -43,9 +42,6 @@ type
 
     { Load concrete object. }
     function LoadConcreteObject (AID : Int64) : TCommonObject; override;
-
-    { Set default object renderer profile. }
-    function DefaultObjectProfile :  TRendererObjectProfile; override;
   end;
 
 implementation
@@ -74,14 +70,6 @@ begin
   end;
 
   Result := Equipment;
-end;
-
-function TEquipmentDataProvider.DefaultObjectProfile : TRendererObjectProfile;
-begin
-  Result := TRendererObjectProfile.Create(-1);
-  Result.DefaultProfile.Items['Name'] := TRendererProfileItem.Create(-1);
-  Result.SelectedProfile.Items['Name'] := TRendererProfileItem.Create(-1);
-  Result.HoverProfile.Items['Name'] := TRendererProfileItem.Create(-1);
 end;
 
 end.

@@ -108,45 +108,19 @@ end;
 function TCommonRenderer.ItemHeight (ANode : PVirtualNode; ACanvas : TCanvas;
   AIndex : Cardinal; AItemType : Integer; AData : TCommonObject) : Cardinal;
 begin
-  { Get hover item profile item height. }
-  if (FDataProvider.GetObjectProfile(AIndex).HoverProfile.Enable) and
-     (FTreeView.HotNode = ANode) then
-    Exit(FDataProvider.GetObjectProfile(AIndex).HoverProfile.Height);
-
-  { Get selected item profile item height. }
-  if (FDataProvider.GetObjectProfile(AIndex).SelectedProfile.Enable) and
-     (FTreeView.Selected[ANode]) then
-    Exit(FDataProvider.GetObjectProfile(AIndex).SelectedProfile.Height);
-
-  { Get default item profile item height. }
-  Result := FDataProvider.GetObjectProfile(AIndex).DefaultProfile.Height;
+  Result := 24;
 end;
 
 procedure TCommonRenderer.ItemDraw (ANode : PVirtualNode; AColumn : 
   TColumnIndex; AItemType : Integer; ACanvas : TCanvas; ACellRect : TRect; 
   AContentRect :  TRect; AState : TItemStates; AData : TCommonObject);
 begin
-  { Draw a row. }
-  Draw(AItemType, ACanvas, ACellRect, AState, AData, 
-    FDataProvider.GetObjectProfile(ANode^.Index));
+
 end;
 
 procedure TCommonRenderer.Update;
-var
-  i : Integer;
 begin
-  if not FDataProvider.Load then
-    Exit;
 
-  FTreeView.BeginUpdate;
-  FTreeView.Clear;
-
-  for i := 0 to FDataProvider.GetObjectsCount - 1 do
-  begin
-    AppendData(nil, 0, FDataProvider.GetObject(i));
-  end;
-
-  FTreeView.EndUpdate;
 end;
 
 end.
