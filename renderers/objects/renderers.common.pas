@@ -32,95 +32,17 @@ unit renderers.common;
 interface
 
 uses
-  SysUtils, Classes, Graphics, Types, VirtualTrees, renderers.virtualtreeview,
-  renderer.profile.objectprofile, renderer.profile.profileitem, objects.common, 
-  objects.mainmenu.item, dataproviders.common;
+  SysUtils, Classes, Graphics, Types, renderer.profile.profile, 
+  renderer.profile.profileitem, objects.common;
 
 type
   TCommonRenderer = class
-    (specialize TVirtualTreeViewRenderer<TCommonObject>)
   public
-    constructor Create (ATreeView : TVirtualDrawTree; ADataProvider : 
-      TCommonDataProvider);
-    destructor Destroy; override;
-
-    { Update rendered data. }
-    procedure Update;
-  protected
-    { Draw item. }
-    procedure Draw (AItemType : Integer; ACanvas : TCanvas; ARect : TRect;
-      AState : TItemStates; AObject : TCommonObject; AProfile :
-      TRendererObjectProfile); virtual; abstract;
-  protected
-    { Get tree item height. }
-    function ItemHeight (ANode : PVirtualNode; ACanvas : TCanvas; AIndex : 
-      Cardinal; AItemType : Integer; AData : TCommonObject) : Cardinal; 
-      override;
-
-    { Draw tree item. }
-    procedure ItemDraw (ANode : PVirtualNode; AColumn : TColumnIndex; 
-      AItemType : Integer; ACanvas : TCanvas; ACellRect : TRect; AContentRect : 
-      TRect; AState : TItemStates; AData : TCommonObject); override;
-
-    { Resize virtual tree view event. }
-    procedure TreeResize (ASender : TObject);
-
-    { Scroll virtual tree view event. }
-    procedure ShowScrollBar (ASender : TBaseVirtualTree; ABar : Integer; AShow : 
-      Boolean);
-  protected
-    FDataProvider : TCommonDataProvider;
+    { Draw object using renderer profile. }
+    procedure Draw (AObject : TCommonObject; AProfile : TRendererProfile;
+      ACanvas : TCanvas; ARect : TRect); virtual; abstract;
   end;
 
 implementation
-
-{ TMainMenuRenderer }
-
-constructor TCommonRenderer.Create (ATreeView : TVirtualDrawTree;
-  ADataProvider : TCommonDataProvider);
-begin
-  inherited Create(ATreeView, []);
-  FDataProvider := ADataProvider;
-
-  FTreeView.OnResize := @TreeResize;
-  FTreeView.OnShowScrollBar := @ShowScrollBar;
-
-  { Create one column. }
-  AppendColumn (FTreeView.ClientWidth);
-end;
-
-destructor TCommonRenderer.Destroy;
-begin
-  inherited Destroy;
-end;
-
-procedure TCommonRenderer.TreeResize (ASender : TObject);
-begin
-  FTreeView.Header.Columns[0].Width := FTreeView.ClientWidth;
-end;
-
-procedure TCommonRenderer.ShowScrollBar (ASender : TBaseVirtualTree; 
-  ABar : Integer; AShow : Boolean);
-begin
-  TreeResize(FTreeView);
-end;
-
-function TCommonRenderer.ItemHeight (ANode : PVirtualNode; ACanvas : TCanvas;
-  AIndex : Cardinal; AItemType : Integer; AData : TCommonObject) : Cardinal;
-begin
-  Result := 24;
-end;
-
-procedure TCommonRenderer.ItemDraw (ANode : PVirtualNode; AColumn : 
-  TColumnIndex; AItemType : Integer; ACanvas : TCanvas; ACellRect : TRect; 
-  AContentRect :  TRect; AState : TItemStates; AData : TCommonObject);
-begin
-
-end;
-
-procedure TCommonRenderer.Update;
-begin
-
-end;
 
 end.

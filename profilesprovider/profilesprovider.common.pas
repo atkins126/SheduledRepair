@@ -36,7 +36,7 @@ uses
   sqlite3.result, sqlite3.result_row, renderer.profile.objectprofile;
 
 type
-  TCommonProfilesProvider = class
+  generic TCommonProfilesProvider<T> = class
   public
     constructor Create;
     destructor Destroy; override;
@@ -52,6 +52,9 @@ type
 
     { Get profile by index. }
     function GetProfile (AProfileIndex : Cardinal) : TRendererObjectProfile;
+  protected
+    { Get default object profile. }
+    function GetDefaultProfile : TRendererObjectProfile; virtual; abstract;
   protected
       TProfilesCompareFunctor = class
         (specialize TBinaryFunctor<TRendererObjectProfile, Integer>)
@@ -112,7 +115,7 @@ begin
   if AProfileIndex < FProfilesList.Length then
     Exit(FProfilesList.Value[AProfileIndex]);
   
-  Result := nil;
+  Result := GetDefaultProfile;
 end;
 
 function TCommonProfilesProvider.Load : Boolean;
@@ -121,12 +124,16 @@ var
   ResultRows : TSQLite3Result;
   Row : TSQLite3ResultRow;
   Profile : TRendererObjectProfile;
+  CommonObject : T;
 begin
   Profile := TRendererObjectProfile.Create(-1);
+  CommonObject := T.Create(-1);
 
   Table := TSQLite3Table.Create(DB.Errors, DB.Handle, Profile.Table);
-  ResultRows := Table.Select.Field('id').Get;
+  ResultRows := Table.Select.Field('id').Where('object_name', 
+    CommonObject.Table).Get;
 
+  FreeAndNil(CommonObject);
   FreeAndNil(Profile);
 
   for Row in ResultRows do

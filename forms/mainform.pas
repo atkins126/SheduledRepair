@@ -45,9 +45,7 @@ begin
   FProfileEditor.Height := Self.Height;
   FProfileEditor.Show;
 
-  FMainMenuDataProvider := TMainMenuDataProvider.Create;
-  FMainMenuRenderer := TMainMenuRenderer.Create(MainMenu, FMainMenuDataProvider);
-  FMainMenuRenderer.Update;
+
 end;
 
 procedure TMainWindow.FormDestroy(Sender: TObject);
