@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, ComCtrls, VirtualTrees, renderer.profile.profile,
-  renderer.profile.profileitem, renderers.profile.inspector;
+  renderer.profile.profileitem, renderers.inspector;
 
 type
 

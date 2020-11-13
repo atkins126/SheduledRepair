@@ -24,8 +24,7 @@ type
     procedure FormDestroy(Sender: TObject);
   private
     FProfileEditor : TProfileWindow;
-    FMainMenuRenderer : TMainMenuRenderer;
-    FMainMenuDataProvider : TMainMenuDataProvider;
+
   end;
 
 var

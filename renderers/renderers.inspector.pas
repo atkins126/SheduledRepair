@@ -22,7 +22,7 @@
 (* Floor, Boston, MA 02110-1335, USA.                                         *)
 (*                                                                            *)
 (******************************************************************************)
-unit renderers.profile.inspector;
+unit renderers.inspector;
 
 {$mode objfpc}{$H+}
 {$IFOPT D+}

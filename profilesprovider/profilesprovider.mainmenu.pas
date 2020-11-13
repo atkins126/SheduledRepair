@@ -33,15 +33,17 @@ interface
 
 uses
   SysUtils, Graphics, renderer.profile.objectprofile, renderer.profile.profile,
-  renderer.profile.profileitem, objects.mainmenu.item;
+  renderer.profile.profileitem;
 
 type
-  TMainMenuProfilesProvider = class 
-    (specialize TCommonProfilesProvider<TMainMenuItem>)
+  TMainMenuProfilesProvider = class (TCommonProfilesProvider)
   public
     { Load profiles. }
     function Load : Boolean; override;
   protected
+    { Get current loaded objects table name. }
+    function LoadObjectsTableName : String; override;
+
     { Get default object profile. }
     function GetDefaultProfile : TRendererObjectProfile; override;
   end;
@@ -49,6 +51,11 @@ type
 implementation
 
 { TMainMenuProfilesProvider }
+
+function TMainMenuProfilesProvider.LoadObjectsTableName : String;
+begin
+  Result := '';
+end;
 
 function TMainMenuProfilesProvider.GetDefaultProfile : TRendererObjectProfile;
 begin

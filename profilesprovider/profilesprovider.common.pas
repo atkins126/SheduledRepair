@@ -36,7 +36,7 @@ uses
   sqlite3.result, sqlite3.result_row, renderer.profile.objectprofile;
 
 type
-  generic TCommonProfilesProvider<T> = class
+  TCommonProfilesProvider = class
   public
     constructor Create;
     destructor Destroy; override;
@@ -53,6 +53,9 @@ type
     { Get profile by index. }
     function GetProfile (AProfileIndex : Cardinal) : TRendererObjectProfile;
   protected
+    { Get current loaded objects table name. }
+    function LoadObjectsTableName : String; virtual; abstract;
+
     { Get default object profile. }
     function GetDefaultProfile : TRendererObjectProfile; virtual; abstract;
   protected
@@ -124,14 +127,12 @@ var
   ResultRows : TSQLite3Result;
   Row : TSQLite3ResultRow;
   Profile : TRendererObjectProfile;
-  CommonObject : T;
 begin
   Profile := TRendererObjectProfile.Create(-1);
-  CommonObject := T.Create(-1);
 
   Table := TSQLite3Table.Create(DB.Errors, DB.Handle, Profile.Table);
   ResultRows := Table.Select.Field('id').Where('object_name', 
-    CommonObject.Table).Get;
+   LoadObjectsTableName).Get;
 
   FreeAndNil(CommonObject);
   FreeAndNil(Profile);
