@@ -71,6 +71,9 @@ type
         (specialize TArrayList<TCommonObject, TObjectsCompareFunctor>);
   protected
     FObjectsList : TObjectsList;
+  public
+    { Get enumerator for in operator. }
+    function GetEnumerator : TObjectsList.TIterator;
   end;
 
 implementation
@@ -142,6 +145,11 @@ begin
   end;
 
   Result := True;
+end;
+
+function TCommonDataProvider.GetEnumerator : TObjectsList.TIterator;
+begin
+  Result := FObjectsList.GetEnumerator;
 end;
 
 end.

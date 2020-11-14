@@ -32,8 +32,8 @@ unit profilesprovider.mainmenu;
 interface
 
 uses
-  SysUtils, Graphics, renderer.profile.objectprofile, renderer.profile.profile,
-  renderer.profile.profileitem;
+  SysUtils, Graphics, profilesprovider.common, renderer.profile.objectprofile,
+  renderer.profile.profile, renderer.profile.profileitem;
 
 type
   TMainMenuProfilesProvider = class (TCommonProfilesProvider)
@@ -59,13 +59,13 @@ end;
 
 function TMainMenuProfilesProvider.GetDefaultProfile : TRendererObjectProfile;
 begin
-  Result := TRendererObjectProfile.Create(-1);
+  Result := TRendererObjectProfile.Create(-1, nil);
 
   { Create main menu item default profile. }
   with Result.DefaultProfile do
   begin
     Enable := True;
-    Height := 25;
+    Height := 35;
     Background := clWhite;
   end;
 
@@ -77,24 +77,24 @@ begin
     Enable := True;
     Background := clWhite;
     BackgroundFillType := FILL_NONE;
-    BackgroundBorderRadius := 0;
+    BackgroundRoundRadius := 0;
     FontName := 'default';
-    FontSize := 14;
+    FontSize := 12;
     FontColor := clBlack;
-    Padding.Top := 0;
+    Padding.Top := 5;
     Padding.Left := 0;
-    Padding.Bottom := 0;
+    Padding.Bottom := 5;
     Padding.Right := 0;
     PositionType := POSITION_FIXED;
     Position.X := 15;
-    Positioin.Y := 14;    
+    Position.Y := 2;
   end;
 
   { Create main menu item selected profile. }
   with Result.SelectedProfile do
   begin
     Enable := True;
-    Height := 25;
+    Height := 35;
     Background := clYellow;
   end;
 
@@ -106,24 +106,24 @@ begin
     Enable := True;
     Background := clWhite;
     BackgroundFillType := FILL_NONE;
-    BackgroundBorderRadius := 0;
+    BackgroundRoundRadius := 0;
     FontName := 'default';
-    FontSize := 14;
+    FontSize := 12;
     FontColor := clBlack;
-    Padding.Top := 0;
+    Padding.Top := 5;
     Padding.Left := 0;
-    Padding.Bottom := 0;
+    Padding.Bottom := 5;
     Padding.Right := 0;
     PositionType := POSITION_FIXED;
     Position.X := 15;
-    Positioin.Y := 14;    
+    Position.Y := 2;
   end;
 
   { Create main menu item hover profile. }
   with Result.HoverProfile do
   begin
     Enable := True;
-    Height := 25;
+    Height := 35;
     Background := clSilver;
   end;  
 
@@ -135,17 +135,17 @@ begin
     Enable := True;
     Background := clWhite;
     BackgroundFillType := FILL_NONE;
-    BackgroundBorderRadius := 0;
+    BackgroundRoundRadius := 0;
     FontName := 'default';
-    FontSize := 14;
+    FontSize := 12;
     FontColor := clBlack;
-    Padding.Top := 0;
+    Padding.Top := 5;
     Padding.Left := 0;
-    Padding.Bottom := 0;
+    Padding.Bottom := 5;
     Padding.Right := 0;
     PositionType := POSITION_FIXED;
     Position.X := 15;
-    Positioin.Y := 14;    
+    Position.Y := 2;
   end;
 end;
 
@@ -153,7 +153,7 @@ function TMainMenuProfilesProvider.Load : Boolean;
 var
   ProfileObject : TRendererObjectProfile;
 begin
-  ProfileObject := TRendererObjectProfile.Create(-1);  
+  ProfileObject := TRendererObjectProfile.Create(-1, nil);
 
   { Create item logo default profile. }
   with ProfileObject.DefaultProfile do
@@ -172,7 +172,7 @@ begin
     Enable := True;
     Background := clWhite;
     BackgroundFillType := FILL_NONE;
-    BackgroundBorderRadius := 0;
+    BackgroundRoundRadius := 0;
     FontName := 'default';
     FontSize := 18;
     FontColor := clBlack;
@@ -181,8 +181,8 @@ begin
     Padding.Bottom := 0;
     Padding.Right := 0;
     PositionType := POSITION_FLOAT;
-    Position.X := 15;
-    Positioin.Y := 45;    
+    Position.X := 20;
+    Position.Y := 30;
   end;
 
   { Create item logo selected profile. }
@@ -190,7 +190,7 @@ begin
   begin
     Enable := False;
     Height := 60;
-    Backgorund := clWhite;
+    Background := clWhite;
   end;
 
   { Create item logo selected profile items. }
@@ -202,7 +202,7 @@ begin
     Enable := True;
     Background := clWhite;
     BackgroundFillType := FILL_NONE;
-    BackgroundBorderRadius := 0;
+    BackgroundRoundRadius := 0;
     FontName := 'default';
     FontSize := 18;
     FontColor := clBlack;
@@ -211,8 +211,8 @@ begin
     Padding.Bottom := 0;
     Padding.Right := 0;
     PositionType := POSITION_FLOAT;
-    Position.X := 15;
-    Positioin.Y := 45;    
+    Position.X := 20;
+    Position.Y := 30;
   end;
 
   { Create item logo hover profile. }
@@ -220,7 +220,7 @@ begin
   begin
     Enable := False;
     Height := 60;
-    Backgorund := clWhite;
+    Background := clWhite;
   end;
 
   { Create item logo hover profile items. }
@@ -232,7 +232,7 @@ begin
     Enable := True;
     Background := clWhite;
     BackgroundFillType := FILL_NONE;
-    BackgroundBorderRadius := 0;
+    BackgroundRoundRadius := 0;
     FontName := 'default';
     FontSize := 18;
     FontColor := clBlack;
@@ -241,8 +241,8 @@ begin
     Padding.Bottom := 0;
     Padding.Right := 0;
     PositionType := POSITION_FLOAT;
-    Position.X := 15;
-    Positioin.Y := 45;    
+    Position.X := 20;
+    Position.Y := 30;
   end;  
 
   Append(ProfileObject);  

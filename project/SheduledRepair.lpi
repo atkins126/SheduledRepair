@@ -127,20 +127,21 @@
         <IsPartOfProject Value="True"/>
       </Unit20>
       <Unit21>
-        <Filename Value="../renderers/objects/renderers.profile.inspector.pas"/>
+        <Filename Value="../renderers/objects/renderers.common.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit21>
       <Unit22>
-        <Filename Value="../renderers/objects/renderers.common.pas"/>
+        <Filename Value="../renderers/objects/renderers.mainmenu.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit22>
       <Unit23>
-        <Filename Value="../renderers/objects/renderers.mainmenu.pas"/>
+        <Filename Value="../profilesprovider/profilesprovider.common.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit23>
       <Unit24>
-        <Filename Value="../profilesprovider/profilesprovider.common.pas"/>
+        <Filename Value="../renderers/renderer.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="renderers.renderer"/>
       </Unit24>
     </Units>
   </ProjectOptions>

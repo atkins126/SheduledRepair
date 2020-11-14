@@ -109,18 +109,25 @@ begin
   if not AProfileItem.Enable then
     Exit;
 
+  TitleRect := CalculateTitleRect;
+
   case AProfileItem.BackgroundFillType of
     FILL_NONE : begin { Transparent background. } end;
     FILL_SQUARE : begin
       ACanvas.Brush.Color := AProfileItem.Background;
-      ACanvas.FillRect(CalculateTitleRect);
+      ACanvas.FillRect(TitleRect);
     end;
     FILL_SQUARE_ROUND_CORNER : begin
       ACanvas.Brush.Color := AProfileItem.Background;
-      ACanvas.RoundRect(CalculateTitleRect, AProfileItem.BackgroundRoundRadius,
+      ACanvas.RoundRect(TitleRect, AProfileItem.BackgroundRoundRadius,
         AProfileItem.BackgroundRoundRadius);
     end;
   end;
+
+  ACanvas.Font.Color := AProfileItem.FontColor;
+  ACanvas.Font.Size := AProfileItem.FontSize;
+  ACanvas.Font.Name := AProfileItem.FontName;
+  ACanvas.TextOut(TitleRect.Left, TitleRect.Top, AObject.Title);
 end;
 
 procedure TMainMenuRenderer.Draw(AObject : TCommonObject; AProfile : 

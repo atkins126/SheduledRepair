@@ -59,6 +59,7 @@ type
     { Get default object profile. }
     function GetDefaultProfile : TRendererObjectProfile; virtual; abstract;
   protected
+    type
       TProfilesCompareFunctor = class
         (specialize TBinaryFunctor<TRendererObjectProfile, Integer>)
       public
@@ -128,19 +129,18 @@ var
   Row : TSQLite3ResultRow;
   Profile : TRendererObjectProfile;
 begin
-  Profile := TRendererObjectProfile.Create(-1);
+  Profile := TRendererObjectProfile.Create(-1, nil);
 
   Table := TSQLite3Table.Create(DB.Errors, DB.Handle, Profile.Table);
   ResultRows := Table.Select.Field('id').Where('object_name', 
    LoadObjectsTableName).Get;
 
-  FreeAndNil(CommonObject);
   FreeAndNil(Profile);
 
   for Row in ResultRows do
   begin
-    Profile := TRendererObjectProfile.Create(Row.GetIntegerValue('id'));
-    FObjectsList.Append(Profile);
+    Profile := TRendererObjectProfile.Create(Row.GetIntegerValue('id'), nil);
+    FProfilesList.Append(Profile);
   end;
 
   Result := True;

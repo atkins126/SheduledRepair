@@ -54,10 +54,13 @@ function TMainMenuDataProvider.Load : Boolean;
 var
   MenuItem : TMainMenuItem;
 begin
-  MenuItem := TMainMenuItem.Create(0, MENU_ITEM_LOGO, '');
+  MenuItem := TMainMenuItem.Create(0, MENU_ITEM_LOGO, 'SheduledRepair');
   Append(MenuItem);
 
-  MenuItem := TMainMenuItem.Create(1, MENU_ITEM, 'Equipment');
+  MenuItem := TMainMenuItem.Create(1, MENU_ITEM, 'Job');
+  Append(MenuItem);
+
+  MenuItem := TMainMenuItem.Create(2, MENU_ITEM, 'Equipment');
   Append(MenuItem);
 
   Result := True;

@@ -5,7 +5,8 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, ExtCtrls, StdCtrls,
-  VirtualTrees, profileform, renderers.mainmenu, dataproviders.mainmenu;
+  VirtualTrees, profileform, renderers.mainmenu, dataproviders.mainmenu,
+  profilesprovider.mainmenu, renderers.renderer;
 
 type
 
@@ -25,6 +26,10 @@ type
   private
     FProfileEditor : TProfileWindow;
 
+    MenuDataProvider : TMainMenuDataProvider;
+    MenuProfileProvider : TMainMenuProfilesProvider;
+    MenuRenderer : TMainMenuRenderer;
+    Renderer : TRenderer;
   end;
 
 var
@@ -44,11 +49,24 @@ begin
   FProfileEditor.Height := Self.Height;
   FProfileEditor.Show;
 
+  MenuDataProvider := TMainMenuDataProvider.Create;
+  MenuProfileProvider := TMainMenuProfilesProvider.Create;
+  MenuRenderer := TMainMenuRenderer.Create;
 
+  MenuDataProvider.Load;
+  MenuProfileProvider.Load;
+
+  Renderer := TRenderer.Create(MainMenu);
+  Renderer.Update(MenuDataProvider, MenuProfileProvider, MenuRenderer);
 end;
 
 procedure TMainWindow.FormDestroy(Sender: TObject);
 begin
+  FreeAndNil(Renderer);
+  FreeAndNil(MenuDataProvider);
+  FreeAndNil(MenuProfileProvider);
+  FreeAndNil(MenuRenderer);
+
   FreeAndNil(FProfileEditor);
 end;
 

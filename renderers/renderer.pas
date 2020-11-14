@@ -22,7 +22,7 @@
 (* Floor, Boston, MA 02110-1335, USA.                                         *)
 (*                                                                            *)
 (******************************************************************************)
-unit renderers.virtualtreeview;
+unit renderers.renderer;
 
 {$mode objfpc}{$H+}
 {$IFOPT D+}
@@ -32,8 +32,9 @@ unit renderers.virtualtreeview;
 interface
 
 uses
-  SysUtils, VirtualTrees, objects.common, renderers.virtualtreeview,
-  dataproviders.common, profilesprovider.common, renderers.common;
+  SysUtils, Graphics, Types, VirtualTrees, objects.common,
+  renderers.virtualtreeview, dataproviders.common, profilesprovider.common,
+  renderers.common;
 
 type
   TRenderer = class (specialize TVirtualTreeViewRenderer<TCommonObject>)
@@ -91,13 +92,59 @@ begin
 end;
 
 procedure TRenderer.UpdateData;
+var
+  Obj : TCommonObject;
 begin
   FTreeView.BeginUpdate;
   FTreeView.Clear;  
 
-    
+  for Obj in FDataProvider do
+  begin
+    AppendData(nil, 0, Obj);
+  end;
 
   FTreeView.EndUpdate;
+end;
+
+function TRenderer.ItemHeight (ANode : PVirtualNode; ACanvas : TCanvas; AIndex : 
+  Cardinal; AItemType : Integer; AData : TCommonObject) : Cardinal;
+begin
+  if (FTreeView.HotNode = ANode) and
+     (FProfileProvider.GetProfile(AIndex).HoverProfile.Enable) then
+    Exit(FProfileProvider.GetProfile(AIndex).HoverProfile.Height);
+
+  if (FTreeView.Selected[ANode]) and
+     (FProfileProvider.GetProfile(AIndex).SelectedProfile.Enable) then
+    Exit(FProfileProvider.GetProfile(AIndex).SelectedProfile.Height);
+  
+  Result := FProfileProvider.GetProfile(AIndex).DefaultProfile.Height;
+end;
+
+procedure TRenderer.ItemDraw (ANode : PVirtualNode; AColumn : TColumnIndex; 
+  AItemType : Integer; ACanvas : TCanvas; ACellRect : TRect; AContentRect : 
+  TRect; AState : TItemStates; AData : TCommonObject);
+begin
+  if (FTreeView.HotNode = ANode) and
+     (FProfileProvider.GetProfile(ANode^.Index).HoverProfile.Enable) then
+  begin
+    FRenderer.Draw(AData, 
+      FProfileProvider.GetProfile(ANode^.Index).HoverProfile, ACanvas,
+      ACellRect);
+    Exit;
+  end;
+
+  if (FTreeView.Selected[ANode]) and
+     (FProfileProvider.GetProfile(ANode^.Index).SelectedProfile.Enable) then
+  begin
+    FRenderer.Draw(AData,
+      FProfileProvider.GetProfile(ANode^.Index).SelectedProfile, ACanvas,
+      ACellRect);
+    Exit;
+  end;
+
+  FRenderer.Draw(AData, 
+    FProfileProvider.GetProfile(ANode^.Index).DefaultProfile, ACanvas,
+      ACellRect);
 end;
 
 end.
