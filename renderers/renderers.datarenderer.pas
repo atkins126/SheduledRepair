@@ -50,6 +50,10 @@ type
     FProfileProvider : TCommonProfilesProvider;
     FRenderer : TCommonRenderer;
   private
+    { Setup VirtualTreeView parameters. }
+    procedure TreeViewParams;
+      {$IFNDEF DEBUG}inline;{$ENDIF}
+
     { Return true if ANode is selected. }
     function SelectedNode (ANode : PVirtualNode) : Boolean;
       {$IFNDEF DEBUG}inline;{$ENDIF}
@@ -63,8 +67,19 @@ type
       ANode : PVirtualNode; var ANodeHeight : Integer);
 
     { Redraw hover node. }
-    procedure NodeHotChange (ASender: TBaseVirtualTree; AOldNode, ANewNode:
+    procedure NodeHotChange (ASender : TBaseVirtualTree; AOldNode, ANewNode :
       PVirtualNode);
+
+    { Draw node. }
+    procedure NodeDraw (ASender : TBaseVirtualTree; const APaintInfo :
+      TVTPaintInfo);
+
+    { Resize VirtualTreeNode. }
+    procedure TreeResize (ASender : TObject);
+
+    { On show scrollbars. }
+    procedure ShowScrollBar (ASender : TBaseVirtualTree; ABar : Integer; AShow : 
+      Boolean);
   end;
 
 implementation
@@ -79,11 +94,35 @@ begin
   FDataProvider := ADataProvider;
   FProfileProvider := AProfileProvider;
   FRenderer := ARenderer;
+
+  TreeViewParams;
+
+  
 end;
 
 destructor TDataRenderer.Destroy;
 begin
   inherited Destroy;
+end;
+
+procedure TDataRenderer.TreeViewParams;
+begin
+  with FTreeView do
+  begin
+    NodeDataSize := SizeOf(Pointer);
+    TreeOptions.PaintOptions := [toShowRoot, toUseBlendedImages, toHotTrack, 
+      toHideFocusRect, toAlwaysHideSelection, toHideSelection];
+    TreeOptions.MiscOptions := [toFullRepaintResize, toVariableNodeHeight, 
+      toWheelPanning];
+    TreeOptions.SelectionOptions := [];
+
+    OnMeasureItem := @NodeMeasure;
+    OnDrawNode := @NodeDraw;
+    OnResize := @TreeResize;
+    OnShowScrollBar := @ShowScrollBar;
+
+    Header.Columns.Clear;
+  end;
 end;
 
 function TDataRenderer.SelectedNode (ANode : PVirtualNode) : Boolean;
@@ -124,6 +163,45 @@ procedure TDataRenderer.NodeHotChange (ASender : TBaseVirtualTree; AOldNode,
 begin
   FTreeView.InvalidateNode(AOldNode);
   FTreeView.InvalidateNode(ANewNode);
+end;
+
+procedure TDataRenderer.NodeDraw (ASender : TBaseVirtualTree; const APaintInfo :
+  TVTPaintInfo);
+begin
+  if (HoverNode(APaintInfo.Node)) and
+     (FProfileProvider.GetProfile(APaintInfo.Node^.Index).HoverProfile.Enable)
+     then
+  begin
+    FRenderer.Draw(FDataProvider.GetObject(APaintInfo.Node^.Index), 
+      FProfileProvider.GetProfile(APaintInfo.Node^.Index).HoverProfile, 
+      APaintInfo.Canvas, APaintInfo.CellRect);  
+    Exit;
+  end;
+
+  if (SelectedNode(APaintInfo.Node)) and
+    (FProfileProvider.GetProfile(APaintInfo.Node^.Index).SelectedProfile.Enable)
+     then
+  begin
+    FRenderer.Draw(FDataProvider.GetObject(APaintInfo.Node^.Index),
+      FProfileProvider.GetProfile(APaintInfo.Node^.Index).SelectedProfile,
+      APaintInfo.Canvas, APaintInfo.CellRect);
+    Exit;
+  end;
+
+  FRenderer.Draw(FDataProvider.GetObject(APaintInfo.Node^.Index),
+    FProfileProvider.GetProfile(APaintInfo.Node^.Index).HoverProfile,
+    APaintInfo.Canvas, APaintInfo.CellRect);
+end;
+
+procedure TDataRenderer.TreeResize (ASender : TObject);
+begin
+  // ??
+end;
+
+procedure TDataRenderer.ShowScrollBar (ASender : TBaseVirtualTree; ABar : 
+  Integer; AShow : Boolean);
+begin
+  TreeResize(ASender);
 end;
 
 end.
