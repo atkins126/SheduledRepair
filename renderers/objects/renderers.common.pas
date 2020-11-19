@@ -33,16 +33,64 @@ interface
 
 uses
   SysUtils, Classes, Graphics, Types, renderer.profile.profile, 
-  renderer.profile.profileitem, objects.common;
+  renderer.profile.profileitem, objects.common, container.arraylist, 
+  utils.functor;
 
 type
   TCommonRenderer = class
   public
+    constructor Create;
+    destructor Destroy; override;
+
     { Draw object using renderer profile. }
     procedure Draw (AObject : TCommonObject; AProfile : TRendererProfile;
       ACanvas : TCanvas; ARect : TRect); virtual; abstract;
+
+    { Calculate columns. }
+    procedure CalculateColumns (AFullWidth : Cardinal); virtual; abstract;
+  protected
+    type
+      TColumnsList = class
+        (specialize TArrayList<Cardinal, TCompareFunctorCardinal>);
+  protected
+    { Add new column. }
+    procedure AppendColumn (AWidth : Cardinal);
+  
+    { Clear columns. }
+    procedure Clear;
+  protected
+    FColumns : TColumnsList;
+  public
+    function GetEnumerator : TColumnsList.TIterator;
   end;
 
 implementation
+
+{ TCommonRenderer }
+
+constructor TCommonRenderer.Create;
+begin
+  FColumns := TColumnsList.Create;
+end;
+
+destructor TCommonRenderer.Destroy;
+begin
+  FreeAndNil(FColumns);
+end;
+
+procedure TCommonRenderer.AppendColumn (AWidth : Cardinal);
+begin
+  FColumns.Append(AWidth);
+end;
+
+procedure TCommonRenderer.Clear;
+begin
+  FColumns.Clear;
+end;
+
+function TCommonRenderer.GetEnumerator : TColumnsList.TIterator;
+begin
+  Result := FColumns.GetEnumerator;
+end;
 
 end.

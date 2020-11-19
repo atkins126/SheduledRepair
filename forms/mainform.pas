@@ -6,7 +6,7 @@ interface
 uses
   Classes, SysUtils, Forms, Controls, ExtCtrls, StdCtrls,
   VirtualTrees, profileform, renderers.mainmenu, dataproviders.mainmenu,
-  profilesprovider.mainmenu, renderers.renderer;
+  profilesprovider.mainmenu, renderers.datarenderer;
 
 type
 
@@ -29,7 +29,7 @@ type
     MenuDataProvider : TMainMenuDataProvider;
     MenuProfileProvider : TMainMenuProfilesProvider;
     MenuRenderer : TMainMenuRenderer;
-    Renderer : TRenderer;
+    DataRenderer : TDataRenderer;
   end;
 
 var
@@ -56,17 +56,19 @@ begin
   MenuDataProvider.Load;
   MenuProfileProvider.Load;
 
-  Renderer := TRenderer.Create(MainMenu);
-  Renderer.Update(MenuDataProvider, MenuProfileProvider, MenuRenderer);
+  DataRenderer := TDataRenderer.Create(MainMenu, MenuDataProvider,
+    MenuProfileProvider, MenuRenderer);
+  DataRenderer.UpdateData;
 end;
 
 procedure TMainWindow.FormDestroy(Sender: TObject);
 begin
-  FreeAndNil(Renderer);
+  {
+  FreeAndNil(DataRenderer);
   FreeAndNil(MenuDataProvider);
   FreeAndNil(MenuProfileProvider);
   FreeAndNil(MenuRenderer);
-
+  }
   FreeAndNil(FProfileEditor);
 end;
 

@@ -43,7 +43,8 @@ type
       ARenderer : TCommonRenderer);
     destructor Destroy; override;
 
-    
+    { Update data. }
+    procedure UpdateData;
   protected
     FTreeView : TVirtualDrawTree;
     FDataProvider : TCommonDataProvider;
@@ -52,6 +53,10 @@ type
   private
     { Setup VirtualTreeView parameters. }
     procedure TreeViewParams;
+      {$IFNDEF DEBUG}inline;{$ENDIF}
+
+    { Create VirtualTreeView columns. }
+    procedure TreeViewCreateColumns;
       {$IFNDEF DEBUG}inline;{$ENDIF}
 
     { Return true if ANode is selected. }
@@ -96,8 +101,6 @@ begin
   FRenderer := ARenderer;
 
   TreeViewParams;
-
-  
 end;
 
 destructor TDataRenderer.Destroy;
@@ -109,10 +112,10 @@ procedure TDataRenderer.TreeViewParams;
 begin
   with FTreeView do
   begin
-    NodeDataSize := SizeOf(Pointer);
+    NodeDataSize := SizeOf(Cardinal);
     TreeOptions.PaintOptions := [toShowRoot, toUseBlendedImages, toHotTrack, 
       toHideFocusRect, toAlwaysHideSelection, toHideSelection];
-    TreeOptions.MiscOptions := [toFullRepaintResize, toVariableNodeHeight, 
+    TreeOptions.MiscOptions := [toFullRepaintOnResize, toVariableNodeHeight,
       toWheelPanning];
     TreeOptions.SelectionOptions := [];
 
@@ -122,6 +125,23 @@ begin
     OnShowScrollBar := @ShowScrollBar;
 
     Header.Columns.Clear;
+    TreeViewCreateColumns;
+  end;
+end;
+
+procedure TDataRenderer.TreeViewCreateColumns;
+var
+  Width : Cardinal;
+  Column : TVirtualTreeColumn;
+begin
+  FTreeView.Header.Columns.Clear;
+  FRenderer.CalculateColumns(FTreeView.ClientWidth);
+
+  for Width in FRenderer do
+  begin
+    Column := FTreeView.Header.Columns.Add;
+    Column.Width := Width;
+    Column.Style := vsOwnerDraw;
   end;
 end;
 
@@ -139,23 +159,23 @@ procedure TDataRenderer.NodeMeasure (ASender : TBaseVirtualTree; ATargetCanvas :
   TCanvas; ANode : PVirtualNode; var ANodeHeight : Integer);
 begin
   if (HoverNode (ANode)) and 
-     (FProfileProvider.GetProfile[ANode^.Index].HoverProfile.Enable) then
+     (FProfileProvider.GetProfile(ANode^.Index).HoverProfile.Enable) then
   begin
     ANodeHeight := 
-      FProfileProvider.GetProfile[ANode^.Index].HoverProfile.Height;
+      FProfileProvider.GetProfile(ANode^.Index).HoverProfile.Height;
     Exit;
   end;
 
   if (SelectedNode(ANode)) and
-     (FProfileProvider.GetProfile[ANode^.Index].SelectedProfile.Enable) then
+     (FProfileProvider.GetProfile(ANode^.Index).SelectedProfile.Enable) then
   begin
     ANodeHeight := 
-      FProfileProvider.GetProfile[ANode^.Index].SelectedProfile.Height;
+      FProfileProvider.GetProfile(ANode^.Index).SelectedProfile.Height;
     Exit;
   end;
 
   ANodeHeight := 
-    FProfileProvider.GetProfile[ANode^.Index].DefaultProfile.Height;
+    FProfileProvider.GetProfile(ANode^.Index).DefaultProfile.Height;
 end;
 
 procedure TDataRenderer.NodeHotChange (ASender : TBaseVirtualTree; AOldNode, 
@@ -195,13 +215,28 @@ end;
 
 procedure TDataRenderer.TreeResize (ASender : TObject);
 begin
-  // ??
+  TreeViewCreateColumns;
 end;
 
 procedure TDataRenderer.ShowScrollBar (ASender : TBaseVirtualTree; ABar : 
   Integer; AShow : Boolean);
 begin
   TreeResize(ASender);
+end;
+
+procedure TDataRenderer.UpdateData;
+var
+  Node : PVirtualNode;
+  ObjectItem : TCommonObject;
+begin
+  FTreeView.BeginUpdate;
+
+  for ObjectItem in FDataProvider do
+  begin
+    Node := FTreeView.AddChild(nil);
+  end;
+
+  FTreeView.EndUpdate;
 end;
 
 end.

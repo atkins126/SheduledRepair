@@ -42,6 +42,9 @@ type
     { Draw object using renderer profile. }
     procedure Draw (AObject : TCommonObject; AProfile : TRendererProfile;
       ACanvas : TCanvas; ARect : TRect); override;
+
+    { Calculate columns. }
+    procedure CalculateColumns (AFullWidth : Cardinal); override;
   protected
     { Draw menu item background. }
     procedure DrawBackground (AProfile : TRendererProfile; ACanvas : TCanvas;
@@ -57,6 +60,12 @@ type
 implementation
 
 { TMainMenuRenderer }
+
+procedure TMainMenuRenderer.CalculateColumns (AFullWidth : Cardinal);
+begin
+  Clear;
+  AppendColumn(AFullWidth);
+end;
 
 procedure TMainMenuRenderer.DrawBackground(AProfile : TRendererProfile;
   ACanvas : TCanvas; ARect : TRect);
