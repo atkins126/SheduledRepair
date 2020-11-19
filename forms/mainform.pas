@@ -6,7 +6,8 @@ interface
 uses
   Classes, SysUtils, Forms, Controls, ExtCtrls, StdCtrls,
   VirtualTrees, profileform, renderers.mainmenu, dataproviders.mainmenu,
-  profilesprovider.mainmenu, renderers.datarenderer;
+  profilesprovider.mainmenu, renderers.datarenderer, renderers.equipment,
+  dataproviders.equipment, profilesprovider.equipment;
 
 type
 
@@ -26,9 +27,14 @@ type
   private
     FProfileEditor : TProfileWindow;
 
-    MenuDataProvider : TMainMenuDataProvider;
-    MenuProfileProvider : TMainMenuProfilesProvider;
-    MenuRenderer : TMainMenuRenderer;
+    MainMenuDataProvider : TMainMenuDataProvider;
+    MainMenuProfileProvider : TMainMenuProfilesProvider;
+    MainMenuItemRenderer : TMainMenuRenderer;
+    MainMenuRenderer : TDataRenderer;
+
+    EquipmentDataProvider : TEquipmentDataProvider;
+    EquipmentProfileProvider : TEquipmentProfilesProvider;
+    EquipmentRenderer : TEquipmentRenderer;
     DataRenderer : TDataRenderer;
   end;
 
@@ -49,26 +55,43 @@ begin
   FProfileEditor.Height := Self.Height;
   FProfileEditor.Show;
 
-  MenuDataProvider := TMainMenuDataProvider.Create;
-  MenuProfileProvider := TMainMenuProfilesProvider.Create;
-  MenuRenderer := TMainMenuRenderer.Create;
+  { Render main menu. }
+  MainMenuDataProvider := TMainMenuDataProvider.Create;
+  MainMenuProfileProvider := TMainMenuProfilesProvider.Create;
+  MainMenuItemRenderer := TMainMenuRenderer.Create;
 
-  MenuDataProvider.Load;
-  MenuProfileProvider.Load;
+  MainMenuDataProvider.Load;
+  MainMenuProfileProvider.Load;
 
-  DataRenderer := TDataRenderer.Create(MainMenu, MenuDataProvider,
-    MenuProfileProvider, MenuRenderer);
+  MainMenuRenderer := TDataRenderer.Create(MainMenu, MainMenuDataProvider,
+    MainMenuProfileProvider, MainMenuItemRenderer);
+  MainMenuRenderer.UpdateData;
+
+  { Render data. }
+  EquipmentDataProvider := TEquipmentDataProvider.Create;
+  EquipmentProfileProvider := TEquipmentProfilesProvider.Create;
+  EquipmentRenderer := TEquipmentRenderer.Create;
+
+  EquipmentDataProvider.Load;
+  EquipmentProfileProvider.Load;
+
+  DataRenderer := TDataRenderer.Create(Content, EquipmentDataProvider,
+    EquipmentProfileProvider, EquipmentRenderer);
   DataRenderer.UpdateData;
 end;
 
 procedure TMainWindow.FormDestroy(Sender: TObject);
 begin
-  {
+  FreeAndNil(MainMenuRenderer);
+  FreeAndNil(MainMenuDataProvider);
+  FreeAndNil(MainMenuProfileProvider);
+  FreeAndNil(MainMenuItemRenderer);
+
   FreeAndNil(DataRenderer);
-  FreeAndNil(MenuDataProvider);
-  FreeAndNil(MenuProfileProvider);
-  FreeAndNil(MenuRenderer);
-  }
+  FreeAndNil(EquipmentDataProvider);
+  FreeAndNil(EquipmentProfileProvider);
+  FreeAndNil(EquipmentRenderer);
+
   FreeAndNil(FProfileEditor);
 end;
 

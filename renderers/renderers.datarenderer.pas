@@ -71,10 +71,6 @@ type
     procedure NodeMeasure (ASender : TBaseVirtualTree; ATargetCanvas : TCanvas;
       ANode : PVirtualNode; var ANodeHeight : Integer);
 
-    { Redraw hover node. }
-    procedure NodeHotChange (ASender : TBaseVirtualTree; AOldNode, ANewNode :
-      PVirtualNode);
-
     { Draw node. }
     procedure NodeDraw (ASender : TBaseVirtualTree; const APaintInfo :
       TVTPaintInfo);
@@ -117,12 +113,12 @@ begin
       toHideFocusRect, toAlwaysHideSelection, toHideSelection];
     TreeOptions.MiscOptions := [toFullRepaintOnResize, toVariableNodeHeight,
       toWheelPanning];
-    TreeOptions.SelectionOptions := [];
+    TreeOptions.SelectionOptions := [toFullRowSelect];
 
     OnMeasureItem := @NodeMeasure;
     OnDrawNode := @NodeDraw;
     OnResize := @TreeResize;
-    OnShowScrollBar := @ShowScrollBar;
+    //OnShowScrollBar := @ShowScrollBar;
 
     Header.Columns.Clear;
     TreeViewCreateColumns;
@@ -158,7 +154,7 @@ end;
 procedure TDataRenderer.NodeMeasure (ASender : TBaseVirtualTree; ATargetCanvas : 
   TCanvas; ANode : PVirtualNode; var ANodeHeight : Integer);
 begin
-  if (HoverNode (ANode)) and 
+  if (HoverNode (ANode)) and
      (FProfileProvider.GetProfile(ANode^.Index).HoverProfile.Enable) then
   begin
     ANodeHeight := 
@@ -176,13 +172,6 @@ begin
 
   ANodeHeight := 
     FProfileProvider.GetProfile(ANode^.Index).DefaultProfile.Height;
-end;
-
-procedure TDataRenderer.NodeHotChange (ASender : TBaseVirtualTree; AOldNode, 
-  ANewNode : PVirtualNode);
-begin
-  FTreeView.InvalidateNode(AOldNode);
-  FTreeView.InvalidateNode(ANewNode);
 end;
 
 procedure TDataRenderer.NodeDraw (ASender : TBaseVirtualTree; const APaintInfo :
@@ -209,7 +198,7 @@ begin
   end;
 
   FRenderer.Draw(FDataProvider.GetObject(APaintInfo.Node^.Index),
-    FProfileProvider.GetProfile(APaintInfo.Node^.Index).HoverProfile,
+    FProfileProvider.GetProfile(APaintInfo.Node^.Index).DefaultProfile,
     APaintInfo.Canvas, APaintInfo.CellRect);
 end;
 
