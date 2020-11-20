@@ -91,7 +91,7 @@ begin
   with Result.SelectedProfile do
   begin
     Enable := True;
-    Height := 20;
+    Height := 35;
     Background := clYellow;
   end;
 
@@ -105,15 +105,15 @@ begin
     BackgroundFillType := FILL_NONE;
     BackgroundRoundRadius := 0;
     FontName := 'default';
-    FontSize := 10;
+    FontSize := 12;
     FontColor := clBlack;
-    Padding.Top := 1;
+    Padding.Top := 5;
     Padding.Left := 0;
-    Padding.Bottom := 1;
+    Padding.Bottom := 5;
     Padding.Right := 0;
     PositionType := POSITION_FIXED;
     Position.X := 15;
-    Position.Y := 0;
+    Position.Y := 2;
   end;
 
   { Create equipment hover profile. }

@@ -45,6 +45,9 @@ type
         MENU_ITEM_LOGO,
         MENU_ITEM
       );
+
+      { Main menu item click callback. }
+      TMenuItemClickCallback = procedure of object;
   public
     constructor Create (AID : Int64; AItemType : TItemType; ATitle : String);
     destructor Destroy; override; 
@@ -66,9 +69,12 @@ type
   protected
     FItemType : TItemType;
     FTitle : String;
+    FCallback : TMenuItemClickCallback;
   public
     property ItemType : TItemType read FItemType;
     property Title : String read FTitle;
+    
+    property OnClick : TMenuItemClickCallback read FCallback write FCallback;
   end;
 
 implementation
@@ -81,6 +87,7 @@ begin
   inherited Create(AID);
   FItemType := AItemType;
   FTitle := ATitle;
+  FCallback := nil;
 end;
 
 destructor TMainMenuItem.Destroy;
