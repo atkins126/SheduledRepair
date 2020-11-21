@@ -139,9 +139,8 @@
         <IsPartOfProject Value="True"/>
       </Unit23>
       <Unit24>
-        <Filename Value="../renderers/renderer.pas"/>
+        <Filename Value="../renderers/renderers.datarenderer.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="renderers.renderer"/>
       </Unit24>
     </Units>
   </ProjectOptions>

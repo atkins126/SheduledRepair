@@ -32,7 +32,7 @@ unit renderers.datarenderer;
 interface
 
 uses
-  SysUtils, Graphics, Types, VirtualTrees, objects.common,
+  SysUtils, Classes, Graphics, Types, VirtualTrees, objects.common,
   dataproviders.common, profilesprovider.common, renderers.common;
 
 type
@@ -50,6 +50,8 @@ type
     FDataProvider : TCommonDataProvider;
     FProfileProvider : TCommonProfilesProvider;
     FRenderer : TCommonRenderer;
+
+    FSelectedNode : PVirtualNode;
   private
     { Setup VirtualTreeView parameters. }
     procedure TreeViewParams;
@@ -67,9 +69,14 @@ type
     function HoverNode (ANode : PVirtualNode) : Boolean;
       {$IFNDEF DEBUG}inline;{$ENDIF}
 
+    procedure NodeChange(Sender: TBaseVirtualTree; Node: PVirtualNode);
+
     { Get ANode height. }
     procedure NodeMeasure (ASender : TBaseVirtualTree; ATargetCanvas : TCanvas;
       ANode : PVirtualNode; var ANodeHeight : Integer);
+
+    { Select node. }
+    procedure NodeClick(Sender : TBaseVirtualTree; const HitInfo: THitInfo);
 
     { Draw node. }
     procedure NodeDraw (ASender : TBaseVirtualTree; const APaintInfo :
@@ -95,6 +102,7 @@ begin
   FDataProvider := ADataProvider;
   FProfileProvider := AProfileProvider;
   FRenderer := ARenderer;
+  FSelectedNode := nil;
 
   TreeViewParams;
 end;
@@ -119,6 +127,8 @@ begin
     OnDrawNode := @NodeDraw;
     OnResize := @TreeResize;
     //OnShowScrollBar := @ShowScrollBar;
+    //OnNodeClick := @NodeClick;
+    OnChange := @NodeChange;
 
     Header.Columns.Clear;
     TreeViewCreateColumns;
@@ -172,6 +182,44 @@ begin
 
   ANodeHeight := 
     FProfileProvider.GetProfile(ANode^.Index).DefaultProfile.Height;
+end;
+
+procedure TDataRenderer.NodeChange(Sender: TBaseVirtualTree; Node: 
+  PVirtualNode);
+begin
+  if Node = nil then
+    Exit;
+
+  { Restore previous node height. }
+  if (FSelectedNode <> nil) and (not SelectedNode(FSelectedNode)) then
+  begin
+    FSelectedNode^.NodeHeight :=
+      FProfileProvider.GetProfile(FSelectedNode^.Index).DefaultProfile.Height;
+  end;
+
+  { Set selected node height. }
+  if (SelectedNode(Node)) and
+     (FProfileProvider.GetProfile(Node^.Index).SelectedProfile.Enable) then
+  begin
+    Node^.NodeHeight :=
+      FProfileProvider.GetProfile(Node^.Index).SelectedProfile.Height;
+    FSelectedNode := Node;
+
+    Exit;
+  end;
+
+  Node^.NodeHeight :=
+    FProfileProvider.GetProfile(Node^.Index).DefaultProfile.Height;
+end;
+
+procedure TDataRenderer.NodeClick(Sender : TBaseVirtualTree; const HitInfo: 
+  THitInfo);
+begin
+
+
+  HitInfo.HitNode^.NodeHeight := FProfileProvider.GetProfile
+    (HitInfo.HitNode^.Index).SelectedProfile.Height;
+  Sender.InvalidateNode(HitInfo.HitNode);
 end;
 
 procedure TDataRenderer.NodeDraw (ASender : TBaseVirtualTree; const APaintInfo :
