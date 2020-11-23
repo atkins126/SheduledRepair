@@ -33,7 +33,8 @@ interface
 
 uses
   SysUtils, Classes, Graphics, Types, VirtualTrees, objects.common,
-  dataproviders.common, profilesprovider.common, renderers.common;
+  dataproviders.common, profilesprovider.common, renderers.common,
+  renderer.profile.profile;
 
 type
   TDataRenderer = class
@@ -195,6 +196,7 @@ begin
   begin
     FSelectedNode^.NodeHeight :=
       FProfileProvider.GetProfile(FSelectedNode^.Index).DefaultProfile.Height;
+    FTreeView.InvalidateNode(FSelectedNode);
   end;
 
   { Set selected node height. }
@@ -204,12 +206,14 @@ begin
     Node^.NodeHeight :=
       FProfileProvider.GetProfile(Node^.Index).SelectedProfile.Height;
     FSelectedNode := Node;
+    FTreeView.InvalidateNode(Node);
 
     Exit;
   end;
 
   Node^.NodeHeight :=
     FProfileProvider.GetProfile(Node^.Index).DefaultProfile.Height;
+  FTreeView.InvalidateNode(Node);
 end;
 
 procedure TDataRenderer.NodeClick(Sender : TBaseVirtualTree; const HitInfo: 
@@ -224,11 +228,25 @@ end;
 
 procedure TDataRenderer.NodeDraw (ASender : TBaseVirtualTree; const APaintInfo :
   TVTPaintInfo);
+var
+  Profile : TRendererProfile;
 begin
   if (HoverNode(APaintInfo.Node)) and
      (FProfileProvider.GetProfile(APaintInfo.Node^.Index).HoverProfile.Enable)
      then
   begin
+    if (SelectedNode(APaintInfo.Node)) then
+    begin
+      Profile :=
+        FProfileProvider.GetProfile(APaintInfo.Node^.Index).SelectedProfile;
+      Profile.Background := 
+        FProfileProvider.GetProfile(APaintInfo.Node^.Index).HoverProfile.Background;
+
+      FRenderer.Draw(FDataProvider.GetObject(APaintInfo.Node^.Index), 
+        Profile, APaintInfo.Canvas, APaintInfo.CellRect);  
+      Exit;  
+    end;
+
     FRenderer.Draw(FDataProvider.GetObject(APaintInfo.Node^.Index), 
       FProfileProvider.GetProfile(APaintInfo.Node^.Index).HoverProfile, 
       APaintInfo.Canvas, APaintInfo.CellRect);  
