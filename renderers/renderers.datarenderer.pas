@@ -32,7 +32,7 @@ unit renderers.datarenderer;
 interface
 
 uses
-  SysUtils, Classes, Graphics, Types, VirtualTrees, objects.common,
+  SysUtils, Classes, Graphics, VirtualTrees, objects.common,
   dataproviders.common, profilesprovider.common, renderers.common,
   renderer.profile.profile;
 
@@ -73,21 +73,21 @@ type
     procedure NodeChange(Sender: TBaseVirtualTree; Node: PVirtualNode);
 
     { Get ANode height. }
-    procedure NodeMeasure (ASender : TBaseVirtualTree; ATargetCanvas : TCanvas;
+    procedure NodeMeasure ({%H-}ASender : TBaseVirtualTree; {%H-}ATargetCanvas : TCanvas;
       ANode : PVirtualNode; var ANodeHeight : Integer);
 
     { Select node. }
     procedure NodeClick(Sender : TBaseVirtualTree; const HitInfo: THitInfo);
 
     { Draw node. }
-    procedure NodeDraw (ASender : TBaseVirtualTree; const APaintInfo :
+    procedure NodeDraw ({%H-}ASender : TBaseVirtualTree; const APaintInfo :
       TVTPaintInfo);
 
     { Resize VirtualTreeNode. }
-    procedure TreeResize (ASender : TObject);
+    procedure TreeResize ({%H-}ASender : TObject);
 
     { On show scrollbars. }
-    procedure ShowScrollBar (ASender : TBaseVirtualTree; ABar : Integer; AShow : 
+    procedure ShowScrollBar (ASender : TBaseVirtualTree; {%H-}ABar : Integer; {%H-}AShow : 
       Boolean);
   end;
 
@@ -281,7 +281,7 @@ end;
 
 procedure TDataRenderer.UpdateData;
 var
-  Node : PVirtualNode;
+  {%H-}Node : PVirtualNode;
   ObjectItem : TCommonObject;
 begin
   FTreeView.BeginUpdate;
