@@ -28,7 +28,7 @@ unit renderers.inspector;
 {$IFOPT D+}
   {$DEFINE DEBUG}
 {$ENDIF}
-
+{$WARN 5024 off : Parameter "$1" not used}
 interface
 
 uses
@@ -92,10 +92,10 @@ type
         TYPE_ELEMENT_POSITION_Y
       );
   protected
-    function ItemHeight (ANode : PVirtualNode; ACanvas : TCanvas; AIndex : 
+    function ItemHeight ({%H-}ANode : PVirtualNode; ACanvas : TCanvas; {%H-}AIndex : 
       Cardinal; AItemType : Integer; AData : TObjectInspectorData) : Cardinal; 
       override;
-    procedure ItemDraw (ANode : PVirtualNode; AColumn : TColumnIndex; 
+    procedure ItemDraw ({%H-}ANode : PVirtualNode; AColumn : TColumnIndex; 
       AItemType : Integer; ACanvas : TCanvas; ACellRect : TRect; AContentRect : 
       TRect; AState : TItemStates; AData : TObjectInspectorData); override;
     function ItemEditor (ANode : PVirtualNode; AColumn : TColumnIndex; 
@@ -110,13 +110,13 @@ type
     FCanDisable : Boolean;
 
     procedure NodeClick (ASender : TBaseVirtualTree; const AHitInfo : THitInfo);
-    procedure TreeResize (ASender : TObject);
-    procedure ShowScrollBar (ASender: TBaseVirtualTree; ABar: Integer; AShow: 
+    procedure TreeResize ({%H-}ASender : TObject);
+    procedure ShowScrollBar ({%H-}ASender: TBaseVirtualTree; ABar: Integer; {%H-}AShow: 
       Boolean);
 
-    procedure ValueChange (ANode : PVirtualNode; AColumn : TColumnIndex;
+    procedure ValueChange (ANode : PVirtualNode; {%H-}AColumn : TColumnIndex;
       AItemType : Integer; AValue : Pointer);
-    procedure ValueEditorClick (ANode : PVirtualNode; AColumn : TColumnIndex;
+    procedure ValueEditorClick (ANode : PVirtualNode; {%H-}AColumn : TColumnIndex;
       AItemType : Integer; var AValue : Pointer);
 
     procedure DrawBackground (AItemType : Integer; AState : TItemStates; ARect : 
