@@ -33,8 +33,7 @@ interface
 
 uses
   SysUtils, Classes, Graphics, Types, renderer.profile.profile, 
-  renderer.profile.profileitem, objects.common, container.arraylist, 
-  utils.functor;
+  objects.common, container.arraylist, utils.functor;
 
 type
   TCommonRenderer = class

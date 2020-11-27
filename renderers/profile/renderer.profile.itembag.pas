@@ -41,7 +41,7 @@ type
     const
       PROFILE_ITEM_BAG_TABLE_NAME = 'profileitem_bag';
   public
-    constructor Create (AID : Int64; AObject : TCommonObject);
+    constructor {%H-}Create (AID : Int64; AObject : TCommonObject);
     destructor Destroy; override;
     
     { Get object database table name. }

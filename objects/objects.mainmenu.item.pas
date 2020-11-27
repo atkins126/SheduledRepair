@@ -49,7 +49,7 @@ type
       { Main menu item click callback. }
       TMenuItemClickCallback = procedure of object;
   public
-    constructor Create (AID : Int64; AItemType : TItemType; ATitle : String);
+    constructor {%H-}Create (AID : Int64; AItemType : TItemType; ATitle : String);
     destructor Destroy; override; 
 
     { Get object database table name. }
@@ -59,7 +59,7 @@ type
     procedure Assign (AMainMenuItem : TMainMenuItem);
   protected
     { Prepare current object database table scheme. }
-    procedure PrepareSchema (var ASchema : TSQLite3Schema); override; 
+    procedure PrepareSchema (var {%H-}ASchema : TSQLite3Schema); override; 
 
     { Load current object form database. }
     function LoadCurrentObject : Boolean; override;
