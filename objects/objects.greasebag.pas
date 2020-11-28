@@ -42,7 +42,7 @@ type
     const
       GREASE_BAG_TABLE_NAME = 'greasebag';
   public
-    constructor Create (AID : Int64; AObject : TCommonObject);
+    constructor Create (AID : Int64; AObject : TCommonObject); reintroduce;
     destructor Destroy; override;
     
     { Get object database table name. }

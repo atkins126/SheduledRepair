@@ -40,7 +40,7 @@ type
     const
       RENDERER_OBJECT_PROFILE_TABLE_NAME = 'renderer_object_profile';
   public
-    constructor Create (AID : Int64; AObject : TCommonObject);
+    constructor Create (AID : Int64; AObject : TCommonObject); reintroduce;
     destructor Destroy; override;
     
     { Get object database table name. }

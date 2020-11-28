@@ -43,7 +43,7 @@ type
     function LoadObjectsTableName : String; override;
 
     { Load concrete object. }
-    function LoadConcreteObject (AID : Int64) : TCommonObject; override;
+    function LoadConcreteObject ({%H-}AID : Int64) : TCommonObject; override;
   end;
 
 implementation
