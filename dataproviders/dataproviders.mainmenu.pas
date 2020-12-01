@@ -54,6 +54,8 @@ function TMainMenuDataProvider.Load : Boolean;
 var
   MenuItem : TMainMenuItem;
 begin
+  Clear;
+  
   MenuItem := TMainMenuItem.Create(0, MENU_ITEM_LOGO, 'SheduledRepair');
   Append(MenuItem);
 

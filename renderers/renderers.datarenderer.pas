@@ -284,6 +284,9 @@ var
   {%H-}Node : PVirtualNode;
   ObjectItem : TCommonObject;
 begin
+  FDataProvider.Load;
+  FProfileProvider.Load;
+
   FTreeView.BeginUpdate;
 
   for ObjectItem in FDataProvider do

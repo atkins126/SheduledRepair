@@ -44,6 +44,9 @@ type
     { Load objects. }
     function Load : Boolean; virtual;
 
+    { Clear all items. }
+    procedure Clear;
+
     { Append new object to list. }
     procedure Append (AObject : TCommonObject);
 
@@ -104,6 +107,11 @@ begin
   inherited Destroy;
 end;
 
+procedure TCommonDataProvider.Clear;
+begin
+  FObjectsList.Clear;
+end;
+
 procedure TCommonDataProvider.Append (AObject : TCommonObject);
 begin
   FObjectsList.Append(AObject);
@@ -131,6 +139,8 @@ var
   Row : TSQLite3ResultRow;
   Item : TCommonObject;
 begin
+  Clear;
+  
   Table := TSQLite3Table.Create(DB.Errors, DB.Handle, LoadObjectsTableName);
   ResultRows := Table.Select.Field('id').Get;
 

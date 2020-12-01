@@ -27,14 +27,7 @@ type
   private
     FProfileEditor : TProfileWindow;
 
-    MainMenuDataProvider : TMainMenuDataProvider;
-    MainMenuProfileProvider : TMainMenuProfilesProvider;
-    MainMenuItemRenderer : TMainMenuRenderer;
     MainMenuRenderer : TDataRenderer;
-
-    EquipmentDataProvider : TEquipmentDataProvider;
-    EquipmentProfileProvider : TEquipmentProfilesProvider;
-    EquipmentRenderer : TEquipmentRenderer;
     DataRenderer : TDataRenderer;
   end;
 
@@ -56,41 +49,22 @@ begin
   FProfileEditor.Show;
 
   { Render main menu. }
-  MainMenuDataProvider := TMainMenuDataProvider.Create;
-  MainMenuProfileProvider := TMainMenuProfilesProvider.Create;
-  MainMenuItemRenderer := TMainMenuRenderer.Create;
-
-  MainMenuDataProvider.Load;
-  MainMenuProfileProvider.Load;
-
-  MainMenuRenderer := TDataRenderer.Create(MainMenu, MainMenuDataProvider,
-    MainMenuProfileProvider, MainMenuItemRenderer);
+  MainMenuRenderer := TDataRenderer.Create(MainMenu,
+    TMainMenuDataProvider.Create, TMainMenuProfilesProvider.Create,
+    TMainMenuRenderer.Create);
   MainMenuRenderer.UpdateData;
 
   { Render data. }
-  EquipmentDataProvider := TEquipmentDataProvider.Create;
-  EquipmentProfileProvider := TEquipmentProfilesProvider.Create;
-  EquipmentRenderer := TEquipmentRenderer.Create;
-
-  EquipmentDataProvider.Load;
-  EquipmentProfileProvider.Load;
-
-  DataRenderer := TDataRenderer.Create(Content, EquipmentDataProvider,
-    EquipmentProfileProvider, EquipmentRenderer);
+  DataRenderer := TDataRenderer.Create(Content,
+    TEquipmentDataProvider.Create, TEquipmentProfilesProvider.Create,
+    TEquipmentRenderer.Create);
   DataRenderer.UpdateData;
 end;
 
 procedure TMainWindow.FormDestroy(Sender: TObject);
 begin
   FreeAndNil(MainMenuRenderer);
-  FreeAndNil(MainMenuDataProvider);
-  FreeAndNil(MainMenuProfileProvider);
-  FreeAndNil(MainMenuItemRenderer);
-
   FreeAndNil(DataRenderer);
-  FreeAndNil(EquipmentDataProvider);
-  FreeAndNil(EquipmentProfileProvider);
-  FreeAndNil(EquipmentRenderer);
 
   FreeAndNil(FProfileEditor);
 end;
