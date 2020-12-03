@@ -73,8 +73,8 @@ type
     procedure NodeChange(Sender: TBaseVirtualTree; Node: PVirtualNode);
 
     { Get ANode height. }
-    procedure NodeMeasure ({%H-}ASender : TBaseVirtualTree; {%H-}ATargetCanvas : TCanvas;
-      ANode : PVirtualNode; var ANodeHeight : Integer);
+    procedure NodeMeasure ({%H-}ASender : TBaseVirtualTree; {%H-}ATargetCanvas : 
+      TCanvas; ANode : PVirtualNode; var ANodeHeight : Integer);
 
     { Select node. }
     procedure NodeClick(Sender : TBaseVirtualTree; const HitInfo: THitInfo);
@@ -87,8 +87,19 @@ type
     procedure TreeResize ({%H-}ASender : TObject);
 
     { On show scrollbars. }
-    procedure ShowScrollBar (ASender : TBaseVirtualTree; {%H-}ABar : Integer; {%H-}AShow : 
-      Boolean);
+    procedure ShowScrollBar (ASender : TBaseVirtualTree; {%H-}ABar : Integer; 
+      {%H-}AShow : Boolean);
+  end;
+
+  { Main menu data renderer decorator. }
+  TMainMenuDataRenderer = class
+  public
+    constructor Create (ADataRenderer : TDataRenderer);
+
+    { Update data. }
+    procedure UpdateData;
+  protected
+    FDataRenderer : TDataRenderer;
   end;
 
 implementation
@@ -127,8 +138,6 @@ begin
     OnMeasureItem := @NodeMeasure;
     OnDrawNode := @NodeDraw;
     OnResize := @TreeResize;
-    //OnShowScrollBar := @ShowScrollBar;
-    //OnNodeClick := @NodeClick;
     OnChange := @NodeChange;
 
     Header.Columns.Clear;
@@ -281,7 +290,6 @@ end;
 
 procedure TDataRenderer.UpdateData;
 var
-  {%H-}Node : PVirtualNode;
   ObjectItem : TCommonObject;
 begin
   FDataProvider.Load;
@@ -291,10 +299,20 @@ begin
 
   for ObjectItem in FDataProvider do
   begin
-    Node := FTreeView.AddChild(nil);
+    FTreeView.AddChild(nil);
   end;
 
   FTreeView.EndUpdate;
+end;
+
+constructor TMainMenuDataRenderer.Create (ADataRenderer : TDataRenderer);
+begin
+  FDataRenderer := ADataRenderer;
+end;
+
+procedure TMainMenuDataRenderer.UpdateData;
+begin
+  FDataRenderer.UpdateData;
 end;
 
 end.

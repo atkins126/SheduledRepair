@@ -27,7 +27,7 @@ type
   private
     FProfileEditor : TProfileWindow;
 
-    MainMenuRenderer : TDataRenderer;
+    MainMenuRenderer : TMainMenuDataRenderer;
     DataRenderer : TDataRenderer;
   end;
 
@@ -49,9 +49,10 @@ begin
   FProfileEditor.Show;
 
   { Render main menu. }
-  MainMenuRenderer := TDataRenderer.Create(MainMenu,
-    TMainMenuDataProvider.Create, TMainMenuProfilesProvider.Create,
-    TMainMenuRenderer.Create);
+  MainMenuRenderer := TMainMenuDataRenderer.Create(
+    TDataRenderer.Create(MainMenu, TMainMenuDataProvider.Create,
+    TMainMenuProfilesProvider.Create, TMainMenuRenderer.Create)
+  );
   MainMenuRenderer.UpdateData;
 
   { Render data. }
