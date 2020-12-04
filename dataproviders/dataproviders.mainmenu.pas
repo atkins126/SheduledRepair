@@ -47,6 +47,7 @@ type
     function LoadConcreteObject ({%H-}AID : Int64) : TCommonObject; override;
   private
     procedure EquipmentCallback;
+    procedure JobCallback;
   end;
 
 implementation
@@ -62,7 +63,8 @@ begin
   MenuItem := TMainMenuItem.Create(0, MENU_ITEM_LOGO, 'SheduledRepair', nil);
   Append(MenuItem);
 
-  MenuItem := TMainMenuItem.Create(1, MENU_ITEM, 'Job', nil);
+  MenuItem := TMainMenuItem.Create(1, MENU_ITEM, 'Job', 
+    @JobCallback);
   Append(MenuItem);
 
   MenuItem := TMainMenuItem.Create(2, MENU_ITEM, 'Equipment', 
@@ -85,6 +87,11 @@ end;
 procedure TMainMenuDataProvider.EquipmentCallback;
 begin
   Provider.EquipmentData;
+end;
+
+procedure TMainMenuDataProvider.JobCallback;
+begin
+  Provider.JobData;
 end;
 
 end.

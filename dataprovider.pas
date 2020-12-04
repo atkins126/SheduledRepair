@@ -33,7 +33,8 @@ interface
 
 uses
   SysUtils, Classes, VirtualTrees, renderers.datarenderer, renderers.equipment,
-  dataproviders.equipment, profilesprovider.equipment;
+  dataproviders.equipment, profilesprovider.equipment, renderers.job,
+  dataproviders.job, profilesprovider.job;
 
 type
   TDataProvider = class
@@ -41,14 +42,14 @@ type
     constructor Create;
     destructor Destroy; override;
   private
-    FTreeView : TVirtualDrawTree;
+    FDataView : TVirtualDrawTree;
     FRenderer : TDataRenderer;
 
   public
-    { Set equipment data. }
     procedure EquipmentData;
+    procedure JobData;
 
-    property TreeView : TVirtualDrawTree read FTreeView write FTreeView;
+    property DataView : TVirtualDrawTree read FDataView write FDataView;
   end;
 
 var
@@ -62,7 +63,7 @@ constructor TDataProvider.Create;
 begin
   if not Assigned(Provider) then
   begin
-    FTreeView := nil;
+    FDataView := nil;
     FRenderer := nil;
 
     Provider := self;
@@ -78,15 +79,25 @@ end;
 
 procedure TDataProvider.EquipmentData;
 begin
-  if not Assigned(FTreeView) then
+  if not Assigned(FDataView) then
     Exit;
 
   FreeAndNil(FRenderer);
-  FRenderer := TDataRenderer.Create(FTreeView, TEquipmentDataProvider.Create,
+  FRenderer := TDataRenderer.Create(FDataView, TEquipmentDataProvider.Create,
     TEquipmentProfilesProvider.Create, TEquipmentRenderer.Create);
   FRenderer.UpdateData;
 end;
 
+procedure TDataProvider.JobData;
+begin
+  if not Assigned(FDataView) then
+    Exit;
+
+  FreeAndNil(FRenderer);
+  FRenderer := TDataRenderer.Create(FDataView, TJobDataProvider.Create,
+    TJobProfilesProvider.Create, TJobRenderer.Create);
+  FRenderer.UpdateData;
+end;
 
 initialization
   Provider := TDataProvider.Create;

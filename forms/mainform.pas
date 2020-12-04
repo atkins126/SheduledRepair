@@ -53,8 +53,7 @@ begin
   );
   MainMenuRenderer.UpdateData;
 
-  { Render data. }
-  Provider.TreeView := Content;
+  Provider.DataView := Content;
 end;
 
 procedure TMainWindow.FormDestroy(Sender: TObject);

@@ -327,7 +327,7 @@ begin
     Exit;
 
   if (TMainMenuItem(FDataRenderer.FDataProvider.GetObject(Node^.Index)).ItemType
-    = MENU_ITEM_LOGO) and (FSelectedNode <> nil) then
+     = MENU_ITEM_LOGO) and (FSelectedNode <> nil) then
   begin
     FDataRenderer.FTreeView.Selected[FSelectedNode] := True;
     Exit;

@@ -22,7 +22,7 @@
 (* Floor, Boston, MA 02110-1335, USA.                                         *)
 (*                                                                            *)
 (******************************************************************************)
-unit dataproviders.measure;
+unit dataproviders.job;
 
 {$mode objfpc}{$H+}
 {$IFOPT D+}
@@ -32,10 +32,10 @@ unit dataproviders.measure;
 interface
 
 uses
-  SysUtils, dataproviders.common, objects.common, objects.measure;
+  SysUtils, dataproviders.common, objects.common, objects.job;
 
 type
-  TMeasureDataProvider = class(TCommonDataProvider)
+  TJobDataProvider = class(TCommonDataProvider)
   public
     { Get current loaded objects table name. }
     function LoadObjectsTableName : String; override;
@@ -46,30 +46,30 @@ type
 
 implementation
 
-{ TMeasureDataProvider }
+{ TJobDataProvider }
 
-function TMeasureDataProvider.LoadObjectsTableName : String;
+function TJobDataProvider.LoadObjectsTableName : String;
 var
-  Measure : TMeasure;
+  Job : TJob;
 begin
-  Measure := TMeasure.Create(-1);
-  Result := Measure.Table;
-  FreeAndNil(Measure);
+  Job := TJob.Create(-1);
+  Result := Job.Table;
+  FreeAndNil(Job);
 end;
 
-function TMeasureDataProvider.LoadConcreteObject (AID : Int64) :
+function TJobDataProvider.LoadConcreteObject (AID : Int64) :
   TCommonObject;
 var
-  Measure : TMeasure;
+  Job : TJob;
 begin
-  Measure := TMeasure.Create(AID);
-  if not Measure.Load then
+  Job := TJob.Create(AID);
+  if not Job.Load then
   begin
-    FreeAndNil(Measure);
+    FreeAndNil(Job);
     Exit(nil);
   end;
 
-  Result := Measure;
+  Result := Job;
 end;
 
 end.
