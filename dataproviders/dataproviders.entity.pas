@@ -58,6 +58,7 @@ implementation
 
 constructor TEntityDataProvider.Create (AEquipment : TEquipment);
 begin
+  inherited Create;
   FEquipment := AEquipment;
 end;
 

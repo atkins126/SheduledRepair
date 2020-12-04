@@ -43,10 +43,13 @@ type
     { Load concrete object. }
     function LoadConcreteObject (AID : Int64) : TCommonObject; override;
 
-    
+    procedure ObjectDoubleClick (AObjectIndex : Cardinal); override;
   end;
 
 implementation
+
+uses
+  dataprovider, datahandlers;
 
 { TEquipmentDataProvider }
 
@@ -72,6 +75,12 @@ begin
   end;
 
   Result := Equipment;
+end;
+
+procedure TEquipmentDataProvider.ObjectDoubleClick (AObjectIndex : Cardinal);
+begin
+  Provider.ChangeData(TEquipmentEntityDataHandler.Create(
+    TEquipment(GetObject(AObjectIndex))));
 end;
 
 end.

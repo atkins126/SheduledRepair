@@ -32,9 +32,11 @@ unit datahandlers;
 interface
 
 uses
-  SysUtils, VirtualTrees, renderers.datarenderer, renderers.equipment,
-  dataproviders.equipment, profilesprovider.equipment, renderers.job,
-  dataproviders.job, profilesprovider.job;
+  SysUtils, VirtualTrees, objects.equipment, 
+  renderers.datarenderer, 
+  renderers.equipment, dataproviders.equipment, profilesprovider.equipment,
+  renderers.entity, dataproviders.entity, profilesprovider.entity, 
+  renderers.job, dataproviders.job, profilesprovider.job;
 
 type
   TDataHandler = class
@@ -55,6 +57,15 @@ type
       override;
   end;  
 
+  TEquipmentEntityDataHandler = class(TDataHandler)
+  public
+    constructor Create (AEquipment : TEquipment);
+    function CreateDataRenderer (ADataView : TVirtualDrawTree) : TDataRenderer;
+      override;
+  private
+    FEquipment : TEquipment;
+  end;
+
 implementation
 
 { TJobDataHandler }
@@ -73,6 +84,21 @@ function TEquipmentDataHandler.CreateDataRenderer (ADataView : TVirtualDrawTree)
 begin
   Result := TDataRenderer.Create(ADataView, TEquipmentDataProvider.Create,
     TEquipmentProfilesProvider.Create, TEquipmentRenderer.Create);
+end;
+
+{ TEquipmentEntityDataHandler }
+
+constructor TEquipmentEntityDataHandler.Create (AEquipment : TEquipment);
+begin
+  FEquipment := AEquipment;
+end;
+
+function TEquipmentEntityDataHandler.CreateDataRenderer (ADataView :
+  TVirtualDrawTree) : TDataRenderer;
+begin
+  Result := TDataRenderer.Create(ADataView, 
+    TEntityDataProvider.Create(FEquipment), TEntityProfilesProvider.Create,
+    TEntityRenderer.Create);
 end;
 
 end.

@@ -79,6 +79,9 @@ type
     { Select node. }
     procedure NodeClick(Sender : TBaseVirtualTree; const HitInfo: THitInfo);
 
+    { Node double click. }
+    procedure NodeDoubleClick ({%H-}ASender : TObject);
+
     { Draw node. }
     procedure NodeDraw ({%H-}ASender : TBaseVirtualTree; const APaintInfo :
       TVTPaintInfo);
@@ -143,6 +146,7 @@ begin
     OnDrawNode := @NodeDraw;
     OnResize := @TreeResize;
     OnChange := @NodeChange;
+    OnDblClick := @NodeDoubleClick;
 
     Header.Columns.Clear;
     TreeViewCreateColumns;
@@ -237,6 +241,14 @@ begin
   HitInfo.HitNode^.NodeHeight := FProfileProvider.GetProfile
     (HitInfo.HitNode^.Index).SelectedProfile.Height;
   Sender.InvalidateNode(HitInfo.HitNode);
+end;
+
+procedure TDataRenderer.NodeDoubleClick (ASender : TObject);
+begin
+  if not Assigned(FSelectedNode) then
+    Exit;
+
+  FDataProvider.ObjectDoubleClick(FSelectedNode^.Index);
 end;
 
 procedure TDataRenderer.NodeDraw (ASender : TBaseVirtualTree; const APaintInfo :

@@ -8,7 +8,8 @@ uses
   {$ENDIF}{$ENDIF}
   Interfaces, // this includes the LCL widgetset
   Forms, MainForm, renderers.datarenderer, profilesprovider.mainmenu,
-  dataproviders.mainmenu, equipmentform, profileform
+  dataproviders.mainmenu, dataproviders.equipment, datahandlers, equipmentform,
+  profileform
   { you can add units after this };
 
 {$R *.res}
