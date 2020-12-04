@@ -34,7 +34,7 @@ interface
 uses
   SysUtils, Classes, Graphics, VirtualTrees, objects.common,
   dataproviders.common, profilesprovider.common, renderers.common,
-  renderer.profile.profile;
+  renderer.profile.profile, objects.mainmenu.item;
 
 type
   TDataRenderer = class
@@ -100,6 +100,10 @@ type
     procedure UpdateData;
   protected
     FDataRenderer : TDataRenderer;
+
+    FSelectedNode : PVirtualNode;
+  private
+    procedure NodeChange(Sender: TBaseVirtualTree; Node: PVirtualNode);
   end;
 
 implementation
@@ -308,11 +312,28 @@ end;
 constructor TMainMenuDataRenderer.Create (ADataRenderer : TDataRenderer);
 begin
   FDataRenderer := ADataRenderer;
+  FDataRenderer.FTreeView.OnChange := @NodeChange;
 end;
 
 procedure TMainMenuDataRenderer.UpdateData;
 begin
   FDataRenderer.UpdateData;
+end;
+
+procedure TMainMenuDataRenderer.NodeChange (Sender : TBaseVirtualTree; Node :
+  PVirtualNode);
+begin
+  if Node = nil then
+    Exit;
+
+  if (TMainMenuItem(FDataRenderer.FDataProvider.GetObject(Node^.Index)).ItemType
+    = MENU_ITEM_LOGO) and (FSelectedNode <> nil) then
+  begin
+    FDataRenderer.FTreeView.Selected[FSelectedNode] := True;
+    Exit;
+  end;
+  
+  FSelectedNode := Node;
 end;
 
 end.
