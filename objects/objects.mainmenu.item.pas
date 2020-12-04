@@ -46,9 +46,10 @@ type
         MENU_ITEM
       );
 
+      TItemCallback = procedure of object;
   public
-    constructor Create (AID : Int64; AItemType : TItemType; ATitle : String); 
-      reintroduce;
+    constructor Create (AID : Int64; AItemType : TItemType; ATitle : String;
+      ACallback : TItemCallback); reintroduce;
     destructor Destroy; override; 
 
     { Get object database table name. }
@@ -68,9 +69,11 @@ type
   protected
     FItemType : TItemType;
     FTitle : String;
+    FItemCallback : TItemCallback;
   public
     property ItemType : TItemType read FItemType;
     property Title : String read FTitle;
+    property Callback : TItemCallback read FItemCallback;
   end;
 
 implementation
@@ -78,11 +81,12 @@ implementation
 { TMainMenuItem }
 
 constructor TMainMenuItem.Create (AID : Int64; AItemType : TItemType; ATitle : 
-  String);
+  String; ACallback : TItemCallback);
 begin
   inherited Create(AID);
   FItemType := AItemType;
   FTitle := ATitle;
+  FItemCallback := ACallback;
 end;
 
 destructor TMainMenuItem.Destroy;

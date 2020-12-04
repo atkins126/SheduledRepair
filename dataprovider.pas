@@ -32,7 +32,8 @@ unit dataprovider;
 interface
 
 uses
-  SysUtils, Classes, dataproviders.measure, dataproviders.equipment;
+  SysUtils, Classes, VirtualTrees, renderers.datarenderer, renderers.equipment,
+  dataproviders.equipment, profilesprovider.equipment;
 
 type
   TDataProvider = class
@@ -40,13 +41,14 @@ type
     constructor Create;
     destructor Destroy; override;
   private
-    FMeasure : TMeasureDataProvider;
-    FEquipment : TEquipmentDataProvider;
+    FTreeView : TVirtualDrawTree;
+    FRenderer : TDataRenderer;
 
-    procedure LoadDataProviders;
   public
-    property Measure : TMeasureDataProvider read FMeasure;
-    property Equipment : TEquipmentDataProvider read FEquipment;
+    { Set equipment data. }
+    procedure EquipmentData;
+
+    property TreeView : TVirtualDrawTree read FTreeView write FTreeView;
   end;
 
 var
@@ -60,10 +62,9 @@ constructor TDataProvider.Create;
 begin
   if not Assigned(Provider) then
   begin
-    FMeasure := TMeasureDataProvider.Create;
-    FEquipment := TEquipmentDataProvider.Create;
+    FTreeView := nil;
+    FRenderer := nil;
 
-    LoadDataProviders;
     Provider := self;
   end else
     self := Provider;
@@ -71,16 +72,21 @@ end;
 
 destructor TDataProvider.Destroy;
 begin
-  FreeAndNil(FEquipment);
-  FreeAndNil(FMeasure);
+  FreeAndNil(FRenderer);
   inherited Destroy;
 end;
 
-procedure TDataProvider.LoadDataProviders;
+procedure TDataProvider.EquipmentData;
 begin
-  FMeasure.Load;
-  FEquipment.Load;
+  if not Assigned(FTreeView) then
+    Exit;
+
+  FreeAndNil(FRenderer);
+  FRenderer := TDataRenderer.Create(FTreeView, TEquipmentDataProvider.Create,
+    TEquipmentProfilesProvider.Create, TEquipmentRenderer.Create);
+  FRenderer.UpdateData;
 end;
+
 
 initialization
   Provider := TDataProvider.Create;

@@ -250,10 +250,10 @@ begin
   begin
     if (SelectedNode(APaintInfo.Node)) then
     begin
-      Profile :=
-        FProfileProvider.GetProfile(APaintInfo.Node^.Index).SelectedProfile;
-      Profile.Background := 
-        FProfileProvider.GetProfile(APaintInfo.Node^.Index).HoverProfile.Background;
+      Profile := FProfileProvider.GetProfile(APaintInfo.Node^.Index)
+        .SelectedProfile;
+      Profile.Background := FProfileProvider.GetProfile(APaintInfo.Node^.Index)
+        .HoverProfile.Background;
 
       FRenderer.Draw(FDataProvider.GetObject(APaintInfo.Node^.Index), 
         Profile, APaintInfo.Canvas, APaintInfo.CellRect);  
@@ -266,9 +266,8 @@ begin
     Exit;
   end;
 
-  if (SelectedNode(APaintInfo.Node)) and
-    (FProfileProvider.GetProfile(APaintInfo.Node^.Index).SelectedProfile.Enable)
-     then
+  if (SelectedNode(APaintInfo.Node)) and (FProfileProvider.GetProfile(
+     APaintInfo.Node^.Index).SelectedProfile.Enable) then
   begin
     FRenderer.Draw(FDataProvider.GetObject(APaintInfo.Node^.Index),
       FProfileProvider.GetProfile(APaintInfo.Node^.Index).SelectedProfile,
@@ -296,9 +295,10 @@ procedure TDataRenderer.UpdateData;
 var
   ObjectItem : TCommonObject;
 begin
-  FDataProvider.Load;
-  FProfileProvider.Load;
+  if (not FDataProvider.Load) or (not FProfileProvider.Load) then
+    Exit;
 
+  FTreeView.Clear;
   FTreeView.BeginUpdate;
 
   for ObjectItem in FDataProvider do
@@ -334,6 +334,13 @@ begin
   end;
   
   FSelectedNode := Node;
+
+  { Run menu item callback if asigned. }
+  if Assigned(TMainMenuItem(FDataRenderer.FDataProvider.GetObject(Node^.Index))
+    .Callback) then
+  begin
+    TMainMenuItem(FDataRenderer.FDataProvider.GetObject(Node^.Index)).Callback;
+  end;
 end;
 
 end.

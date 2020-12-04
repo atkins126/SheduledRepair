@@ -6,8 +6,7 @@ interface
 uses
   Classes, SysUtils, Forms, Controls, ExtCtrls, StdCtrls,
   VirtualTrees, profileform, renderers.mainmenu, dataproviders.mainmenu,
-  profilesprovider.mainmenu, renderers.datarenderer, renderers.equipment,
-  dataproviders.equipment, profilesprovider.equipment;
+  profilesprovider.mainmenu, renderers.datarenderer, dataprovider;
 
 type
 
@@ -28,7 +27,6 @@ type
     FProfileEditor : TProfileWindow;
 
     MainMenuRenderer : TMainMenuDataRenderer;
-    DataRenderer : TDataRenderer;
   end;
 
 var
@@ -56,16 +54,12 @@ begin
   MainMenuRenderer.UpdateData;
 
   { Render data. }
-  DataRenderer := TDataRenderer.Create(Content,
-    TEquipmentDataProvider.Create, TEquipmentProfilesProvider.Create,
-    TEquipmentRenderer.Create);
-  DataRenderer.UpdateData;
+  Provider.TreeView := Content;
 end;
 
 procedure TMainWindow.FormDestroy(Sender: TObject);
 begin
   FreeAndNil(MainMenuRenderer);
-  FreeAndNil(DataRenderer);
 
   FreeAndNil(FProfileEditor);
 end;

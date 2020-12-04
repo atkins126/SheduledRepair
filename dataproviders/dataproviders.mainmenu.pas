@@ -32,7 +32,8 @@ unit dataproviders.mainmenu;
 interface
 
 uses
-  SysUtils, dataproviders.common, objects.common, objects.mainmenu.item;
+  SysUtils, dataproviders.common, objects.common, objects.mainmenu.item,
+  dataprovider;
 
 type
   TMainMenuDataProvider = class(TCommonDataProvider)
@@ -44,6 +45,8 @@ type
 
     { Load concrete object. }
     function LoadConcreteObject ({%H-}AID : Int64) : TCommonObject; override;
+  private
+    procedure EquipmentCallback;
   end;
 
 implementation
@@ -56,13 +59,14 @@ var
 begin
   Clear;
   
-  MenuItem := TMainMenuItem.Create(0, MENU_ITEM_LOGO, 'SheduledRepair');
+  MenuItem := TMainMenuItem.Create(0, MENU_ITEM_LOGO, 'SheduledRepair', nil);
   Append(MenuItem);
 
-  MenuItem := TMainMenuItem.Create(1, MENU_ITEM, 'Job');
+  MenuItem := TMainMenuItem.Create(1, MENU_ITEM, 'Job', nil);
   Append(MenuItem);
 
-  MenuItem := TMainMenuItem.Create(2, MENU_ITEM, 'Equipment');
+  MenuItem := TMainMenuItem.Create(2, MENU_ITEM, 'Equipment', 
+    @EquipmentCallback);
   Append(MenuItem);
 
   Result := True;
@@ -76,6 +80,11 @@ end;
 function TMainMenuDataProvider.LoadConcreteObject (AID : Int64) : TCommonObject;
 begin
   Result := nil;
+end;
+
+procedure TMainMenuDataProvider.EquipmentCallback;
+begin
+  Provider.EquipmentData;
 end;
 
 end.

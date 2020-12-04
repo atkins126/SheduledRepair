@@ -32,7 +32,7 @@
         <PackageName Value="LCL"/>
       </Item2>
     </RequiredPackages>
-    <Units Count="25">
+    <Units Count="28">
       <Unit0>
         <Filename Value="SheduledRepair.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -142,6 +142,18 @@
         <Filename Value="../renderers/renderers.datarenderer.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit24>
+      <Unit25>
+        <Filename Value="../dataproviders/dataproviders.mainmenu.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit25>
+      <Unit26>
+        <Filename Value="../profilesprovider/profilesprovider.mainmenu.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit26>
+      <Unit27>
+        <Filename Value="../profilesprovider/profilesprovider.equipment.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit27>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
