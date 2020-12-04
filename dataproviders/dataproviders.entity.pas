@@ -22,7 +22,7 @@
 (* Floor, Boston, MA 02110-1335, USA.                                         *)
 (*                                                                            *)
 (******************************************************************************)
-unit dataproviders.equipment;
+unit dataproviders.entity;
 
 {$mode objfpc}{$H+}
 {$IFOPT D+}
@@ -32,46 +32,55 @@ unit dataproviders.equipment;
 interface
 
 uses
-  SysUtils, dataproviders.common, objects.common, objects.equipment;
+  SysUtils, dataproviders.common, objects.common, objects.equipment, 
+  objects.entitybag, objects.entity;
 
 type
-  TEquipmentDataProvider = class(TCommonDataProvider)
+  TEntityDataProvider = class(TCommonDataProvider)
   public
+    constructor Create (AEquipment : TEquipment); reintroduce;
+
+    { Load objects. }
+    function Load : Boolean; override;
+  protected
     { Get current loaded objects table name. }
     function LoadObjectsTableName : String; override;
 
     { Load concrete object. }
-    function LoadConcreteObject (AID : Int64) : TCommonObject; override;
-
-    
+    function LoadConcreteObject ({%H-}AID : Int64) : TCommonObject; override;
+  private
+    FEquipment : TEquipment;
   end;
 
 implementation
 
-{ TEquipmentDataProvider }
+{ TEntityDataProvider }
 
-function TEquipmentDataProvider.LoadObjectsTableName : String;
-var
-  Equipment : TEquipment;
+constructor TEntityDataProvider.Create (AEquipment : TEquipment);
 begin
-  Equipment := TEquipment.Create(-1);
-  Result := Equipment.Table;
-  FreeAndNil(Equipment);
+  FEquipment := AEquipment;
 end;
 
-function TEquipmentDataProvider.LoadConcreteObject (AID : Int64) :
-  TCommonObject;
+function TEntityDataProvider.Load : Boolean;
 var
-  Equipment : TEquipment;
+  Entity : TEntity;
 begin
-  Equipment := TEquipment.Create(AID);
-  if not Equipment.Load then
-  begin
-    FreeAndNil(Equipment);
-    Exit(nil);
-  end;
+  Clear;
 
-  Result := Equipment;
+  for Entity in FEquipment.EntityBag do
+    Append(Entity);
+
+  Result := True;
+end;
+
+function TEntityDataProvider.LoadObjectsTableName : String;
+begin
+  Result := '';
+end;
+
+function TEntityDataProvider.LoadConcreteObject (AID : Int64) : TCommonObject;
+begin
+  Result := nil;
 end;
 
 end.

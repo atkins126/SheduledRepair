@@ -87,8 +87,8 @@ type
     procedure TreeResize ({%H-}ASender : TObject);
 
     { On show scrollbars. }
-    procedure ShowScrollBar (ASender : TBaseVirtualTree; {%H-}ABar : Integer; 
-      {%H-}AShow : Boolean);
+    procedure ShowScrollBar (ASender{%H-} : TBaseVirtualTree; {%H-}ABar :
+      Integer; {%H-}AShow : Boolean);
   end;
 
   { Main menu data renderer decorator. }
@@ -327,7 +327,7 @@ begin
     Exit;
 
   if (TMainMenuItem(FDataRenderer.FDataProvider.GetObject(Node^.Index)).ItemType
-     = MENU_ITEM_LOGO) and (FSelectedNode <> nil) then
+    = MENU_ITEM_LOGO) and (FSelectedNode <> nil) then
   begin
     FDataRenderer.FTreeView.Selected[FSelectedNode] := True;
     Exit;

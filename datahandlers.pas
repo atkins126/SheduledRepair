@@ -22,7 +22,7 @@
 (* Floor, Boston, MA 02110-1335, USA.                                         *)
 (*                                                                            *)
 (******************************************************************************)
-unit dataproviders.equipment;
+unit datahandlers;
 
 {$mode objfpc}{$H+}
 {$IFOPT D+}
@@ -32,46 +32,47 @@ unit dataproviders.equipment;
 interface
 
 uses
-  SysUtils, dataproviders.common, objects.common, objects.equipment;
+  SysUtils, VirtualTrees, renderers.datarenderer, renderers.equipment,
+  dataproviders.equipment, profilesprovider.equipment, renderers.job,
+  dataproviders.job, profilesprovider.job;
 
 type
-  TEquipmentDataProvider = class(TCommonDataProvider)
+  TDataHandler = class
   public
-    { Get current loaded objects table name. }
-    function LoadObjectsTableName : String; override;
-
-    { Load concrete object. }
-    function LoadConcreteObject (AID : Int64) : TCommonObject; override;
-
-    
+    function CreateDataRenderer (ADataView : TVirtualDrawTree) : TDataRenderer; 
+      virtual; abstract;
   end;
+
+  TJobDataHandler = class(TDataHandler)
+  public
+    function CreateDataRenderer (ADataView : TVirtualDrawTree) : TDataRenderer; 
+      override;  
+  end;
+
+  TEquipmentDataHandler = class(TDataHandler)
+  public
+    function CreateDataRenderer (ADataView : TVirtualDrawTree) : TDataRenderer; 
+      override;
+  end;  
 
 implementation
 
-{ TEquipmentDataProvider }
+{ TJobDataHandler }
 
-function TEquipmentDataProvider.LoadObjectsTableName : String;
-var
-  Equipment : TEquipment;
+function TJobDataHandler.CreateDataRenderer (ADataView : TVirtualDrawTree) : 
+  TDataRenderer;
 begin
-  Equipment := TEquipment.Create(-1);
-  Result := Equipment.Table;
-  FreeAndNil(Equipment);
+  Result := TDataRenderer.Create(ADataView, TJobDataProvider.Create,
+    TJobProfilesProvider.Create, TJobRenderer.Create);
 end;
 
-function TEquipmentDataProvider.LoadConcreteObject (AID : Int64) :
-  TCommonObject;
-var
-  Equipment : TEquipment;
-begin
-  Equipment := TEquipment.Create(AID);
-  if not Equipment.Load then
-  begin
-    FreeAndNil(Equipment);
-    Exit(nil);
-  end;
+{ TEquipmentDataHandler }
 
-  Result := Equipment;
+function TEquipmentDataHandler.CreateDataRenderer (ADataView : TVirtualDrawTree) 
+  : TDataRenderer;
+begin
+  Result := TDataRenderer.Create(ADataView, TEquipmentDataProvider.Create,
+    TEquipmentProfilesProvider.Create, TEquipmentRenderer.Create);
 end;
 
 end.

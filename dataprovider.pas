@@ -32,9 +32,7 @@ unit dataprovider;
 interface
 
 uses
-  SysUtils, Classes, VirtualTrees, renderers.datarenderer, renderers.equipment,
-  dataproviders.equipment, profilesprovider.equipment, renderers.job,
-  dataproviders.job, profilesprovider.job;
+  SysUtils, Classes, VirtualTrees, renderers.datarenderer, datahandlers;
 
 type
   TDataProvider = class
@@ -44,10 +42,10 @@ type
   private
     FDataView : TVirtualDrawTree;
     FRenderer : TDataRenderer;
-
+    
   public
-    procedure EquipmentData;
-    procedure JobData;
+    { Change data types. }
+    procedure ChangeData (ADataHandler : TDataHandler);
 
     property DataView : TVirtualDrawTree read FDataView write FDataView;
   end;
@@ -77,25 +75,13 @@ begin
   inherited Destroy;
 end;
 
-procedure TDataProvider.EquipmentData;
+procedure TDataProvider.ChangeData (ADataHandler : TDataHandler);
 begin
   if not Assigned(FDataView) then
     Exit;
 
   FreeAndNil(FRenderer);
-  FRenderer := TDataRenderer.Create(FDataView, TEquipmentDataProvider.Create,
-    TEquipmentProfilesProvider.Create, TEquipmentRenderer.Create);
-  FRenderer.UpdateData;
-end;
-
-procedure TDataProvider.JobData;
-begin
-  if not Assigned(FDataView) then
-    Exit;
-
-  FreeAndNil(FRenderer);
-  FRenderer := TDataRenderer.Create(FDataView, TJobDataProvider.Create,
-    TJobProfilesProvider.Create, TJobRenderer.Create);
+  FRenderer := ADataHandler.CreateDataRenderer(FDataView);
   FRenderer.UpdateData;
 end;
 

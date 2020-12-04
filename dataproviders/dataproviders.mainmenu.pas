@@ -33,7 +33,7 @@ interface
 
 uses
   SysUtils, dataproviders.common, objects.common, objects.mainmenu.item,
-  dataprovider;
+  dataprovider, datahandlers;
 
 type
   TMainMenuDataProvider = class(TCommonDataProvider)
@@ -86,12 +86,12 @@ end;
 
 procedure TMainMenuDataProvider.EquipmentCallback;
 begin
-  Provider.EquipmentData;
+  Provider.ChangeData(TEquipmentDataHandler.Create);
 end;
 
 procedure TMainMenuDataProvider.JobCallback;
 begin
-  Provider.JobData;
+  Provider.ChangeData(TJobDataHandler.Create);
 end;
 
 end.

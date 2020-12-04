@@ -55,6 +55,8 @@ type
 
     { Get object by index. }
     function GetObject (AObjectIndex : Cardinal) : TCommonObject;
+
+    procedure ObjectDoubleClick ({%H-}AObjectIndex : Cardinal); virtual;
   protected
     { Get current loaded objects table name. }
     function LoadObjectsTableName : String; virtual; abstract;
@@ -130,6 +132,11 @@ begin
     Exit(FObjectsList.Value[AObjectIndex]);
   
   Result := nil;
+end;
+
+procedure TCommonDataProvider.ObjectDoubleClick (AObjectIndex : Cardinal);
+begin
+  // Do nothing by default.
 end;
 
 function TCommonDataProvider.Load : Boolean;
