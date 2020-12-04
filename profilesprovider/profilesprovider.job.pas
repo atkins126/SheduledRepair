@@ -87,11 +87,21 @@ begin
     Position.Y := 0;
   end;
 
+  with Result.DefaultProfile.Items['Entity'] do
+  begin
+    Enable := False;
+  end;
+
+  with Result.DefaultProfile.Items['Period'] do
+  begin
+    Enable := False;
+  end;
+
   { Create job selected profile. }
   with Result.SelectedProfile do
   begin
     Enable := True;
-    Height := 35;
+    Height := 60;
     Background := clYellow;
   end;
 
@@ -115,6 +125,42 @@ begin
     Position.X := 15;
     Position.Y := 2;
   end;
+
+  with Result.SelectedProfile.Items['Entity'] do
+  begin
+    Enable := True;
+    Background := clWhite;
+    BackgroundFillType := FILL_NONE;
+    BackgroundRoundRadius := 0;
+    FontName := 'default';
+    FontSize := 10;
+    FontColor := clBlack;
+    Padding.Top := 28;
+    Padding.Left := 0;
+    Padding.Bottom := 0;
+    Padding.Right := 0;
+    PositionType := POSITION_FIXED;
+    Position.X := 15;
+    Position.Y := 2;
+  end;
+
+  with Result.SelectedProfile.Items['Period'] do
+  begin
+    Enable := True;
+    Background := clWhite;
+    BackgroundFillType := FILL_NONE;
+    BackgroundRoundRadius := 0;
+    FontName := 'default';
+    FontSize := 10;
+    FontColor := clBlack;
+    Padding.Top := 28;
+    Padding.Left := 0;
+    Padding.Bottom := 0;
+    Padding.Right := 0;
+    PositionType := POSITION_FIXED;
+    Position.X := 250;
+    Position.Y := 2;
+  end;  
 
   { Create job hover profile. }
   with Result.HoverProfile do
@@ -143,6 +189,16 @@ begin
     PositionType := POSITION_FIXED;
     Position.X := 15;
     Position.Y := 0;
+  end;
+
+  with Result.HoverProfile.Items['Entity'] do
+  begin
+    Enable := False;
+  end;
+
+  with Result.HoverProfile.Items['Period'] do
+  begin
+    Enable := False;
   end;
 end;
 

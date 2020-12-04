@@ -52,7 +52,7 @@ type
     {$IFNDEF DEBUG}inline;{$ENDIF}
 
     { Draw name. }
-    procedure DrawName (AObject : TJob; AProfileItem : 
+    procedure DrawText (AText : String; AProfileItem : 
       TRendererProfileItem; ACanvas : TCanvas; ARect : TRect);
     {$IFNDEF DEBUG}inline;{$ENDIF}
   end;
@@ -74,7 +74,7 @@ begin
   ACanvas.FillRect(ARect);
 end;
 
-procedure TJobRenderer.DrawName(AObject : TJob; AProfileItem :
+procedure TJobRenderer.DrawText(AText : String; AProfileItem :
   TRendererProfileItem; ACanvas : TCanvas; ARect : TRect);
 
   function CalculateXPos : Integer; {$IFNDEF DEBUG}inline;{$ENDIF}
@@ -94,7 +94,7 @@ procedure TJobRenderer.DrawName(AObject : TJob; AProfileItem :
     ACanvas.Font.Color := AProfileItem.FontColor;
     ACanvas.Font.Size := AProfileItem.FontSize;
     ACanvas.Font.Name := AProfileItem.FontName;
-    TitleSize := ACanvas.TextExtent(AObject.Name);
+    TitleSize := ACanvas.TextExtent(AText);
 
     case AProfileItem.PositionType of
       POSITION_FIXED : begin
@@ -136,14 +136,18 @@ begin
   ACanvas.Font.Color := AProfileItem.FontColor;
   ACanvas.Font.Size := AProfileItem.FontSize;
   ACanvas.Font.Name := AProfileItem.FontName;
-  ACanvas.TextOut(NameRect.Left, NameRect.Top, AObject.Name);
+  ACanvas.TextOut(NameRect.Left, NameRect.Top, AText);
 end;
 
 procedure TJobRenderer.Draw(AObject : TCommonObject; AProfile : 
   TRendererProfile; ACanvas : TCanvas; ARect : TRect);
 begin
   DrawBackground(AProfile, ACanvas, ARect);
-  DrawName(TJob(AObject), AProfile.Items['Name'], ACanvas, ARect);
+  DrawText(TJob(AObject).Name, AProfile.Items['Name'], ACanvas, ARect);
+  DrawText(TJob(AObject).Entity.Name, AProfile.Items['Entity'], ACanvas, ARect);
+  DrawText(FormatFloat('0.00', TJob(AObject).Period.Quantity.Count) + ' ' +
+    TJob(AObject).Period.Quantity.Measure.Name, AProfile.Items['Period'],
+    ACanvas, ARect);
 end;
 
 end.
