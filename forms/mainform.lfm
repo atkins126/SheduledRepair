@@ -18,6 +18,7 @@ object MainWindow: TMainWindow
     Align = alTop
     ParentFont = False
     TabOrder = 5
+    Visible = False
   end
   object MainMenu: TVirtualDrawTree
     Left = 0

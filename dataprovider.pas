@@ -32,7 +32,8 @@ unit dataprovider;
 interface
 
 uses
-  SysUtils, Classes, VirtualTrees, renderers.datarenderer, datahandlers;
+  SysUtils, Classes, VirtualTrees, renderers.mainmenu, dataproviders.mainmenu,
+  profilesprovider.mainmenu, renderers.datarenderer, datahandlers;
 
 type
   TDataProvider = class
@@ -40,13 +41,19 @@ type
     constructor Create;
     destructor Destroy; override;
   private
+    FMainMenuView : TVirtualDrawTree;
+    FMainMenuRenderer : TMainMenuDataRenderer;
+
     FDataView : TVirtualDrawTree;
-    FRenderer : TDataRenderer;
+    FDataRenderer : TDataRenderer;
     
+    procedure SetMainMenuView (AMainMenuView : TVirtualDrawTree);
   public
     { Change data types. }
     procedure ChangeData (ADataHandler : TDataHandler);
 
+    property MainMenuView : TVirtualDrawTree read FMainMenuView 
+      write SetMainMenuView;
     property DataView : TVirtualDrawTree read FDataView write FDataView;
   end;
 
@@ -61,8 +68,11 @@ constructor TDataProvider.Create;
 begin
   if not Assigned(Provider) then
   begin
+    FMainMenuView := nil;
+    FMainMenuRenderer := nil;
+
     FDataView := nil;
-    FRenderer := nil;
+    FDataRenderer := nil;
 
     Provider := self;
   end else
@@ -71,8 +81,22 @@ end;
 
 destructor TDataProvider.Destroy;
 begin
-  FreeAndNil(FRenderer);
+  FreeAndNil(FMainMenuRenderer);
+  FreeAndNil(FDataRenderer);
   inherited Destroy;
+end;
+
+procedure TDataProvider.SetMainMenuView (AMainMenuView : TVirtualDrawTree);
+begin
+  if AMainMenuView = nil then
+    Exit;
+
+  FMainMenuView := AMainMenuView;
+  FMainMenuRenderer := TMainMenuDataRenderer.Create(
+    TDataRenderer.Create(FMainMenuView, TMainMenuDataProvider.Create, 
+    TMainMenuProfilesProvider.Create, TMainMenuRenderer.Create)
+  );
+  FMainMenuRenderer.UpdateData;
 end;
 
 procedure TDataProvider.ChangeData (ADataHandler : TDataHandler);
@@ -80,9 +104,9 @@ begin
   if not Assigned(FDataView) then
     Exit;
 
-  FreeAndNil(FRenderer);
-  FRenderer := ADataHandler.CreateDataRenderer(FDataView);
-  FRenderer.UpdateData;
+  FreeAndNil(FDataRenderer);
+  FDataRenderer := ADataHandler.CreateDataRenderer(FDataView);
+  FDataRenderer.UpdateData;
 end;
 
 initialization

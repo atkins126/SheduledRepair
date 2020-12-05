@@ -32,8 +32,7 @@ unit dataproviders.mainmenu;
 interface
 
 uses
-  SysUtils, dataproviders.common, objects.common, objects.mainmenu.item,
-  dataprovider, datahandlers;
+  SysUtils, dataproviders.common, objects.common, objects.mainmenu.item;
 
 type
   TMainMenuDataProvider = class(TCommonDataProvider)
@@ -51,6 +50,9 @@ type
   end;
 
 implementation
+
+uses
+  dataprovider, datahandlers;
 
 { TMainMenuDataProvider }
 
