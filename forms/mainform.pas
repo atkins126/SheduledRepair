@@ -5,20 +5,20 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, ExtCtrls, StdCtrls,
-  VirtualTrees, profileform, dataprovider;
+  VirtualTrees, profileform, dataprovider, mainmenuprovider;
 
 type
 
   { TMainWindow }
 
   TMainWindow = class(TForm)
-    MainMenu: TVirtualDrawTree;
+    MainMenuView: TVirtualDrawTree;
     BottomPanel: TPanel;
     TopPanel: TPanel;
     Settings: TVirtualDrawTree;
     MainMenuSplitter: TSplitter;
     SettingsSplitter: TSplitter;
-    Content: TVirtualDrawTree;
+    ContentView: TVirtualDrawTree;
 
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
@@ -43,8 +43,8 @@ begin
   FProfileEditor.Height := Self.Height;
   FProfileEditor.Show;
 
-  Provider.MainMenuView := MainMenu;
-  Provider.DataView := Content;
+  MainMenu.View := MainMenuView;
+  Provider.DataView := ContentView;
 end;
 
 procedure TMainWindow.FormDestroy(Sender: TObject);

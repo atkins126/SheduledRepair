@@ -20,7 +20,7 @@ object MainWindow: TMainWindow
     TabOrder = 5
     Visible = False
   end
-  object MainMenu: TVirtualDrawTree
+  object MainMenuView: TVirtualDrawTree
     Left = 0
     Height = 583
     Top = 53
@@ -61,7 +61,7 @@ object MainWindow: TMainWindow
     ResizeAnchor = akRight
     Visible = False
   end
-  object Content: TVirtualDrawTree
+  object ContentView: TVirtualDrawTree
     Left = 321
     Height = 583
     Top = 53

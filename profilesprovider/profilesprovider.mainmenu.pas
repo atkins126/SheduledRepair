@@ -153,6 +153,8 @@ function TMainMenuProfilesProvider.Load : Boolean;
 var
   ProfileObject : TRendererObjectProfile;
 begin
+  Clear;
+
   ProfileObject := TRendererObjectProfile.Create(-1, nil);
 
   { Create item logo default profile. }

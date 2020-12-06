@@ -22,7 +22,7 @@
 (* Floor, Boston, MA 02110-1335, USA.                                         *)
 (*                                                                            *)
 (******************************************************************************)
-unit dataprovider;
+unit mainmenuprovider;
 
 {$mode objfpc}{$H+}
 {$IFOPT D+}
@@ -32,60 +32,66 @@ unit dataprovider;
 interface
 
 uses
-  SysUtils, Classes, VirtualTrees, renderers.datarenderer, datahandlers;
+  SysUtils, Classes, VirtualTrees, renderers.mainmenu, dataproviders.mainmenu,
+  profilesprovider.mainmenu, renderers.datarenderer;
 
 type
-  TDataProvider = class
+  TMainMenu = class
   public
     constructor Create;
     destructor Destroy; override;
   private
-    FDataView : TVirtualDrawTree;
-    FDataRenderer : TDataRenderer;
-  public
-    { Change data types. }
-    procedure ChangeData (ADataHandler : TDataHandler);
+    FMainMenuView : TVirtualDrawTree;  
+    FMainMenuRenderer : TMainMenuDataRenderer;
 
-    property DataView : TVirtualDrawTree read FDataView write FDataView;
+    procedure SetMainMenuView (AMainMenuView : TVirtualDrawTree);
+  public
+    property View : TVirtualDrawTree read FMainMenuView 
+      write SetMainMenuView;
   end;
 
 var
-  Provider : TDataProvider = nil;
+  MainMenu : TMainMenu = nil;
 
 implementation
 
-{ TDataProvider }
+{ TMainMenu }
 
-constructor TDataProvider.Create;
+constructor TMainMenu.Create;
 begin
-  if not Assigned(Provider) then
+  if not Assigned(MainMenu) then
   begin
-    FDataView := nil;
-    FDataRenderer := nil;
+    FMainMenuView := nil;
+    FMainMenuRenderer := nil;
 
-    Provider := self;
+    MainMenu := self;
   end else
-    self := Provider;
+  begin
+    self := MainMenu;
+  end;
 end;
 
-destructor TDataProvider.Destroy;
+destructor TMainMenu.Destroy;
 begin
-  FreeAndNil(FDataRenderer);
+  FreeAndNil(FMainMenuRenderer);
   inherited Destroy;
 end;
 
-procedure TDataProvider.ChangeData (ADataHandler : TDataHandler);
+procedure TMainMenu.SetMainMenuView (AMainMenuView : TVirtualDrawTree);
 begin
-  if not Assigned(FDataView) then
+  if AMainMenuView = nil then
     Exit;
 
-  FreeAndNil(FDataRenderer);
-  FDataRenderer := ADataHandler.CreateDataRenderer(FDataView);
-  FDataRenderer.UpdateData;
+  FMainMenuView := AMainMenuView;
+  FMainMenuRenderer := TMainMenuDataRenderer.Create(
+    TDataRenderer.Create(FMainMenuView, TMainMenuDataProvider.Create, 
+    TMainMenuProfilesProvider.Create, TMainMenuRenderer.Create)
+  );
+  FMainMenuRenderer.UpdateData;
 end;
 
 initialization
-  Provider := TDataProvider.Create;
+  MainMenu := TMainMenu.Create;
 finalization
-  FreeAndNil(Provider);
+  FreeAndNil(MainMenu);
 end.

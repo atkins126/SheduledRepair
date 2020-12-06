@@ -44,6 +44,9 @@ type
     { Load profiles. }
     function Load : Boolean; virtual;
 
+    { Clear all items. }
+    procedure Clear;
+
     { Append new profile to list. }
     procedure Append (AProfile : TRendererObjectProfile);
 
@@ -100,6 +103,11 @@ destructor TCommonProfilesProvider.Destroy;
 begin
   FreeAndNil(FProfilesList);
   inherited Destroy;
+end;
+
+procedure TCommonProfilesProvider.Clear;
+begin
+  FProfilesList.Clear;
 end;
 
 procedure TCommonProfilesProvider.Append (AProfile : TRendererObjectProfile);
