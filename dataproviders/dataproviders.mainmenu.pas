@@ -52,7 +52,7 @@ type
 implementation
 
 uses
-  dataprovider, datahandlers;
+  dataprovider, datahandlers, mainmenuprovider;
 
 { TMainMenuDataProvider }
 
@@ -79,11 +79,15 @@ end;
 
 procedure TMainMenuDataProvider.EquipmentCallback;
 begin
+  MainMenu.Clear;
+  
   Provider.ChangeData(TEquipmentDataHandler.Create);
 end;
 
 procedure TMainMenuDataProvider.JobCallback;
 begin
+  MainMenu.Clear;
+
   Provider.ChangeData(TJobDataHandler.Create);
 end;
 

@@ -49,7 +49,7 @@ type
 implementation
 
 uses
-  dataprovider, datahandlers;
+  dataprovider, datahandlers, mainmenuprovider;
 
 { TEquipmentDataProvider }
 
@@ -79,6 +79,9 @@ end;
 
 procedure TEquipmentDataProvider.ObjectDoubleClick (AObjectIndex : Cardinal);
 begin
+  MainMenu.Clear;
+  
+
   Provider.ChangeData(TEquipmentEntityDataHandler.Create(
     TEquipment(GetObject(AObjectIndex))));
 end;

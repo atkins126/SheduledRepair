@@ -100,6 +100,9 @@ type
     { Remove menu elements. }
     procedure Remove (AItemID : Int64);
 
+    { Clear menu item elements. }
+    procedure Clear;
+
     { Get menu element sub items. }
     function ItemData (AItemID : Int64) : TIterator;
 
@@ -233,6 +236,11 @@ end;
 procedure TMainMenu.Remove (AItemID : Int64);
 begin
   FMenuItems.Remove(FMenuItems.IndexOf(TMenuItemProvider.Create(AItemID, nil)));
+end;
+
+procedure TMainMenu.Clear;
+begin
+  FMenuItems.Clear;
 end;
 
 function TMainMenu.ItemData (AItemID : int64) : TIterator;
