@@ -39,7 +39,7 @@ object MainWindow: TMainWindow
     Top = 53
     Width = 5
   end
-  object Settings: TVirtualDrawTree
+  object SettingsView: TVirtualDrawTree
     Left = 946
     Height = 583
     Top = 53

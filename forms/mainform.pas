@@ -4,8 +4,8 @@ unit MainForm;
 interface
 
 uses
-  Classes, SysUtils, Forms, Controls, ExtCtrls, StdCtrls,
-  VirtualTrees, profileform, dataprovider, mainmenuprovider;
+  Classes, SysUtils, Forms, Controls, ExtCtrls, StdCtrls, VirtualTrees,
+  profileform, dataprovider, mainmenuprovider;
 
 type
 
@@ -15,7 +15,7 @@ type
     MainMenuView: TVirtualDrawTree;
     BottomPanel: TPanel;
     TopPanel: TPanel;
-    Settings: TVirtualDrawTree;
+    SettingsView: TVirtualDrawTree;
     MainMenuSplitter: TSplitter;
     SettingsSplitter: TSplitter;
     ContentView: TVirtualDrawTree;

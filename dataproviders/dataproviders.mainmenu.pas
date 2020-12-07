@@ -57,21 +57,12 @@ uses
 { TMainMenuDataProvider }
 
 function TMainMenuDataProvider.Load : Boolean;
-var
-  MenuItem : TMainMenuItem;
 begin
   Clear;
   
-  MenuItem := TMainMenuItem.Create(0, MENU_ITEM_LOGO, 'SheduledRepair', nil);
-  Append(MenuItem);
-
-  MenuItem := TMainMenuItem.Create(1, MENU_ITEM, 'Job', 
-    @JobCallback);
-  Append(MenuItem);
-
-  MenuItem := TMainMenuItem.Create(2, MENU_ITEM, 'Equipment', 
-    @EquipmentCallback);
-  Append(MenuItem);
+  Append(TMainMenuItem.Create(0, MENU_ITEM_LOGO, 'SheduledRepair', nil));
+  Append(TMainMenuItem.Create(1, MENU_ITEM, 'Job', @JobCallback));
+  Append(TMainMenuItem.Create(2, MENU_ITEM, 'Equipment', @EquipmentCallback));
 
   Result := True;
 end;
