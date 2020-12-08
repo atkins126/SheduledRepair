@@ -66,9 +66,6 @@ begin
     Background := clWhite;
   end;
 
-  { Create entity default profile items. }
-  Result.DefaultProfile.Items['Name'] := TRendererProfileItem.Create(-1);
-  
   with Result.DefaultProfile.Items['Name'] do
   begin
     Enable := True;
@@ -90,6 +87,19 @@ begin
   with Result.DefaultProfile.Items['Quantity'] do
   begin
     Enable := False;
+    Background := clWhite;
+    BackgroundFillType := FILL_NONE;
+    BackgroundRoundRadius := 0;
+    FontName := 'default';
+    FontSize := 10;
+    FontColor := clBlack;
+    Padding.Top := 1;
+    Padding.Left := 0;
+    Padding.Bottom := 1;
+    Padding.Right := 0;
+    PositionType := POSITION_FIXED;
+    Position.X := 15;
+    Position.Y := 0;
   end;
 
   { Create entity selected profile. }
@@ -100,9 +110,6 @@ begin
     Background := clYellow;
   end;
 
-  { Create entity selected profile items. }
-  Result.SelectedProfile.Items['Name'] := TRendererProfileItem.Create(-1);
-  
   with Result.SelectedProfile.Items['Name'] do
   begin
     Enable := True;
@@ -147,9 +154,6 @@ begin
     Background := clSilver;
   end;  
 
-  { Create job hover profile items. }
-  Result.HoverProfile.Items['Name'] := TRendererProfileItem.Create(-1);
-  
   with Result.HoverProfile.Items['Name'] do
   begin
     Enable := True;
@@ -171,6 +175,19 @@ begin
   with Result.HoverProfile.Items['Quantity'] do
   begin
     Enable := False;
+    Background := clWhite;
+    BackgroundFillType := FILL_NONE;
+    BackgroundRoundRadius := 0;
+    FontName := 'default';
+    FontSize := 10;
+    FontColor := clBlack;
+    Padding.Top := 1;
+    Padding.Left := 0;
+    Padding.Bottom := 1;
+    Padding.Right := 0;
+    PositionType := POSITION_FIXED;
+    Position.X := 15;
+    Position.Y := 0;
   end;
 end;
 

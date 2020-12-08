@@ -60,9 +60,12 @@ function TMainMenuDataProvider.Load : Boolean;
 begin
   Clear;
   
-  Append(TMainMenuItem.Create(0, MENU_ITEM_LOGO, 'SheduledRepair', nil));
-  Append(TMainMenuItem.Create(1, MENU_ITEM, 'Job', @JobCallback));
-  Append(TMainMenuItem.Create(2, MENU_ITEM, 'Equipment', @EquipmentCallback));
+  Append(TMainMenuItem.Create(TMainMenu.MENU_ITEM_LOGO, MENU_ITEM_LOGO, 
+    'SheduledRepair', nil));
+  Append(TMainMenuItem.Create(TMainMenu.MENU_ITEM_JOB, MENU_ITEM, 
+    'Job', @JobCallback));
+  Append(TMainMenuItem.Create(TMainMenu.MENU_ITEM_EQUIPMENT, MENU_ITEM, 
+    'Equipment', @EquipmentCallback));
 
   Result := True;
 end;

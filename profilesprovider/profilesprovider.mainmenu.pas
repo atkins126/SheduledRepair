@@ -69,9 +69,6 @@ begin
     Background := clWhite;
   end;
 
-  { Create main menu item default profile items. }
-  Result.DefaultProfile.Items['Title'] := TRendererProfileItem.Create(-1);
-  
   with Result.DefaultProfile.Items['Title'] do
   begin
     Enable := True;
@@ -98,9 +95,6 @@ begin
     Background := clYellow;
   end;
 
-  { Create main menu item selected profile items. }
-  Result.SelectedProfile.Items['Title'] := TRendererProfileItem.Create(-1);
-  
   with Result.SelectedProfile.Items['Title'] do
   begin
     Enable := True;
@@ -127,9 +121,6 @@ begin
     Background := clSilver;
   end;  
 
-  { Create main menu item hover profile items. }
-  Result.HoverProfile.Items['Title'] := TRendererProfileItem.Create(-1);
-  
   with Result.HoverProfile.Items['Title'] do
   begin
     Enable := True;
@@ -165,10 +156,6 @@ begin
     Background := clWhite;
   end;
   
-  { Create item logo default profile items. }
-  ProfileObject.DefaultProfile.Items['Title'] := 
-    TRendererProfileItem.Create(-1);
-  
   with ProfileObject.DefaultProfile.Items['Title'] do
   begin
     Enable := True;
@@ -195,10 +182,6 @@ begin
     Background := clWhite;
   end;
 
-  { Create item logo selected profile items. }
-  ProfileObject.SelectedProfile.Items['Title'] := 
-    TRendererProfileItem.Create(-1);
-  
   with ProfileObject.SelectedProfile.Items['Title'] do
   begin
     Enable := True;
@@ -225,10 +208,6 @@ begin
     Background := clWhite;
   end;
 
-  { Create item logo hover profile items. }
-  ProfileObject.HoverProfile.Items['Title'] := 
-    TRendererProfileItem.Create(-1);
-  
   with ProfileObject.HoverProfile.Items['Title'] do
   begin
     Enable := True;

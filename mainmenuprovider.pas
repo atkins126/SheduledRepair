@@ -39,6 +39,11 @@ uses
 type
   TMainMenu = class
   public
+    const
+      MENU_ITEM_LOGO                                                  = 0;
+      MENU_ITEM_JOB                                                   = 1;
+      MENU_ITEM_EQUIPMENT                                             = 2;
+  public
     constructor Create;
     destructor Destroy; override;
   private

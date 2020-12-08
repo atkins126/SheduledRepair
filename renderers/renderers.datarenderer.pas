@@ -249,6 +249,7 @@ begin
     Exit;
 
   FDataProvider.ObjectDoubleClick(FSelectedNode^.Index);
+  TBaseVirtualTree(ASender).InvalidateNode(FSelectedNode);
 end;
 
 procedure TDataRenderer.NodeDraw (ASender : TBaseVirtualTree; const APaintInfo :

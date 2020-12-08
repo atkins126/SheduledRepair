@@ -74,7 +74,8 @@ type
   public
     property ItemType : TItemType read FItemType;
     property Title : String read FTitle;
-    property SelectedObject : TCommonObject read FSelectedObject;
+    property SelectedObject : TCommonObject read FSelectedObject 
+      write FSelectedObject;
     property Callback : TItemCallback read FItemCallback;
   end;
 

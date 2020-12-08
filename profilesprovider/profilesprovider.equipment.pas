@@ -66,9 +66,6 @@ begin
     Background := clWhite;
   end;
 
-  { Create equipment default profile items. }
-  Result.DefaultProfile.Items['Name'] := TRendererProfileItem.Create(-1);
-  
   with Result.DefaultProfile.Items['Name'] do
   begin
     Enable := True;
@@ -87,6 +84,42 @@ begin
     Position.Y := 0;
   end;
 
+  with Result.DefaultProfile.Items['SelectionTitle'] do
+  begin
+    Enable := True;
+    Background := clWhite;
+    BackgroundFillType := FILL_NONE;
+    BackgroundRoundRadius := 0;
+    FontName := 'default';
+    FontSize := 10;
+    FontColor := clBlack;
+    Padding.Top := 1;
+    Padding.Left := 0;
+    Padding.Bottom := 1;
+    Padding.Right := 0;
+    PositionType := POSITION_FIXED;
+    Position.X := 15;
+    Position.Y := 0;
+  end;
+
+  with Result.DefaultProfile.Items['SelectionName'] do
+  begin
+    Enable := True;
+    Background := clWhite;
+    BackgroundFillType := FILL_NONE;
+    BackgroundRoundRadius := 0;
+    FontName := 'default';
+    FontSize := 8;
+    FontColor := $AAAAAA;
+    Padding.Top := 1;
+    Padding.Left := 0;
+    Padding.Bottom := 1;
+    Padding.Right := 0;
+    PositionType := POSITION_FIXED;
+    Position.X := 15;
+    Position.Y := 8;
+  end;
+
   { Create equipment selected profile. }
   with Result.SelectedProfile do
   begin
@@ -95,9 +128,6 @@ begin
     Background := clYellow;
   end;
 
-  { Create equipment selected profile items. }
-  Result.SelectedProfile.Items['Name'] := TRendererProfileItem.Create(-1);
-  
   with Result.SelectedProfile.Items['Name'] do
   begin
     Enable := True;
@@ -116,6 +146,42 @@ begin
     Position.Y := 2;
   end;
 
+  with Result.SelectedProfile.Items['SelectionTitle'] do
+  begin
+    Enable := True;
+    Background := clWhite;
+    BackgroundFillType := FILL_NONE;
+    BackgroundRoundRadius := 0;
+    FontName := 'default';
+    FontSize := 10;
+    FontColor := clBlack;
+    Padding.Top := 1;
+    Padding.Left := 0;
+    Padding.Bottom := 1;
+    Padding.Right := 0;
+    PositionType := POSITION_FIXED;
+    Position.X := 15;
+    Position.Y := 0;
+  end;
+
+  with Result.SelectedProfile.Items['SelectionName'] do
+  begin
+    Enable := True;
+    Background := clWhite;
+    BackgroundFillType := FILL_NONE;
+    BackgroundRoundRadius := 0;
+    FontName := 'default';
+    FontSize := 8;
+    FontColor := $AAAAAA;
+    Padding.Top := 1;
+    Padding.Left := 0;
+    Padding.Bottom := 1;
+    Padding.Right := 0;
+    PositionType := POSITION_FIXED;
+    Position.X := 15;
+    Position.Y := 8;
+  end;
+
   { Create equipment hover profile. }
   with Result.HoverProfile do
   begin
@@ -124,9 +190,6 @@ begin
     Background := clSilver;
   end;  
 
-  { Create equipment hover profile items. }
-  Result.HoverProfile.Items['Name'] := TRendererProfileItem.Create(-1);
-  
   with Result.HoverProfile.Items['Name'] do
   begin
     Enable := True;
@@ -143,6 +206,42 @@ begin
     PositionType := POSITION_FIXED;
     Position.X := 15;
     Position.Y := 0;
+  end;
+
+  with Result.HoverProfile.Items['SelectionTitle'] do
+  begin
+    Enable := True;
+    Background := clWhite;
+    BackgroundFillType := FILL_NONE;
+    BackgroundRoundRadius := 0;
+    FontName := 'default';
+    FontSize := 10;
+    FontColor := clBlack;
+    Padding.Top := 1;
+    Padding.Left := 0;
+    Padding.Bottom := 1;
+    Padding.Right := 0;
+    PositionType := POSITION_FIXED;
+    Position.X := 15;
+    Position.Y := 0;
+  end;
+
+  with Result.HoverProfile.Items['SelectionName'] do
+  begin
+    Enable := True;
+    Background := clWhite;
+    BackgroundFillType := FILL_NONE;
+    BackgroundRoundRadius := 0;
+    FontName := 'default';
+    FontSize := 8;
+    FontColor := $AAAAAA;
+    Padding.Top := 1;
+    Padding.Left := 0;
+    Padding.Bottom := 1;
+    Padding.Right := 0;
+    PositionType := POSITION_FIXED;
+    Position.X := 15;
+    Position.Y := 8;
   end;
 end;
 

@@ -143,7 +143,17 @@ procedure TMainMenuRenderer.Draw(AObject : TCommonObject; AProfile :
   TRendererProfile; ACanvas : TCanvas; ARect : TRect);
 begin
   DrawBackground(AProfile, ACanvas, ARect);
-  DrawTitle(TMainMenuItem(AObject), AProfile.Items['Title'], ACanvas, ARect);
+
+  if not Assigned(TMainMenuItem(AObject).SelectedObject) then
+  begin
+    DrawTitle(TMainMenuItem(AObject), AProfile.Items['Title'], ACanvas, ARect);
+  end else
+  begin
+    DrawTitle(TMainMenuItem(AObject), AProfile.Items['SelectionTitle'], ACanvas, 
+      ARect);
+    DrawTitle(TMainMenuItem(AObject), AProfile.Items['SelectionName'], ACanvas, 
+      ARect);
+  end;
 end;
 
 end.
