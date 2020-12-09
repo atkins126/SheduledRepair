@@ -37,12 +37,13 @@ implementation
 
 procedure TMainWindow.FormCreate(Sender: TObject);
 begin
+  {
   FProfileEditor := TProfileWindow.Create(Self);
   FProfileEditor.Left := Self.Left - FProfileEditor.Width - 1;
   FProfileEditor.Top := Self.Top;
   FProfileEditor.Height := Self.Height;
   FProfileEditor.Show;
-
+  }
   MainMenu.View := MainMenuView;
   Provider.DataView := ContentView;
 end;

@@ -115,7 +115,7 @@ type
 
     procedure SelectObject (AObjectID : Int64; AObjectName : String; 
       AObject : TCommonObject);
-
+    
     property View : TVirtualDrawTree read FMainMenuView 
       write SetMainMenuView;
   end;

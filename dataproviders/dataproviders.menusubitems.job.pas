@@ -22,7 +22,7 @@
 (* Floor, Boston, MA 02110-1335, USA.                                         *)
 (*                                                                            *)
 (******************************************************************************)
-unit dataproviders.mainmenu;
+unit dataproviders.menusubitems.job;
 
 {$mode objfpc}{$H+}
 {$IFOPT D+}
@@ -32,11 +32,10 @@ unit dataproviders.mainmenu;
 interface
 
 uses
-  SysUtils, dataproviders.common, objects.common, objects.mainmenu.item,
-  dataproviders.menusubitems.job;
+  SysUtils, dataproviders.common, objects.common, objects.mainmenu.item;
 
 type
-  TMainMenuDataProvider = class(TCommonDataProvider)
+  TMenuSubitemJobDataProvider = class(TCommonDataProvider)
   public
     function Load : Boolean; override;
   protected
@@ -46,58 +45,35 @@ type
     { Load concrete object. }
     function LoadConcreteObject ({%H-}AID : Int64) : TCommonObject; override;
   private
-    procedure EquipmentCallback;
-    procedure JobCallback;
+    
   end;
 
 implementation
 
 uses
-  dataprovider, datahandlers, mainmenuprovider;
+  dataprovider, mainmenuprovider;
 
 { TMainMenuDataProvider }
 
-function TMainMenuDataProvider.Load : Boolean;
+function TMenuSubitemJobDataProvider.Load : Boolean;
 begin
   Clear;
   
-  Append(TMainMenuItem.Create(TMainMenu.MENU_ITEM_LOGO, MENU_ITEM_LOGO, 
-    'SheduledRepair', nil));
-  Append(TMainMenuItem.Create(TMainMenu.MENU_ITEM_JOB, MENU_ITEM, 
-    'Job', @JobCallback));
-  Append(TMainMenuItem.Create(TMainMenu.MENU_ITEM_EQUIPMENT, MENU_ITEM, 
-    'Equipment', @EquipmentCallback));
-
+  Append(TMainMenuItem.Create(-1, MENU_SUBITEM, 'Create', nil));
+  Append(TMainMenuItem.Create(-1, MENU_SUBITEM, 'Edit', nil));
+  
   Result := True;
 end;
 
-function TMainMenuDataProvider.LoadObjectsTableName : String;
+function TMenuSubitemJobDataProvider.LoadObjectsTableName : String;
 begin
   Result := '';
 end;
 
-function TMainMenuDataProvider.LoadConcreteObject (AID : Int64) : TCommonObject;
+function TMenuSubitemJobDataProvider.LoadConcreteObject (AID : Int64) : 
+  TCommonObject;
 begin
   Result := nil;
-end;
-
-procedure TMainMenuDataProvider.EquipmentCallback;
-begin
-  MainMenu.Clear;
-  
-  MainMenu.SelectObject(TMainMenu.MENU_ITEM_EQUIPMENT, '', nil);
-  
-  Provider.ChangeData(TEquipmentDataHandler.Create);
-end;
-
-procedure TMainMenuDataProvider.JobCallback;
-begin
-  MainMenu.Clear;
-
-  MainMenu.Append(TMainMenu.MENU_ITEM_JOB, TMenuSubitemJobDataProvider.Create);
-  MainMenu.SelectObject(TMainMenu.MENU_ITEM_EQUIPMENT, '', nil);
-
-  Provider.ChangeData(TJobDataHandler.Create);
 end;
 
 end.

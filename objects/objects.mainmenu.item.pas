@@ -43,7 +43,8 @@ type
     type
       TItemType = (
         MENU_ITEM_LOGO,
-        MENU_ITEM
+        MENU_ITEM,
+        MENU_SUBITEM
       );
 
       TItemCallback = procedure of object;

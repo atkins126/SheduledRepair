@@ -55,7 +55,7 @@ type
     FSelectedNode : PVirtualNode;
   private
     { Setup VirtualTreeView parameters. }
-    procedure TreeViewParams;
+    procedure SetTreeViewParams;
       {$IFNDEF DEBUG}inline;{$ENDIF}
 
     { Create VirtualTreeView columns. }
@@ -70,14 +70,14 @@ type
     function HoverNode (ANode : PVirtualNode) : Boolean;
       {$IFNDEF DEBUG}inline;{$ENDIF}
 
+    function GetNodeID (ANode : PVirtualNode) : Int64;
+      {$IFNDEF DEBUG}inline;{$ENDIF}
+
     procedure NodeChange(Sender: TBaseVirtualTree; Node: PVirtualNode);
 
     { Get ANode height. }
     procedure NodeMeasure ({%H-}ASender : TBaseVirtualTree; {%H-}ATargetCanvas : 
       TCanvas; ANode : PVirtualNode; var ANodeHeight : Integer);
-
-    { Select node. }
-    procedure NodeClick(Sender : TBaseVirtualTree; const HitInfo: THitInfo);
 
     { Node double click. }
     procedure NodeDoubleClick ({%H-}ASender : TObject);
@@ -125,7 +125,7 @@ begin
   FRenderer := ARenderer;
   FSelectedNode := nil;
 
-  TreeViewParams;
+  SetTreeViewParams;
 end;
 
 destructor TDataRenderer.Destroy;
@@ -133,11 +133,11 @@ begin
   inherited Destroy;
 end;
 
-procedure TDataRenderer.TreeViewParams;
+procedure TDataRenderer.SetTreeViewParams;
 begin
   with FTreeView do
   begin
-    NodeDataSize := SizeOf(Cardinal);
+    NodeDataSize := SizeOf(Int64);
     TreeOptions.PaintOptions := [toShowRoot, toUseBlendedImages, toHotTrack, 
       toHideFocusRect, toAlwaysHideSelection, toHideSelection];
     TreeOptions.MiscOptions := [toFullRepaintOnResize, toVariableNodeHeight,
@@ -179,6 +179,11 @@ end;
 function TDataRenderer.HoverNode (ANode : PVirtualNode) : Boolean;
 begin
   Result := (FTreeView.HotNode = ANode);
+end;
+
+function TDataRenderer.GetNodeID (ANode : PVirtualNode) : Int64;
+begin
+  Result := PInt64(FTreeView.GetNodeData(ANode))^;
 end;
 
 procedure TDataRenderer.NodeMeasure (ASender : TBaseVirtualTree; ATargetCanvas : 
@@ -235,24 +240,12 @@ begin
   FTreeView.InvalidateNode(Node);
 end;
 
-procedure TDataRenderer.NodeClick(Sender : TBaseVirtualTree; const HitInfo: 
-  THitInfo);
-begin
-
-
-  HitInfo.HitNode^.NodeHeight := FProfileProvider.GetProfile
-    (HitInfo.HitNode^.Index).SelectedProfile.Height;
-  Sender.InvalidateNode(HitInfo.HitNode);
-end;
-
 procedure TDataRenderer.NodeDoubleClick (ASender : TObject);
 begin
   if not Assigned(FSelectedNode) then
     Exit;
 
   FDataProvider.ObjectDoubleClick(FSelectedNode^.Index);
-  //TBaseVirtualTree(ASender).InvalidateNode(FSelectedNode);
-
 end;
 
 procedure TDataRenderer.NodeDraw (ASender : TBaseVirtualTree; const APaintInfo :
@@ -310,6 +303,8 @@ end;
 procedure TDataRenderer.UpdateData;
 var
   ObjectItem : TCommonObject;
+  PNodeID : PInt64;
+  Node : PVirtualNode;
 begin
   if (not FDataProvider.Load) or (not FProfileProvider.Load) then
     Exit;
@@ -319,7 +314,12 @@ begin
 
   for ObjectItem in FDataProvider do
   begin
-    FTreeView.AddChild(nil);
+    Node := FTreeView.AddChild(nil);
+    PNodeID := PInt64(FTreeView.GetNodeData(Node));
+    if Assigned(PNodeID) then
+    begin
+      PNodeID^ := ObjectItem.ID;
+    end;
   end;
 
   FTreeView.EndUpdate;
