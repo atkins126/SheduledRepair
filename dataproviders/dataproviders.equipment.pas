@@ -81,8 +81,9 @@ procedure TEquipmentDataProvider.ObjectDoubleClick (AObjectIndex : Cardinal);
 begin
   MainMenu.Clear;
   
-  TMainMenuItem(GetObject(TMainMenu.MENU_ITEM_EQUIPMENT)).SelectedObject := 
-    TEquipment(GetObject(AObjectIndex));
+  TMainMenuItem(MainMenu.DataProvider.GetObject(TMainMenu.MENU_ITEM_EQUIPMENT))
+    .SelectedObject := TEquipment(GetObject(AObjectIndex));
+  MainMenu.RedrawSelection;
 
   Provider.ChangeData(TEquipmentEntityDataHandler.Create(
     TEquipment(GetObject(AObjectIndex))));

@@ -95,6 +95,7 @@ type
   private
     FMainMenuView : TVirtualDrawTree;  
     FMainMenuRenderer : TMainMenuDataRenderer;
+    FMainMenuDataProvider : TMainMenuDataProvider;
     FMenuItems : TMenuItemProvidersList;
 
     procedure SetMainMenuView (AMainMenuView : TVirtualDrawTree);
@@ -111,8 +112,11 @@ type
     { Get menu element sub items. }
     function ItemData (AItemID : Int64) : TIterator;
 
+    procedure RedrawSelection;
+
     property View : TVirtualDrawTree read FMainMenuView 
       write SetMainMenuView;
+    property DataProvider : TMainMenuDataProvider read FMainMenuDataProvider;
   end;
 
 var
@@ -203,6 +207,7 @@ begin
   begin
     FMainMenuView := nil;
     FMainMenuRenderer := nil;
+    FMainMenuDataProvider := nil;
     FMenuItems := TMenuItemProvidersList.Create;
 
     MainMenu := self;
@@ -225,8 +230,9 @@ begin
     Exit;
 
   FMainMenuView := AMainMenuView;
+  FMainMenuDataProvider := TMainMenuDataProvider.Create;
   FMainMenuRenderer := TMainMenuDataRenderer.Create(
-    TDataRenderer.Create(FMainMenuView, TMainMenuDataProvider.Create, 
+    TDataRenderer.Create(FMainMenuView, FMainMenuDataProvider, 
     TMainMenuProfilesProvider.Create, TMainMenuRenderer.Create)
   );
   FMainMenuRenderer.UpdateData;
@@ -260,6 +266,11 @@ begin
   end;
 
   Result := TIterator.Create(Iterator, AItemID);
+end;
+
+procedure TMainMenu.RedrawSelection;
+begin
+  FMainMenuRenderer.RedrawSelection;
 end;
 
 initialization

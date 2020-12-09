@@ -84,12 +84,20 @@ procedure TMainMenuDataProvider.EquipmentCallback;
 begin
   MainMenu.Clear;
   
+  TMainMenuItem(MainMenu.DataProvider.GetObject(TMainMenu.MENU_ITEM_EQUIPMENT))
+    .SelectedObject := nil;
+  MainMenu.RedrawSelection;
+
   Provider.ChangeData(TEquipmentDataHandler.Create);
 end;
 
 procedure TMainMenuDataProvider.JobCallback;
 begin
   MainMenu.Clear;
+
+  TMainMenuItem(MainMenu.DataProvider.GetObject(TMainMenu.MENU_ITEM_EQUIPMENT))
+    .SelectedObject := nil;
+  MainMenu.RedrawSelection;
 
   Provider.ChangeData(TJobDataHandler.Create);
 end;

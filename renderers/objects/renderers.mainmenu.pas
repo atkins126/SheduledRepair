@@ -52,7 +52,7 @@ type
     {$IFNDEF DEBUG}inline;{$ENDIF}
 
     { Draw item title. }
-    procedure DrawTitle (AObject : TMainMenuItem; AProfileItem : 
+    procedure DrawText (AText : String; AProfileItem : 
       TRendererProfileItem; ACanvas : TCanvas; ARect : TRect);
     {$IFNDEF DEBUG}inline;{$ENDIF}
   end;
@@ -74,7 +74,7 @@ begin
   ACanvas.FillRect(ARect);
 end;
 
-procedure TMainMenuRenderer.DrawTitle(AObject : TMainMenuItem; AProfileItem :
+procedure TMainMenuRenderer.DrawText(AText : String; AProfileItem :
   TRendererProfileItem; ACanvas : TCanvas; ARect : TRect);
 
   function CalculateXPos : Integer; {$IFNDEF DEBUG}inline;{$ENDIF}
@@ -94,7 +94,7 @@ procedure TMainMenuRenderer.DrawTitle(AObject : TMainMenuItem; AProfileItem :
     ACanvas.Font.Color := AProfileItem.FontColor;
     ACanvas.Font.Size := AProfileItem.FontSize;
     ACanvas.Font.Name := AProfileItem.FontName;
-    TitleSize := ACanvas.TextExtent(AObject.Title);
+    TitleSize := ACanvas.TextExtent(AText);
 
     case AProfileItem.PositionType of
       POSITION_FIXED : begin
@@ -136,7 +136,7 @@ begin
   ACanvas.Font.Color := AProfileItem.FontColor;
   ACanvas.Font.Size := AProfileItem.FontSize;
   ACanvas.Font.Name := AProfileItem.FontName;
-  ACanvas.TextOut(TitleRect.Left, TitleRect.Top, AObject.Title);
+  ACanvas.TextOut(TitleRect.Left, TitleRect.Top, AText);
 end;
 
 procedure TMainMenuRenderer.Draw(AObject : TCommonObject; AProfile : 
@@ -146,13 +146,14 @@ begin
 
   if not Assigned(TMainMenuItem(AObject).SelectedObject) then
   begin
-    DrawTitle(TMainMenuItem(AObject), AProfile.Items['Title'], ACanvas, ARect);
+    DrawText(TMainMenuItem(AObject).Title, AProfile.Items['Title'], ACanvas, 
+      ARect);
   end else
   begin
-    DrawTitle(TMainMenuItem(AObject), AProfile.Items['SelectionTitle'], ACanvas, 
-      ARect);
-    DrawTitle(TMainMenuItem(AObject), AProfile.Items['SelectionName'], ACanvas, 
-      ARect);
+    DrawText(TMainMenuItem(AObject).Title, AProfile.Items['SelectionTitle'], 
+      ACanvas, ARect);
+    DrawText(TMainMenuItem(AObject).Title,
+      AProfile.Items['SelectionName'], ACanvas, ARect);
   end;
 end;
 

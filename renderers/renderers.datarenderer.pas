@@ -101,6 +101,8 @@ type
 
     { Update data. }
     procedure UpdateData;
+
+    procedure RedrawSelection;
   protected
     FDataRenderer : TDataRenderer;
 
@@ -249,7 +251,8 @@ begin
     Exit;
 
   FDataProvider.ObjectDoubleClick(FSelectedNode^.Index);
-  TBaseVirtualTree(ASender).InvalidateNode(FSelectedNode);
+  //TBaseVirtualTree(ASender).InvalidateNode(FSelectedNode);
+
 end;
 
 procedure TDataRenderer.NodeDraw (ASender : TBaseVirtualTree; const APaintInfo :
@@ -354,6 +357,11 @@ begin
   begin
     TMainMenuItem(FDataRenderer.FDataProvider.GetObject(Node^.Index)).Callback;
   end;
+end;
+
+procedure TMainMenuDataRenderer.RedrawSelection;
+begin
+  FDataRenderer.FTreeView.InvalidateNode(FSelectedNode);
 end;
 
 end.
