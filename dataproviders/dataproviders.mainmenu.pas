@@ -84,10 +84,8 @@ procedure TMainMenuDataProvider.EquipmentCallback;
 begin
   MainMenu.Clear;
   
-  TMainMenuItem(MainMenu.DataProvider.GetObject(TMainMenu.MENU_ITEM_EQUIPMENT))
-    .SelectedObject := nil;
-  MainMenu.RedrawSelection;
-
+  MainMenu.SelectObject(TMainMenu.MENU_ITEM_EQUIPMENT, '', nil);
+  
   Provider.ChangeData(TEquipmentDataHandler.Create);
 end;
 
@@ -95,9 +93,7 @@ procedure TMainMenuDataProvider.JobCallback;
 begin
   MainMenu.Clear;
 
-  TMainMenuItem(MainMenu.DataProvider.GetObject(TMainMenu.MENU_ITEM_EQUIPMENT))
-    .SelectedObject := nil;
-  MainMenu.RedrawSelection;
+  MainMenu.SelectObject(TMainMenu.MENU_ITEM_EQUIPMENT, '', nil);
 
   Provider.ChangeData(TJobDataHandler.Create);
 end;

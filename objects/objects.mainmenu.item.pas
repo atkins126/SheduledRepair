@@ -70,12 +70,15 @@ type
     FItemType : TItemType;
     FTitle : String;
     FSelectedObject : TCommonObject;
+    FSelectedObjectName : String;
     FItemCallback : TItemCallback;
   public
     property ItemType : TItemType read FItemType;
     property Title : String read FTitle;
     property SelectedObject : TCommonObject read FSelectedObject 
       write FSelectedObject;
+    property SelectedObjectName : String read FSelectedObjectName
+      write FSelectedObjectName;  
     property Callback : TItemCallback read FItemCallback;
   end;
 
@@ -90,6 +93,7 @@ begin
   FItemType := AItemType;
   FTitle := ATitle;
   FSelectedObject := nil;
+  FSelectedObjectName := '';
   FItemCallback := ACallback;
 end;
 

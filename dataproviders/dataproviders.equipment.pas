@@ -49,7 +49,7 @@ type
 implementation
 
 uses
-  dataprovider, datahandlers, mainmenuprovider, objects.mainmenu.item;
+  dataprovider, datahandlers, mainmenuprovider;
 
 { TEquipmentDataProvider }
 
@@ -81,9 +81,9 @@ procedure TEquipmentDataProvider.ObjectDoubleClick (AObjectIndex : Cardinal);
 begin
   MainMenu.Clear;
   
-  TMainMenuItem(MainMenu.DataProvider.GetObject(TMainMenu.MENU_ITEM_EQUIPMENT))
-    .SelectedObject := TEquipment(GetObject(AObjectIndex));
-  MainMenu.RedrawSelection;
+  MainMenu.SelectObject(TMainMenu.MENU_ITEM_EQUIPMENT, 
+    TEquipment(GetObject(AObjectIndex)).Name, 
+    TEquipment(GetObject(AObjectIndex)));
 
   Provider.ChangeData(TEquipmentEntityDataHandler.Create(
     TEquipment(GetObject(AObjectIndex))));

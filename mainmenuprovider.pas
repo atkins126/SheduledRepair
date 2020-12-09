@@ -32,9 +32,10 @@ unit mainmenuprovider;
 interface
 
 uses
-  SysUtils, Classes, VirtualTrees, dataproviders.common, renderers.mainmenu, 
-  dataproviders.mainmenu, profilesprovider.mainmenu, renderers.datarenderer,
-  container.arraylist, utils.functor, utils.pair;
+  SysUtils, Classes, VirtualTrees, objects.common, objects.mainmenu.item,
+  dataproviders.common, renderers.mainmenu, dataproviders.mainmenu, 
+  profilesprovider.mainmenu, renderers.datarenderer, container.arraylist, 
+  utils.functor, utils.pair;
 
 type
   TMainMenu = class
@@ -112,11 +113,11 @@ type
     { Get menu element sub items. }
     function ItemData (AItemID : Int64) : TIterator;
 
-    procedure RedrawSelection;
+    procedure SelectObject (AObjectID : Int64; AObjectName : String; 
+      AObject : TCommonObject);
 
     property View : TVirtualDrawTree read FMainMenuView 
       write SetMainMenuView;
-    property DataProvider : TMainMenuDataProvider read FMainMenuDataProvider;
   end;
 
 var
@@ -268,8 +269,13 @@ begin
   Result := TIterator.Create(Iterator, AItemID);
 end;
 
-procedure TMainMenu.RedrawSelection;
+procedure TMainMenu.SelectObject (AObjectID : Int64; AObjectName : String;
+  AObject : TCommonObject);
 begin
+  TMainMenuItem(FMainMenuDataProvider.GetObject(AObjectID)).SelectedObjectName 
+    := AObjectName;
+  TMainMenuItem(FMainMenuDataProvider.GetObject(AObjectID)).SelectedObject :=
+    AObject;
   FMainMenuRenderer.RedrawSelection;
 end;
 

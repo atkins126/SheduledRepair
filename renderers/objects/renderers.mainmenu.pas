@@ -152,7 +152,7 @@ begin
   begin
     DrawText(TMainMenuItem(AObject).Title, AProfile.Items['SelectionTitle'], 
       ACanvas, ARect);
-    DrawText(TMainMenuItem(AObject).Title,
+    DrawText(TMainMenuItem(AObject).SelectedObjectName,
       AProfile.Items['SelectionName'], ACanvas, ARect);
   end;
 end;
