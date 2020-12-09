@@ -66,6 +66,10 @@ type
     procedure SetTreeViewColumns;
       {$IFNDEF DEBUG}inline;{$ENDIF}
 
+    { Get node object ID. }
+    function GetNodeObjectID (ANode : PVirtualNode) : Cardinal;
+      {$IFNDEF DEBUG}inline;{$ENDIF}
+
     { Get node renderer hover profile. }
     function GetHoverProfile (ANode : PVirtualNode) : TRendererProfile;
       {$IFNDEF DEBUG}inline;{$ENDIF}
@@ -86,10 +90,9 @@ type
     function IsSelectEnable (ANode : PVirtualNode) : Boolean;
       {$IFNDEF DEBUG}inline;{$ENDIF}
 
-
-
-
-
+    { Restore previous node height. }
+    procedure RestorePrevSelectedNodeHeight;
+      {$IFNDEF DEBUG}inline;{$ENDIF}
 
     procedure NodeChange(Sender: TBaseVirtualTree; Node: PVirtualNode);
 
@@ -122,6 +125,9 @@ type
 
     FSelectedNode : PVirtualNode;
   private
+    function GetItemType (ANode : PVirtualNode) : TMainMenuItem.TItemType;
+      {$IFNDEF DEBUG}inline;{$ENDIF}
+
     procedure NodeChange(Sender: TBaseVirtualTree; Node: PVirtualNode);
   end;
 
@@ -190,22 +196,27 @@ begin
   end;
 end;
 
+function TDataRenderer.GetNodeObjectID (ANode : PVirtualNode) : Cardinal;
+begin
+  Result := ANode^.Index;
+end;
+
 function TDataRenderer.GetHoverProfile (ANode : PVirtualNode) : 
   TRendererProfile;
 begin
-  Result := FProfileProvider.GetProfile(ANode^.Index).HoverProfile;
+  Result := FProfileProvider.GetProfile(GetNodeObjectID(ANode)).HoverProfile;
 end;
       
 function TDataRenderer.GetSelectedProfile (ANode : PVirtualNode) : 
   TRendererProfile;
 begin
-  Result := FProfileProvider.GetProfile(ANode^.Index).SelectedProfile;
+  Result := FProfileProvider.GetProfile(GetNodeObjectID(ANode)).SelectedProfile;
 end;
     
 function TDataRenderer.GetDefaultProfile (ANode : PVirtualNode) : 
   TRendererProfile;
 begin
-  Result := FProfileProvider.GetProfile(ANode^.Index).DefaultProfile;
+  Result := FProfileProvider.GetProfile(GetNodeObjectID(ANode)).DefaultProfile;
 end;
 
 function TDataRenderer.IsHoverEnable (ANode : PVirtualNode) : Boolean;
@@ -216,6 +227,15 @@ end;
 function TDataRenderer.IsSelectEnable (ANode : PVirtualNode) : Boolean;
 begin
   Result := (FTreeView.Selected[ANode]) and (GetSelectedProfile(ANode).Enable);
+end;
+
+procedure TDataRenderer.RestorePrevSelectedNodeHeight;
+begin
+  if Assigned(FSelectedNode) and (not FTreeView.Selected[FSelectedNode]) then
+  begin
+    FSelectedNode^.NodeHeight := GetDefaultProfile(FSelectedNode).Height;
+    FTreeView.InvalidateNode(FSelectedNode);
+  end;
 end;
 
 procedure TDataRenderer.NodeMeasure (ASender : TBaseVirtualTree; ATargetCanvas : 
@@ -242,25 +262,13 @@ begin
   if Node = nil then
     Exit;
 
-  { Restore previous node height. }
-  if (FSelectedNode <> nil) and (not FTreeView.Selected[FSelectedNode]) then
-  begin
-    FSelectedNode^.NodeHeight := GetDefaultProfile(FSelectedNode).Height;
-    FTreeView.InvalidateNode(FSelectedNode);
-  end;
-
-  { Set selected node height. }
   if IsSelectEnable(Node) then
   begin
+    RestorePrevSelectedNodeHeight;
     Node^.NodeHeight := GetSelectedProfile(Node).Height;
     FSelectedNode := Node;
     FTreeView.InvalidateNode(Node);
-
-    Exit;
   end;
-
-  Node^.NodeHeight := GetDefaultProfile(Node).Height;
-  FTreeView.InvalidateNode(Node);
 end;
 
 procedure TDataRenderer.NodeDoubleClick (ASender : TObject);
@@ -276,36 +284,33 @@ procedure TDataRenderer.NodeDraw (ASender : TBaseVirtualTree; const APaintInfo :
 var
   Profile : TRendererProfile;
 begin
-  if (FTreeView.HotNode = APaintInfo.Node) and 
-     (GetHoverProfile(APaintInfo.Node).Enable)
-     then
+  if IsHoverEnable(APaintInfo.Node) then
   begin
     if (FTreeView.Selected[APaintInfo.Node]) then
     begin
       Profile := GetSelectedProfile(APaintInfo.Node);
       Profile.Background := GetHoverProfile(APaintInfo.Node).Background;
 
-      FRenderer.Draw(FDataProvider.GetObject(APaintInfo.Node^.Index), 
+      FRenderer.Draw(FDataProvider.GetObject(GetNodeObjectID(APaintInfo.Node)), 
         Profile, APaintInfo.Canvas, APaintInfo.CellRect);  
       Exit;  
     end;
 
-    FRenderer.Draw(FDataProvider.GetObject(APaintInfo.Node^.Index), 
+    FRenderer.Draw(FDataProvider.GetObject(GetNodeObjectID(APaintInfo.Node)), 
       GetHoverProfile(APaintInfo.Node), 
       APaintInfo.Canvas, APaintInfo.CellRect);  
     Exit;
   end;
 
-  if (FTreeView.Selected[APaintInfo.Node]) and (GetSelectedProfile(
-     APaintInfo.Node).Enable) then
+  if IsSelectEnable(APaintInfo.Node) then
   begin
-    FRenderer.Draw(FDataProvider.GetObject(APaintInfo.Node^.Index),
+    FRenderer.Draw(FDataProvider.GetObject(GetNodeObjectID(APaintInfo.Node)),
       GetSelectedProfile(APaintInfo.Node),
       APaintInfo.Canvas, APaintInfo.CellRect);
     Exit;
   end;
 
-  FRenderer.Draw(FDataProvider.GetObject(APaintInfo.Node^.Index),
+  FRenderer.Draw(FDataProvider.GetObject(GetNodeObjectID(APaintInfo.Node)),
     GetDefaultProfile(APaintInfo.Node),
     APaintInfo.Canvas, APaintInfo.CellRect);
 end;
@@ -351,14 +356,20 @@ begin
   FDataRenderer.UpdateData;
 end;
 
+function TMainMenuDataRenderer.GetItemType (ANode : PVirtualNode) : 
+  TMainMenuItem.TItemType;
+begin
+  Result := TMainMenuItem(FDataRenderer.FDataProvider.GetObject(
+    FDataRenderer.GetNodeObjectID(ANode))).ItemType;
+end;
+
 procedure TMainMenuDataRenderer.NodeChange (Sender : TBaseVirtualTree; Node :
   PVirtualNode);
 begin
   if Node = nil then
     Exit;
 
-  if (TMainMenuItem(FDataRenderer.FDataProvider.GetObject(Node^.Index)).ItemType
-    = MENU_ITEM_LOGO) and (FSelectedNode <> nil) then
+  if (GetItemType(Node) = MENU_ITEM_LOGO) and (FSelectedNode <> nil) then
   begin
     FDataRenderer.FTreeView.Selected[FSelectedNode] := True;
     Exit;
@@ -367,10 +378,11 @@ begin
   FSelectedNode := Node;
 
   { Run menu item callback if asigned. }
-  if Assigned(TMainMenuItem(FDataRenderer.FDataProvider.GetObject(Node^.Index))
-    .Callback) then
+  if Assigned(TMainMenuItem(FDataRenderer.FDataProvider.GetObject(
+    FDataRenderer.GetNodeObjectID(Node))).Callback) then
   begin
-    TMainMenuItem(FDataRenderer.FDataProvider.GetObject(Node^.Index)).Callback;
+    TMainMenuItem(FDataRenderer.FDataProvider.GetObject(
+      FDataRenderer.GetNodeObjectID(Node))).Callback;
   end;
 end;
 
