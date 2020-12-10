@@ -34,8 +34,8 @@ interface
 uses
   SysUtils, Classes, VirtualTrees, objects.common, objects.mainmenu.item,
   dataproviders.common, renderers.mainmenu, dataproviders.mainmenu, 
-  profilesprovider.mainmenu, renderers.datarenderer, container.arraylist, 
-  utils.functor, utils.pair;
+  profilesprovider.common, profilesprovider.mainmenu, renderers.datarenderer, 
+  container.arraylist, utils.functor, utils.tuple;
 
 type
   TMainMenu = class
@@ -49,7 +49,8 @@ type
     destructor Destroy; override;
   private
     type
-      TMenuItemProvider = class(specialize TPair<Int64, TCommonDataProvider>);
+      TMenuItemProvider = class(specialize TTuple3<Int64, TCommonDataProvider,
+        TCommonProfilesProvider>);
 
       TMenuItemCompareFunctor = class
         (specialize TBinaryFunctor<TMenuItemProvider, Integer>)
@@ -81,14 +82,19 @@ type
         { Return enumerator for in operator. }
         function GetEnumerator : TIterator;  
       protected  
-        { Get item value. }
-        function GetValue : TCommonDataProvider;
+        { Get item data provider. }
+        function GetDataProvider : TCommonDataProvider;
+
+        { Get item profile provider. }
+        function GetProfilesProvider : TCommonProfilesProvider;
 
         { Return current item iterator and move it to next. }
-        function GetCurrent : TCommonDataProvider;
+        function GetCurrent : TIterator;
       public
-        property Value : TCommonDataProvider read GetValue;
-        property Current : TCommonDataProvider read GetCurrent;
+        property DataProvider : TCommonDataProvider read GetDataProvider;
+        property ProfilesProvider : TCommonProfilesProvider 
+          read GetProfilesProvider;
+        property Current : TIterator read GetCurrent;
       private
         FItemID : Int64;
         FIterator : TMenuItemProvidersList.TIterator;    
@@ -102,7 +108,8 @@ type
     procedure SetMainMenuView (AMainMenuView : TVirtualDrawTree);
   public
     { Append additional menu elements. }
-    procedure Append (AItemID : Int64; ADataProvider : TCommonDataProvider);
+    procedure Append (AItemID : Int64; ADataProvider : TCommonDataProvider;
+      AProfilesProvider : TCommonProfilesProvider);
 
     { Remove menu elements. }
     procedure Remove (AItemID : Int64);
@@ -189,14 +196,19 @@ begin
   Result := TIterator.Create(FIterator, FItemID);
 end;
 
-function TMainMenu.TIterator.GetValue : TCommonDataProvider;
+function TMainMenu.TIterator.GetDataProvider : TCommonDataProvider;
 begin
   Result := FIterator.Value.Second;
 end;
 
-function TMainMenu.TIterator.GetCurrent : TCommonDataProvider;
+function TMainMenu.TIterator.GetProfilesProvider : TCommonProfilesProvider;
 begin
-  Result := GetValue;
+  Result := FIterator.Value.Third;
+end;
+
+function TMainMenu.TIterator.GetCurrent : TIterator;
+begin
+  Result := Self;
   FIterator := FIterator.Next;
 end;
 
@@ -240,14 +252,16 @@ begin
 end;
 
 procedure TMainMenu.Append (AItemID : Int64; ADataProvider : 
-  TCommonDataProvider);
+  TCommonDataProvider; AProfilesProvider : TCommonProfilesProvider);
 begin
-  FMenuItems.Append(TMenuItemProvider.Create(AItemID, ADataProvider));
+  FMenuItems.Append(TMenuItemProvider.Create(AItemID, ADataProvider,
+    AProfilesProvider));
 end;
 
 procedure TMainMenu.Remove (AItemID : Int64);
 begin
-  FMenuItems.Remove(FMenuItems.IndexOf(TMenuItemProvider.Create(AItemID, nil)));
+  FMenuItems.Remove(FMenuItems.IndexOf(TMenuItemProvider.Create(AItemID, nil,
+    nil)));
 end;
 
 procedure TMainMenu.Clear;

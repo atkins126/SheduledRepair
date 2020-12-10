@@ -33,7 +33,7 @@ interface
 
 uses
   SysUtils, dataproviders.common, objects.common, objects.mainmenu.item,
-  dataproviders.menusubitems.job;
+  profilesprovider.mainmenu;
 
 type
   TMainMenuDataProvider = class(TCommonDataProvider)
@@ -48,6 +48,19 @@ type
   private
     procedure EquipmentCallback;
     procedure JobCallback;
+  end;
+
+  TMenuSubitemJobDataProvider = class(TCommonDataProvider)
+  public
+    function Load : Boolean; override;
+  protected
+    { Get current loaded objects table name. }
+    function LoadObjectsTableName : String; override;
+
+    { Load concrete object. }
+    function LoadConcreteObject ({%H-}AID : Int64) : TCommonObject; override;
+  private
+    
   end;
 
 implementation
@@ -94,10 +107,34 @@ procedure TMainMenuDataProvider.JobCallback;
 begin
   MainMenu.Clear;
 
-  MainMenu.Append(TMainMenu.MENU_ITEM_JOB, TMenuSubitemJobDataProvider.Create);
+  MainMenu.Append(TMainMenu.MENU_ITEM_JOB, TMenuSubitemJobDataProvider.Create,
+    TMenuSubitemJobProfilesProvider.Create);
   MainMenu.SelectObject(TMainMenu.MENU_ITEM_EQUIPMENT, '', nil);
 
   Provider.ChangeData(TJobDataHandler.Create);
+end;
+
+{ TMenuSubitemJobDataProvider }
+
+function TMenuSubitemJobDataProvider.Load : Boolean;
+begin
+  Clear;
+  
+  Append(TMainMenuItem.Create(-1, MENU_SUBITEM, 'Create', nil));
+  Append(TMainMenuItem.Create(-1, MENU_SUBITEM, 'Edit', nil));
+  
+  Result := True;
+end;
+
+function TMenuSubitemJobDataProvider.LoadObjectsTableName : String;
+begin
+  Result := '';
+end;
+
+function TMenuSubitemJobDataProvider.LoadConcreteObject (AID : Int64) : 
+  TCommonObject;
+begin
+  Result := nil;
 end;
 
 end.

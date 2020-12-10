@@ -137,6 +137,9 @@ type
 
 implementation
 
+uses
+  mainmenuprovider;
+
 { TDataRenderer }
 
 constructor TDataRenderer.Create (ATreeView : TVirtualDrawTree; ADataProvider : 
@@ -163,7 +166,7 @@ procedure TDataRenderer.SetTreeViewParams;
 begin
   with FTreeView do
   begin
-    NodeDataSize := SizeOf(Int64);
+    NodeDataSize := SizeOf(TNodeData);
     TreeOptions.PaintOptions := [toShowRoot, toUseBlendedImages, toHotTrack, 
       toHideFocusRect, toAlwaysHideSelection, toHideSelection];
     TreeOptions.MiscOptions := [toFullRepaintOnResize, toVariableNodeHeight,
@@ -202,21 +205,18 @@ end;
 function TDataRenderer.GetHoverProfile (ANode : PVirtualNode) : 
   TRendererProfile;
 begin
-  //Result := FProfileProvider.GetProfile(GetNodeObjectID(ANode)).HoverProfile;
   Result := PNodeData(FTreeView.GetNodeData(ANode))^.Profile.HoverProfile;
 end;
       
 function TDataRenderer.GetSelectedProfile (ANode : PVirtualNode) : 
   TRendererProfile;
 begin
-  //Result := FProfileProvider.GetProfile(GetNodeObjectID(ANode)).SelectedProfile;
   Result := PNodeData(FTreeView.GetNodeData(ANode))^.Profile.SelectedProfile;
 end;
     
 function TDataRenderer.GetDefaultProfile (ANode : PVirtualNode) : 
   TRendererProfile;
 begin
-  //Result := FProfileProvider.GetProfile(GetNodeObjectID(ANode)).DefaultProfile;
   Result := PNodeData(FTreeView.GetNodeData(ANode))^.Profile.DefaultProfile;
 end;
 
@@ -314,10 +314,11 @@ end;
 
 procedure TDataRenderer.UpdateData;
 var
-  ObjectItem : TCommonObject;
+  ObjectItem, ObjectSubitem : TCommonObject;
   NodeData : PNodeData;
   Node : PVirtualNode;
   Index : Integer;
+  SubitemIterator : TMainMenu.TIterator;
 begin
   if (not FDataProvider.Load) or (not FProfileProvider.Load) then
     Exit;

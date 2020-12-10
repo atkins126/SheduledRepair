@@ -48,6 +48,15 @@ type
     function GetDefaultProfile : TRendererObjectProfile; override;
   end;
 
+  TMenuSubitemJobProfilesProvider = class (TCommonProfilesProvider)
+  protected
+    { Get current loaded objects table name. }
+    function LoadObjectsTableName : String; override;
+
+    { Get default object profile. }
+    function GetDefaultProfile : TRendererObjectProfile; override;
+  end;
+
 implementation
 
 { TMainMenuProfilesProvider }
@@ -337,6 +346,97 @@ begin
   Append(ProfileObject);  
 
   Result := True;
+end;
+
+{ TMenuSubitemJobProfilesProvider }
+
+function TMenuSubitemJobProfilesProvider.LoadObjectsTableName : String;
+begin
+  Result := '';
+end;
+
+function TMenuSubitemJobProfilesProvider.GetDefaultProfile : 
+  TRendererObjectProfile;
+begin
+  Result := TRendererObjectProfile.Create(-1, nil);
+
+  { Create menu subitem job default profile. }
+  with Result.DefaultProfile do
+  begin
+    Enable := True;
+    Height := 35;
+    Background := clWhite;
+  end;
+
+  with Result.DefaultProfile.Items['Title'] do
+  begin
+    Enable := True;
+    Background := clWhite;
+    BackgroundFillType := FILL_NONE;
+    BackgroundRoundRadius := 0;
+    FontName := 'default';
+    FontSize := 12;
+    FontColor := clBlack;
+    Padding.Top := 5;
+    Padding.Left := 0;
+    Padding.Bottom := 5;
+    Padding.Right := 0;
+    PositionType := POSITION_FIXED;
+    Position.X := 15;
+    Position.Y := 2;
+  end;
+
+  { Create menu subitem job selected profile. }
+  with Result.SelectedProfile do
+  begin
+    Enable := True;
+    Height := 35;
+    Background := clYellow;
+  end;
+
+  with Result.SelectedProfile.Items['Title'] do
+  begin
+    Enable := True;
+    Background := clWhite;
+    BackgroundFillType := FILL_NONE;
+    BackgroundRoundRadius := 0;
+    FontName := 'default';
+    FontSize := 12;
+    FontColor := clBlack;
+    Padding.Top := 5;
+    Padding.Left := 0;
+    Padding.Bottom := 5;
+    Padding.Right := 0;
+    PositionType := POSITION_FIXED;
+    Position.X := 15;
+    Position.Y := 2;
+  end;
+
+  { Create menu subitem job hover profile. }
+  with Result.HoverProfile do
+  begin
+    Enable := True;
+    Height := 35;
+    Background := clSilver;
+  end;  
+
+  with Result.HoverProfile.Items['Title'] do
+  begin
+    Enable := True;
+    Background := clWhite;
+    BackgroundFillType := FILL_NONE;
+    BackgroundRoundRadius := 0;
+    FontName := 'default';
+    FontSize := 12;
+    FontColor := clBlack;
+    Padding.Top := 5;
+    Padding.Left := 0;
+    Padding.Bottom := 5;
+    Padding.Right := 0;
+    PositionType := POSITION_FIXED;
+    Position.X := 15;
+    Position.Y := 2;
+  end;
 end;
 
 end.
