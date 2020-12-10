@@ -34,7 +34,8 @@ interface
 uses
   SysUtils, Classes, Graphics, VirtualTrees, objects.common,
   dataproviders.common, profilesprovider.common, renderers.common,
-  renderer.profile.profile, objects.mainmenu.item;
+  renderer.profile.objectprofile, renderer.profile.profile, 
+  objects.mainmenu.item;
 
 type
   TDataRenderer = class
@@ -54,6 +55,13 @@ type
 
     FSelectedNode : PVirtualNode;
   private
+    type
+      PNodeData = ^TNodeData;
+      TNodeData = record
+        CommonObject : TCommonObject;
+        Profile : TRendererObjectProfile;
+      end;
+  private
     { Setup VirtualTreeView parameters. }
     procedure SetTreeViewParams;
       {$IFNDEF DEBUG}inline;{$ENDIF}
@@ -66,10 +74,6 @@ type
     procedure SetTreeViewColumns;
       {$IFNDEF DEBUG}inline;{$ENDIF}
 
-    { Get node object ID. }
-    function GetNodeObjectID (ANode : PVirtualNode) : Cardinal;
-      {$IFNDEF DEBUG}inline;{$ENDIF}
-
     { Get node renderer hover profile. }
     function GetHoverProfile (ANode : PVirtualNode) : TRendererProfile;
       {$IFNDEF DEBUG}inline;{$ENDIF}
@@ -80,6 +84,10 @@ type
 
     { Get node renderer default profile. }
     function GetDefaultProfile (ANode : PVirtualNode) : TRendererProfile;
+      {$IFNDEF DEBUG}inline;{$ENDIF}
+
+    { Get common object associated with node. }
+    function GetObject (ANode : PVirtualNode) : TCommonObject;
       {$IFNDEF DEBUG}inline;{$ENDIF}
 
     { Return true if hover profile enable for node. }
@@ -95,10 +103,6 @@ type
       {$IFNDEF DEBUG}inline;{$ENDIF}
 
     procedure NodeChange(Sender: TBaseVirtualTree; Node: PVirtualNode);
-
-    { Get ANode height. }
-    procedure NodeMeasure ({%H-}ASender : TBaseVirtualTree; {%H-}ATargetCanvas : 
-      TCanvas; ANode : PVirtualNode; var ANodeHeight : Integer);
 
     { Node double click. }
     procedure NodeDoubleClick ({%H-}ASender : TObject);
@@ -172,7 +176,6 @@ procedure TDataRenderer.SetTreeViewCallbacks;
 begin
   with FTreeView do
   begin
-    OnMeasureItem := @NodeMeasure;
     OnDrawNode := @NodeDraw;
     OnResize := @TreeResize;
     OnChange := @NodeChange;
@@ -196,27 +199,30 @@ begin
   end;
 end;
 
-function TDataRenderer.GetNodeObjectID (ANode : PVirtualNode) : Cardinal;
-begin
-  Result := ANode^.Index;
-end;
-
 function TDataRenderer.GetHoverProfile (ANode : PVirtualNode) : 
   TRendererProfile;
 begin
-  Result := FProfileProvider.GetProfile(GetNodeObjectID(ANode)).HoverProfile;
+  //Result := FProfileProvider.GetProfile(GetNodeObjectID(ANode)).HoverProfile;
+  Result := PNodeData(FTreeView.GetNodeData(ANode))^.Profile.HoverProfile;
 end;
       
 function TDataRenderer.GetSelectedProfile (ANode : PVirtualNode) : 
   TRendererProfile;
 begin
-  Result := FProfileProvider.GetProfile(GetNodeObjectID(ANode)).SelectedProfile;
+  //Result := FProfileProvider.GetProfile(GetNodeObjectID(ANode)).SelectedProfile;
+  Result := PNodeData(FTreeView.GetNodeData(ANode))^.Profile.SelectedProfile;
 end;
     
 function TDataRenderer.GetDefaultProfile (ANode : PVirtualNode) : 
   TRendererProfile;
 begin
-  Result := FProfileProvider.GetProfile(GetNodeObjectID(ANode)).DefaultProfile;
+  //Result := FProfileProvider.GetProfile(GetNodeObjectID(ANode)).DefaultProfile;
+  Result := PNodeData(FTreeView.GetNodeData(ANode))^.Profile.DefaultProfile;
+end;
+
+function TDataRenderer.GetObject (ANode : PVirtualNode) : TCommonObject;
+begin
+  Result := PNodeData(FTreeView.GetNodeData(ANode))^.CommonObject;
 end;
 
 function TDataRenderer.IsHoverEnable (ANode : PVirtualNode) : Boolean;
@@ -236,24 +242,6 @@ begin
     FSelectedNode^.NodeHeight := GetDefaultProfile(FSelectedNode).Height;
     FTreeView.InvalidateNode(FSelectedNode);
   end;
-end;
-
-procedure TDataRenderer.NodeMeasure (ASender : TBaseVirtualTree; ATargetCanvas : 
-  TCanvas; ANode : PVirtualNode; var ANodeHeight : Integer);
-begin
-  if IsHoverEnable(ANode) then
-  begin
-    ANodeHeight := GetHoverProfile(ANode).Height;
-    Exit;
-  end;
-
-  if IsSelectEnable(ANode) then
-  begin
-    ANodeHeight := GetSelectedProfile(ANode).Height;
-    Exit;
-  end;
-
-  ANodeHeight := GetDefaultProfile(ANode).Height;
 end;
 
 procedure TDataRenderer.NodeChange(Sender: TBaseVirtualTree; Node: 
@@ -282,21 +270,25 @@ end;
 procedure TDataRenderer.NodeDraw (ASender : TBaseVirtualTree; const APaintInfo :
   TVTPaintInfo);
 var
-  Profile : TRendererProfile;
+  BackgroundColor : TColor;
 begin
   if IsHoverEnable(APaintInfo.Node) then
   begin
     if (FTreeView.Selected[APaintInfo.Node]) then
     begin
-      Profile := GetSelectedProfile(APaintInfo.Node);
-      Profile.Background := GetHoverProfile(APaintInfo.Node).Background;
+      BackgroundColor := GetSelectedProfile(APaintInfo.Node).Background;
+      GetSelectedProfile(APaintInfo.Node).Background :=
+        GetHoverProfile(APaintInfo.Node).Background;
 
-      FRenderer.Draw(FDataProvider.GetObject(GetNodeObjectID(APaintInfo.Node)), 
-        Profile, APaintInfo.Canvas, APaintInfo.CellRect);  
+      FRenderer.Draw(GetObject(APaintInfo.Node), 
+        GetSelectedProfile(APaintInfo.Node), APaintInfo.Canvas, 
+        APaintInfo.CellRect);  
+
+      GetSelectedProfile(APaintInfo.Node).Background := BackgroundColor;
       Exit;  
     end;
 
-    FRenderer.Draw(FDataProvider.GetObject(GetNodeObjectID(APaintInfo.Node)), 
+    FRenderer.Draw(GetObject(APaintInfo.Node), 
       GetHoverProfile(APaintInfo.Node), 
       APaintInfo.Canvas, APaintInfo.CellRect);  
     Exit;
@@ -304,13 +296,13 @@ begin
 
   if IsSelectEnable(APaintInfo.Node) then
   begin
-    FRenderer.Draw(FDataProvider.GetObject(GetNodeObjectID(APaintInfo.Node)),
+    FRenderer.Draw(GetObject(APaintInfo.Node),
       GetSelectedProfile(APaintInfo.Node),
       APaintInfo.Canvas, APaintInfo.CellRect);
     Exit;
   end;
 
-  FRenderer.Draw(FDataProvider.GetObject(GetNodeObjectID(APaintInfo.Node)),
+  FRenderer.Draw(GetObject(APaintInfo.Node),
     GetDefaultProfile(APaintInfo.Node),
     APaintInfo.Canvas, APaintInfo.CellRect);
 end;
@@ -323,8 +315,9 @@ end;
 procedure TDataRenderer.UpdateData;
 var
   ObjectItem : TCommonObject;
-  PNodeID : PInt64;
+  NodeData : PNodeData;
   Node : PVirtualNode;
+  Index : Integer;
 begin
   if (not FDataProvider.Load) or (not FProfileProvider.Load) then
     Exit;
@@ -332,14 +325,21 @@ begin
   FTreeView.Clear;
   FTreeView.BeginUpdate;
 
+  Index := 0;
   for ObjectItem in FDataProvider do
   begin
     Node := FTreeView.AddChild(nil);
-    PNodeID := PInt64(FTreeView.GetNodeData(Node));
-    if Assigned(PNodeID) then
+    NodeData := PNodeData(FTreeView.GetNodeData(Node));
+
+    if Assigned(NodeData) then
     begin
-      PNodeID^ := ObjectItem.ID;
+      NodeData^.CommonObject := ObjectItem;
+      NodeData^.Profile := FProfileProvider.GetProfile(Index);
     end;
+
+    Node^.NodeHeight := NodeData^.Profile.DefaultProfile.Height;
+
+    Inc(Index);
   end;
 
   FTreeView.EndUpdate;
@@ -359,8 +359,7 @@ end;
 function TMainMenuDataRenderer.GetItemType (ANode : PVirtualNode) : 
   TMainMenuItem.TItemType;
 begin
-  Result := TMainMenuItem(FDataRenderer.FDataProvider.GetObject(
-    FDataRenderer.GetNodeObjectID(ANode))).ItemType;
+  Result := TMainMenuItem(FDataRenderer.GetObject(ANode)).ItemType;
 end;
 
 procedure TMainMenuDataRenderer.NodeChange (Sender : TBaseVirtualTree; Node :
@@ -378,11 +377,9 @@ begin
   FSelectedNode := Node;
 
   { Run menu item callback if asigned. }
-  if Assigned(TMainMenuItem(FDataRenderer.FDataProvider.GetObject(
-    FDataRenderer.GetNodeObjectID(Node))).Callback) then
+  if Assigned(TMainMenuItem(FDataRenderer.GetObject(Node)).Callback) then
   begin
-    TMainMenuItem(FDataRenderer.FDataProvider.GetObject(
-      FDataRenderer.GetNodeObjectID(Node))).Callback;
+    TMainMenuItem(FDataRenderer.GetObject(Node)).Callback;
   end;
 end;
 
