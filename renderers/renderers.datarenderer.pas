@@ -120,8 +120,11 @@ type
   public
     constructor Create (ADataRenderer : TDataRenderer);
 
-    { Update data. }
+    { Full update data. }
     procedure UpdateData;
+
+    { Update dynamic menu items. }
+    procedure UpdateDynamicData;
 
     procedure RedrawSelection;
   protected
@@ -314,11 +317,10 @@ end;
 
 procedure TDataRenderer.UpdateData;
 var
-  ObjectItem, ObjectSubitem : TCommonObject;
+  ObjectItem : TCommonObject;
   NodeData : PNodeData;
   Node : PVirtualNode;
   Index : Integer;
-  SubitemIterator : TMainMenu.TIterator;
 begin
   if (not FDataProvider.Load) or (not FProfileProvider.Load) then
     Exit;
@@ -355,6 +357,42 @@ end;
 procedure TMainMenuDataRenderer.UpdateData;
 begin
   FDataRenderer.UpdateData;
+end;
+
+procedure TMainMenuDataRenderer.UpdateDynamicData;
+var
+  Node, SubitemNode : PVirtualNode;
+  SubitemNodeData : TDataRenderer.PNodeData;
+  Item : TMainMenu.TIterator;
+  Index : Integer;
+begin
+  {
+  Node := FDataRenderer.FTreeView.GetFirst;
+
+  repeat
+    if (not Assigned(Node)) or (Assigned(Node^.Parent)) then
+      Continue;
+
+    Index := 0;
+    for Item in MainMenu.ItemData(FDataRenderer.GetObject(Node).ID) do
+    begin
+      FDataRenderer.FTreeView.DeleteChildren(Node, True);
+      SubitemNode := FDataRenderer.FTreeView.AddChild(Node);
+      SubitemNodeData := TDataRenderer.PNodeData(
+        FDataRenderer.FTreeView.GetNodeData(SubitemNode));
+
+      if Assigned(SubitemNodeData) then
+      begin
+        SubitemNodeData^.CommonObject := Item.DataProvider.GetObject(Index);
+        SubitemNodeData^.Profile := Item.ProfilesProvider.GetProfile(Index);
+      end;
+      SubitemNode^.NodeHeight := SubitemNodeData^.Profile.DefaultProfile.Height;
+
+      Inc(Index);
+    end;
+    Node := FDataRenderer.FTreeView.GetNext(Node, False);
+  until Node = FDataRenderer.FTreeView.GetLast;
+  }
 end;
 
 function TMainMenuDataRenderer.GetItemType (ANode : PVirtualNode) : 

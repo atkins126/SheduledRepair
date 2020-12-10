@@ -49,18 +49,18 @@ type
     destructor Destroy; override;
   private
     type
-      TMenuItemProvider = class(specialize TTuple3<Int64, TCommonDataProvider,
+      TMenuItemData = class(specialize TTuple3<Int64, TCommonDataProvider,
         TCommonProfilesProvider>);
 
       TMenuItemCompareFunctor = class
-        (specialize TBinaryFunctor<TMenuItemProvider, Integer>)
+        (specialize TBinaryFunctor<TMenuItemData, Integer>)
       public
-        function Call (AValue1, AValue2 : TMenuItemProvider) : Integer;
+        function Call (AValue1, AValue2 : TMenuItemData) : Integer;
           override;
       end;
 
       TMenuItemProvidersList = class
-        (specialize TArrayList<TMenuItemProvider, TMenuItemCompareFunctor>);
+        (specialize TArrayList<TMenuItemData, TMenuItemCompareFunctor>);
   public
     type
       { Menu item providers list iterator (array list filter iterator 
@@ -117,6 +117,9 @@ type
     { Clear menu item elements. }
     procedure Clear;
 
+    { Update dynamic subitems data. }
+    procedure UpdateDynamicData;
+
     { Get menu element sub items. }
     function ItemData (AItemID : Int64) : TIterator;
 
@@ -135,7 +138,7 @@ implementation
 { TMainMenu.TMenuItemCompareFunctor }
 
 function TMainMenu.TMenuItemCompareFunctor.Call (AValue1, AValue2 : 
-  TMenuItemProvider) : Integer;
+  TMenuItemData) : Integer;
 begin
   if AValue1.First < AValue2.First then
     Result := -1
@@ -208,7 +211,7 @@ end;
 
 function TMainMenu.TIterator.GetCurrent : TIterator;
 begin
-  Result := Self;
+  Result := TIterator.Create(FIterator, FItemID);
   FIterator := FIterator.Next;
 end;
 
@@ -254,19 +257,24 @@ end;
 procedure TMainMenu.Append (AItemID : Int64; ADataProvider : 
   TCommonDataProvider; AProfilesProvider : TCommonProfilesProvider);
 begin
-  FMenuItems.Append(TMenuItemProvider.Create(AItemID, ADataProvider,
+  FMenuItems.Append(TMenuItemData.Create(AItemID, ADataProvider,
     AProfilesProvider));
 end;
 
 procedure TMainMenu.Remove (AItemID : Int64);
 begin
-  FMenuItems.Remove(FMenuItems.IndexOf(TMenuItemProvider.Create(AItemID, nil,
+  FMenuItems.Remove(FMenuItems.IndexOf(TMenuItemData.Create(AItemID, nil,
     nil)));
 end;
 
 procedure TMainMenu.Clear;
 begin
   FMenuItems.Clear;
+end;
+
+procedure TMainMenu.UpdateDynamicData;
+begin
+  FMainMenuRenderer.UpdateDynamicData;
 end;
 
 function TMainMenu.ItemData (AItemID : int64) : TIterator;
@@ -278,6 +286,8 @@ begin
   begin
     if Iterator.Value.First = AItemID then
       Exit(TIterator.Create(Iterator, AItemID));
+
+    Iterator := Iterator.Next;
   end;
 
   Result := TIterator.Create(Iterator, AItemID);

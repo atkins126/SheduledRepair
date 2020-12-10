@@ -110,6 +110,7 @@ begin
   MainMenu.Append(TMainMenu.MENU_ITEM_JOB, TMenuSubitemJobDataProvider.Create,
     TMenuSubitemJobProfilesProvider.Create);
   MainMenu.SelectObject(TMainMenu.MENU_ITEM_EQUIPMENT, '', nil);
+  MainMenu.UpdateDynamicData;
 
   Provider.ChangeData(TJobDataHandler.Create);
 end;
