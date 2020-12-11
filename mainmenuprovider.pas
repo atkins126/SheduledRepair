@@ -35,96 +35,99 @@ uses
   SysUtils, Classes, VirtualTrees, objects.common, objects.mainmenu.item,
   dataproviders.common, renderers.mainmenu, dataproviders.mainmenu, 
   profilesprovider.common, profilesprovider.mainmenu, renderers.datarenderer, 
-  container.arraylist, utils.functor, utils.tuple;
+  container.arraylist, container.list, utils.functor, utils.pair;
 
 type
   TMainMenu = class
   public
     const
-      MENU_ITEM_LOGO                                                  = 0;
-      MENU_ITEM_JOB                                                   = 1;
-      MENU_ITEM_EQUIPMENT                                             = 2;
+      MAIN_MENU_ITEM_LOGO                                             = 0;
+      MAIN_MENU_ITEM_JOB                                              = 1;
+      MAIN_MENU_ITEM_EQUIPMENT                                        = 2;
   public
     constructor Create;
     destructor Destroy; override;
+
+    { Attach additional dynamic menu to element. }
+    procedure AttachDynamicMenu (AMenuItemID : Int64; ADataProvider : 
+      TCommonDataProvider; AProfilesProvider : TCommonProfilesProvider);
+      {$IFNDEF DEBUG}inline;{$ENDIF}
+
+    { Detach all additional dynamic menus from menu element. }
+    procedure DetachAllDynamicMenus (AMenuItemID : Int64);
+      {$IFNDEF DEBUG}inline;{$ENDIF}
+
+    { Attach object to menu item element. }
+    procedure AttachObject (AMenuItemID : Int64; AName : String; AObject : 
+      TCommonObject);
+      {$IFNDEF DEBUG}inline;{$ENDIF}
+
+    { Detach menu item element object. }
+    procedure DetachObject (AMenuItemID : Int64);
+      {$IFNDEF DEBUG}inline;{$ENDIF}
   private
     type
-      TMenuItemData = class(specialize TTuple3<Int64, TCommonDataProvider,
+      { Dynamic menu data provider and profiles provider. }
+      TDynamicMenuData = class(specialize TPair<TCommonDataProvider, 
         TCommonProfilesProvider>);
+      TDynamicMenuDataCompareFunctor = class
+        (specialize TUnsortableFunctor<TDynamicMenuData>);
 
-      TMenuItemCompareFunctor = class
-        (specialize TBinaryFunctor<TMenuItemData, Integer>)
-      public
-        function Call (AValue1, AValue2 : TMenuItemData) : Integer;
-          override;
-      end;
+      { Dynamic menus list container. }  
+      TDynamicMenusList = class(specialize TList<TDynamicMenuData, 
+        TDynamicMenuDataCompareFunctor>);
+      TDynamicMenusListCompareFunctor = class 
+        (specialize TUnsortableFunctor<TDynamicMenusList>);
 
-      TMenuItemProvidersList = class
-        (specialize TArrayList<TMenuItemData, TMenuItemCompareFunctor>);
+      { Dynamic menus array lists. }
+      TDynamicMenus = class(specialize TArrayList<TDynamicMenusList,
+        TDynamicMenusListCompareFunctor>);
   public
     type
-      { Menu item providers list iterator (array list filter iterator 
-        decorator). }
       TIterator = class
-      private
-        {%H-}constructor Create (AIterator : TMenuItemProvidersList.TIterator;
-          AItemID : Int64);
+      protected
+        {%H-}constructor Create (AIterator : TDynamicMenusList.TIterator);
+
+        { Get DataProvider. }
+        function GetDataProvider : TCommonDataProvider;
+
+        { Get ProfilesProfilesProvider. }
+        function GetProfilesProvider : TCommonProfilesProvider;
+
+        { Return current item iterator and move it to next element. }
+        function GetCurrent : TIterator;
+      protected
+        FIterator : TDynamicMenusList.TIterator;
       public
-        { Return true if iterator has value. }
+        { Return true if iterator has correct value. }
         function HasValue : Boolean;
 
-        { Retrive the next entry in a list. }
+        { Retrive the next entry. }
         function Next : TIterator;
 
         { Return true if we can move to next element. }
         function MoveNext : Boolean;
 
         { Return enumerator for in operator. }
-        function GetEnumerator : TIterator;  
-      protected  
-        { Get item data provider. }
-        function GetDataProvider : TCommonDataProvider;
-
-        { Get item profile provider. }
-        function GetProfilesProvider : TCommonProfilesProvider;
-
-        { Return current item iterator and move it to next. }
-        function GetCurrent : TIterator;
+        function GetEnumerator : TIterator;
       public
         property DataProvider : TCommonDataProvider read GetDataProvider;
         property ProfilesProvider : TCommonProfilesProvider 
           read GetProfilesProvider;
+
         property Current : TIterator read GetCurrent;
-      private
-        FItemID : Int64;
-        FIterator : TMenuItemProvidersList.TIterator;    
       end;
   private
     FMainMenuView : TVirtualDrawTree;  
     FMainMenuRenderer : TMainMenuDataRenderer;
     FMainMenuDataProvider : TMainMenuDataProvider;
-    FMenuItems : TMenuItemProvidersList;
+    FDynamicMenus : TDynamicMenus;
 
     procedure SetMainMenuView (AMainMenuView : TVirtualDrawTree);
   public
-    { Append additional menu elements. }
-    procedure Append (AItemID : Int64; ADataProvider : TCommonDataProvider;
-      AProfilesProvider : TCommonProfilesProvider);
-
-    { Remove menu elements. }
-    procedure Remove (AItemID : Int64);
-
-    { Clear menu item elements. }
-    procedure Clear;
-
-    { Update dynamic subitems data. }
-    procedure UpdateDynamicData;
-
-    { Get menu element sub items. }
-    function ItemData (AItemID : Int64) : TIterator;
-
-    procedure SelectObject (AObjectID : Int64; AObjectName : String; 
-      AObject : TCommonObject);
+    { Get dynamic menus list iterator for menu element. }
+    function GetAttachedMenus (AMenuItemID : Int64) : TIterator;
+      {$IFNDEF DEBUG}inline;{$ENDIF}
     
     property View : TVirtualDrawTree read FMainMenuView 
       write SetMainMenuView;
@@ -135,26 +138,27 @@ var
 
 implementation
 
-{ TMainMenu.TMenuItemCompareFunctor }
-
-function TMainMenu.TMenuItemCompareFunctor.Call (AValue1, AValue2 : 
-  TMenuItemData) : Integer;
-begin
-  if AValue1.First < AValue2.First then
-    Result := -1
-  else if AValue2.First < AValue1.First then
-    Result := 1
-  else
-    Result := 0;
-end;
-
 { TMainMenu.TIterator }
 
-constructor TMainMenu.TIterator.Create (AIterator : 
-  TMenuItemProvidersList.TIterator; AItemID : Int64);
+constructor TMainMenu.TIterator.Create(AIterator : TDynamicMenusList.TIterator);
 begin
-  FItemID := AItemID;
   FIterator := AIterator;
+end;
+
+function TMainMenu.TIterator.GetDataProvider : TCommonDataProvider;
+begin
+  Result := FIterator.Value.First;
+end;
+
+function TMainMenu.TIterator.GetProfilesProvider : TCommonProfilesProvider;
+begin
+  Result := FIterator.Value.Second;
+end;
+
+function TMainMenu.TIterator.GetCurrent : TIterator;
+begin
+  Result := TIterator.Create(FIterator);
+  FIterator := FIterator.Next;
 end;
 
 function TMainMenu.TIterator.HasValue : Boolean;
@@ -163,56 +167,18 @@ begin
 end;
 
 function TMainMenu.TIterator.Next : TIterator;
-var
-  Iterator : TMenuItemProvidersList.TIterator;
 begin
-  Iterator := FIterator;
-  while Iterator.HasValue do
-  begin
-    if Iterator.Value.First = FItemID then
-      Exit(TIterator.Create(Iterator, FItemID));
-
-    Iterator := Iterator.Next;
-  end;
-
-  Result := TIterator.Create(Iterator, FItemID);
+  Result := TIterator.Create(FIterator.Next);
 end;
 
 function TMainMenu.TIterator.MoveNext : Boolean;
-var
-  Iterator : TMenuItemProvidersList.TIterator;
 begin
-  Iterator := FIterator;
-  while Iterator.HasValue do
-  begin
-    if Iterator.Value.First = FItemID then
-      Exit(True);
-
-    Iterator := Iterator.Next;
-  end;
-
-  Result := False;
+  Result := FIterator.MoveNext;
 end;
 
 function TMainMenu.TIterator.GetEnumerator : TIterator;
 begin
-  Result := TIterator.Create(FIterator, FItemID);
-end;
-
-function TMainMenu.TIterator.GetDataProvider : TCommonDataProvider;
-begin
-  Result := FIterator.Value.Second;
-end;
-
-function TMainMenu.TIterator.GetProfilesProvider : TCommonProfilesProvider;
-begin
-  Result := FIterator.Value.Third;
-end;
-
-function TMainMenu.TIterator.GetCurrent : TIterator;
-begin
-  Result := TIterator.Create(FIterator, FItemID);
-  FIterator := FIterator.Next;
+  Result := TIterator.Create(FIterator);
 end;
 
 { TMainMenu }
@@ -224,7 +190,7 @@ begin
     FMainMenuView := nil;
     FMainMenuRenderer := nil;
     FMainMenuDataProvider := nil;
-    FMenuItems := TMenuItemProvidersList.Create;
+    FDynamicMenus := TDynamicMenus.Create;
 
     MainMenu := self;
   end else
@@ -236,17 +202,26 @@ end;
 destructor TMainMenu.Destroy;
 begin
   FreeAndNil(FMainMenuRenderer);
-  FreeAndNil(FMenuItems);
+  FreeAndNil(FDynamicMenus);
   inherited Destroy;
 end;
 
 procedure TMainMenu.SetMainMenuView (AMainMenuView : TVirtualDrawTree);
+var
+  MenuItem : TCommonObject;
 begin
   if AMainMenuView = nil then
     Exit;
 
   FMainMenuView := AMainMenuView;
   FMainMenuDataProvider := TMainMenuDataProvider.Create;
+
+  FDynamicMenus.Clear;
+  for MenuItem in FMainMenuDataProvider do
+  begin
+    FDynamicMenus.Append(TDynamicMenusList.Create);
+  end;
+
   FMainMenuRenderer := TMainMenuDataRenderer.Create(
     TDataRenderer.Create(FMainMenuView, FMainMenuDataProvider, 
     TMainMenuProfilesProvider.Create, TMainMenuRenderer.Create)
@@ -254,52 +229,41 @@ begin
   FMainMenuRenderer.UpdateData;
 end;
 
-procedure TMainMenu.Append (AItemID : Int64; ADataProvider : 
+procedure TMainMenu.AttachDynamicMenu (AMenuItemID : Int64; ADataProvider : 
   TCommonDataProvider; AProfilesProvider : TCommonProfilesProvider);
 begin
-  FMenuItems.Append(TMenuItemData.Create(AItemID, ADataProvider,
-    AProfilesProvider));
+  FDynamicMenus.Value[AMenuItemID].Append(TDynamicMenuData.Create(
+    ADataProvider, AProfilesProvider));
 end;
 
-procedure TMainMenu.Remove (AItemID : Int64);
+procedure TMainMenu.DetachAllDynamicMenus (AMenuItemID : Int64);
 begin
-  FMenuItems.Remove(FMenuItems.IndexOf(TMenuItemData.Create(AItemID, nil,
-    nil)));
+  FDynamicMenus.Value[AMenuItemID].Clear;
 end;
 
-procedure TMainMenu.Clear;
+function TMainMenu.GetAttachedMenus (AMenuItemID : Int64) : TIterator;
 begin
-  FMenuItems.Clear;
+  Result := TIterator.Create(FDynamicMenus.Value[AMenuItemID].FirstEntry);
 end;
 
-procedure TMainMenu.UpdateDynamicData;
+procedure TMainMenu.AttachObject (AMenuItemID : Int64; AName : String; AObject : 
+  TCommonObject);
 begin
-  FMainMenuRenderer.UpdateDynamicData;
-end;
-
-function TMainMenu.ItemData (AItemID : int64) : TIterator;
-var
-  Iterator : TMenuItemProvidersList.TIterator;
-begin
-  Iterator := FMenuItems.FirstEntry;
-  while Iterator.HasValue do
+  with TMainMenuItem(FMainMenuDataProvider.GetObject(AMenuItemID)) do
   begin
-    if Iterator.Value.First = AItemID then
-      Exit(TIterator.Create(Iterator, AItemID));
-
-    Iterator := Iterator.Next;
-  end;
-
-  Result := TIterator.Create(Iterator, AItemID);
+    AttachedObjectName := AName;
+    AttachedObject := AObject;
+  end;  
+  FMainMenuRenderer.RedrawSelection;
 end;
 
-procedure TMainMenu.SelectObject (AObjectID : Int64; AObjectName : String;
-  AObject : TCommonObject);
+procedure TMainMenu.DetachObject (AMenuItemID : Int64);
 begin
-  TMainMenuItem(FMainMenuDataProvider.GetObject(AObjectID)).SelectedObjectName 
-    := AObjectName;
-  TMainMenuItem(FMainMenuDataProvider.GetObject(AObjectID)).SelectedObject :=
-    AObject;
+  with TMainMenuItem(FMainMenuDataProvider.GetObject(AMenuItemID)) do
+  begin
+    AttachedObjectName := '';
+    AttachedObject := nil;
+  end;
   FMainMenuRenderer.RedrawSelection;
 end;
 

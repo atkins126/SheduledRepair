@@ -32,8 +32,7 @@ unit dataproviders.mainmenu;
 interface
 
 uses
-  SysUtils, dataproviders.common, objects.common, objects.mainmenu.item,
-  profilesprovider.mainmenu;
+  SysUtils, dataproviders.common, objects.common, objects.mainmenu.item;
 
 type
   TMainMenuDataProvider = class(TCommonDataProvider)
@@ -46,8 +45,10 @@ type
     { Load concrete object. }
     function LoadConcreteObject ({%H-}AID : Int64) : TCommonObject; override;
   private
-    procedure EquipmentCallback;
-    procedure JobCallback;
+    procedure JobSelectedEvent ({%H-}AMainMenuItem : TMainMenuItem);
+    
+    procedure EquipmentSelectedEvent ({%H-}AMainMenuItem : TMainMenuItem);
+    procedure EquipmentUnselectEvent ({%H-}AMainMenuItem : TMainMenuItem);
   end;
 
   TMenuSubitemJobDataProvider = class(TCommonDataProvider)
@@ -74,12 +75,13 @@ function TMainMenuDataProvider.Load : Boolean;
 begin
   Clear;
   
-  Append(TMainMenuItem.Create(TMainMenu.MENU_ITEM_LOGO, MENU_ITEM_LOGO, 
-    'SheduledRepair', nil));
-  Append(TMainMenuItem.Create(TMainMenu.MENU_ITEM_JOB, MENU_ITEM, 
-    'Job', @JobCallback));
-  Append(TMainMenuItem.Create(TMainMenu.MENU_ITEM_EQUIPMENT, MENU_ITEM, 
-    'Equipment', @EquipmentCallback));
+  Append(TMainMenuItem.Create(TMainMenu.MAIN_MENU_ITEM_LOGO, 
+    MENU_ITEM_TYPE_LOGO, 'SheduledRepair'));
+  Append(TMainMenuItem.Create(TMainMenu.MAIN_MENU_ITEM_JOB, 
+    MENU_ITEM_TYPE_ITEM, 'Job', @JobSelectedEvent));
+  Append(TMainMenuItem.Create(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT, 
+    MENU_ITEM_TYPE_ITEM, 'Equipment', @EquipmentSelectedEvent, 
+    @EquipmentUnselectEvent));
 
   Result := True;
 end;
@@ -94,24 +96,21 @@ begin
   Result := nil;
 end;
 
-procedure TMainMenuDataProvider.EquipmentCallback;
+procedure TMainMenuDataProvider.EquipmentSelectedEvent (AMainMenuItem :
+  TMainMenuItem);
 begin
-  MainMenu.Clear;
-  
-  MainMenu.SelectObject(TMainMenu.MENU_ITEM_EQUIPMENT, '', nil);
-  
   Provider.ChangeData(TEquipmentDataHandler.Create);
 end;
 
-procedure TMainMenuDataProvider.JobCallback;
+procedure TMainMenuDataProvider.EquipmentUnselectEvent (AMainMenuItem :
+  TMainMenuItem);
 begin
-  MainMenu.Clear;
+  MainMenu.DetachObject(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT);
+end;
 
-  MainMenu.Append(TMainMenu.MENU_ITEM_JOB, TMenuSubitemJobDataProvider.Create,
-    TMenuSubitemJobProfilesProvider.Create);
-  MainMenu.SelectObject(TMainMenu.MENU_ITEM_EQUIPMENT, '', nil);
-  MainMenu.UpdateDynamicData;
-
+procedure TMainMenuDataProvider.JobSelectedEvent (AMainMenuItem :
+  TMainMenuItem);
+begin
   Provider.ChangeData(TJobDataHandler.Create);
 end;
 
@@ -121,8 +120,8 @@ function TMenuSubitemJobDataProvider.Load : Boolean;
 begin
   Clear;
   
-  Append(TMainMenuItem.Create(-1, MENU_SUBITEM, 'Create', nil));
-  Append(TMainMenuItem.Create(-1, MENU_SUBITEM, 'Edit', nil));
+  Append(TMainMenuItem.Create(-1, MENU_ITEM_TYPE_SUBITEM, 'Create'));
+  Append(TMainMenuItem.Create(-1, MENU_ITEM_TYPE_SUBITEM, 'Edit'));
   
   Result := True;
 end;

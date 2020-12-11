@@ -79,10 +79,8 @@ end;
 
 procedure TEquipmentDataProvider.ObjectDoubleClick (AObjectIndex : Cardinal);
 begin
-  MainMenu.Clear;
-  
-  MainMenu.SelectObject(TMainMenu.MENU_ITEM_EQUIPMENT, 
-    TEquipment(GetObject(AObjectIndex)).Name, 
+  MainMenu.AttachObject(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT,
+    TEquipment(GetObject(AObjectIndex)).Name,
     TEquipment(GetObject(AObjectIndex)));
 
   Provider.ChangeData(TEquipmentEntityDataHandler.Create(

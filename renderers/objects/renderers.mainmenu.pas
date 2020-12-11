@@ -144,7 +144,7 @@ procedure TMainMenuRenderer.Draw(AObject : TCommonObject; AProfile :
 begin
   DrawBackground(AProfile, ACanvas, ARect);
 
-  if not Assigned(TMainMenuItem(AObject).SelectedObject) then
+  if not Assigned(TMainMenuItem(AObject).AttachedObject) then
   begin
     DrawText(TMainMenuItem(AObject).Title, AProfile.Items['Title'], ACanvas, 
       ARect);
@@ -152,7 +152,7 @@ begin
   begin
     DrawText(TMainMenuItem(AObject).Title, AProfile.Items['SelectionTitle'], 
       ACanvas, ARect);
-    DrawText(TMainMenuItem(AObject).SelectedObjectName,
+    DrawText(TMainMenuItem(AObject).AttachedObjectName,
       AProfile.Items['SelectionName'], ACanvas, ARect);
   end;
 end;

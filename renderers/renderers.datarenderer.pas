@@ -123,9 +123,6 @@ type
     { Full update data. }
     procedure UpdateData;
 
-    { Update dynamic menu items. }
-    procedure UpdateDynamicData;
-
     procedure RedrawSelection;
   protected
     FDataRenderer : TDataRenderer;
@@ -358,7 +355,7 @@ procedure TMainMenuDataRenderer.UpdateData;
 begin
   FDataRenderer.UpdateData;
 end;
-
+{
 procedure TMainMenuDataRenderer.UpdateDynamicData;
 var
   Node, SubitemNode : PVirtualNode;
@@ -366,17 +363,15 @@ var
   Item : TMainMenu.TIterator;
   Index : Integer;
 begin
-  {
+  FDataRenderer.FTreeView.BeginUpdate;
+
   Node := FDataRenderer.FTreeView.GetFirst;
-
   repeat
-    if (not Assigned(Node)) or (Assigned(Node^.Parent)) then
-      Continue;
-
     Index := 0;
     for Item in MainMenu.ItemData(FDataRenderer.GetObject(Node).ID) do
     begin
       FDataRenderer.FTreeView.DeleteChildren(Node, True);
+
       SubitemNode := FDataRenderer.FTreeView.AddChild(Node);
       SubitemNodeData := TDataRenderer.PNodeData(
         FDataRenderer.FTreeView.GetNodeData(SubitemNode));
@@ -392,9 +387,10 @@ begin
     end;
     Node := FDataRenderer.FTreeView.GetNext(Node, False);
   until Node = FDataRenderer.FTreeView.GetLast;
-  }
+  
+  FDataRenderer.FTreeView.EndUpdate;
 end;
-
+}
 function TMainMenuDataRenderer.GetItemType (ANode : PVirtualNode) : 
   TMainMenuItem.TItemType;
 begin
@@ -407,18 +403,27 @@ begin
   if Node = nil then
     Exit;
 
-  if (GetItemType(Node) = MENU_ITEM_LOGO) and (FSelectedNode <> nil) then
+  if (GetItemType(Node) = MENU_ITEM_TYPE_LOGO) and (FSelectedNode <> nil) then
   begin
     FDataRenderer.FTreeView.Selected[FSelectedNode] := True;
     Exit;
   end;
   
+  { Run menu item OnUnSelect event if asigned. }
+  if (FSelectedNode <> nil) and (Assigned(TMainMenuItem(FDataRenderer.GetObject(
+    FSelectedNode)).OnUnselect)) then
+  begin
+    TMainMenuItem(FDataRenderer.GetObject(FSelectedNode)).OnUnselect(
+      TMainMenuItem(FDataRenderer.GetObject(FSelectedNode)));
+  end;
+
   FSelectedNode := Node;
 
-  { Run menu item callback if asigned. }
-  if Assigned(TMainMenuItem(FDataRenderer.GetObject(Node)).Callback) then
+  { Run menu item OnSelect event if asigned. }
+  if Assigned(TMainMenuItem(FDataRenderer.GetObject(Node)).OnSelect) then
   begin
-    TMainMenuItem(FDataRenderer.GetObject(Node)).Callback;
+    TMainMenuItem(FDataRenderer.GetObject(Node)).OnSelect(
+      TMainMenuItem(FDataRenderer.GetObject(Node)));
   end;
 end;
 

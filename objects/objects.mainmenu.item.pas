@@ -42,15 +42,17 @@ type
   public
     type
       TItemType = (
-        MENU_ITEM_LOGO,
-        MENU_ITEM,
-        MENU_SUBITEM
+        MENU_ITEM_TYPE_LOGO,
+        MENU_ITEM_TYPE_ITEM,
+        MENU_ITEM_TYPE_SUBITEM
       );
 
-      TItemCallback = procedure of object;
+      TItemOnSelectEvent = procedure (AItem : TMainMenuItem) of object;
+      TItemOnUnselectEvent = procedure (AItem : TMainMenuItem) of object;
   public
     constructor Create (AID : Int64; AItemType : TItemType; ATitle : String;
-      ACallback : TItemCallback); reintroduce;
+      AOnSelect : TItemOnSelectEvent = nil; AOnUnselect : TItemOnUnselectEvent
+      = nil); reintroduce;
     destructor Destroy; override; 
 
     { Get object database table name. }
@@ -70,17 +72,23 @@ type
   protected
     FItemType : TItemType;
     FTitle : String;
-    FSelectedObject : TCommonObject;
-    FSelectedObjectName : String;
-    FItemCallback : TItemCallback;
+    FAttachedObject : TCommonObject;
+    FAttachedObjectName : String;
+    FItemOnSelect : TItemOnSelectEvent;
+    FItemOnUnselect : TItemOnUnselectEvent;
   public
     property ItemType : TItemType read FItemType;
     property Title : String read FTitle;
-    property SelectedObject : TCommonObject read FSelectedObject 
-      write FSelectedObject;
-    property SelectedObjectName : String read FSelectedObjectName
-      write FSelectedObjectName;  
-    property Callback : TItemCallback read FItemCallback;
+    
+    property AttachedObject : TCommonObject read FAttachedObject 
+      write FAttachedObject;
+    property AttachedObjectName : String read FAttachedObjectName
+      write FAttachedObjectName;  
+
+    property OnSelect : TItemOnSelectEvent read FItemOnSelect
+      write FItemOnSelect;
+    property OnUnselect : TItemOnUnselectEvent read FItemOnUnselect
+      write FItemOnUnselect;
   end;
 
 implementation
@@ -88,14 +96,15 @@ implementation
 { TMainMenuItem }
 
 constructor TMainMenuItem.Create (AID : Int64; AItemType : TItemType; ATitle : 
-  String; ACallback : TItemCallback);
+  String; AOnSelect : TItemOnSelectEvent; AOnUnselect : TItemOnUnselectEvent);
 begin
   inherited Create(AID);
   FItemType := AItemType;
   FTitle := ATitle;
-  FSelectedObject := nil;
-  FSelectedObjectName := '';
-  FItemCallback := ACallback;
+  FAttachedObject := nil;
+  FAttachedObjectName := '';
+  FItemOnSelect := AOnSelect;
+  FItemOnUnselect := AOnUnselect;
 end;
 
 destructor TMainMenuItem.Destroy;
