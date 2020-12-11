@@ -38,6 +38,9 @@ uses
 type
   TCommonDataProvider = class
   public
+    type
+      TObjectDoubleClickEvent = procedure (AObject : TCommonObject) of object;
+  public
     constructor Create;
     destructor Destroy; override;
     
@@ -55,8 +58,6 @@ type
 
     { Get object by index. }
     function GetObject (AObjectIndex : Cardinal) : TCommonObject;
-
-    procedure ObjectDoubleClick ({%H-}AObjectIndex : Cardinal); virtual;
   protected
     { Get current loaded objects table name. }
     function LoadObjectsTableName : String; virtual; abstract;
@@ -76,9 +77,13 @@ type
         (specialize TArrayList<TCommonObject, TObjectsCompareFunctor>);
   protected
     FObjectsList : TObjectsList;
+    FObjectDoubleClick : TObjectDoubleClickEvent;
   public
     { Get enumerator for in operator. }
     function GetEnumerator : TObjectsList.TIterator;
+
+    property OnObjectDoubleClick : TObjectDoubleClickEvent 
+      read FObjectDoubleClick write FObjectDoubleClick;
   end;
 
 implementation
@@ -132,11 +137,6 @@ begin
     Exit(FObjectsList.Value[AObjectIndex]);
   
   Result := nil;
-end;
-
-procedure TCommonDataProvider.ObjectDoubleClick (AObjectIndex : Cardinal);
-begin
-  // Do nothing by default.
 end;
 
 function TCommonDataProvider.Load : Boolean;

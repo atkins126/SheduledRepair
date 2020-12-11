@@ -37,13 +37,16 @@ uses
 type
   TEquipmentDataProvider = class(TCommonDataProvider)
   public
+    constructor Create;
+
     { Get current loaded objects table name. }
     function LoadObjectsTableName : String; override;
 
     { Load concrete object. }
     function LoadConcreteObject (AID : Int64) : TCommonObject; override;
-
-    procedure ObjectDoubleClick (AObjectIndex : Cardinal); override;
+  private
+    { Object on double click event. }
+    procedure OnObjectDoubleClickEvent (AObject : TCommonObject);
   end;
 
 implementation
@@ -52,6 +55,12 @@ uses
   dataprovider, datahandlers, mainmenuprovider;
 
 { TEquipmentDataProvider }
+
+constructor TEquipmentDataProvider.Create;
+begin
+  inherited Create;
+  OnObjectDoubleClick := @OnObjectDoubleClickEvent;
+end;
 
 function TEquipmentDataProvider.LoadObjectsTableName : String;
 var
@@ -77,14 +86,12 @@ begin
   Result := Equipment;
 end;
 
-procedure TEquipmentDataProvider.ObjectDoubleClick (AObjectIndex : Cardinal);
+procedure TEquipmentDataProvider.OnObjectDoubleClickEvent (AObject :
+  TCommonObject);
 begin
   MainMenu.AttachObject(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT,
-    TEquipment(GetObject(AObjectIndex)).Name,
-    TEquipment(GetObject(AObjectIndex)));
-
-  Provider.ChangeData(TEquipmentEntityDataHandler.Create(
-    TEquipment(GetObject(AObjectIndex))));
+    TEquipment(AObject).Name, AObject);
+  Provider.ChangeData(TEquipmentEntityDataHandler.Create(TEquipment(AObject)));
 end;
 
 end.

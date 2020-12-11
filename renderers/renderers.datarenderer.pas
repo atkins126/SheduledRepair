@@ -102,17 +102,18 @@ type
     procedure RestorePrevSelectedNodeHeight;
       {$IFNDEF DEBUG}inline;{$ENDIF}
 
-    procedure NodeChange(Sender: TBaseVirtualTree; Node: PVirtualNode);
+    { On change node event. }
+    procedure OnNodeChange(Sender: TBaseVirtualTree; Node: PVirtualNode);
 
-    { Node double click. }
-    procedure NodeDoubleClick ({%H-}ASender : TObject);
+    { On node double click event. }
+    procedure OnNodeDoubleClick ({%H-}ASender : TObject);
 
-    { Draw node. }
-    procedure NodeDraw ({%H-}ASender : TBaseVirtualTree; const APaintInfo :
+    { On node draw event. }
+    procedure OnNodeDraw ({%H-}ASender : TBaseVirtualTree; const APaintInfo :
       TVTPaintInfo);
 
-    { Resize VirtualTreeNode. }
-    procedure TreeResize ({%H-}ASender : TObject);
+    { On VirtualTree resize event. }
+    procedure OnTreeResize ({%H-}ASender : TObject);
   end;
 
   { Main menu data renderer decorator. }
@@ -132,7 +133,8 @@ type
     function GetItemType (ANode : PVirtualNode) : TMainMenuItem.TItemType;
       {$IFNDEF DEBUG}inline;{$ENDIF}
 
-    procedure NodeChange(Sender: TBaseVirtualTree; Node: PVirtualNode);
+    { Node on chage event. }
+    procedure OnNodeChange(Sender: TBaseVirtualTree; Node: PVirtualNode);
   end;
 
 implementation
@@ -179,10 +181,10 @@ procedure TDataRenderer.SetTreeViewCallbacks;
 begin
   with FTreeView do
   begin
-    OnDrawNode := @NodeDraw;
-    OnResize := @TreeResize;
-    OnChange := @NodeChange;
-    OnDblClick := @NodeDoubleClick;
+    OnDrawNode := @OnNodeDraw;
+    OnResize := @OnTreeResize;
+    OnChange := @OnNodeChange;
+    OnDblClick := @OnNodeDoubleClick;
   end;
 end;
 
@@ -244,7 +246,7 @@ begin
   end;
 end;
 
-procedure TDataRenderer.NodeChange(Sender: TBaseVirtualTree; Node: 
+procedure TDataRenderer.OnNodeChange(Sender: TBaseVirtualTree; Node: 
   PVirtualNode);
 begin
   if Node = nil then
@@ -259,16 +261,17 @@ begin
   end;
 end;
 
-procedure TDataRenderer.NodeDoubleClick (ASender : TObject);
+procedure TDataRenderer.OnNodeDoubleClick (ASender : TObject);
 begin
   if not Assigned(FSelectedNode) then
     Exit;
 
-  FDataProvider.ObjectDoubleClick(FSelectedNode^.Index);
+  if Assigned(FDataProvider.OnObjectDoubleClick) then
+    FDataProvider.OnObjectDoubleClick(GetObject(FSelectedNode));
 end;
 
-procedure TDataRenderer.NodeDraw (ASender : TBaseVirtualTree; const APaintInfo :
-  TVTPaintInfo);
+procedure TDataRenderer.OnNodeDraw (ASender : TBaseVirtualTree; 
+  const APaintInfo : TVTPaintInfo);
 var
   BackgroundColor : TColor;
 begin
@@ -307,7 +310,7 @@ begin
     APaintInfo.Canvas, APaintInfo.CellRect);
 end;
 
-procedure TDataRenderer.TreeResize (ASender : TObject);
+procedure TDataRenderer.OnTreeResize (ASender : TObject);
 begin
   SetTreeViewColumns;
 end;
@@ -348,7 +351,7 @@ end;
 constructor TMainMenuDataRenderer.Create (ADataRenderer : TDataRenderer);
 begin
   FDataRenderer := ADataRenderer;
-  FDataRenderer.FTreeView.OnChange := @NodeChange;
+  FDataRenderer.FTreeView.OnChange := @OnNodeChange;
 end;
 
 procedure TMainMenuDataRenderer.UpdateData;
@@ -397,7 +400,7 @@ begin
   Result := TMainMenuItem(FDataRenderer.GetObject(ANode)).ItemType;
 end;
 
-procedure TMainMenuDataRenderer.NodeChange (Sender : TBaseVirtualTree; Node :
+procedure TMainMenuDataRenderer.OnNodeChange (Sender : TBaseVirtualTree; Node :
   PVirtualNode);
 begin
   if Node = nil then
@@ -410,8 +413,9 @@ begin
   end;
   
   { Run menu item OnUnSelect event if asigned. }
-  if (FSelectedNode <> nil) and (Assigned(TMainMenuItem(FDataRenderer.GetObject(
-    FSelectedNode)).OnUnselect)) then
+  if (FSelectedNode <> nil) and 
+    (Assigned(TMainMenuItem(FDataRenderer.GetObject(FSelectedNode)).OnUnselect)) 
+    then
   begin
     TMainMenuItem(FDataRenderer.GetObject(FSelectedNode)).OnUnselect(
       TMainMenuItem(FDataRenderer.GetObject(FSelectedNode)));

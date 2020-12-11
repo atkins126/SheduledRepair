@@ -33,7 +33,7 @@ interface
 
 uses
   SysUtils, VirtualTrees, objects.equipment, renderers.datarenderer, 
-  renderers.equipment, dataproviders.equipment, profilesprovider.equipment,
+  renderers.equipment, dataproviders.equipment, profilesprovider.equipment, 
   renderers.entity, dataproviders.entity, profilesprovider.entity, 
   renderers.job, dataproviders.job, profilesprovider.job;
 

@@ -96,6 +96,12 @@ begin
   Result := nil;
 end;
 
+procedure TMainMenuDataProvider.JobSelectedEvent (AMainMenuItem :
+  TMainMenuItem);
+begin
+  Provider.ChangeData(TJobDataHandler.Create);
+end;
+
 procedure TMainMenuDataProvider.EquipmentSelectedEvent (AMainMenuItem :
   TMainMenuItem);
 begin
@@ -106,12 +112,6 @@ procedure TMainMenuDataProvider.EquipmentUnselectEvent (AMainMenuItem :
   TMainMenuItem);
 begin
   MainMenu.DetachObject(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT);
-end;
-
-procedure TMainMenuDataProvider.JobSelectedEvent (AMainMenuItem :
-  TMainMenuItem);
-begin
-  Provider.ChangeData(TJobDataHandler.Create);
 end;
 
 { TMenuSubitemJobDataProvider }
