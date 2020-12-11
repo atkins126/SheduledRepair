@@ -49,10 +49,16 @@ type
 
       TItemOnSelectEvent = procedure (AItem : TMainMenuItem) of object;
       TItemOnUnselectEvent = procedure (AItem : TMainMenuItem) of object;
+
+      TItemOnAttachDynamicMenuEvent = procedure (AItem : TMainMenuItem) of 
+        object;
+      TItemOnDetachDynamicMenuEvent = procedure (AItem : TMainMenuItem) of
+        object;
   public
     constructor Create (AID : Int64; AItemType : TItemType; ATitle : String;
       AOnSelect : TItemOnSelectEvent = nil; AOnUnselect : TItemOnUnselectEvent
-      = nil); reintroduce;
+      = nil; AOnAttachDynamicMenu : TItemOnAttachDynamicMenuEvent = nil;
+      AOnDetachDynamicMenu : TItemOnDetachDynamicMenuEvent = nil); reintroduce;
     destructor Destroy; override; 
 
     { Get object database table name. }
@@ -76,6 +82,8 @@ type
     FAttachedObjectName : String;
     FItemOnSelect : TItemOnSelectEvent;
     FItemOnUnselect : TItemOnUnselectEvent;
+    FItemOnAttachDynamicMenu : TItemOnAttachDynamicMenuEvent;
+    FItemOnDetachDynamicMenu : TItemOnDetachDynamicMenuEvent;
   public
     property ItemType : TItemType read FItemType;
     property Title : String read FTitle;
@@ -89,6 +97,11 @@ type
       write FItemOnSelect;
     property OnUnselect : TItemOnUnselectEvent read FItemOnUnselect
       write FItemOnUnselect;
+
+    property OnAttachDynamicMenu : TItemOnAttachDynamicMenuEvent
+      read FItemOnAttachDynamicMenu write FItemOnAttachDynamicMenu;
+    property OnDetachDynamicMenu : TItemOnDetachDynamicMenuEvent
+      read FItemOnDetachDynamicMenu write FItemOnDetachDynamicMenu;
   end;
 
 implementation
@@ -96,7 +109,9 @@ implementation
 { TMainMenuItem }
 
 constructor TMainMenuItem.Create (AID : Int64; AItemType : TItemType; ATitle : 
-  String; AOnSelect : TItemOnSelectEvent; AOnUnselect : TItemOnUnselectEvent);
+  String; AOnSelect : TItemOnSelectEvent; AOnUnselect : TItemOnUnselectEvent;
+  AOnAttachDynamicMenu : TItemOnAttachDynamicMenuEvent; AOnDetachDynamicMenu :
+  TItemOnDetachDynamicMenuEvent);
 begin
   inherited Create(AID);
   FItemType := AItemType;
@@ -105,6 +120,8 @@ begin
   FAttachedObjectName := '';
   FItemOnSelect := AOnSelect;
   FItemOnUnselect := AOnUnselect;
+  FItemOnAttachDynamicMenu := AOnAttachDynamicMenu;
+  FItemOnDetachDynamicMenu := AOnDetachDynamicMenu;
 end;
 
 destructor TMainMenuItem.Destroy;

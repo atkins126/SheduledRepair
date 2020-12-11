@@ -46,8 +46,9 @@ type
     function LoadConcreteObject ({%H-}AID : Int64) : TCommonObject; override;
   private
     procedure JobSelectedEvent ({%H-}AMainMenuItem : TMainMenuItem);
-    procedure JobUnselectEvent ({%H-}AMainMenuItem : TMainMenuItem);
-    
+    procedure JobAttachMenuEvent ({%H-}AMainMenuItem : TMainMenuItem);
+    procedure JobDetachMenuEvent ({%H-}AMainMenuItem : TMainMenuItem);
+
     procedure EquipmentSelectedEvent ({%H-}AMainMenuItem : TMainMenuItem);
     procedure EquipmentUnselectEvent ({%H-}AMainMenuItem : TMainMenuItem);
   end;
@@ -79,7 +80,8 @@ begin
   Append(TMainMenuItem.Create(TMainMenu.MAIN_MENU_ITEM_LOGO, 
     MENU_ITEM_TYPE_LOGO, 'SheduledRepair'));
   Append(TMainMenuItem.Create(TMainMenu.MAIN_MENU_ITEM_JOB, 
-    MENU_ITEM_TYPE_ITEM, 'Job', @JobSelectedEvent, @JobUnselectEvent));
+    MENU_ITEM_TYPE_ITEM, 'Job', @JobSelectedEvent, nil, @JobAttachMenuEvent,
+    @JobDetachMenuEvent));
   Append(TMainMenuItem.Create(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT, 
     MENU_ITEM_TYPE_ITEM, 'Equipment', @EquipmentSelectedEvent, 
     @EquipmentUnselectEvent));
@@ -101,11 +103,16 @@ procedure TMainMenuDataProvider.JobSelectedEvent (AMainMenuItem :
   TMainMenuItem);
 begin
   Provider.ChangeData(TJobDataHandler.Create);
+end;
+
+procedure TMainMenuDataProvider.JobAttachMenuEvent (AMainMenuItem :
+  TMainMenuItem);
+begin
   MainMenu.AttachDynamicMenu(TMainMenu.MAIN_MENU_ITEM_JOB,
     TMenuSubitemJobDataProvider.Create, TMenuSubitemJobProfilesProvider.Create);
 end;
 
-procedure TMainMenuDataProvider.JobUnselectEvent (AMainMenuItem :
+procedure TMainMenuDataProvider.JobDetachMenuEvent (AMainMenuItem :
   TMainMenuItem);
 begin
   MainMenu.DetachAllDynamicMenus(TMainMenu.MAIN_MENU_ITEM_JOB);

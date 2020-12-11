@@ -364,7 +364,7 @@ begin
   with Result.DefaultProfile do
   begin
     Enable := True;
-    Height := 35;
+    Height := 25;
     Background := clWhite;
   end;
 
@@ -375,9 +375,9 @@ begin
     BackgroundFillType := FILL_NONE;
     BackgroundRoundRadius := 0;
     FontName := 'default';
-    FontSize := 12;
+    FontSize := 10;
     FontColor := clBlack;
-    Padding.Top := 5;
+    Padding.Top := 2;
     Padding.Left := 15;
     Padding.Bottom := 5;
     Padding.Right := 0;
@@ -390,7 +390,7 @@ begin
   with Result.SelectedProfile do
   begin
     Enable := True;
-    Height := 35;
+    Height := 25;
     Background := clYellow;
   end;
 
@@ -401,9 +401,9 @@ begin
     BackgroundFillType := FILL_NONE;
     BackgroundRoundRadius := 0;
     FontName := 'default';
-    FontSize := 12;
+    FontSize := 10;
     FontColor := clBlack;
-    Padding.Top := 5;
+    Padding.Top := 2;
     Padding.Left := 15;
     Padding.Bottom := 5;
     Padding.Right := 0;
@@ -416,7 +416,7 @@ begin
   with Result.HoverProfile do
   begin
     Enable := True;
-    Height := 35;
+    Height := 25;
     Background := clSilver;
   end;  
 
@@ -427,9 +427,9 @@ begin
     BackgroundFillType := FILL_NONE;
     BackgroundRoundRadius := 0;
     FontName := 'default';
-    FontSize := 12;
+    FontSize := 10;
     FontColor := clBlack;
-    Padding.Top := 5;
+    Padding.Top := 2;
     Padding.Left := 15;
     Padding.Bottom := 5;
     Padding.Right := 0;
