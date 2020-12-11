@@ -123,14 +123,24 @@ type
 
     { Full update data. }
     procedure UpdateData;
-
-    procedure RedrawSelection;
   protected
     FDataRenderer : TDataRenderer;
 
     FSelectedNode : PVirtualNode;
   private
     function GetItemType (ANode : PVirtualNode) : TMainMenuItem.TItemType;
+      {$IFNDEF DEBUG}inline;{$ENDIF}
+
+    { Run node OnUnselect event. }
+    procedure RunNodeUnselectEvent (ANode : PVirtualNode);
+      {$IFNDEF DEBUG}inline;{$ENDIF}
+
+    { Run node OnSelect event. }
+    procedure RunNodeSelectEvent (ANode : PVirtualNode);
+      {$IFNDEF DEBUG}inline;{$ENDIF}
+
+    { Append menu item dynamic menu items. }
+    procedure CreateDynamicMenu (ANode : PVirtualNode);
       {$IFNDEF DEBUG}inline;{$ENDIF}
 
     { Node on chage event. }
@@ -358,42 +368,7 @@ procedure TMainMenuDataRenderer.UpdateData;
 begin
   FDataRenderer.UpdateData;
 end;
-{
-procedure TMainMenuDataRenderer.UpdateDynamicData;
-var
-  Node, SubitemNode : PVirtualNode;
-  SubitemNodeData : TDataRenderer.PNodeData;
-  Item : TMainMenu.TIterator;
-  Index : Integer;
-begin
-  FDataRenderer.FTreeView.BeginUpdate;
 
-  Node := FDataRenderer.FTreeView.GetFirst;
-  repeat
-    Index := 0;
-    for Item in MainMenu.ItemData(FDataRenderer.GetObject(Node).ID) do
-    begin
-      FDataRenderer.FTreeView.DeleteChildren(Node, True);
-
-      SubitemNode := FDataRenderer.FTreeView.AddChild(Node);
-      SubitemNodeData := TDataRenderer.PNodeData(
-        FDataRenderer.FTreeView.GetNodeData(SubitemNode));
-
-      if Assigned(SubitemNodeData) then
-      begin
-        SubitemNodeData^.CommonObject := Item.DataProvider.GetObject(Index);
-        SubitemNodeData^.Profile := Item.ProfilesProvider.GetProfile(Index);
-      end;
-      SubitemNode^.NodeHeight := SubitemNodeData^.Profile.DefaultProfile.Height;
-
-      Inc(Index);
-    end;
-    Node := FDataRenderer.FTreeView.GetNext(Node, False);
-  until Node = FDataRenderer.FTreeView.GetLast;
-  
-  FDataRenderer.FTreeView.EndUpdate;
-end;
-}
 function TMainMenuDataRenderer.GetItemType (ANode : PVirtualNode) : 
   TMainMenuItem.TItemType;
 begin
@@ -412,28 +387,64 @@ begin
     Exit;
   end;
   
-  { Run menu item OnUnSelect event if asigned. }
-  if (FSelectedNode <> nil) and 
-    (Assigned(TMainMenuItem(FDataRenderer.GetObject(FSelectedNode)).OnUnselect)) 
-    then
+  if (FSelectedNode <> nil) then
   begin
-    TMainMenuItem(FDataRenderer.GetObject(FSelectedNode)).OnUnselect(
-      TMainMenuItem(FDataRenderer.GetObject(FSelectedNode)));
+    RunNodeUnselectEvent(FSelectedNode);
+    FDataRenderer.FTreeView.DeleteChildren(FSelectedNode, True);
   end;
 
   FSelectedNode := Node;
-
-  { Run menu item OnSelect event if asigned. }
-  if Assigned(TMainMenuItem(FDataRenderer.GetObject(Node)).OnSelect) then
-  begin
-    TMainMenuItem(FDataRenderer.GetObject(Node)).OnSelect(
-      TMainMenuItem(FDataRenderer.GetObject(Node)));
-  end;
+  RunNodeSelectEvent(Node);
+  CreateDynamicMenu(Node);
 end;
 
-procedure TMainMenuDataRenderer.RedrawSelection;
+procedure TMainMenuDataRenderer.RunNodeUnselectEvent (ANode : PVirtualNode);
 begin
-  FDataRenderer.FTreeView.InvalidateNode(FSelectedNode);
+  if Assigned(TMainMenuItem(FDataRenderer.GetObject(ANode)).OnUnselect) then
+    TMainMenuItem(FDataRenderer.GetObject(ANode)).OnUnselect(
+      TMainMenuItem(FDataRenderer.GetObject(ANode)));
+end;
+
+procedure TMainMenuDataRenderer.RunNodeSelectEvent (ANode : PVirtualNode);
+begin
+  if Assigned(TMainMenuItem(FDataRenderer.GetObject(ANode)).OnSelect) then
+    TMainMenuItem(FDataRenderer.GetObject(ANode)).OnSelect(
+      TMainMenuItem(FDataRenderer.GetObject(ANode)));
+end;
+
+procedure TMainMenuDataRenderer.CreateDynamicMenu (ANode : PVirtualNode);
+var
+  DynamicMenu : TMainMenu.TIterator;
+  DynamicMenuItem : TCommonObject;
+  DynamicItemNode : PVirtualNode;
+  DynamicNodeData : TDataRenderer.PNodeData;
+  Index : Integer;
+begin
+  for DynamicMenu in MainMenu.GetAttachedMenus(
+    FDataRenderer.GetObject(ANode).ID) do
+  begin
+    Index := 0;
+    for DynamicMenuItem in DynamicMenu.DataProvider do
+    begin
+      //FDataRenderer.FTreeView.BeginUpdate;
+
+      DynamicItemNode := FDataRenderer.FTreeView.AddChild(ANode);
+      DynamicNodeData := TDataRenderer.PNodeData(FDataRenderer.FTreeView
+        .GetNodeData(DynamicItemNode));
+
+      if Assigned(DynamicNodeData) then
+      begin
+        DynamicNodeData^.CommonObject := DynamicMenuItem;
+        DynamicNodeData^.Profile := DynamicMenu.ProfilesProvider.GetProfile(Index);
+      end;
+      DynamicItemNode^.NodeHeight := DynamicNodeData^.Profile.DefaultProfile.Height;
+
+      //FDataRenderer.FTreeView.EndUpdate;
+      Inc(Index);  
+    end;
+    FDataRenderer.FTreeView.Expanded[ANode] := True;
+  end;
+  FDataRenderer.FTreeView.Refresh;
 end;
 
 end.

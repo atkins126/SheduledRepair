@@ -163,7 +163,7 @@ end;
 
 function TMainMenu.TIterator.HasValue : Boolean;
 begin
-  Result := FIterator.HasValue;
+  Result := (FIterator <> nil) and (FIterator.HasValue);
 end;
 
 function TMainMenu.TIterator.Next : TIterator;
@@ -173,7 +173,7 @@ end;
 
 function TMainMenu.TIterator.MoveNext : Boolean;
 begin
-  Result := FIterator.MoveNext;
+  Result := (FIterator <> nil) and FIterator.MoveNext;
 end;
 
 function TMainMenu.TIterator.GetEnumerator : TIterator;
@@ -215,6 +215,7 @@ begin
 
   FMainMenuView := AMainMenuView;
   FMainMenuDataProvider := TMainMenuDataProvider.Create;
+  FMainMenuDataProvider.Load;
 
   FDynamicMenus.Clear;
   for MenuItem in FMainMenuDataProvider do
@@ -232,6 +233,9 @@ end;
 procedure TMainMenu.AttachDynamicMenu (AMenuItemID : Int64; ADataProvider : 
   TCommonDataProvider; AProfilesProvider : TCommonProfilesProvider);
 begin
+  if (not ADataProvider.Load) or (not AProfilesProvider.Load) then
+    Exit;
+
   FDynamicMenus.Value[AMenuItemID].Append(TDynamicMenuData.Create(
     ADataProvider, AProfilesProvider));
 end;
@@ -243,6 +247,9 @@ end;
 
 function TMainMenu.GetAttachedMenus (AMenuItemID : Int64) : TIterator;
 begin
+  if AMenuItemID = -1 then
+    Exit(TIterator.Create(nil));
+
   Result := TIterator.Create(FDynamicMenus.Value[AMenuItemID].FirstEntry);
 end;
 
@@ -254,7 +261,7 @@ begin
     AttachedObjectName := AName;
     AttachedObject := AObject;
   end;  
-  FMainMenuRenderer.RedrawSelection;
+  FMainMenuView.Refresh;
 end;
 
 procedure TMainMenu.DetachObject (AMenuItemID : Int64);
@@ -264,7 +271,7 @@ begin
     AttachedObjectName := '';
     AttachedObject := nil;
   end;
-  FMainMenuRenderer.RedrawSelection;
+  FMainMenuView.Refresh;
 end;
 
 initialization

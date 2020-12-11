@@ -378,7 +378,7 @@ begin
     FontSize := 12;
     FontColor := clBlack;
     Padding.Top := 5;
-    Padding.Left := 0;
+    Padding.Left := 15;
     Padding.Bottom := 5;
     Padding.Right := 0;
     PositionType := POSITION_FIXED;
@@ -404,7 +404,7 @@ begin
     FontSize := 12;
     FontColor := clBlack;
     Padding.Top := 5;
-    Padding.Left := 0;
+    Padding.Left := 15;
     Padding.Bottom := 5;
     Padding.Right := 0;
     PositionType := POSITION_FIXED;
@@ -430,7 +430,7 @@ begin
     FontSize := 12;
     FontColor := clBlack;
     Padding.Top := 5;
-    Padding.Left := 0;
+    Padding.Left := 15;
     Padding.Bottom := 5;
     Padding.Right := 0;
     PositionType := POSITION_FIXED;
