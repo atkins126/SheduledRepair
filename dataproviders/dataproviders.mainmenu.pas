@@ -149,6 +149,7 @@ end;
 procedure TMainMenuDataProvider.EquipmentUnselectEvent (AMainMenuItem : 
   TMainMenuItem);
 begin
+  MainMenu.DetachAllDynamicMenus(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT);
   MainMenu.DetachObject(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT);
 end;
 

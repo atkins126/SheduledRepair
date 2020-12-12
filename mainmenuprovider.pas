@@ -57,9 +57,6 @@ type
     procedure DetachAllDynamicMenus (AMenuItemID : Int64);
       {$IFNDEF DEBUG}inline;{$ENDIF}
 
-    procedure UpdateSelectedItemDynamicMenu;
-      {$IFNDEF DEBUG}inline;{$ENDIF}
-
     { Attach object to menu item element. }
     procedure AttachObject (AMenuItemID : Int64; AName : String; AObject : 
       TCommonObject);
@@ -230,7 +227,7 @@ begin
     TDataRenderer.Create(FMainMenuView, FMainMenuDataProvider, 
     TMainMenuProfilesProvider.Create, TMainMenuRenderer.Create)
   );
-  FMainMenuRenderer.UpdateData;
+  FMainMenuRenderer.ReloadData;
 end;
 
 procedure TMainMenu.AttachDynamicMenu (AMenuItemID : Int64; ADataProvider : 
@@ -248,11 +245,6 @@ begin
   FDynamicMenus.Value[AMenuItemID].Clear;
 end;
 
-procedure TMainMenu.UpdateSelectedItemDynamicMenu;
-begin
-  FMainMenuRenderer.UpdateSelectedDynamicMenu;
-end;
-
 function TMainMenu.GetAttachedMenus (AMenuItemID : Int64) : TIterator;
 begin
   if AMenuItemID = -1 then
@@ -268,7 +260,8 @@ begin
   begin
     AttachedObjectName := AName;
     AttachedObject := AObject;
-  end;  
+  end;
+  FMainMenuRenderer.UpdateSelectedDynamicMenu;
   FMainMenuView.Refresh;
 end;
 
@@ -279,6 +272,7 @@ begin
     AttachedObjectName := '';
     AttachedObject := nil;
   end;
+  FMainMenuRenderer.UpdateSelectedDynamicMenu;
   FMainMenuView.Refresh;
 end;
 

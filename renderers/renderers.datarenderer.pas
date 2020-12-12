@@ -45,8 +45,8 @@ type
       ARenderer : TCommonRenderer);
     destructor Destroy; override;
 
-    { Update data. }
-    procedure UpdateData;
+    { Reload renderer data. }
+    procedure ReloadData;
 
     { Get selected object. }
     function GetSelectedObject : TCommonObject;
@@ -125,8 +125,8 @@ type
   public
     constructor Create (ADataRenderer : TDataRenderer);
 
-    { Full update data. }
-    procedure UpdateData;
+    { Reload renderer data. }
+    procedure ReloadData;
 
     { Update selected menu item dynamic menu items. }
     procedure UpdateSelectedDynamicMenu;
@@ -346,7 +346,7 @@ begin
   SetTreeViewColumns;
 end;
 
-procedure TDataRenderer.UpdateData;
+procedure TDataRenderer.ReloadData;
 var
   ObjectItem : TCommonObject;
   NodeData : PNodeData;
@@ -397,7 +397,7 @@ begin
   FDynamicMenuRootNode := nil;
 end;
 
-procedure TMainMenuDataRenderer.UpdateData;
+procedure TMainMenuDataRenderer.ReloadData;
 var
   ObjectItem : TCommonObject;
   NodeData : TDataRenderer.PNodeData;

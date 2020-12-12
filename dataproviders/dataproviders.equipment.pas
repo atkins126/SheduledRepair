@@ -89,10 +89,9 @@ end;
 procedure TEquipmentDataProvider.OnObjectDoubleClickEvent (AObject :
   TCommonObject);
 begin
+  MainMenu.DetachAllDynamicMenus(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT);
   MainMenu.AttachObject(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT,
     TEquipment(AObject).Name, AObject);
-  MainMenu.DetachAllDynamicMenus(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT);
-  MainMenu.UpdateSelectedItemDynamicMenu;
   Provider.ChangeData(TEquipmentEntityDataHandler.Create(TEquipment(AObject)));
 end;
 

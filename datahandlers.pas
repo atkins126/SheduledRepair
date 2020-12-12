@@ -106,7 +106,7 @@ begin
     JobEditor.GetObject.Save;
 
   if ModalResult <> mrCancel then
-    Provider.UpdateData;
+    Provider.ReloadData;
 
   FreeAndNil(JobEditor);
 end;
@@ -135,7 +135,7 @@ begin
     EquipmentEditor.GetObject.Save;
 
   if ModalResult <> mrCancel then
-    Provider.UpdateData;
+    Provider.ReloadData;
 
   FreeAndNil(EquipmentEditor);
 end;

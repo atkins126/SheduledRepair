@@ -50,15 +50,19 @@ type
     { Change data types. }
     procedure ChangeData (ADataHandler : TDataHandler);
 
-    { Update renderer data. }
-    procedure UpdateData;
-
+    { Get renderer current selected object. }
     function GetSelectedObject : TCommonObject;
+    
+    { DEPRECATED METHOD }
+    procedure ReloadData;
 
-    { Show editor. }
+    { DEPRECATED METHOD }
     procedure ShowEditor (AObject : TCommonObject);
 
+    { DEPRECATED PROPERTY }
     property Parent : TCustomForm read FParent write FParent;
+
+    { VirtualDataTreeView component for data render. }
     property DataView : TVirtualDrawTree read FDataView write FDataView;
   end;
 
@@ -96,12 +100,12 @@ begin
 
   FreeAndNil(FDataRenderer);
   FDataRenderer := ADataHandler.CreateDataRenderer(FDataView);
-  FDataRenderer.UpdateData;
+  FDataRenderer.ReloadData;
 end;
 
-procedure TDataProvider.UpdateData;
+procedure TDataProvider.ReloadData;
 begin
-  FDataRenderer.UpdateData;
+  FDataRenderer.ReloadData;
 end;
 
 procedure TDataProvider.ShowEditor (AObject : TCommonObject);
