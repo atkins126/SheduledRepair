@@ -33,7 +33,7 @@ interface
 
 uses
   SysUtils, dataproviders.common, objects.common, objects.mainmenu.item,
-  objects.job;
+  objects.job, objects.equipment;
 
 type
   TMainMenuDataProvider = class(TCommonDataProvider)
@@ -79,6 +79,9 @@ type
 
     { Load concrete object. }
     function LoadConcreteObject ({%H-}AID : Int64) : TCommonObject; override;
+  private
+    procedure EquipmentCreateSelectedEvent ({%H-}AMainMenuItem : TMainMenuItem);
+    procedure EquipmentEditSelectedEvent ({%H-}AMainMenuItem : TMainMenuItem);
   end;
 
 implementation
@@ -207,8 +210,10 @@ function TMenuSubitemEquipmentDataProvider.Load : Boolean;
 begin
   Clear;
   
-  Append(TMainMenuItem.Create(-1, MENU_ITEM_TYPE_SUBITEM, 'Create', False));
-  Append(TMainMenuItem.Create(-1, MENU_ITEM_TYPE_SUBITEM, 'Edit', False));
+  Append(TMainMenuItem.Create(-1, MENU_ITEM_TYPE_SUBITEM, 'Create', False,
+    @EquipmentCreateSelectedEvent));
+  Append(TMainMenuItem.Create(-1, MENU_ITEM_TYPE_SUBITEM, 'Edit', False,
+    @EquipmentEditSelectedEvent));
   
   Result := True;
 end;
@@ -222,6 +227,22 @@ function TMenuSubitemEquipmentDataProvider.LoadConcreteObject (AID : Int64) :
   TCommonObject;
 begin
   Result := nil;
+end;
+
+procedure TMenuSubitemEquipmentDataProvider.EquipmentCreateSelectedEvent
+  (AMainMenuItem : TMainMenuItem);
+begin
+  Provider.ShowEditor(TEquipment.Create(-1));
+end;
+
+procedure TMenuSubitemEquipmentDataProvider.EquipmentEditSelectedEvent
+  (AMainMenuItem : TMainMenuItem);
+var
+  EquipmentObject : TCommonObject;
+begin
+  EquipmentObject := Provider.GetSelectedObject;
+  if Assigned(EquipmentObject) then
+    Provider.ShowEditor(TEquipment(EquipmentObject));
 end;
 
 end.

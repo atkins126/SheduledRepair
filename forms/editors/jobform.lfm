@@ -1,5 +1,5 @@
 object JobWindow: TJobWindow
-  Left = 3147
+  Left = 2456
   Height = 381
   Top = 143
   Width = 690

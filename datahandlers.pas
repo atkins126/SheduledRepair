@@ -36,7 +36,7 @@ uses
   objects.job, renderers.datarenderer, renderers.equipment,
   dataproviders.equipment, profilesprovider.equipment, renderers.entity,
   dataproviders.entity, profilesprovider.entity, renderers.job,
-  dataproviders.job, profilesprovider.job, jobform;
+  dataproviders.job, profilesprovider.job, jobform, equipmentform;
 
 type
   TDataHandler = class
@@ -122,8 +122,22 @@ end;
 
 procedure TEquipmentDataHandler.ShowEditor (AParent : TCustomForm; AObject : 
   TCommonObject);
+var
+  EquipmentEditor : TEquipmentWindow;
+  ModalResult : Integer;
 begin
-  
+  { EquipmentEditor window is temporaryly, onlu for work testing and it will
+    been changed after refactor. }
+  EquipmentEditor := TEquipmentWindow.Create(AParent, TEquipment(AObject));
+  ModalResult := EquipmentEditor.ShowModal;
+
+  if ModalResult = mrOk then
+    EquipmentEditor.GetObject.Save;
+
+  if ModalResult <> mrCancel then
+    Provider.UpdateData;
+
+  FreeAndNil(EquipmentEditor);
 end;
 
 { TEquipmentEntityDataHandler }
@@ -144,7 +158,7 @@ end;
 procedure TEquipmentEntityDataHandler.ShowEditor (AParent : TCustomForm; 
   AObject : TCommonObject);
 begin
-  
+
 end;
 
 end.
