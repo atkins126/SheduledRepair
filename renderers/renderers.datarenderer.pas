@@ -127,9 +127,15 @@ type
     FDataRenderer : TDataRenderer;
 
     FSelectedNode : PVirtualNode;
+    FFireNodeSelectEvent : Boolean;
     FDynamicMenuRootNode : PVirtualNode;
   private
+    { Get menu item type. }
     function GetItemType (ANode : PVirtualNode) : TMainMenuItem.TItemType;
+      {$IFNDEF DEBUG}inline;{$ENDIF}
+
+    { Return true if menu item can be selected. }
+    function CanSelected (ANode : PVirtualNode) : Boolean;
       {$IFNDEF DEBUG}inline;{$ENDIF}
 
     { Fire node OnUnselect event. }
@@ -372,18 +378,54 @@ begin
   FDataRenderer.FTreeView.OnChange := @OnNodeChange;
 
   FSelectedNode := nil;
+  FFireNodeSelectEvent := True;
   FDynamicMenuRootNode := nil;
 end;
 
 procedure TMainMenuDataRenderer.UpdateData;
+var
+  ObjectItem : TCommonObject;
+  NodeData : TDataRenderer.PNodeData;
+  Node : PVirtualNode;
+  Index : Integer;
 begin
-  FDataRenderer.UpdateData;
+  if (not FDataRenderer.FDataProvider.Load) or 
+     (not FDataRenderer.FProfileProvider.Load) then
+    Exit;
+
+  FDataRenderer.FTreeView.Clear;
+  FDataRenderer.FTreeView.BeginUpdate;
+
+  Index := 0;
+  for ObjectItem in FDataRenderer.FDataProvider do
+  begin
+    Node := FDataRenderer.FTreeView.AddChild(nil);
+    NodeData := FDataRenderer.PNodeData(FDataRenderer.FTreeView.GetNodeData(
+      Node));
+
+    if Assigned(NodeData) then
+    begin
+      NodeData^.CommonObject := ObjectItem;
+      NodeData^.Profile := FDataRenderer.FProfileProvider.GetProfile(Index);
+    end;
+    Node^.NodeHeight := NodeData^.Profile.DefaultProfile.Height;
+    FireNodeAttachDynamicMenu(Node);
+
+    Inc(Index);
+  end;
+
+  FDataRenderer.FTreeView.EndUpdate;
 end;
 
 function TMainMenuDataRenderer.GetItemType (ANode : PVirtualNode) : 
   TMainMenuItem.TItemType;
 begin
   Result := TMainMenuItem(FDataRenderer.GetObject(ANode)).ItemType;
+end;
+
+function TMainMenuDataRenderer.CanSelected (ANode : PVirtualNode) : Boolean;
+begin
+  Result := TMainMenuItem(FDataRenderer.GetObject(ANode)).CanSelected;
 end;
 
 procedure TMainMenuDataRenderer.OnNodeChange (Sender : TBaseVirtualTree; Node :
@@ -400,24 +442,35 @@ begin
       Exit;      
     end;
 
-    FireNodeUnselectEvent(FSelectedNode);
+    if (CanSelected(Node)) and (FFireNodeSelectEvent) then
+      FireNodeUnselectEvent(FSelectedNode);
   end;
 
   if GetItemType(Node) = MENU_ITEM_TYPE_ITEM then
   begin
    if FDynamicMenuRootNode <> nil then
    begin
-     FireNodeDetachDynamicMenu(Node);
      FDataRenderer.FTreeView.DeleteChildren(FDynamicMenuRootNode, True);
    end;
 
    FDynamicMenuRootNode := Node;
-   FireNodeAttachDynamicMenu(Node); 
    CreateDynamicMenu(Node);
   end;
 
-  FSelectedNode := Node;
-  FireNodeSelectEvent(Node);
+  if CanSelected(Node) then
+  begin
+    FSelectedNode := Node;
+    
+    if FFireNodeSelectEvent then
+      FireNodeSelectEvent(Node);
+
+    FFireNodeSelectEvent := True;  
+  end else
+  begin
+    FFireNodeSelectEvent := False;
+    FDataRenderer.FTreeView.Selected[FSelectedNode] := True;
+    FireNodeSelectEvent(Node);
+  end;
 end;
 
 procedure TMainMenuDataRenderer.FireNodeUnselectEvent (ANode : PVirtualNode);

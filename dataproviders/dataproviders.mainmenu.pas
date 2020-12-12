@@ -51,6 +51,8 @@ type
 
     procedure EquipmentSelectedEvent ({%H-}AMainMenuItem : TMainMenuItem);
     procedure EquipmentUnselectEvent ({%H-}AMainMenuItem : TMainMenuItem);
+    procedure EquipmentAttachMenuEvent ({%H-}AMainMenuItem : TMainMenuItem);
+    procedure EquipmentDetachMenuEvent ({%H-}AMainMenuItem : TMainMenuItem);
   end;
 
   TMenuSubitemJobDataProvider = class(TCommonDataProvider)
@@ -62,8 +64,17 @@ type
 
     { Load concrete object. }
     function LoadConcreteObject ({%H-}AID : Int64) : TCommonObject; override;
-  private
-    
+  end;
+
+  TMenuSubitemEquipmentDataProvider = class(TCommonDataProvider)
+  public
+    function Load : Boolean; override;
+  protected
+    { Get current loaded objects table name. }
+    function LoadObjectsTableName : String; override;
+
+    { Load concrete object. }
+    function LoadConcreteObject ({%H-}AID : Int64) : TCommonObject; override;
   end;
 
 implementation
@@ -78,13 +89,14 @@ begin
   Clear;
   
   Append(TMainMenuItem.Create(TMainMenu.MAIN_MENU_ITEM_LOGO, 
-    MENU_ITEM_TYPE_LOGO, 'SheduledRepair'));
+    MENU_ITEM_TYPE_LOGO, 'SheduledRepair', True));
   Append(TMainMenuItem.Create(TMainMenu.MAIN_MENU_ITEM_JOB, 
-    MENU_ITEM_TYPE_ITEM, 'Job', @JobSelectedEvent, nil, @JobAttachMenuEvent,
-    @JobDetachMenuEvent));
+    MENU_ITEM_TYPE_ITEM, 'Job', True, @JobSelectedEvent, nil, 
+    @JobAttachMenuEvent, @JobDetachMenuEvent));
   Append(TMainMenuItem.Create(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT, 
-    MENU_ITEM_TYPE_ITEM, 'Equipment', @EquipmentSelectedEvent, 
-    @EquipmentUnselectEvent));
+    MENU_ITEM_TYPE_ITEM, 'Equipment', True, @EquipmentSelectedEvent, 
+    @EquipmentUnselectEvent, @EquipmentAttachMenuEvent, 
+    @EquipmentDetachMenuEvent));
   
   Result := True;
 end;
@@ -130,14 +142,28 @@ begin
   MainMenu.DetachObject(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT);
 end;
 
+procedure TMainMenuDataProvider.EquipmentAttachMenuEvent (AMainMenuItem :
+  TMainMenuItem);
+begin
+  MainMenu.AttachDynamicMenu(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT,
+    TMenuSubitemEquipmentDataProvider.Create, 
+    TMenuSubitemEquipmentProfilesProvider.Create);
+end;
+
+procedure TMainMenuDataProvider.EquipmentDetachMenuEvent (AMainMenuItem :
+  TMainMenuItem);
+begin
+  MainMenu.DetachAllDynamicMenus(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT);
+end;
+
 { TMenuSubitemJobDataProvider }
 
 function TMenuSubitemJobDataProvider.Load : Boolean;
 begin
   Clear;
   
-  Append(TMainMenuItem.Create(-1, MENU_ITEM_TYPE_SUBITEM, 'Create'));
-  Append(TMainMenuItem.Create(-1, MENU_ITEM_TYPE_SUBITEM, 'Edit'));
+  Append(TMainMenuItem.Create(-1, MENU_ITEM_TYPE_SUBITEM, 'Create', False));
+  Append(TMainMenuItem.Create(-1, MENU_ITEM_TYPE_SUBITEM, 'Edit', False));
   
   Result := True;
 end;
@@ -148,6 +174,29 @@ begin
 end;
 
 function TMenuSubitemJobDataProvider.LoadConcreteObject (AID : Int64) : 
+  TCommonObject;
+begin
+  Result := nil;
+end;
+
+{ TMenuSubitemEquipmentDataProvider }
+
+function TMenuSubitemEquipmentDataProvider.Load : Boolean;
+begin
+  Clear;
+  
+  Append(TMainMenuItem.Create(-1, MENU_ITEM_TYPE_SUBITEM, 'Create', False));
+  Append(TMainMenuItem.Create(-1, MENU_ITEM_TYPE_SUBITEM, 'Edit', False));
+  
+  Result := True;
+end;
+
+function TMenuSubitemEquipmentDataProvider.LoadObjectsTableName : String;
+begin
+  Result := '';
+end;
+
+function TMenuSubitemEquipmentDataProvider.LoadConcreteObject (AID : Int64) : 
   TCommonObject;
 begin
   Result := nil;

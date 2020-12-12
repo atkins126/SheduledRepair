@@ -56,9 +56,10 @@ type
         object;
   public
     constructor Create (AID : Int64; AItemType : TItemType; ATitle : String;
-      AOnSelect : TItemOnSelectEvent = nil; AOnUnselect : TItemOnUnselectEvent
-      = nil; AOnAttachDynamicMenu : TItemOnAttachDynamicMenuEvent = nil;
-      AOnDetachDynamicMenu : TItemOnDetachDynamicMenuEvent = nil); reintroduce;
+      ACanSelected : Boolean = True; AOnSelect : TItemOnSelectEvent = nil; 
+      AOnUnselect : TItemOnUnselectEvent = nil; AOnAttachDynamicMenu : 
+      TItemOnAttachDynamicMenuEvent = nil; AOnDetachDynamicMenu : 
+      TItemOnDetachDynamicMenuEvent = nil); reintroduce;
     destructor Destroy; override; 
 
     { Get object database table name. }
@@ -80,6 +81,7 @@ type
     FTitle : String;
     FAttachedObject : TCommonObject;
     FAttachedObjectName : String;
+    FCanSelected : Boolean;
     FItemOnSelect : TItemOnSelectEvent;
     FItemOnUnselect : TItemOnUnselectEvent;
     FItemOnAttachDynamicMenu : TItemOnAttachDynamicMenuEvent;
@@ -87,6 +89,7 @@ type
   public
     property ItemType : TItemType read FItemType;
     property Title : String read FTitle;
+    property CanSelected : Boolean read FCanSelected;
     
     property AttachedObject : TCommonObject read FAttachedObject 
       write FAttachedObject;
@@ -109,15 +112,16 @@ implementation
 { TMainMenuItem }
 
 constructor TMainMenuItem.Create (AID : Int64; AItemType : TItemType; ATitle : 
-  String; AOnSelect : TItemOnSelectEvent; AOnUnselect : TItemOnUnselectEvent;
-  AOnAttachDynamicMenu : TItemOnAttachDynamicMenuEvent; AOnDetachDynamicMenu :
-  TItemOnDetachDynamicMenuEvent);
+  String; ACanSelected : Boolean; AOnSelect : TItemOnSelectEvent; AOnUnselect : 
+  TItemOnUnselectEvent; AOnAttachDynamicMenu : TItemOnAttachDynamicMenuEvent; 
+  AOnDetachDynamicMenu : TItemOnDetachDynamicMenuEvent);
 begin
   inherited Create(AID);
   FItemType := AItemType;
   FTitle := ATitle;
   FAttachedObject := nil;
   FAttachedObjectName := '';
+  FCanSelected := ACanSelected;
   FItemOnSelect := AOnSelect;
   FItemOnUnselect := AOnUnselect;
   FItemOnAttachDynamicMenu := AOnAttachDynamicMenu;
