@@ -32,27 +32,37 @@ unit datahandlers;
 interface
 
 uses
-  SysUtils, VirtualTrees, objects.equipment, renderers.datarenderer, 
-  renderers.equipment, dataproviders.equipment, profilesprovider.equipment, 
-  renderers.entity, dataproviders.entity, profilesprovider.entity, 
-  renderers.job, dataproviders.job, profilesprovider.job;
+  SysUtils, VirtualTrees, Forms, Controls, objects.common, objects.equipment,
+  objects.job, renderers.datarenderer, renderers.equipment,
+  dataproviders.equipment, profilesprovider.equipment, renderers.entity,
+  dataproviders.entity, profilesprovider.entity, renderers.job,
+  dataproviders.job, profilesprovider.job, jobform;
 
 type
   TDataHandler = class
   public
+    { Create data renderer for current data type. }
     function CreateDataRenderer (ADataView : TVirtualDrawTree) : TDataRenderer; 
+      virtual; abstract;
+    
+    { Show current data type editor. }
+    procedure ShowEditor (AParent : TCustomForm; AObject : TCommonObject); 
       virtual; abstract;
   end;
 
   TJobDataHandler = class(TDataHandler)
   public
     function CreateDataRenderer (ADataView : TVirtualDrawTree) : TDataRenderer; 
+      override;
+    procedure ShowEditor (AParent : TCustomForm; AObject : TCommonObject); 
       override;  
   end;
 
   TEquipmentDataHandler = class(TDataHandler)
   public
     function CreateDataRenderer (ADataView : TVirtualDrawTree) : TDataRenderer; 
+      override;
+    procedure ShowEditor (AParent : TCustomForm; AObject : TCommonObject); 
       override;
   end;  
 
@@ -61,11 +71,16 @@ type
     constructor Create (AEquipment : TEquipment);
     function CreateDataRenderer (ADataView : TVirtualDrawTree) : TDataRenderer;
       override;
+    procedure ShowEditor (AParent : TCustomForm; AObject : TCommonObject); 
+      override;
   private
     FEquipment : TEquipment;
   end;
 
 implementation
+
+uses
+  dataprovider;
 
 { TJobDataHandler }
 
@@ -76,6 +91,26 @@ begin
     TJobProfilesProvider.Create, TJobRenderer.Create);
 end;
 
+procedure TJobDataHandler.ShowEditor (AParent : TCustomForm; AObject : 
+  TCommonObject);
+var
+  JobEditor : TJobWindow;
+  ModalResult : Integer;
+begin
+  { JobEditor window is temporaryly, onlu for work testing and it will been 
+    changed after refactor. }
+  JobEditor := TJobWindow.Create(AParent, TJob(AObject));
+  ModalResult := JobEditor.ShowModal;
+  
+  if ModalResult = mrOk then
+    JobEditor.GetObject.Save;
+
+  if ModalResult <> mrCancel then
+    Provider.UpdateData;
+
+  FreeAndNil(JobEditor);
+end;
+
 { TEquipmentDataHandler }
 
 function TEquipmentDataHandler.CreateDataRenderer (ADataView : TVirtualDrawTree) 
@@ -83,6 +118,12 @@ function TEquipmentDataHandler.CreateDataRenderer (ADataView : TVirtualDrawTree)
 begin
   Result := TDataRenderer.Create(ADataView, TEquipmentDataProvider.Create,
     TEquipmentProfilesProvider.Create, TEquipmentRenderer.Create);
+end;
+
+procedure TEquipmentDataHandler.ShowEditor (AParent : TCustomForm; AObject : 
+  TCommonObject);
+begin
+  
 end;
 
 { TEquipmentEntityDataHandler }
@@ -98,6 +139,12 @@ begin
   Result := TDataRenderer.Create(ADataView, 
     TEntityDataProvider.Create(FEquipment), TEntityProfilesProvider.Create,
     TEntityRenderer.Create);
+end;
+
+procedure TEquipmentEntityDataHandler.ShowEditor (AParent : TCustomForm; 
+  AObject : TCommonObject);
+begin
+  
 end;
 
 end.

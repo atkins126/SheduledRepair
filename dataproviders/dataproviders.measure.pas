@@ -22,7 +22,7 @@
 (* Floor, Boston, MA 02110-1335, USA.                                         *)
 (*                                                                            *)
 (******************************************************************************)
-unit objects.shedule;
+unit dataproviders.measure;
 
 {$mode objfpc}{$H+}
 {$IFOPT D+}
@@ -32,86 +32,44 @@ unit objects.shedule;
 interface
 
 uses
-  SysUtils, objects.common, sqlite3.schema;
+  SysUtils, dataproviders.common, objects.common, objects.measure;
 
 type
-  TShedule = class(TCommonObject)
-  private
-    const
-      SHEDULE_TABLE_NAME = 'shedule';
+  TMeasureDataProvider = class(TCommonDataProvider)
   public
-    constructor Create (AID : Int64); override;
-    destructor Destroy; override;
-    
-    { Get object database table name. }
-    function Table : String; override;
+    { Get current loaded objects table name. }
+    function LoadObjectsTableName : String; override;
 
-    { Object deep copy. }
-    procedure Assign (AShedule : TShedule);
-  protected
-    { Prepare current object database table scheme. }
-    procedure PrepareSchema (var ASchema : TSQLite3Schema); override;
-
-    { Load current object form database. }
-    function LoadCurrentObject : Boolean; override;
-
-    { Store current object to database. }
-    procedure SaveCurrentObject; override;
-  protected
-    FPrevDate : TDate;
-    FNextDate : TDate;
-  public
-    property PrevDate : TDate read FPrevDate write FPrevDate;
-    property NextDate : TDate read FNextDate write FNextDate;
+    { Load concrete object. }
+    function LoadConcreteObject (AID : Int64) : TCommonObject; override;
   end;
 
 implementation
 
-{ TPeriod }
+{ TMeasureDataProvider }
 
-constructor TShedule.Create (AID : Int64);
+function TMeasureDataProvider.LoadObjectsTableName : String;
+var
+  Measure : TMeasure;
 begin
-  inherited Create (AID);
-  FPrevDate := Now;
-  FNextDate := Now;
+  Measure := TMeasure.Create(-1);
+  Result := Measure.Table;
+  FreeAndNil(Measure);
 end;
 
-destructor TShedule.Destroy;
+function TMeasureDataProvider.LoadConcreteObject (AID : Int64) :
+  TCommonObject;
+var
+  Measure : TMeasure;
 begin
-  inherited Destroy;
-end;
+  Measure := TMeasure.Create(AID);
+  if not Measure.Load then
+  begin
+    FreeAndNil(Measure);
+    Exit(nil);
+  end;
 
-procedure TShedule.PrepareSchema (var ASchema : TSQLite3Schema); 
-begin
-  ASchema
-    .Id
-    .Text('prev_date')
-    .Text('next_date');
-end;
-
-function TShedule.Table : String;
-begin
-  Result := SHEDULE_TABLE_NAME;
-end;
-
-function TShedule.LoadCurrentObject : Boolean;
-begin
-  Result := inherited LoadCurrentObject;
-
-  FPrevDate := StrToDateDef(GetStringProperty('prev_date'), Now);
-  FNextDate := StrToDateDef(GetStringProperty('next_date'), Now);
-end;
-
-procedure TShedule.SaveCurrentObject;
-begin
-  SetStringProperty('prev_date', DateToStr(FPrevDate));
-  SetStringProperty('next_date', DateToStr(FNextDate));
-end;
-
-procedure TShedule.Assign (AShedule : TShedule);
-begin
-  FPrevDate := AShedule.PrevDate;
-  FNextDate := AShedule.NextDate;
+  Result := Measure;
 end;
 
 end.

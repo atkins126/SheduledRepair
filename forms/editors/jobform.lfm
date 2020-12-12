@@ -1,0 +1,475 @@
+object JobWindow: TJobWindow
+  Left = 3147
+  Height = 381
+  Top = 143
+  Width = 690
+  BorderStyle = bsDialog
+  Caption = 'Job editor'
+  ClientHeight = 381
+  ClientWidth = 690
+  DesignTimePPI = 101
+  OnDestroy = FormDestroy
+  Position = poMainFormCenter
+  LCLVersion = '2.0.10.0'
+  object ObjectGroup: TGroupBox
+    Left = 5
+    Height = 91
+    Top = 5
+    Width = 680
+    Align = alTop
+    BorderSpacing.Around = 5
+    Caption = 'Object'
+    ClientHeight = 72
+    ClientWidth = 676
+    TabOrder = 0
+    object NameGroup: TPanel
+      Left = 5
+      Height = 26
+      Top = 5
+      Width = 666
+      Align = alTop
+      BorderSpacing.Around = 5
+      BevelOuter = bvNone
+      ClientHeight = 26
+      ClientWidth = 666
+      TabOrder = 0
+      object NameLabelGroup: TPanel
+        Left = 0
+        Height = 26
+        Top = 0
+        Width = 179
+        Align = alLeft
+        BevelOuter = bvNone
+        ClientHeight = 26
+        ClientWidth = 179
+        TabOrder = 0
+        object NameLabel: TLabel
+          Left = 0
+          Height = 26
+          Top = 0
+          Width = 37
+          Align = alLeft
+          Caption = 'Name'
+          Layout = tlCenter
+          ParentColor = False
+        end
+      end
+      object NameEditorGroup: TPanel
+        Left = 179
+        Height = 26
+        Top = 0
+        Width = 487
+        Align = alClient
+        BevelOuter = bvNone
+        ClientHeight = 26
+        ClientWidth = 487
+        TabOrder = 1
+        object NameEditor: TEdit
+          Left = 0
+          Height = 26
+          Top = 0
+          Width = 487
+          Align = alClient
+          OnChange = NameEditorChange
+          TabOrder = 0
+        end
+      end
+    end
+    object PeriodGroup: TPanel
+      Left = 5
+      Height = 26
+      Top = 36
+      Width = 666
+      Align = alTop
+      BorderSpacing.Around = 5
+      BevelOuter = bvNone
+      ClientHeight = 26
+      ClientWidth = 666
+      TabOrder = 1
+      object PeriodLabelGroup: TPanel
+        Left = 0
+        Height = 26
+        Top = 0
+        Width = 179
+        Align = alLeft
+        BevelOuter = bvNone
+        ClientHeight = 26
+        ClientWidth = 179
+        TabOrder = 0
+        object PeriodLabel: TLabel
+          Left = 0
+          Height = 26
+          Top = 0
+          Width = 41
+          Align = alLeft
+          Caption = 'Period'
+          Layout = tlCenter
+          ParentColor = False
+        end
+      end
+      object PeriodEditorGroup: TPanel
+        Left = 179
+        Height = 26
+        Top = 0
+        Width = 487
+        Align = alClient
+        BevelOuter = bvNone
+        ClientHeight = 26
+        ClientWidth = 487
+        TabOrder = 1
+        object PeriodCountEditor: TFloatSpinEdit
+          Left = 0
+          Height = 26
+          Top = 0
+          Width = 243
+          Align = alLeft
+          MaxValue = 9999999999999
+          TabOrder = 0
+        end
+        object PeriodMeasureEditor: TComboBox
+          Left = 243
+          Height = 26
+          Top = 0
+          Width = 244
+          Align = alClient
+          ItemHeight = 0
+          TabOrder = 1
+        end
+      end
+    end
+  end
+  object EntityGroup: TGroupBox
+    Left = 5
+    Height = 125
+    Top = 101
+    Width = 680
+    Align = alTop
+    BorderSpacing.Around = 5
+    Caption = 'Entity'
+    ClientHeight = 106
+    ClientWidth = 676
+    TabOrder = 1
+    object EntityNameGroup: TPanel
+      Left = 5
+      Height = 26
+      Top = 5
+      Width = 666
+      Align = alTop
+      BorderSpacing.Around = 5
+      BevelOuter = bvNone
+      ClientHeight = 26
+      ClientWidth = 666
+      TabOrder = 0
+      object EntityNameLabelGroup: TPanel
+        Left = 0
+        Height = 26
+        Top = 0
+        Width = 179
+        Align = alLeft
+        BevelOuter = bvNone
+        ClientHeight = 26
+        ClientWidth = 179
+        TabOrder = 0
+        object EntityNameLabel: TLabel
+          Left = 0
+          Height = 26
+          Top = 0
+          Width = 37
+          Align = alLeft
+          Caption = 'Name'
+          Layout = tlCenter
+          ParentColor = False
+        end
+      end
+      object EntityNameEditorGroup: TPanel
+        Left = 179
+        Height = 26
+        Top = 0
+        Width = 487
+        Align = alClient
+        BevelOuter = bvNone
+        ClientHeight = 26
+        ClientWidth = 487
+        TabOrder = 1
+        object EntityNameSelector: TComboBox
+          Left = 0
+          Height = 26
+          Top = 0
+          Width = 487
+          Align = alClient
+          ItemHeight = 0
+          OnChange = EntityNameSelectorChange
+          Style = csDropDownList
+          TabOrder = 0
+        end
+      end
+    end
+    object EntityCountGroup: TPanel
+      Left = 5
+      Height = 26
+      Top = 36
+      Width = 666
+      Align = alTop
+      BorderSpacing.Around = 5
+      BevelOuter = bvNone
+      ClientHeight = 26
+      ClientWidth = 666
+      TabOrder = 1
+      object EntityCountLabelGroup: TPanel
+        Left = 0
+        Height = 26
+        Top = 0
+        Width = 179
+        Align = alLeft
+        BevelOuter = bvNone
+        ClientHeight = 26
+        ClientWidth = 179
+        TabOrder = 0
+        object EntityCountLabel: TLabel
+          Left = 0
+          Height = 26
+          Top = 0
+          Width = 38
+          Align = alLeft
+          Caption = 'Count'
+          Layout = tlCenter
+          ParentColor = False
+        end
+      end
+      object EntityCountEditorGroup: TPanel
+        Left = 179
+        Height = 26
+        Top = 0
+        Width = 487
+        Align = alClient
+        BevelOuter = bvNone
+        ClientHeight = 26
+        ClientWidth = 487
+        TabOrder = 1
+        object EntityCountEditor: TPanel
+          Left = 0
+          Height = 26
+          Top = 0
+          Width = 487
+          Align = alClient
+          Alignment = taLeftJustify
+          BevelInner = bvLowered
+          BevelOuter = bvLowered
+          TabOrder = 0
+        end
+      end
+    end
+    object EntityPeriodGroup: TPanel
+      Left = 5
+      Height = 26
+      Top = 67
+      Width = 666
+      Align = alTop
+      BorderSpacing.Around = 5
+      BevelOuter = bvNone
+      ClientHeight = 26
+      ClientWidth = 666
+      TabOrder = 2
+      object EntityPeriodLabelGroup: TPanel
+        Left = 0
+        Height = 26
+        Top = 0
+        Width = 179
+        Align = alLeft
+        BevelOuter = bvNone
+        ClientHeight = 26
+        ClientWidth = 179
+        TabOrder = 0
+        object EntityPeriodLabel: TLabel
+          Left = 0
+          Height = 26
+          Top = 0
+          Width = 41
+          Align = alLeft
+          Caption = 'Period'
+          Layout = tlCenter
+          ParentColor = False
+        end
+      end
+      object EntityPeriodEditorGroup: TPanel
+        Left = 179
+        Height = 26
+        Top = 0
+        Width = 487
+        Align = alClient
+        BevelOuter = bvNone
+        ClientHeight = 26
+        ClientWidth = 487
+        TabOrder = 1
+        object EntityPeriodEditor: TPanel
+          Left = 0
+          Height = 26
+          Top = 0
+          Width = 487
+          Align = alClient
+          Alignment = taLeftJustify
+          BevelInner = bvLowered
+          BevelOuter = bvLowered
+          TabOrder = 0
+        end
+      end
+    end
+  end
+  object SheduleGroup: TGroupBox
+    Left = 5
+    Height = 94
+    Top = 231
+    Width = 680
+    Align = alTop
+    BorderSpacing.Around = 5
+    Caption = 'Shedule'
+    ClientHeight = 75
+    ClientWidth = 676
+    TabOrder = 2
+    object ShedulePrevGroup: TPanel
+      Left = 5
+      Height = 26
+      Top = 5
+      Width = 666
+      Align = alTop
+      BorderSpacing.Around = 5
+      BevelOuter = bvNone
+      ClientHeight = 26
+      ClientWidth = 666
+      TabOrder = 0
+      object ShedulePrevNameLabelGroup: TPanel
+        Left = 0
+        Height = 26
+        Top = 0
+        Width = 179
+        Align = alLeft
+        BevelOuter = bvNone
+        ClientHeight = 26
+        ClientWidth = 179
+        TabOrder = 0
+        object ShedulePrevNameLabel: TLabel
+          Left = 0
+          Height = 26
+          Top = 0
+          Width = 86
+          Align = alLeft
+          Caption = 'Previous date'
+          Layout = tlCenter
+          ParentColor = False
+        end
+      end
+      object ShedulePrevEditorGroup: TPanel
+        Left = 179
+        Height = 26
+        Top = 0
+        Width = 487
+        Align = alClient
+        BevelOuter = bvNone
+        ClientHeight = 26
+        ClientWidth = 487
+        TabOrder = 1
+        object ShedulePrevEditor: TDateEdit
+          Left = 0
+          Height = 26
+          Top = 0
+          Width = 487
+          CalendarDisplaySettings = [dsShowHeadings, dsShowDayNames]
+          DateOrder = doNone
+          ButtonWidth = 24
+          Align = alClient
+          NumGlyphs = 1
+          MaxLength = 0
+          TabOrder = 0
+          Text = 'ShedulePrevEditor'
+        end
+      end
+    end
+    object SheduleNextGroup: TPanel
+      Left = 5
+      Height = 26
+      Top = 36
+      Width = 666
+      Align = alTop
+      BorderSpacing.Around = 5
+      BevelOuter = bvNone
+      ClientHeight = 26
+      ClientWidth = 666
+      TabOrder = 1
+      object SheduleNextNameLabelGroup: TPanel
+        Left = 0
+        Height = 26
+        Top = 0
+        Width = 179
+        Align = alLeft
+        BevelOuter = bvNone
+        ClientHeight = 26
+        ClientWidth = 179
+        TabOrder = 0
+        object SheduleNextNameLabel: TLabel
+          Left = 0
+          Height = 26
+          Top = 0
+          Width = 62
+          Align = alLeft
+          Caption = 'Next date'
+          Layout = tlCenter
+          ParentColor = False
+        end
+      end
+      object SheduleNextEditorGroup: TPanel
+        Left = 179
+        Height = 26
+        Top = 0
+        Width = 487
+        Align = alClient
+        BevelOuter = bvNone
+        ClientHeight = 26
+        ClientWidth = 487
+        TabOrder = 1
+        object SheduleNextEditor: TDateEdit
+          Left = 0
+          Height = 26
+          Top = 0
+          Width = 487
+          CalendarDisplaySettings = [dsShowHeadings, dsShowDayNames]
+          DateOrder = doNone
+          ButtonWidth = 24
+          Align = alClient
+          NumGlyphs = 1
+          MaxLength = 0
+          TabOrder = 0
+          Text = 'ShedulePrevEditor'
+        end
+      end
+    end
+  end
+  object SaveButton: TBitBtn
+    Left = 480
+    Height = 32
+    Top = 344
+    Width = 100
+    Caption = 'Save'
+    ModalResult = 1
+    TabOrder = 3
+  end
+  object CancelButton: TBitBtn
+    Left = 584
+    Height = 32
+    Top = 344
+    Width = 100
+    Caption = 'Cancel'
+    ModalResult = 2
+    TabOrder = 4
+  end
+  object DeleteButton: TBitBtn
+    Left = 5
+    Height = 32
+    Top = 344
+    Width = 100
+    Caption = 'Delete'
+    ModalResult = 11
+    OnClick = DeleteButtonClick
+    TabOrder = 5
+    Visible = False
+  end
+end

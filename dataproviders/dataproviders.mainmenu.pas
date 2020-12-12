@@ -32,7 +32,8 @@ unit dataproviders.mainmenu;
 interface
 
 uses
-  SysUtils, dataproviders.common, objects.common, objects.mainmenu.item;
+  SysUtils, dataproviders.common, objects.common, objects.mainmenu.item,
+  objects.job;
 
 type
   TMainMenuDataProvider = class(TCommonDataProvider)
@@ -64,6 +65,9 @@ type
 
     { Load concrete object. }
     function LoadConcreteObject ({%H-}AID : Int64) : TCommonObject; override;
+  private
+    procedure JobCreateSelectedEvent ({%H-}AMainMenuItem : TMainMenuItem);
+    procedure JobEditSelectedEvent ({%H-}AMainMenuItem : TMainMenuItem);
   end;
 
   TMenuSubitemEquipmentDataProvider = class(TCommonDataProvider)
@@ -111,38 +115,38 @@ begin
   Result := nil;
 end;
 
-procedure TMainMenuDataProvider.JobSelectedEvent (AMainMenuItem :
+procedure TMainMenuDataProvider.JobSelectedEvent (AMainMenuItem : 
   TMainMenuItem);
 begin
   Provider.ChangeData(TJobDataHandler.Create);
 end;
 
-procedure TMainMenuDataProvider.JobAttachMenuEvent (AMainMenuItem :
+procedure TMainMenuDataProvider.JobAttachMenuEvent (AMainMenuItem : 
   TMainMenuItem);
 begin
   MainMenu.AttachDynamicMenu(TMainMenu.MAIN_MENU_ITEM_JOB,
     TMenuSubitemJobDataProvider.Create, TMenuSubitemJobProfilesProvider.Create);
 end;
 
-procedure TMainMenuDataProvider.JobDetachMenuEvent (AMainMenuItem :
+procedure TMainMenuDataProvider.JobDetachMenuEvent (AMainMenuItem : 
   TMainMenuItem);
 begin
   MainMenu.DetachAllDynamicMenus(TMainMenu.MAIN_MENU_ITEM_JOB);
 end;
 
-procedure TMainMenuDataProvider.EquipmentSelectedEvent (AMainMenuItem :
+procedure TMainMenuDataProvider.EquipmentSelectedEvent (AMainMenuItem : 
   TMainMenuItem);
 begin
   Provider.ChangeData(TEquipmentDataHandler.Create);
 end;
 
-procedure TMainMenuDataProvider.EquipmentUnselectEvent (AMainMenuItem :
+procedure TMainMenuDataProvider.EquipmentUnselectEvent (AMainMenuItem : 
   TMainMenuItem);
 begin
   MainMenu.DetachObject(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT);
 end;
 
-procedure TMainMenuDataProvider.EquipmentAttachMenuEvent (AMainMenuItem :
+procedure TMainMenuDataProvider.EquipmentAttachMenuEvent (AMainMenuItem : 
   TMainMenuItem);
 begin
   MainMenu.AttachDynamicMenu(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT,
@@ -150,7 +154,7 @@ begin
     TMenuSubitemEquipmentProfilesProvider.Create);
 end;
 
-procedure TMainMenuDataProvider.EquipmentDetachMenuEvent (AMainMenuItem :
+procedure TMainMenuDataProvider.EquipmentDetachMenuEvent (AMainMenuItem : 
   TMainMenuItem);
 begin
   MainMenu.DetachAllDynamicMenus(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT);
@@ -162,8 +166,10 @@ function TMenuSubitemJobDataProvider.Load : Boolean;
 begin
   Clear;
   
-  Append(TMainMenuItem.Create(-1, MENU_ITEM_TYPE_SUBITEM, 'Create', False));
-  Append(TMainMenuItem.Create(-1, MENU_ITEM_TYPE_SUBITEM, 'Edit', False));
+  Append(TMainMenuItem.Create(-1, MENU_ITEM_TYPE_SUBITEM, 'Create', False,
+    @JobCreateSelectedEvent));
+  Append(TMainMenuItem.Create(-1, MENU_ITEM_TYPE_SUBITEM, 'Edit', False,
+    @JobEditSelectedEvent));
   
   Result := True;
 end;
@@ -177,6 +183,22 @@ function TMenuSubitemJobDataProvider.LoadConcreteObject (AID : Int64) :
   TCommonObject;
 begin
   Result := nil;
+end;
+
+procedure TMenuSubitemJobDataProvider.JobCreateSelectedEvent (AMainMenuItem : 
+  TMainMenuItem);
+begin
+  Provider.ShowEditor(TJob.Create(-1));
+end;
+
+procedure TMenuSubitemJobDataProvider.JobEditSelectedEvent (AMainMenuItem : 
+  TMainMenuItem);
+var
+  JobObject : TCommonObject;
+begin
+  JobObject := Provider.GetSelectedObject;
+  if Assigned(JobObject) then
+    Provider.ShowEditor(TJob(JobObject));
 end;
 
 { TMenuSubitemEquipmentDataProvider }

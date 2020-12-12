@@ -344,8 +344,6 @@ begin
   Result := True;
 end;
 
-
-
 function TCommonObject.GetRowIterator : TSQLite3Result.TRowIterator;
 begin
   Result := FTable.Select.All.Where('id', ID).Get.FirstRow;

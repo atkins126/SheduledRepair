@@ -32,7 +32,8 @@ unit dataprovider;
 interface
 
 uses
-  SysUtils, Classes, VirtualTrees, renderers.datarenderer, datahandlers;
+  SysUtils, Classes, VirtualTrees, Forms, objects.common, 
+  renderers.datarenderer, datahandlers;
 
 type
   TDataProvider = class
@@ -40,12 +41,24 @@ type
     constructor Create;
     destructor Destroy; override;
   private
+    FParent : TCustomForm;
+    FDataHandler : TDataHandler;
+
     FDataView : TVirtualDrawTree;
     FDataRenderer : TDataRenderer;
   public
     { Change data types. }
     procedure ChangeData (ADataHandler : TDataHandler);
 
+    { Update renderer data. }
+    procedure UpdateData;
+
+    function GetSelectedObject : TCommonObject;
+
+    { Show editor. }
+    procedure ShowEditor (AObject : TCommonObject);
+
+    property Parent : TCustomForm read FParent write FParent;
     property DataView : TVirtualDrawTree read FDataView write FDataView;
   end;
 
@@ -79,9 +92,29 @@ begin
   if not Assigned(FDataView) then
     Exit;
 
+  FDataHandler := ADataHandler;
+
   FreeAndNil(FDataRenderer);
   FDataRenderer := ADataHandler.CreateDataRenderer(FDataView);
   FDataRenderer.UpdateData;
+end;
+
+procedure TDataProvider.UpdateData;
+begin
+  FDataRenderer.UpdateData;
+end;
+
+procedure TDataProvider.ShowEditor (AObject : TCommonObject);
+begin
+  if (not Assigned(FDataHandler)) or (not Assigned(FParent)) then
+    Exit;
+
+  FDataHandler.ShowEditor(FParent, AObject);
+end;
+
+function TDataProvider.GetSelectedObject : TCommonObject;
+begin
+  Result := FDataRenderer.GetSelectedObject;
 end;
 
 initialization

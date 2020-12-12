@@ -66,6 +66,9 @@ function TEntityDataProvider.Load : Boolean;
 var
   Entity : TEntity;
 begin
+  if not Assigned(FEquipment) then
+    Exit(inherited Load);
+
   Clear;
 
   for Entity in FEquipment.EntityBag do
@@ -75,13 +78,26 @@ begin
 end;
 
 function TEntityDataProvider.LoadObjectsTableName : String;
+var
+  Entity : TEntity;
 begin
-  Result := '';
+  Entity := TEntity.Create(-1);
+  Result := Entity.Table;
+  FreeAndNil(Entity);
 end;
 
 function TEntityDataProvider.LoadConcreteObject (AID : Int64) : TCommonObject;
+var
+  Entity : TEntity;
 begin
-  Result := nil;
+  Entity := TEntity.Create(AID);
+  if not Entity.Load then
+  begin
+    FreeAndNil(Entity);
+    Exit(nil);
+  end;
+
+  Result := Entity;
 end;
 
 end.

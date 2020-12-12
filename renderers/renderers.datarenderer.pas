@@ -47,6 +47,10 @@ type
 
     { Update data. }
     procedure UpdateData;
+
+    { Get selected object. }
+    function GetSelectedObject : TCommonObject;
+      {$IFNDEF DEBUG}inline;{$ENDIF}
   protected
     FTreeView : TVirtualDrawTree;
     FDataProvider : TCommonDataProvider;
@@ -372,6 +376,14 @@ begin
   FTreeView.EndUpdate;
 end;
 
+function TDataRenderer.GetSelectedObject : TCommonObject;
+begin
+  if not Assigned(FSelectedNode) then
+    Exit(nil);
+
+  Result := GetObject(FSelectedNode);
+end;
+
 constructor TMainMenuDataRenderer.Create (ADataRenderer : TDataRenderer);
 begin
   FDataRenderer := ADataRenderer;
@@ -468,8 +480,8 @@ begin
   end else
   begin
     FFireNodeSelectEvent := False;
-    FDataRenderer.FTreeView.Selected[FSelectedNode] := True;
     FireNodeSelectEvent(Node);
+    FDataRenderer.FTreeView.Selected[FSelectedNode] := True;
   end;
 end;
 

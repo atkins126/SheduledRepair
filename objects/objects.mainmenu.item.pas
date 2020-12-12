@@ -47,12 +47,13 @@ type
         MENU_ITEM_TYPE_SUBITEM
       );
 
-      TItemOnSelectEvent = procedure (AItem : TMainMenuItem) of object;
-      TItemOnUnselectEvent = procedure (AItem : TMainMenuItem) of object;
-
-      TItemOnAttachDynamicMenuEvent = procedure (AItem : TMainMenuItem) of 
+      TItemOnSelectEvent = procedure (AMainMenuItem : TMainMenuItem) of object;
+      TItemOnUnselectEvent = procedure (AMainMenuItem : TMainMenuItem) of 
         object;
-      TItemOnDetachDynamicMenuEvent = procedure (AItem : TMainMenuItem) of
+
+      TItemOnAttachDynamicMenuEvent = procedure (AMainMenuItem : TMainMenuItem) 
+        of object;
+      TItemOnDetachDynamicMenuEvent = procedure (AMainMenuItem : TMainMenuItem) of
         object;
   public
     constructor Create (AID : Int64; AItemType : TItemType; ATitle : String;

@@ -45,6 +45,8 @@ begin
   FProfileEditor.Show;
   }
   MainMenu.View := MainMenuView;
+
+  Provider.Parent := Self;
   Provider.DataView := ContentView;
 end;
 
