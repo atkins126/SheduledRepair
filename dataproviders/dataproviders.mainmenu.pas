@@ -140,6 +140,9 @@ end;
 procedure TMainMenuDataProvider.EquipmentSelectedEvent (AMainMenuItem : 
   TMainMenuItem);
 begin
+  MainMenu.AttachDynamicMenu(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT,
+    TMenuSubitemEquipmentDataProvider.Create, 
+    TMenuSubitemEquipmentProfilesProvider.Create);
   Provider.ChangeData(TEquipmentDataHandler.Create);
 end;
 
@@ -152,9 +155,9 @@ end;
 procedure TMainMenuDataProvider.EquipmentAttachMenuEvent (AMainMenuItem : 
   TMainMenuItem);
 begin
-  MainMenu.AttachDynamicMenu(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT,
+  {MainMenu.AttachDynamicMenu(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT,
     TMenuSubitemEquipmentDataProvider.Create, 
-    TMenuSubitemEquipmentProfilesProvider.Create);
+    TMenuSubitemEquipmentProfilesProvider.Create);}
 end;
 
 procedure TMainMenuDataProvider.EquipmentDetachMenuEvent (AMainMenuItem : 

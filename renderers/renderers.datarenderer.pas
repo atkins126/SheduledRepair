@@ -127,6 +127,9 @@ type
 
     { Full update data. }
     procedure UpdateData;
+
+    { Update selected menu item dynamic menu items. }
+    procedure UpdateSelectedDynamicMenu;
   protected
     FDataRenderer : TDataRenderer;
 
@@ -466,7 +469,6 @@ begin
    end;
 
    FDynamicMenuRootNode := Node;
-   CreateDynamicMenu(Node);
   end;
 
   if CanSelected(Node) then
@@ -483,6 +485,8 @@ begin
     FireNodeSelectEvent(Node);
     FDataRenderer.FTreeView.Selected[FSelectedNode] := True;
   end;
+
+  CreateDynamicMenu(Node);
 end;
 
 procedure TMainMenuDataRenderer.FireNodeUnselectEvent (ANode : PVirtualNode);
@@ -549,6 +553,12 @@ begin
     FDataRenderer.FTreeView.Expanded[ANode] := True;
   end;
   FDataRenderer.FTreeView.Refresh;
+end;
+
+procedure TMainMenuDataRenderer.UpdateSelectedDynamicMenu;
+begin
+  FDataRenderer.FTreeView.DeleteChildren(FSelectedNode, True);
+  CreateDynamicMenu(FSelectedNode);
 end;
 
 end.

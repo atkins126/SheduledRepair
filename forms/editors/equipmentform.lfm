@@ -4,7 +4,7 @@ object EquipmentWindow: TEquipmentWindow
   Top = 143
   Width = 690
   BorderStyle = bsDialog
-  Caption = 'EquipmentWindow'
+  Caption = 'Equipment editor'
   ClientHeight = 116
   ClientWidth = 690
   DesignTimePPI = 101
