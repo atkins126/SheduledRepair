@@ -17,7 +17,7 @@
       <UseVersionInfo Value="True"/>
       <AutoIncrementBuild Value="True"/>
       <MinorVersionNr Value="2"/>
-      <BuildNr Value="537"/>
+      <BuildNr Value="538"/>
     </VersionInfo>
     <BuildModes Count="1">
       <Item1 Name="Default" Default="True"/>
@@ -38,7 +38,7 @@
         <PackageName Value="LCL"/>
       </Item2>
     </RequiredPackages>
-    <Units Count="50">
+    <Units Count="54">
       <Unit0>
         <Filename Value="SheduledRepair.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -252,6 +252,22 @@
         <Filename Value="../objects/objects.supplier.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit49>
+      <Unit50>
+        <Filename Value="../eventproviders/eventproviders.common.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit50>
+      <Unit51>
+        <Filename Value="../eventproviders/eventproviders.entity.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit51>
+      <Unit52>
+        <Filename Value="../eventproviders/eventproviders.equipment.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit52>
+      <Unit53>
+        <Filename Value="../eventproviders/eventproviders.job.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit53>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
@@ -261,7 +277,7 @@
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="../forms;../pascalutils/source;../libpasc-algorithms/source;../dataproviders;..;../libpassqlite/source;../libpassqlite/source/sqlite3;../libpassqlite/source/builder;../objects;../rules;../forms/editors;../renderers/profile;../renderers;../renderers/objects;../profilesprovider"/>
+      <OtherUnitFiles Value="../forms;../pascalutils/source;../libpasc-algorithms/source;../dataproviders;..;../libpassqlite/source;../libpassqlite/source/sqlite3;../libpassqlite/source/builder;../objects;../rules;../forms/editors;../renderers/profile;../renderers;../renderers/objects;../profilesprovider;../eventproviders"/>
       <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Linking>

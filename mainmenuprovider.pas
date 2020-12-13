@@ -35,7 +35,8 @@ uses
   SysUtils, Classes, VirtualTrees, objects.common, objects.mainmenu.item,
   dataproviders.common, renderers.mainmenu, dataproviders.mainmenu, 
   profilesprovider.common, profilesprovider.mainmenu, renderers.datarenderer, 
-  container.arraylist, container.list, utils.functor, utils.pair;
+  eventproviders.mainmenu, container.arraylist, container.list, utils.functor,
+  utils.pair;
 
 type
   TMainMenu = class
@@ -225,8 +226,8 @@ begin
 
   FMainMenuRenderer := TMainMenuDataRenderer.Create(
     TDataRenderer.Create(FMainMenuView, FMainMenuDataProvider, 
-    TMainMenuProfilesProvider.Create, TMainMenuRenderer.Create)
-  );
+    TMainMenuProfilesProvider.Create, TMainMenuRenderer.Create,
+    TMainMenuEventProvider.Create));
   FMainMenuRenderer.ReloadData;
 end;
 

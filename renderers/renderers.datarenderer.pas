@@ -35,14 +35,14 @@ uses
   SysUtils, Classes, Graphics, VirtualTrees, objects.common,
   dataproviders.common, profilesprovider.common, renderers.common,
   renderer.profile.objectprofile, renderer.profile.profile, 
-  objects.mainmenu.item;
+  objects.mainmenu.item, eventproviders.common;
 
 type
   TDataRenderer = class
   public
     constructor Create (ATreeView : TVirtualDrawTree; ADataProvider : 
       TCommonDataProvider; AProfileProvider : TCommonProfilesProvider;
-      ARenderer : TCommonRenderer);
+      ARenderer : TCommonRenderer; AEventProvider : TCommonEventProvider);
     destructor Destroy; override;
 
     { Reload renderer data. }
@@ -56,6 +56,7 @@ type
     FDataProvider : TCommonDataProvider;
     FProfileProvider : TCommonProfilesProvider;
     FRenderer : TCommonRenderer;
+    FEventProvider : TCommonEventProvider;
 
     FSelectedNode : PVirtualNode;
   private
@@ -177,12 +178,13 @@ uses
 
 constructor TDataRenderer.Create (ATreeView : TVirtualDrawTree; ADataProvider : 
   TCommonDataProvider; AProfileProvider : TCommonProfilesProvider;
-  ARenderer : TCommonRenderer);
+  ARenderer : TCommonRenderer; AEventProvider : TCommonEventProvider);
 begin
   FTreeView := ATreeView;
   FDataProvider := ADataProvider;
   FProfileProvider := AProfileProvider;
   FRenderer := ARenderer;
+  FEventProvider := AEventProvider;
   FSelectedNode := nil;
 
   SetTreeViewParams;
@@ -297,8 +299,8 @@ begin
   if not Assigned(FSelectedNode) then
     Exit;
 
-  if Assigned(FDataProvider.OnObjectDoubleClick) then
-    FDataProvider.OnObjectDoubleClick(GetObject(FSelectedNode));
+  if Assigned(FEventProvider.OnObjectDoubleClick) then
+    FEventProvider.OnObjectDoubleClick(GetObject(FSelectedNode));
 end;
 
 procedure TDataRenderer.OnNodeDraw (ASender : TBaseVirtualTree; 

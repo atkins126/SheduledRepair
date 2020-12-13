@@ -22,7 +22,7 @@
 (* Floor, Boston, MA 02110-1335, USA.                                         *)
 (*                                                                            *)
 (******************************************************************************)
-unit dataproviders.equipment;
+unit eventproviders.job;
 
 {$mode objfpc}{$H+}
 {$IFOPT D+}
@@ -32,44 +32,13 @@ unit dataproviders.equipment;
 interface
 
 uses
-  SysUtils, dataproviders.common, objects.common, objects.equipment;
+  SysUtils, eventproviders.common;
 
 type
-  TEquipmentDataProvider = class(TCommonDataProvider)
-  public
-    { Get current loaded objects table name. }
-    function LoadObjectsTableName : String; override;
+  TJobEventProvider = class(TCommonEventProvider)
 
-    { Load concrete object. }
-    function LoadConcreteObject (AID : Int64) : TCommonObject; override;
   end;
 
 implementation
-
-{ TEquipmentDataProvider }
-
-function TEquipmentDataProvider.LoadObjectsTableName : String;
-var
-  Equipment : TEquipment;
-begin
-  Equipment := TEquipment.Create(-1);
-  Result := Equipment.Table;
-  FreeAndNil(Equipment);
-end;
-
-function TEquipmentDataProvider.LoadConcreteObject (AID : Int64) :
-  TCommonObject;
-var
-  Equipment : TEquipment;
-begin
-  Equipment := TEquipment.Create(AID);
-  if not Equipment.Load then
-  begin
-    FreeAndNil(Equipment);
-    Exit(nil);
-  end;
-
-  Result := Equipment;
-end;
 
 end.

@@ -22,7 +22,7 @@
 (* Floor, Boston, MA 02110-1335, USA.                                         *)
 (*                                                                            *)
 (******************************************************************************)
-unit dataproviders.equipment;
+unit eventproviders.equipment;
 
 {$mode objfpc}{$H+}
 {$IFOPT D+}
@@ -32,44 +32,37 @@ unit dataproviders.equipment;
 interface
 
 uses
-  SysUtils, dataproviders.common, objects.common, objects.equipment;
+  SysUtils, eventproviders.common, objects.common, objects.equipment;
 
 type
-  TEquipmentDataProvider = class(TCommonDataProvider)
+  TEquipmentEventProvider = class(TCommonEventProvider)
   public
-    { Get current loaded objects table name. }
-    function LoadObjectsTableName : String; override;
-
-    { Load concrete object. }
-    function LoadConcreteObject (AID : Int64) : TCommonObject; override;
+    constructor Create; override;
+  private
+    { Object on double click event. }
+    procedure OnObjectDoubleClickEvent (AObject : TCommonObject);
   end;
 
 implementation
 
-{ TEquipmentDataProvider }
+uses
+  dataprovider, datahandlers, mainmenuprovider;
 
-function TEquipmentDataProvider.LoadObjectsTableName : String;
-var
-  Equipment : TEquipment;
+{ TEquipmentEventProvider }
+
+constructor TEquipmentEventProvider.Create;
 begin
-  Equipment := TEquipment.Create(-1);
-  Result := Equipment.Table;
-  FreeAndNil(Equipment);
+  inherited Create;
+  OnObjectDoubleClick := @OnObjectDoubleClickEvent;
 end;
 
-function TEquipmentDataProvider.LoadConcreteObject (AID : Int64) :
-  TCommonObject;
-var
-  Equipment : TEquipment;
+procedure TEquipmentEventProvider.OnObjectDoubleClickEvent (AObject :
+  TCommonObject);
 begin
-  Equipment := TEquipment.Create(AID);
-  if not Equipment.Load then
-  begin
-    FreeAndNil(Equipment);
-    Exit(nil);
-  end;
-
-  Result := Equipment;
+  MainMenu.DetachAllDynamicMenus(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT);
+  MainMenu.AttachObject(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT,
+    TEquipment(AObject).Name, AObject);
+  Provider.ChangeData(TEquipmentEntityDataHandler.Create(TEquipment(AObject)));
 end;
 
 end.

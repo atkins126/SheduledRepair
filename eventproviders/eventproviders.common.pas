@@ -22,7 +22,7 @@
 (* Floor, Boston, MA 02110-1335, USA.                                         *)
 (*                                                                            *)
 (******************************************************************************)
-unit dataproviders.equipment;
+unit eventproviders.common;
 
 {$mode objfpc}{$H+}
 {$IFOPT D+}
@@ -32,44 +32,40 @@ unit dataproviders.equipment;
 interface
 
 uses
-  SysUtils, dataproviders.common, objects.common, objects.equipment;
+  SysUtils, objects.common;
 
 type
-  TEquipmentDataProvider = class(TCommonDataProvider)
+  TCommonEventProvider = class
   public
-    { Get current loaded objects table name. }
-    function LoadObjectsTableName : String; override;
-
-    { Load concrete object. }
-    function LoadConcreteObject (AID : Int64) : TCommonObject; override;
+    type
+      TObjectClickEvent = procedure (AObject : TCommonObject) of object;
+      TObjectDoubleClickEvent = procedure (AObject : TCommonObject) of object;
+  public
+    constructor Create; virtual;
+    destructor Destroy; override;
+  protected
+    FObjectClick : TObjectClickEvent;
+    FObjectDoubleClick : TObjectDoubleClickEvent;
+  public
+    property OnObjectClick : TObjectClickEvent read FObjectClick
+      write FObjectClick;
+    property OnObjectDoubleClick : TObjectDoubleClickEvent
+      read FObjectDoubleClick write FObjectDoubleClick;
   end;
 
 implementation
 
-{ TEquipmentDataProvider }
+{ TCommonEventProvider }
 
-function TEquipmentDataProvider.LoadObjectsTableName : String;
-var
-  Equipment : TEquipment;
+constructor TCommonEventProvider.Create;
 begin
-  Equipment := TEquipment.Create(-1);
-  Result := Equipment.Table;
-  FreeAndNil(Equipment);
+  FObjectClick := nil;
+  FObjectDoubleClick := nil;
 end;
 
-function TEquipmentDataProvider.LoadConcreteObject (AID : Int64) :
-  TCommonObject;
-var
-  Equipment : TEquipment;
+destructor TCommonEventProvider.Destroy;
 begin
-  Equipment := TEquipment.Create(AID);
-  if not Equipment.Load then
-  begin
-    FreeAndNil(Equipment);
-    Exit(nil);
-  end;
-
-  Result := Equipment;
+  inherited Destroy;
 end;
 
 end.

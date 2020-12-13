@@ -34,9 +34,10 @@ interface
 uses
   SysUtils, VirtualTrees, Forms, Controls, objects.common, objects.equipment,
   objects.job, renderers.datarenderer, renderers.equipment,
-  dataproviders.equipment, profilesprovider.equipment, renderers.entity,
-  dataproviders.entity, profilesprovider.entity, renderers.job,
-  dataproviders.job, profilesprovider.job, jobform, equipmentform;
+  dataproviders.equipment, profilesprovider.equipment, eventproviders.equipment,
+  renderers.entity, dataproviders.entity, profilesprovider.entity, 
+  renderers.job, dataproviders.job, profilesprovider.job, eventproviders.job, 
+  eventproviders.entity, jobform, equipmentform;
 
 type
   TDataHandler = class
@@ -88,7 +89,7 @@ function TJobDataHandler.CreateDataRenderer (ADataView : TVirtualDrawTree) :
   TDataRenderer;
 begin
   Result := TDataRenderer.Create(ADataView, TJobDataProvider.Create,
-    TJobProfilesProvider.Create, TJobRenderer.Create);
+    TJobProfilesProvider.Create, TJobRenderer.Create, TJobEventProvider.Create);
 end;
 
 procedure TJobDataHandler.ShowEditor (AParent : TCustomForm; AObject : 
@@ -117,7 +118,8 @@ function TEquipmentDataHandler.CreateDataRenderer (ADataView : TVirtualDrawTree)
   : TDataRenderer;
 begin
   Result := TDataRenderer.Create(ADataView, TEquipmentDataProvider.Create,
-    TEquipmentProfilesProvider.Create, TEquipmentRenderer.Create);
+    TEquipmentProfilesProvider.Create, TEquipmentRenderer.Create,
+    TEquipmentEventProvider.Create);
 end;
 
 procedure TEquipmentDataHandler.ShowEditor (AParent : TCustomForm; AObject : 
@@ -152,7 +154,7 @@ function TEquipmentEntityDataHandler.CreateDataRenderer (ADataView :
 begin
   Result := TDataRenderer.Create(ADataView, 
     TEntityDataProvider.Create(FEquipment), TEntityProfilesProvider.Create,
-    TEntityRenderer.Create);
+    TEntityRenderer.Create, TEntityEventProvider.Create);
 end;
 
 procedure TEquipmentEntityDataHandler.ShowEditor (AParent : TCustomForm; 
