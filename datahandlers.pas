@@ -72,7 +72,7 @@ type
     constructor Create (AEquipment : TEquipment);
     function CreateDataRenderer (ADataView : TVirtualDrawTree) : TDataRenderer;
       override;
-    procedure ShowEditor (AParent : TCustomForm; AObject : TCommonObject); 
+    procedure ShowEditor (AParent : TCustomForm; {%H-}AObject : TCommonObject); 
       override;
   private
     FEquipment : TEquipment;

@@ -17,7 +17,7 @@
       <UseVersionInfo Value="True"/>
       <AutoIncrementBuild Value="True"/>
       <MinorVersionNr Value="2"/>
-      <BuildNr Value="541"/>
+      <BuildNr Value="547"/>
     </VersionInfo>
     <BuildModes Count="1">
       <Item1 Name="Default" Default="True"/>
@@ -38,7 +38,7 @@
         <PackageName Value="LCL"/>
       </Item2>
     </RequiredPackages>
-    <Units Count="60">
+    <Units Count="61">
       <Unit0>
         <Filename Value="SheduledRepair.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -292,6 +292,11 @@
         <Filename Value="../eventproviders/mainmenu.subitem/eventproviders.mainmenu.subitem.jobedit.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit59>
+      <Unit60>
+        <Filename Value="../objects/objects.namedobject.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="objects.common"/>
+      </Unit60>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

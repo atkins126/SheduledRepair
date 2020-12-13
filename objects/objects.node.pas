@@ -32,11 +32,11 @@ unit objects.node;
 interface
 
 uses
-  SysUtils, objects.common, sqlite3.schema, objects.greasebag, objects.period, 
-  objects.shedule;
+  SysUtils, objects.namedobject, sqlite3.schema, objects.greasebag, 
+  objects.period, objects.shedule;
 
 type
-  TNode = class(TCommonObject)
+  TNode = class(TNamedObject)
   private
     const
       NODE_TABLE_NAME = 'node';
@@ -77,12 +77,10 @@ type
     { Delete all dependent objects. }
     function DeleteDepentObjects : Boolean; override;
   protected
-    FName : String;
     FGreaseBag : TGreaseBag;
     FPeriod : TPeriod;
     FShedule : TShedule;
   public
-    property Name : String read FName write FName;
     property GreaseBag : TGreaseBag read FGreaseBag write FGreaseBag;
     property Period : TPeriod read FPeriod write FPeriod;
     property Shedule : TShedule read FShedule write FShedule;
@@ -95,7 +93,6 @@ implementation
 constructor TNode.Create (AID : Int64);
 begin
   inherited Create (AID);
-  FName := '';
   FGreaseBag := TGreaseBag.Create(-1, Self);
   FPeriod := TPeriod.Create(-1);
   FShedule := TShedule.Create(-1);

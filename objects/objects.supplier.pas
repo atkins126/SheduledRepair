@@ -32,17 +32,14 @@ unit objects.supplier;
 interface
 
 uses
-  SysUtils, objects.common, sqlite3.schema;
+  SysUtils, objects.namedobject, sqlite3.schema;
 
 type
-  TSupplier = class(TCommonObject)
+  TSupplier = class(TNamedObject)
   private
     const
       SUPPLIER_TABLE_NAME = 'supplier';
   public
-    constructor Create (AID : Int64); override;
-    destructor Destroy; override;
-    
     { Get object database table name. }
     function Table : String; override;
 
@@ -57,26 +54,11 @@ type
 
     { Store current object to database. }
     procedure SaveCurrentObject; override;
-  protected
-    FName : String;
-  public
-    property Name : String read FName write FName;
   end;
 
 implementation
 
 { TSupplier }
-
-constructor TSupplier.Create (AID : Int64);
-begin
-  inherited Create (AID);
-  FName := '';
-end;
-
-destructor TSupplier.Destroy;
-begin
-  inherited Destroy;
-end;
 
 procedure TSupplier.PrepareSchema (var ASchema : TSQLite3Schema);
 begin

@@ -32,11 +32,11 @@ unit objects.job;
 interface
 
 uses
-  SysUtils, objects.common, sqlite3.schema, objects.entity, objects.period,
+  SysUtils, objects.namedobject, sqlite3.schema, objects.entity, objects.period,
   objects.shedule;
 
 type
-  TJob = class(TCommonObject)
+  TJob = class(TNamedObject)
   private
     const
       JOB_TABLE_NAME = 'job';
@@ -71,12 +71,10 @@ type
     { Save all dependent objects. }
     function SaveDepentObjects : Boolean; override;
   protected
-    FName : String;
     FEntity : TEntity;
     FPeriod : TPeriod;
     FShedule : TShedule;
   public
-    property Name : String read FName write FName;
     property Entity : TEntity read FEntity write FEntity;
     property Period : TPeriod read FPeriod write FPeriod;
     property Shedule : TShedule read FShedule write FShedule;
@@ -89,7 +87,6 @@ implementation
 constructor TJob.Create (AID : Int64);
 begin
   inherited Create (AID);
-  FName := '';
   FEntity := TEntity.Create(-1);
   FPeriod := TPeriod.Create(-1);
   FShedule := TShedule.Create(-1);

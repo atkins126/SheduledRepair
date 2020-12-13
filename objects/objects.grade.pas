@@ -32,17 +32,14 @@ unit objects.grade;
 interface
 
 uses
-  SysUtils, objects.common, sqlite3.schema;
+  SysUtils, objects.namedobject, sqlite3.schema;
 
 type
-  TGrade = class(TCommonObject)
+  TGrade = class(TNamedObject)
   private
     const
       GRADE_TABLE_NAME = 'grade';
   public
-    constructor Create (AID : Int64); override;
-    destructor Destroy; override;
-    
     { Get object database table name. }
     function Table : String; override;
 
@@ -57,26 +54,11 @@ type
 
     { Store current object to database. }
     procedure SaveCurrentObject; override;
-  protected
-    FName : String;
-  public
-    property Name : String read FName write FName;
   end;
 
 implementation
 
 { TCommonObject }
-
-constructor TGrade.Create (AID : Int64);
-begin
-  inherited Create (AID);
-  FName := '';
-end;
-
-destructor TGrade.Destroy;
-begin
-  inherited Destroy;
-end;
 
 procedure TGrade.PrepareSchema (var ASchema : TSQLite3Schema);
 begin

@@ -32,10 +32,10 @@ unit objects.equipment;
 interface
 
 uses
-  SysUtils, objects.common, sqlite3.schema, objects.entitybag;
+  SysUtils, objects.namedobject, sqlite3.schema, objects.entitybag;
 
 type
-  TEquipment = class(TCommonObject)
+  TEquipment = class(TNamedObject)
   private
     const
       EQUIPMENT_TABLE_NAME = 'equipment';
@@ -70,10 +70,8 @@ type
     { Delete all dependent objects. }
     function DeleteDepentObjects : Boolean; override;
   protected
-    FName : String;
     FEntityBag : TEntityBag;
   public
-    property Name : String read FName write FName;
     property EntityBag : TEntityBag read FEntityBag write FEntityBag;
   end;
 
@@ -84,7 +82,6 @@ implementation
 constructor TEquipment.Create (AID : Int64);
 begin
   inherited Create (AID);
-  FName := '';
   FEntityBag := TEntityBag.Create(-1, Self);
 end;
 

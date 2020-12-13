@@ -32,17 +32,14 @@ unit objects.measure;
 interface
 
 uses
-  SysUtils, objects.common, sqlite3.schema;
+  SysUtils, objects.namedobject, sqlite3.schema;
 
 type
-  TMeasure = class(TCommonObject)
+  TMeasure = class(TNamedObject)
   private
     const
       MEASURE_TABLE_NAME = 'measure';
   public
-    constructor Create (AID : Int64); override;
-    destructor Destroy; override;
-    
     { Get object database table name. }
     function Table : String; override;
 
@@ -57,26 +54,11 @@ type
 
     { Store current object to database. }
     procedure SaveCurrentObject; override;
-  protected
-    FName : String;
-  public
-    property Name : String read FName write FName;
   end;
 
 implementation
 
 { TCommonObject }
-
-constructor TMeasure.Create (AID : Int64);
-begin
-  inherited Create (AID);
-  FName := '';
-end;
-
-destructor TMeasure.Destroy;
-begin
-  inherited Destroy;
-end;
 
 procedure TMeasure.PrepareSchema (var ASchema : TSQLite3Schema);
 begin

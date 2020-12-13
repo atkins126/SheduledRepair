@@ -32,7 +32,8 @@ unit objects.mainmenu.item;
 interface
 
 uses
-  SysUtils, objects.common, sqlite3.schema, eventproviders.common;
+  SysUtils, objects.common, objects.namedobject, sqlite3.schema,
+  eventproviders.common;
 
 type
   TMainMenuItem = class(TCommonObject)
@@ -48,15 +49,12 @@ type
       );
   public
     constructor Create (AID : Int64; AItemType : TItemType; ATitle : String;
-      ACanSelected : Boolean = True; AEventProvider : TCommonEventProvider = nil);
-      reintroduce;
+      ACanSelected : Boolean = True; AEventProvider : 
+      TCommonEventProvider = nil); reintroduce;
     destructor Destroy; override; 
 
     { Get object database table name. }
     function Table : String; override;
-
-    { Object deep copy. }
-    procedure Assign (AMainMenuItem : TMainMenuItem);
   protected
     { Prepare current object database table scheme. }
     procedure PrepareSchema (var {%H-}ASchema : TSQLite3Schema); override; 
@@ -69,8 +67,7 @@ type
   protected
     FItemType : TItemType;
     FTitle : String;
-    FAttachedObject : TCommonObject;
-    FAttachedObjectName : String;
+    FAttachedObject : TNamedObject;
     FCanSelected : Boolean;
     FEventProvider : TCommonEventProvider;
   public
@@ -78,10 +75,8 @@ type
     property Title : String read FTitle;
     property CanSelected : Boolean read FCanSelected;
     
-    property AttachedObject : TCommonObject read FAttachedObject 
+    property AttachedObject : TNamedObject read FAttachedObject 
       write FAttachedObject;
-    property AttachedObjectName : String read FAttachedObjectName
-      write FAttachedObjectName;
 
     property EventProvider : TCommonEventProvider read FEventProvider;
   end;
@@ -97,7 +92,6 @@ begin
   FItemType := AItemType;
   FTitle := ATitle;
   FAttachedObject := nil;
-  FAttachedObjectName := '';
   FCanSelected := ACanSelected;
   FEventProvider := AEventProvider;
 end;
@@ -110,11 +104,6 @@ end;
 function TMainMenuItem.Table : String;
 begin
   Result := MAIN_MENU_TABLE_NAME;
-end;
-
-procedure TMainMenuItem.Assign (AMainMenuItem : TMainMenuItem);
-begin
-  FItemType := AMainMenuItem.ItemType;
 end;
 
 procedure TMainMenuItem.PrepareSchema (var ASchema : TSQLite3Schema);

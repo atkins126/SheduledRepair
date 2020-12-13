@@ -32,7 +32,7 @@ unit mainmenuprovider;
 interface
 
 uses
-  SysUtils, Classes, VirtualTrees, objects.common, objects.mainmenu.item,
+  SysUtils, Classes, VirtualTrees, objects.namedobject, objects.mainmenu.item,
   dataproviders.common, renderers.mainmenu, dataproviders.mainmenu, 
   profilesprovider.common, profilesprovider.mainmenu, renderers.datarenderer, 
   eventproviders.mainmenu, container.arraylist, container.list, utils.functor,
@@ -59,8 +59,7 @@ type
       {$IFNDEF DEBUG}inline;{$ENDIF}
 
     { Attach object to menu item element. }
-    procedure AttachObject (AMenuItemID : Int64; AName : String; AObject : 
-      TCommonObject);
+    procedure AttachObject (AMenuItemID : Int64; AObject : TNamedObject);
       {$IFNDEF DEBUG}inline;{$ENDIF}
 
     { Detach menu item element object. }
@@ -208,8 +207,6 @@ begin
 end;
 
 procedure TMainMenu.SetMainMenuView (AMainMenuView : TVirtualDrawTree);
-var
-  MenuItem : TCommonObject;
 begin
   if AMainMenuView = nil then
     Exit;
@@ -217,12 +214,6 @@ begin
   FMainMenuView := AMainMenuView;
   FMainMenuDataProvider := TMainMenuDataProvider.Create;
   FMainMenuDataProvider.Load;
-
-  FDynamicMenus.Clear;
-  for MenuItem in FMainMenuDataProvider do
-  begin
-    FDynamicMenus.Append(TDynamicMenusList.Create);
-  end;
 
   FMainMenuRenderer := TMainMenuDataRenderer.Create(
     TDataRenderer.Create(FMainMenuView, FMainMenuDataProvider, 
@@ -233,10 +224,22 @@ end;
 
 procedure TMainMenu.AttachDynamicMenu (AMenuItemID : Int64; ADataProvider : 
   TCommonDataProvider; AProfilesProvider : TCommonProfilesProvider);
+var
+  Index : Integer;
 begin
   if (not ADataProvider.Load) or (not AProfilesProvider.Load) then
     Exit;
 
+  { Create dynamic menu list for item ID. }
+  if AMenuItemID > (FDynamicMenus.Length - 1) then
+  begin
+    for Index := FDynamicMenus.Length to AMenuItemID do
+    begin
+      FDynamicMenus.Append(TDynamicMenusList.Create);
+    end;
+  end;
+
+  { Append dynamic menu to item ID. }
   FDynamicMenus.Value[AMenuItemID].Append(TDynamicMenuData.Create(
     ADataProvider, AProfilesProvider));
 end;
@@ -254,12 +257,10 @@ begin
   Result := TIterator.Create(FDynamicMenus.Value[AMenuItemID].FirstEntry);
 end;
 
-procedure TMainMenu.AttachObject (AMenuItemID : Int64; AName : String; AObject : 
-  TCommonObject);
+procedure TMainMenu.AttachObject (AMenuItemID : Int64; AObject : TNamedObject);
 begin
   with TMainMenuItem(FMainMenuDataProvider.GetObject(AMenuItemID)) do
   begin
-    AttachedObjectName := AName;
     AttachedObject := AObject;
   end;
   FMainMenuRenderer.UpdateSelectedDynamicMenu;
@@ -270,7 +271,6 @@ procedure TMainMenu.DetachObject (AMenuItemID : Int64);
 begin
   with TMainMenuItem(FMainMenuDataProvider.GetObject(AMenuItemID)) do
   begin
-    AttachedObjectName := '';
     AttachedObject := nil;
   end;
   FMainMenuRenderer.UpdateSelectedDynamicMenu;

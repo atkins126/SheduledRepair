@@ -22,7 +22,7 @@
 (* Floor, Boston, MA 02110-1335, USA.                                         *)
 (*                                                                            *)
 (******************************************************************************)
-unit eventproviders.equipment;
+unit objects.namedobject;
 
 {$mode objfpc}{$H+}
 {$IFOPT D+}
@@ -32,37 +32,26 @@ unit eventproviders.equipment;
 interface
 
 uses
-  SysUtils, eventproviders.common, objects.common, objects.equipment;
+  SysUtils, objects.common;
 
 type
-  TEquipmentEventProvider = class(TCommonEventProvider)
+  TNamedObject = class(TCommonObject)
   public
-    constructor Create; override;
-  private
-    { Object on double click event. }
-    procedure OnObjectDoubleClickEvent (AObject : TCommonObject);
+    constructor Create (AID : Int64); override;
+  protected
+    FName : String;
+  public
+    property Name : String read FName write FName;
   end;
 
 implementation
 
-uses
-  dataprovider, datahandlers, mainmenuprovider;
+{ TNamedObject }
 
-{ TEquipmentEventProvider }
-
-constructor TEquipmentEventProvider.Create;
+constructor TNamedObject.Create (AID : Int64);
 begin
-  inherited Create;
-  OnObjectDoubleClick := @OnObjectDoubleClickEvent;
-end;
-
-procedure TEquipmentEventProvider.OnObjectDoubleClickEvent (AObject :
-  TCommonObject);
-begin
-  MainMenu.DetachAllDynamicMenus(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT);
-  MainMenu.AttachObject(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT,
-    TEquipment(AObject));
-  Provider.ChangeData(TEquipmentEntityDataHandler.Create(TEquipment(AObject)));
+  inherited Create(AID);
+  FName := '';
 end;
 
 end.

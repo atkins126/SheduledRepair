@@ -32,11 +32,11 @@ unit objects.entity;
 interface
 
 uses
-  SysUtils, objects.common, sqlite3.schema, objects.greasebag, objects.nodebag, 
-  objects.shedule, objects.period, objects.quantity;
+  SysUtils, objects.namedobject, sqlite3.schema, objects.greasebag, 
+  objects.nodebag, objects.shedule, objects.period, objects.quantity;
 
 type
-  TEntity = class(TCommonObject)
+  TEntity = class(TNamedObject)
   private
     const
       ENTITY_TABLE_NAME = 'entity';
@@ -77,14 +77,12 @@ type
     { Delete all dependent objects. }
     function DeleteDepentObjects : Boolean; override;
   protected
-    FName : String;
     FGreaseBag : TGreaseBag;
     FNodeBag : TNodeBag;
     FShedule : TShedule;
     FQuantity : TQuantity;
     FPeriod : TPeriod;
   public
-    property Name : String read FName write FName;
     property GreaseBag : TGreaseBag read FGreaseBag write FGreaseBag;
     property NodeBag : TNodeBag read FNodeBag write FNodeBag;
     property Shedule : TShedule read FShedule write FShedule;
@@ -99,7 +97,6 @@ implementation
 constructor TEntity.Create (AID : Int64);
 begin
   inherited Create (AID);
-  FName := '';
   FGreaseBag := TGreaseBag.Create(-1, Self);
   FNodeBag := TNodeBag.Create(-1, Self);
   FShedule := TShedule.Create(-1);
