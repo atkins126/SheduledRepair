@@ -22,7 +22,7 @@
 (* Floor, Boston, MA 02110-1335, USA.                                         *)
 (*                                                                            *)
 (******************************************************************************)
-unit eventproviders.mainmenu;
+unit eventproviders.mainmenu.item.equipment;
 
 {$mode objfpc}{$H+}
 {$IFOPT D+}
@@ -32,13 +32,64 @@ unit eventproviders.mainmenu;
 interface
 
 uses
-  SysUtils, eventproviders.common;
+  SysUtils, eventproviders.common, objects.common;
 
 type
-  TMainMenuEventProvider = class(TCommonEventProvider)
-    
+  TMainMenuItemEquipmentEventProvider = class(TCommonEventProvider)
+  public
+    constructor Create; override;
+  private
+    procedure EquipmentSelectedEvent ({%H-}AObject : TCommonObject);
+    procedure EquipmentUnselectEvent ({%H-}AObject : TCommonObject);
+    procedure EquipmentAttachMenuEvent ({%H-}AObject : TCommonObject);
+    procedure EquipmentDetachMenuEvent ({%H-}AObject : TCommonObject);
   end;
 
 implementation
+
+uses
+  dataprovider, datahandlers, mainmenuprovider, profilesprovider.mainmenu,
+  dataproviders.mainmenu;
+
+{ TMainMenuItemEquipmentEventProvider }
+
+constructor TMainMenuItemEquipmentEventProvider.Create;
+begin
+  inherited Create;
+  OnObjectSelect := @EquipmentSelectedEvent;
+  OnObjectUnselect := @EquipmentUnselectEvent;
+  OnObjectAttachDynamicMenu := @EquipmentAttachMenuEvent;
+  OnObjectDetachDynamicMenu := @EquipmentDetachMenuEvent;
+end;
+
+procedure TMainMenuItemEquipmentEventProvider.EquipmentSelectedEvent (AObject : 
+  TCommonObject);
+begin
+  MainMenu.AttachDynamicMenu(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT,
+    TMenuSubitemEquipmentDataProvider.Create, 
+    TMenuSubitemEquipmentProfilesProvider.Create);
+  Provider.ChangeData(TEquipmentDataHandler.Create);
+end;
+
+procedure TMainMenuItemEquipmentEventProvider.EquipmentUnselectEvent (AObject :
+  TCommonObject);
+begin
+  MainMenu.DetachAllDynamicMenus(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT);
+  MainMenu.DetachObject(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT);
+end;
+
+procedure TMainMenuItemEquipmentEventProvider.EquipmentAttachMenuEvent 
+  (AObject : TCommonObject);
+begin
+  {MainMenu.AttachDynamicMenu(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT,
+    TMenuSubitemEquipmentDataProvider.Create, 
+    TMenuSubitemEquipmentProfilesProvider.Create);}
+end;
+
+procedure TMainMenuItemEquipmentEventProvider.EquipmentDetachMenuEvent 
+  (AObject : TCommonObject);
+begin
+  MainMenu.DetachAllDynamicMenus(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT);
+end;
 
 end.

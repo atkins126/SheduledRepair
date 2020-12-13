@@ -22,7 +22,7 @@
 (* Floor, Boston, MA 02110-1335, USA.                                         *)
 (*                                                                            *)
 (******************************************************************************)
-unit eventproviders.mainmenu;
+unit eventproviders.mainmenu.subitem.equipmentcreate;
 
 {$mode objfpc}{$H+}
 {$IFOPT D+}
@@ -32,13 +32,33 @@ unit eventproviders.mainmenu;
 interface
 
 uses
-  SysUtils, eventproviders.common;
+  SysUtils, eventproviders.common, objects.common, objects.equipment;
 
 type
-  TMainMenuEventProvider = class(TCommonEventProvider)
-    
+  TMainMenuSubitemEquipmentCreateEventProvider = class(TCommonEventProvider)
+  public
+    constructor Create; override;
+  private
+    procedure EquipmentCreateSelectedEvent ({%H-}AObject : TCommonObject);
   end;
 
 implementation
+
+uses
+  dataprovider, mainmenuprovider;
+
+{ TMainMenuSubitemEquipmentCreateEventProvider }
+
+constructor TMainMenuSubitemEquipmentCreateEventProvider.Create;
+begin
+  inherited Create;
+  OnObjectSelect := @EquipmentCreateSelectedEvent;
+end;
+
+procedure TMainMenuSubitemEquipmentCreateEventProvider
+  .EquipmentCreateSelectedEvent (AObject : TCommonObject);
+begin
+  Provider.ShowEditor(TEquipment.Create(-1));
+end;
 
 end.

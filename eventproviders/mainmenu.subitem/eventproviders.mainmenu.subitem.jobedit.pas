@@ -22,7 +22,7 @@
 (* Floor, Boston, MA 02110-1335, USA.                                         *)
 (*                                                                            *)
 (******************************************************************************)
-unit eventproviders.mainmenu;
+unit eventproviders.mainmenu.subitem.jobedit;
 
 {$mode objfpc}{$H+}
 {$IFOPT D+}
@@ -32,13 +32,37 @@ unit eventproviders.mainmenu;
 interface
 
 uses
-  SysUtils, eventproviders.common;
+  SysUtils, eventproviders.common, objects.common, objects.job;
 
 type
-  TMainMenuEventProvider = class(TCommonEventProvider)
-    
+  TMainMenuSubitemJobEditEventProvider = class(TCommonEventProvider)
+  public
+    constructor Create; override;
+  private
+    procedure JobEditSelectedEvent ({%H-}AObject : TCommonObject);
   end;
 
 implementation
+
+uses
+  dataprovider, mainmenuprovider;
+
+{ TMainMenuSubitemJobEditEventProvider }
+
+constructor TMainMenuSubitemJobEditEventProvider.Create;
+begin
+  inherited Create;
+  OnObjectSelect := @JobEditSelectedEvent;
+end;
+
+procedure TMainMenuSubitemJobEditEventProvider.JobEditSelectedEvent 
+  (AObject : TCommonObject);
+var
+  JobObject : TCommonObject;
+begin
+  JobObject := Provider.GetSelectedObject;
+  if Assigned(JobObject) then
+    Provider.ShowEditor(TJob(JobObject));
+end;
 
 end.

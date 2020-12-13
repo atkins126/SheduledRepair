@@ -32,7 +32,7 @@ unit objects.mainmenu.item;
 interface
 
 uses
-  SysUtils, objects.common, sqlite3.schema;
+  SysUtils, objects.common, sqlite3.schema, eventproviders.common;
 
 type
   TMainMenuItem = class(TCommonObject)
@@ -46,21 +46,10 @@ type
         MENU_ITEM_TYPE_ITEM,
         MENU_ITEM_TYPE_SUBITEM
       );
-
-      TItemOnSelectEvent = procedure (AMainMenuItem : TMainMenuItem) of object;
-      TItemOnUnselectEvent = procedure (AMainMenuItem : TMainMenuItem) of 
-        object;
-
-      TItemOnAttachDynamicMenuEvent = procedure (AMainMenuItem : TMainMenuItem) 
-        of object;
-      TItemOnDetachDynamicMenuEvent = procedure (AMainMenuItem : TMainMenuItem) of
-        object;
   public
     constructor Create (AID : Int64; AItemType : TItemType; ATitle : String;
-      ACanSelected : Boolean = True; AOnSelect : TItemOnSelectEvent = nil; 
-      AOnUnselect : TItemOnUnselectEvent = nil; AOnAttachDynamicMenu : 
-      TItemOnAttachDynamicMenuEvent = nil; AOnDetachDynamicMenu : 
-      TItemOnDetachDynamicMenuEvent = nil); reintroduce;
+      ACanSelected : Boolean = True; AEventProvider : TCommonEventProvider = nil);
+      reintroduce;
     destructor Destroy; override; 
 
     { Get object database table name. }
@@ -83,10 +72,7 @@ type
     FAttachedObject : TCommonObject;
     FAttachedObjectName : String;
     FCanSelected : Boolean;
-    FItemOnSelect : TItemOnSelectEvent;
-    FItemOnUnselect : TItemOnUnselectEvent;
-    FItemOnAttachDynamicMenu : TItemOnAttachDynamicMenuEvent;
-    FItemOnDetachDynamicMenu : TItemOnDetachDynamicMenuEvent;
+    FEventProvider : TCommonEventProvider;
   public
     property ItemType : TItemType read FItemType;
     property Title : String read FTitle;
@@ -95,17 +81,9 @@ type
     property AttachedObject : TCommonObject read FAttachedObject 
       write FAttachedObject;
     property AttachedObjectName : String read FAttachedObjectName
-      write FAttachedObjectName;  
+      write FAttachedObjectName;
 
-    property OnSelect : TItemOnSelectEvent read FItemOnSelect
-      write FItemOnSelect;
-    property OnUnselect : TItemOnUnselectEvent read FItemOnUnselect
-      write FItemOnUnselect;
-
-    property OnAttachDynamicMenu : TItemOnAttachDynamicMenuEvent
-      read FItemOnAttachDynamicMenu write FItemOnAttachDynamicMenu;
-    property OnDetachDynamicMenu : TItemOnDetachDynamicMenuEvent
-      read FItemOnDetachDynamicMenu write FItemOnDetachDynamicMenu;
+    property EventProvider : TCommonEventProvider read FEventProvider;
   end;
 
 implementation
@@ -113,9 +91,7 @@ implementation
 { TMainMenuItem }
 
 constructor TMainMenuItem.Create (AID : Int64; AItemType : TItemType; ATitle : 
-  String; ACanSelected : Boolean; AOnSelect : TItemOnSelectEvent; AOnUnselect : 
-  TItemOnUnselectEvent; AOnAttachDynamicMenu : TItemOnAttachDynamicMenuEvent; 
-  AOnDetachDynamicMenu : TItemOnDetachDynamicMenuEvent);
+  String; ACanSelected : Boolean; AEventProvider : TCommonEventProvider);
 begin
   inherited Create(AID);
   FItemType := AItemType;
@@ -123,10 +99,7 @@ begin
   FAttachedObject := nil;
   FAttachedObjectName := '';
   FCanSelected := ACanSelected;
-  FItemOnSelect := AOnSelect;
-  FItemOnUnselect := AOnUnselect;
-  FItemOnAttachDynamicMenu := AOnAttachDynamicMenu;
-  FItemOnDetachDynamicMenu := AOnDetachDynamicMenu;
+  FEventProvider := AEventProvider;
 end;
 
 destructor TMainMenuItem.Destroy;

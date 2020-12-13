@@ -38,10 +38,6 @@ uses
 type
   TCommonDataProvider = class
   public
-    type
-      TObjectClickEvent = procedure (AObject : TCommonObject) of object;
-      TObjectDoubleClickEvent = procedure (AObject : TCommonObject) of object;
-  public
     constructor Create;
     destructor Destroy; override;
     
@@ -78,16 +74,9 @@ type
         (specialize TArrayList<TCommonObject, TObjectsCompareFunctor>);
   protected
     FObjectsList : TObjectsList;
-    FObjectClick : TObjectClickEvent;
-    FObjectDoubleClick : TObjectDoubleClickEvent;
   public
     { Get enumerator for in operator. }
     function GetEnumerator : TObjectsList.TIterator;
-
-    property OnObjectClick : TObjectClickEvent read FObjectClick
-      write FObjectClick;
-    property OnObjectDoubleClick : TObjectDoubleClickEvent 
-      read FObjectDoubleClick write FObjectDoubleClick;
   end;
 
 implementation

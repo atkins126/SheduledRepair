@@ -33,7 +33,12 @@ interface
 
 uses
   SysUtils, dataproviders.common, objects.common, objects.mainmenu.item,
-  objects.job, objects.equipment;
+  eventproviders.mainmenu.item.job,
+  eventproviders.mainmenu.item.equipment, 
+  eventproviders.mainmenu.subitem.jobcreate, 
+  eventproviders.mainmenu.subitem.jobedit,
+  eventproviders.mainmenu.subitem.equipmentcreate,
+  eventproviders.mainmenu.subitem.equipmentedit;
 
 type
   TMainMenuDataProvider = class(TCommonDataProvider)
@@ -45,15 +50,6 @@ type
 
     { Load concrete object. }
     function LoadConcreteObject ({%H-}AID : Int64) : TCommonObject; override;
-  private
-    procedure JobSelectedEvent ({%H-}AMainMenuItem : TMainMenuItem);
-    procedure JobAttachMenuEvent ({%H-}AMainMenuItem : TMainMenuItem);
-    procedure JobDetachMenuEvent ({%H-}AMainMenuItem : TMainMenuItem);
-
-    procedure EquipmentSelectedEvent ({%H-}AMainMenuItem : TMainMenuItem);
-    procedure EquipmentUnselectEvent ({%H-}AMainMenuItem : TMainMenuItem);
-    procedure EquipmentAttachMenuEvent ({%H-}AMainMenuItem : TMainMenuItem);
-    procedure EquipmentDetachMenuEvent ({%H-}AMainMenuItem : TMainMenuItem);
   end;
 
   TMenuSubitemJobDataProvider = class(TCommonDataProvider)
@@ -65,9 +61,6 @@ type
 
     { Load concrete object. }
     function LoadConcreteObject ({%H-}AID : Int64) : TCommonObject; override;
-  private
-    procedure JobCreateSelectedEvent ({%H-}AMainMenuItem : TMainMenuItem);
-    procedure JobEditSelectedEvent ({%H-}AMainMenuItem : TMainMenuItem);
   end;
 
   TMenuSubitemEquipmentDataProvider = class(TCommonDataProvider)
@@ -79,15 +72,12 @@ type
 
     { Load concrete object. }
     function LoadConcreteObject ({%H-}AID : Int64) : TCommonObject; override;
-  private
-    procedure EquipmentCreateSelectedEvent ({%H-}AMainMenuItem : TMainMenuItem);
-    procedure EquipmentEditSelectedEvent ({%H-}AMainMenuItem : TMainMenuItem);
   end;
 
 implementation
 
 uses
-  dataprovider, datahandlers, mainmenuprovider, profilesprovider.mainmenu;
+  mainmenuprovider;
 
 { TMainMenuDataProvider }
 
@@ -98,12 +88,10 @@ begin
   Append(TMainMenuItem.Create(TMainMenu.MAIN_MENU_ITEM_LOGO, 
     MENU_ITEM_TYPE_LOGO, 'SheduledRepair', True));
   Append(TMainMenuItem.Create(TMainMenu.MAIN_MENU_ITEM_JOB, 
-    MENU_ITEM_TYPE_ITEM, 'Job', True, @JobSelectedEvent, nil, 
-    @JobAttachMenuEvent, @JobDetachMenuEvent));
+    MENU_ITEM_TYPE_ITEM, 'Job', True, TMainMenuItemJobEventProvider.Create));
   Append(TMainMenuItem.Create(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT, 
-    MENU_ITEM_TYPE_ITEM, 'Equipment', True, @EquipmentSelectedEvent, 
-    @EquipmentUnselectEvent, @EquipmentAttachMenuEvent, 
-    @EquipmentDetachMenuEvent));
+    MENU_ITEM_TYPE_ITEM, 'Equipment', True, 
+    TMainMenuItemEquipmentEventProvider.Create));
   
   Result := True;
 end;
@@ -118,55 +106,6 @@ begin
   Result := nil;
 end;
 
-procedure TMainMenuDataProvider.JobSelectedEvent (AMainMenuItem : 
-  TMainMenuItem);
-begin
-  Provider.ChangeData(TJobDataHandler.Create);
-end;
-
-procedure TMainMenuDataProvider.JobAttachMenuEvent (AMainMenuItem : 
-  TMainMenuItem);
-begin
-  MainMenu.AttachDynamicMenu(TMainMenu.MAIN_MENU_ITEM_JOB,
-    TMenuSubitemJobDataProvider.Create, TMenuSubitemJobProfilesProvider.Create);
-end;
-
-procedure TMainMenuDataProvider.JobDetachMenuEvent (AMainMenuItem : 
-  TMainMenuItem);
-begin
-  MainMenu.DetachAllDynamicMenus(TMainMenu.MAIN_MENU_ITEM_JOB);
-end;
-
-procedure TMainMenuDataProvider.EquipmentSelectedEvent (AMainMenuItem : 
-  TMainMenuItem);
-begin
-  MainMenu.AttachDynamicMenu(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT,
-    TMenuSubitemEquipmentDataProvider.Create, 
-    TMenuSubitemEquipmentProfilesProvider.Create);
-  Provider.ChangeData(TEquipmentDataHandler.Create);
-end;
-
-procedure TMainMenuDataProvider.EquipmentUnselectEvent (AMainMenuItem : 
-  TMainMenuItem);
-begin
-  MainMenu.DetachAllDynamicMenus(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT);
-  MainMenu.DetachObject(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT);
-end;
-
-procedure TMainMenuDataProvider.EquipmentAttachMenuEvent (AMainMenuItem : 
-  TMainMenuItem);
-begin
-  {MainMenu.AttachDynamicMenu(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT,
-    TMenuSubitemEquipmentDataProvider.Create, 
-    TMenuSubitemEquipmentProfilesProvider.Create);}
-end;
-
-procedure TMainMenuDataProvider.EquipmentDetachMenuEvent (AMainMenuItem : 
-  TMainMenuItem);
-begin
-  MainMenu.DetachAllDynamicMenus(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT);
-end;
-
 { TMenuSubitemJobDataProvider }
 
 function TMenuSubitemJobDataProvider.Load : Boolean;
@@ -174,9 +113,9 @@ begin
   Clear;
   
   Append(TMainMenuItem.Create(-1, MENU_ITEM_TYPE_SUBITEM, 'Create', False,
-    @JobCreateSelectedEvent));
+    TMainMenuSubitemJobCreateEventProvider.Create));
   Append(TMainMenuItem.Create(-1, MENU_ITEM_TYPE_SUBITEM, 'Edit', False,
-    @JobEditSelectedEvent));
+    TMainMenuSubitemJobEditEventProvider.Create));
   
   Result := True;
 end;
@@ -192,22 +131,6 @@ begin
   Result := nil;
 end;
 
-procedure TMenuSubitemJobDataProvider.JobCreateSelectedEvent (AMainMenuItem : 
-  TMainMenuItem);
-begin
-  Provider.ShowEditor(TJob.Create(-1));
-end;
-
-procedure TMenuSubitemJobDataProvider.JobEditSelectedEvent (AMainMenuItem : 
-  TMainMenuItem);
-var
-  JobObject : TCommonObject;
-begin
-  JobObject := Provider.GetSelectedObject;
-  if Assigned(JobObject) then
-    Provider.ShowEditor(TJob(JobObject));
-end;
-
 { TMenuSubitemEquipmentDataProvider }
 
 function TMenuSubitemEquipmentDataProvider.Load : Boolean;
@@ -215,9 +138,9 @@ begin
   Clear;
   
   Append(TMainMenuItem.Create(-1, MENU_ITEM_TYPE_SUBITEM, 'Create', False,
-    @EquipmentCreateSelectedEvent));
+    TMainMenuSubitemEquipmentCreateEventProvider.Create));
   Append(TMainMenuItem.Create(-1, MENU_ITEM_TYPE_SUBITEM, 'Edit', False,
-    @EquipmentEditSelectedEvent));
+    TMainMenuSubitemEquipmentEditEventProvider.Create));
   
   Result := True;
 end;
@@ -231,22 +154,6 @@ function TMenuSubitemEquipmentDataProvider.LoadConcreteObject (AID : Int64) :
   TCommonObject;
 begin
   Result := nil;
-end;
-
-procedure TMenuSubitemEquipmentDataProvider.EquipmentCreateSelectedEvent
-  (AMainMenuItem : TMainMenuItem);
-begin
-  Provider.ShowEditor(TEquipment.Create(-1));
-end;
-
-procedure TMenuSubitemEquipmentDataProvider.EquipmentEditSelectedEvent
-  (AMainMenuItem : TMainMenuItem);
-var
-  EquipmentObject : TCommonObject;
-begin
-  EquipmentObject := Provider.GetSelectedObject;
-  if Assigned(EquipmentObject) then
-    Provider.ShowEditor(TEquipment(EquipmentObject));
 end;
 
 end.

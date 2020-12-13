@@ -493,34 +493,42 @@ end;
 
 procedure TMainMenuDataRenderer.FireNodeUnselectEvent (ANode : PVirtualNode);
 begin
-  if Assigned(TMainMenuItem(FDataRenderer.GetObject(ANode)).OnUnselect) then
-    TMainMenuItem(FDataRenderer.GetObject(ANode)).OnUnselect(
-      TMainMenuItem(FDataRenderer.GetObject(ANode)));
+  if (Assigned(TMainMenuItem(FDataRenderer.GetObject(ANode)).EventProvider)) and
+    (Assigned(TMainMenuItem(FDataRenderer.GetObject(ANode)).EventProvider
+    .OnObjectUnselect)) then
+    TMainMenuItem(FDataRenderer.GetObject(ANode)).EventProvider
+      .OnObjectUnselect(TMainMenuItem(FDataRenderer.GetObject(ANode)));
 end;
 
 procedure TMainMenuDataRenderer.FireNodeSelectEvent (ANode : PVirtualNode);
 begin
-  if Assigned(TMainMenuItem(FDataRenderer.GetObject(ANode)).OnSelect) then
-    TMainMenuItem(FDataRenderer.GetObject(ANode)).OnSelect(
-      TMainMenuItem(FDataRenderer.GetObject(ANode)));
+  if (Assigned(TMainMenuItem(FDataRenderer.GetObject(ANode)).EventProvider)) and
+    (Assigned(TMainMenuItem(FDataRenderer.GetObject(ANode)).EventProvider
+    .OnObjectSelect)) then
+    TMainMenuItem(FDataRenderer.GetObject(ANode)).EventProvider
+      .OnObjectSelect(TMainMenuItem(FDataRenderer.GetObject(ANode)));
 end;
 
 procedure TMainMenuDataRenderer.FireNodeAttachDynamicMenu (ANode : 
   PVirtualNode);
 begin
-  if Assigned(TMainMenuItem(FDataRenderer.GetObject(ANode)).OnAttachDynamicMenu) 
+  if (Assigned(TMainMenuItem(FDataRenderer.GetObject(ANode)).EventProvider)) and
+    (Assigned(TMainMenuItem(FDataRenderer.GetObject(ANode)).EventProvider
+    .OnObjectAttachDynamicMenu)) 
     then
-    TMainMenuItem(FDataRenderer.GetObject(ANode)).OnAttachDynamicMenu(
-      TMainMenuItem(FDataRenderer.GetObject(ANode)));
+    TMainMenuItem(FDataRenderer.GetObject(ANode)).EventProvider
+      .OnObjectAttachDynamicMenu(TMainMenuItem(FDataRenderer.GetObject(ANode)));
 end;
 
 procedure TMainMenuDataRenderer.FireNodeDetachDynamicMenu (ANode : 
   PVirtualNode);
 begin
-  if Assigned(TMainMenuItem(FDataRenderer.GetObject(ANode)).OnDetachDynamicMenu) 
+  if (Assigned(TMainMenuItem(FDataRenderer.GetObject(ANode)).EventProvider)) and
+    (Assigned(TMainMenuItem(FDataRenderer.GetObject(ANode)).EventProvider
+    .OnObjectDetachDynamicMenu)) 
     then
-    TMainMenuItem(FDataRenderer.GetObject(ANode)).OnDetachDynamicMenu(
-      TMainMenuItem(FDataRenderer.GetObject(ANode)));
+    TMainMenuItem(FDataRenderer.GetObject(ANode)).EventProvider
+      .OnObjectDetachDynamicMenu(TMainMenuItem(FDataRenderer.GetObject(ANode)));
 end;
 
 procedure TMainMenuDataRenderer.CreateDynamicMenu (ANode : PVirtualNode);

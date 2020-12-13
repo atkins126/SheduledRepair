@@ -40,17 +40,37 @@ type
     type
       TObjectClickEvent = procedure (AObject : TCommonObject) of object;
       TObjectDoubleClickEvent = procedure (AObject : TCommonObject) of object;
+
+      TObjectSelectEvent = procedure (AObject : TCommonObject) of object;
+      TObjectUnselectEvent = procedure (AObject : TCommonObject) of object;
+
+      TObjectAttachDynamicMenuEvent = procedure (AObject : TCommonObject) 
+        of object;
+      TObjectDetachDynamicMenuEvent = procedure (AObject : TCommonObject) 
+        of object;
   public
     constructor Create; virtual;
     destructor Destroy; override;
   protected
     FObjectClick : TObjectClickEvent;
     FObjectDoubleClick : TObjectDoubleClickEvent;
+    FObjectSelect : TObjectSelectEvent;
+    FObjectUnselect : TObjectUnselectEvent;
+    FObjectAttachDynamicMenu : TObjectAttachDynamicMenuEvent;
+    FObjectDetachDynamicMenu : TObjectDetachDynamicMenuEvent;
   public
     property OnObjectClick : TObjectClickEvent read FObjectClick
       write FObjectClick;
     property OnObjectDoubleClick : TObjectDoubleClickEvent
       read FObjectDoubleClick write FObjectDoubleClick;
+    property OnObjectSelect : TObjectSelectEvent read FObjectSelect
+      write FObjectSelect;
+    property OnObjectUnselect : TObjectUnselectEvent read FObjectUnselect
+      write FObjectUnselect;
+    property OnObjectAttachDynamicMenu : TObjectAttachDynamicMenuEvent
+      read FObjectAttachDynamicMenu write FObjectAttachDynamicMenu;
+    property OnObjectDetachDynamicMenu : TObjectDetachDynamicMenuEvent
+      read FObjectDetachDynamicMenu write FObjectDetachDynamicMenu;
   end;
 
 implementation
@@ -61,6 +81,10 @@ constructor TCommonEventProvider.Create;
 begin
   FObjectClick := nil;
   FObjectDoubleClick := nil;
+  FObjectSelect := nil;
+  FObjectUnselect := nil;
+  FObjectAttachDynamicMenu := nil;
+  FObjectDetachDynamicMenu := nil;
 end;
 
 destructor TCommonEventProvider.Destroy;

@@ -22,7 +22,7 @@
 (* Floor, Boston, MA 02110-1335, USA.                                         *)
 (*                                                                            *)
 (******************************************************************************)
-unit eventproviders.mainmenu;
+unit eventproviders.mainmenu.item.job;
 
 {$mode objfpc}{$H+}
 {$IFOPT D+}
@@ -32,13 +32,51 @@ unit eventproviders.mainmenu;
 interface
 
 uses
-  SysUtils, eventproviders.common;
+  SysUtils, eventproviders.common, objects.common;
 
 type
-  TMainMenuEventProvider = class(TCommonEventProvider)
-    
+  TMainMenuItemJobEventProvider = class(TCommonEventProvider)
+  public
+    constructor Create; override;
+  private
+    procedure JobSelectedEvent ({%H-}AObject : TCommonObject);
+    procedure JobAttachMenuEvent ({%H-}AObject : TCommonObject);
+    procedure JobDetachMenuEvent ({%H-}AObject : TCommonObject);
   end;
 
 implementation
+
+uses
+  dataprovider, datahandlers, mainmenuprovider, profilesprovider.mainmenu,
+  dataproviders.mainmenu;
+
+{ TMainMenuItemJobEventProvider }
+
+constructor TMainMenuItemJobEventProvider.Create;
+begin
+  inherited Create;
+  OnObjectSelect := @JobSelectedEvent;
+  OnObjectAttachDynamicMenu := @JobAttachMenuEvent;
+  OnObjectDetachDynamicMenu := @JobDetachMenuEvent;
+end;
+
+procedure TMainMenuItemJobEventProvider.JobSelectedEvent (AObject : 
+  TCommonObject);
+begin
+  Provider.ChangeData(TJobDataHandler.Create);
+end;
+
+procedure TMainMenuItemJobEventProvider.JobAttachMenuEvent (AObject :
+  TCommonObject);
+begin
+  MainMenu.AttachDynamicMenu(TMainMenu.MAIN_MENU_ITEM_JOB,
+    TMenuSubitemJobDataProvider.Create, TMenuSubitemJobProfilesProvider.Create);
+end;
+
+procedure TMainMenuItemJobEventProvider.JobDetachMenuEvent (AObject :
+  TCommonObject);
+begin
+  MainMenu.DetachAllDynamicMenus(TMainMenu.MAIN_MENU_ITEM_JOB);
+end;
 
 end.

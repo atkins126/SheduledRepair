@@ -22,7 +22,7 @@
 (* Floor, Boston, MA 02110-1335, USA.                                         *)
 (*                                                                            *)
 (******************************************************************************)
-unit eventproviders.mainmenu;
+unit eventproviders.mainmenu.subitem.equipmentedit;
 
 {$mode objfpc}{$H+}
 {$IFOPT D+}
@@ -32,13 +32,37 @@ unit eventproviders.mainmenu;
 interface
 
 uses
-  SysUtils, eventproviders.common;
+  SysUtils, eventproviders.common, objects.common, objects.equipment;
 
 type
-  TMainMenuEventProvider = class(TCommonEventProvider)
-    
+  TMainMenuSubitemEquipmentEditEventProvider = class(TCommonEventProvider)
+  public
+    constructor Create; override;
+  private
+    procedure EquipmentEditSelectedEvent ({%H-}AObject : TCommonObject);
   end;
 
 implementation
+
+uses
+  dataprovider, mainmenuprovider;
+
+{ TMainMenuSubitemEquipmentEditEventProvider }
+
+constructor TMainMenuSubitemEquipmentEditEventProvider.Create;
+begin
+  inherited Create;
+  OnObjectSelect := @EquipmentEditSelectedEvent;
+end;
+
+procedure TMainMenuSubitemEquipmentEditEventProvider.EquipmentEditSelectedEvent 
+  (AObject : TCommonObject);
+var
+  EquipmentObject : TCommonObject;
+begin
+  EquipmentObject := Provider.GetSelectedObject;
+  if Assigned(EquipmentObject) then
+    Provider.ShowEditor(TEquipment(EquipmentObject));
+end;
 
 end.
