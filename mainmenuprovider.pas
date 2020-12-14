@@ -242,16 +242,18 @@ begin
   { Append dynamic menu to item ID. }
   FDynamicMenus.Value[AMenuItemID].Append(TDynamicMenuData.Create(
     ADataProvider, AProfilesProvider));
+  FMainMenuRenderer.UpdateSelectedDynamicMenu;
 end;
 
 procedure TMainMenu.DetachAllDynamicMenus (AMenuItemID : Int64);
 begin
   FDynamicMenus.Value[AMenuItemID].Clear;
+  FMainMenuRenderer.UpdateSelectedDynamicMenu;
 end;
 
 function TMainMenu.GetAttachedMenus (AMenuItemID : Int64) : TIterator;
 begin
-  if AMenuItemID = -1 then
+  if (AMenuItemID = -1) or (AMenuItemID >= FDynamicMenus.Length) then
     Exit(TIterator.Create(nil));
 
   Result := TIterator.Create(FDynamicMenus.Value[AMenuItemID].FirstEntry);

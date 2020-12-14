@@ -41,8 +41,8 @@ type
   private
     procedure EquipmentSelectedEvent ({%H-}AObject : TCommonObject);
     procedure EquipmentUnselectEvent ({%H-}AObject : TCommonObject);
-    procedure EquipmentAttachMenuEvent ({%H-}AObject : TCommonObject);
-    procedure EquipmentDetachMenuEvent ({%H-}AObject : TCommonObject);
+    procedure EquipmentAttachDynamicMenuEvent ({%H-}AObject : TCommonObject);
+    procedure EquipmentDetachDynamicMenuEvent ({%H-}AObject : TCommonObject);
   end;
 
 implementation
@@ -58,35 +58,31 @@ begin
   inherited Create;
   OnObjectSelect := @EquipmentSelectedEvent;
   OnObjectUnselect := @EquipmentUnselectEvent;
-  OnObjectAttachDynamicMenu := @EquipmentAttachMenuEvent;
-  OnObjectDetachDynamicMenu := @EquipmentDetachMenuEvent;
+  OnObjectAttachDynamicMenu := @EquipmentAttachDynamicMenuEvent;
+  OnObjectDetachDynamicMenu := @EquipmentDetachDynamicMenuEvent;
 end;
 
 procedure TMainMenuItemEquipmentEventProvider.EquipmentSelectedEvent (AObject : 
   TCommonObject);
 begin
-  MainMenu.AttachDynamicMenu(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT,
-    TMenuSubitemEquipmentDataProvider.Create, 
-    TMenuSubitemEquipmentProfilesProvider.Create);
   Provider.ChangeData(TEquipmentDataHandler.Create);
 end;
 
 procedure TMainMenuItemEquipmentEventProvider.EquipmentUnselectEvent (AObject :
   TCommonObject);
 begin
-  MainMenu.DetachAllDynamicMenus(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT);
   MainMenu.DetachObject(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT);
 end;
 
-procedure TMainMenuItemEquipmentEventProvider.EquipmentAttachMenuEvent 
+procedure TMainMenuItemEquipmentEventProvider.EquipmentAttachDynamicMenuEvent 
   (AObject : TCommonObject);
 begin
-  {MainMenu.AttachDynamicMenu(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT,
+  MainMenu.AttachDynamicMenu(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT,
     TMenuSubitemEquipmentDataProvider.Create, 
-    TMenuSubitemEquipmentProfilesProvider.Create);}
+    TMenuSubitemEquipmentProfilesProvider.Create);
 end;
 
-procedure TMainMenuItemEquipmentEventProvider.EquipmentDetachMenuEvent 
+procedure TMainMenuItemEquipmentEventProvider.EquipmentDetachDynamicMenuEvent 
   (AObject : TCommonObject);
 begin
   MainMenu.DetachAllDynamicMenus(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT);

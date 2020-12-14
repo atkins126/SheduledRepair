@@ -32,13 +32,40 @@ unit eventproviders.job;
 interface
 
 uses
-  SysUtils, eventproviders.common;
+  SysUtils, eventproviders.common, objects.common;
 
 type
   TJobEventProvider = class(TCommonEventProvider)
-
+  public
+    constructor Create; override;
+  private
+    procedure OnObjectSelectEvent ({%H-}AObject : TCommonObject);
+    procedure OnObjectUnselectEvent ({%H-}AObject : TCommonObject);
   end;
 
 implementation
+
+uses
+  mainmenuprovider, dataproviders.mainmenu, profilesprovider.mainmenu;
+
+{ TJobEventProvider }
+
+constructor TJobEventProvider.Create;
+begin
+  inherited Create;
+  OnObjectSelect := @OnObjectSelectEvent;
+end;
+
+procedure TJobEventProvider.OnObjectSelectEvent (AObject : TCommonObject);
+begin
+  MainMenu.AttachDynamicMenu(TMainMenu.MAIN_MENU_ITEM_JOB,
+    TMenuSubitemJobEditDataProvider.Create, 
+    TMenuSubitemJobProfilesProvider.Create);
+end;
+
+procedure TJobEventProvider.OnObjectUnselectEvent (AObject : TCommonObject);
+begin
+  MainMenu.DetachAllDynamicMenus(TMainMenu.MAIN_MENU_ITEM_JOB);
+end;
 
 end.

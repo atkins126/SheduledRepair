@@ -44,10 +44,10 @@ type
       TObjectSelectEvent = procedure (AObject : TCommonObject) of object;
       TObjectUnselectEvent = procedure (AObject : TCommonObject) of object;
 
-      TObjectAttachDynamicMenuEvent = procedure (AObject : TCommonObject) 
-        of object;
-      TObjectDetachDynamicMenuEvent = procedure (AObject : TCommonObject) 
-        of object;
+      TObjectAttachDynamicMenuEvent = procedure (AObject : TCommonObject) of
+        object;
+      TObjectDetachDynamicMenuEvent = procedure (AObject : TCommonObject) of
+        object;
   public
     constructor Create; virtual;
     destructor Destroy; override;

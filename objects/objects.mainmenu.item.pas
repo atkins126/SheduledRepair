@@ -55,6 +55,30 @@ type
 
     { Get object database table name. }
     function Table : String; override;
+
+    { Fire OnObjectClick event. }
+    procedure OnObjectClick (AMenuItem : TMainMenuItem);
+      {$IFNDEF DEBUG}inline;{$ENDIF}
+
+    { Fire OnObjectDoubleClick event. }
+    procedure OnObjectDoubleClick (AMenuItem : TMainMenuItem);
+      {$IFNDEF DEBUG}inline;{$ENDIF}
+
+    { Fire OnObjectSelect event. }
+    procedure OnObjectSelect (AMenuItem : TMainMenuItem);
+      {$IFNDEF DEBUG}inline;{$ENDIF}
+
+    { Fire OnObjectUnselect event. }
+    procedure OnObjectUnselect (AMenuItem : TMainMenuItem);
+      {$IFNDEF DEBUG}inline;{$ENDIF}
+
+    { Fire OnObjectAttachDynamicMenu event. }
+    procedure OnObjectAttachDynamicMenu (AMenuItem : TMainMenuItem);
+      {$IFNDEF DEBUG}inline;{$ENDIF}
+
+    { Fire OnObjectDetachDynamicMenu event. }
+    procedure OnObjectDetachDynamicMenu (AMenuItem : TMainMenuItem);
+      {$IFNDEF DEBUG}inline;{$ENDIF}
   protected
     { Prepare current object database table scheme. }
     procedure PrepareSchema (var {%H-}ASchema : TSQLite3Schema); override; 
@@ -77,8 +101,6 @@ type
     
     property AttachedObject : TNamedObject read FAttachedObject 
       write FAttachedObject;
-
-    property EventProvider : TCommonEventProvider read FEventProvider;
   end;
 
 implementation
@@ -119,6 +141,48 @@ end;
 procedure TMainMenuItem.SaveCurrentObject;
 begin
   { Do nothing. }
+end;
+
+procedure TMainMenuItem.OnObjectClick (AMenuItem : TMainMenuItem);
+begin
+  if (Assigned(FEventProvider)) and (Assigned(FEventProvider.OnObjectClick)) 
+     then
+    FEventProvider.OnObjectClick(AMenuItem);
+end;
+    
+procedure TMainMenuItem.OnObjectDoubleClick (AMenuItem : TMainMenuItem);
+begin
+  if (Assigned(FEventProvider)) and 
+     (Assigned(FEventProvider.OnObjectDoubleClick)) then
+    FEventProvider.OnObjectDoubleClick(AMenuItem);
+end;      
+    
+procedure TMainMenuItem.OnObjectSelect (AMenuItem : TMainMenuItem);
+begin
+  if (Assigned(FEventProvider)) and (Assigned(FEventProvider.OnObjectSelect))
+     then
+    FEventProvider.OnObjectSelect(AMenuItem);
+end;
+
+procedure TMainMenuItem.OnObjectUnselect (AMenuItem : TMainMenuItem);
+begin
+  if (Assigned(FEventProvider)) and (Assigned(FEventProvider.OnObjectUnselect))
+     then
+    FEventProvider.OnObjectUnselect(AMenuItem);
+end;
+
+procedure TMainMenuItem.OnObjectAttachDynamicMenu (AMenuItem : TMainMenuItem);
+begin
+  if (Assigned(FEventProvider)) and 
+     (Assigned(FEventProvider.OnObjectAttachDynamicMenu)) then
+    FEventProvider.OnObjectAttachDynamicMenu(AMenuItem);
+end;
+
+procedure TMainMenuItem.OnObjectDetachDynamicMenu (AMenuItem : TMainMenuItem);
+begin
+  if (Assigned(FEventProvider)) and 
+     (Assigned(FEventProvider.OnObjectDetachDynamicMenu)) then
+    FEventProvider.OnObjectDetachDynamicMenu(AMenuItem);
 end;
 
 end.
