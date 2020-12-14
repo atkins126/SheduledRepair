@@ -53,7 +53,8 @@ uses
 constructor TEquipmentEventProvider.Create;
 begin
   inherited Create;
-  OnObjectDoubleClick := @OnObjectDoubleClickEvent;
+  
+  Register(EVENT_OBJECT_DOUBLE_CLICK, @OnObjectDoubleClickEvent);
 end;
 
 procedure TEquipmentEventProvider.OnObjectDoubleClickEvent (AObject :

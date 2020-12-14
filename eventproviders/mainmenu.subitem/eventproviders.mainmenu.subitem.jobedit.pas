@@ -52,7 +52,8 @@ uses
 constructor TMainMenuSubitemJobEditEventProvider.Create;
 begin
   inherited Create;
-  OnObjectSelect := @JobEditSelectedEvent;
+  
+  Register(EVENT_OBJECT_SELECT, @JobEditSelectedEvent);
 end;
 
 procedure TMainMenuSubitemJobEditEventProvider.JobEditSelectedEvent 

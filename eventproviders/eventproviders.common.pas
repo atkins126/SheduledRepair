@@ -32,45 +32,42 @@ unit eventproviders.common;
 interface
 
 uses
-  SysUtils, objects.common;
+  SysUtils, objects.common, container.hashtable, utils.functor;
 
 type
   TCommonEventProvider = class
   public
+    const
+      EVENT_OBJECT_CLICK                                                 = 0;
+      EVENT_OBJECT_DOUBLE_CLICK                                          = 1;
+      EVENT_OBJECT_SELECT                                                = 2;
+      EVENT_OBJECT_UNSELECT                                              = 3;
+      EVENT_OBJECT_ATTACH_DYNAMIC_MENU                                   = 4;
+      EVENT_OBJECT_DETACH_DYNAMIC_MENU                                   = 5;
     type
-      TObjectClickEvent = procedure (AObject : TCommonObject) of object;
-      TObjectDoubleClickEvent = procedure (AObject : TCommonObject) of object;
-
-      TObjectSelectEvent = procedure (AObject : TCommonObject) of object;
-      TObjectUnselectEvent = procedure (AObject : TCommonObject) of object;
-
-      TObjectAttachDynamicMenuEvent = procedure (AObject : TCommonObject) of
-        object;
-      TObjectDetachDynamicMenuEvent = procedure (AObject : TCommonObject) of
-        object;
+      TObjectEvent = procedure (AObject : TCommonObject) of object;
   public
     constructor Create; virtual;
     destructor Destroy; override;
+
+    { Append new event. }
+    procedure Register (AEventID : Integer; AEvent : TObjectEvent);
+      {$IFNDEF DEBUG}inline;{$ENDIF}
+
+    { Remove event. }
+    procedure Remove (AEventID : Integer);
+      {$IFNDEF DEBUG}inline;{$ENDIF}
+
+    { Run exists event. } 
+    procedure Fire (AEventID : Integer; AObject : TCommonObject);
+      {$IFNDEF DEBUG}inline;{$ENDIF}
   protected
-    FObjectClick : TObjectClickEvent;
-    FObjectDoubleClick : TObjectDoubleClickEvent;
-    FObjectSelect : TObjectSelectEvent;
-    FObjectUnselect : TObjectUnselectEvent;
-    FObjectAttachDynamicMenu : TObjectAttachDynamicMenuEvent;
-    FObjectDetachDynamicMenu : TObjectDetachDynamicMenuEvent;
-  public
-    property OnObjectClick : TObjectClickEvent read FObjectClick
-      write FObjectClick;
-    property OnObjectDoubleClick : TObjectDoubleClickEvent
-      read FObjectDoubleClick write FObjectDoubleClick;
-    property OnObjectSelect : TObjectSelectEvent read FObjectSelect
-      write FObjectSelect;
-    property OnObjectUnselect : TObjectUnselectEvent read FObjectUnselect
-      write FObjectUnselect;
-    property OnObjectAttachDynamicMenu : TObjectAttachDynamicMenuEvent
-      read FObjectAttachDynamicMenu write FObjectAttachDynamicMenu;
-    property OnObjectDetachDynamicMenu : TObjectDetachDynamicMenuEvent
-      read FObjectDetachDynamicMenu write FObjectDetachDynamicMenu;
+    type
+      TEventCompareFunctor = class(specialize TUnsortableFunctor<Integer>);
+      TEvents = class(specialize THashTable<Integer, TObjectEvent, 
+        TEventCompareFunctor>);
+  protected
+    FEvents : TEvents;
   end;
 
 implementation
@@ -79,17 +76,38 @@ implementation
 
 constructor TCommonEventProvider.Create;
 begin
-  FObjectClick := nil;
-  FObjectDoubleClick := nil;
-  FObjectSelect := nil;
-  FObjectUnselect := nil;
-  FObjectAttachDynamicMenu := nil;
-  FObjectDetachDynamicMenu := nil;
+  FEvents := TEvents.Create(@HashInteger);
 end;
 
 destructor TCommonEventProvider.Destroy;
 begin
   inherited Destroy;
+  FreeAndNil(FEvents);
+end;
+
+procedure TCommonEventProvider.Register (AEventID : Integer; AEvent :
+  TObjectEvent);
+begin
+  FEvents.Insert(AEventID, AEvent);
+end;
+
+procedure TCommonEventProvider.Remove (AEventID : Integer);
+begin
+  FEvents.Remove(AEventID);
+end;
+
+procedure TCommonEventProvider.Fire (AEventID : Integer; AObject : 
+  TCommonObject);
+var
+  Event : TObjectEvent;
+begin
+  try
+    Event := FEvents.Search(AEventID);
+    Event(AObject);
+  except
+    on E: EKeyNotExistsException do
+      { Do nothing. }
+  end;
 end;
 
 end.

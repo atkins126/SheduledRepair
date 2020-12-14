@@ -56,10 +56,11 @@ uses
 constructor TMainMenuItemEquipmentEventProvider.Create;
 begin
   inherited Create;
-  OnObjectSelect := @EquipmentSelectedEvent;
-  OnObjectUnselect := @EquipmentUnselectEvent;
-  OnObjectAttachDynamicMenu := @EquipmentAttachDynamicMenuEvent;
-  OnObjectDetachDynamicMenu := @EquipmentDetachDynamicMenuEvent;
+  
+  Register(EVENT_OBJECT_SELECT, @EquipmentSelectedEvent);
+  Register(EVENT_OBJECT_UNSELECT, @EquipmentUnselectEvent);
+  Register(EVENT_OBJECT_ATTACH_DYNAMIC_MENU, @EquipmentAttachDynamicMenuEvent);
+  Register(EVENT_OBJECT_DETACH_DYNAMIC_MENU, @EquipmentDetachDynamicMenuEvent);
 end;
 
 procedure TMainMenuItemEquipmentEventProvider.EquipmentSelectedEvent (AObject : 

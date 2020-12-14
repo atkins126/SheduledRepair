@@ -53,7 +53,8 @@ uses
 constructor TJobEventProvider.Create;
 begin
   inherited Create;
-  OnObjectSelect := @OnObjectSelectEvent;
+  
+  Register(EVENT_OBJECT_SELECT, @OnObjectSelectEvent);
 end;
 
 procedure TJobEventProvider.OnObjectSelectEvent (AObject : TCommonObject);

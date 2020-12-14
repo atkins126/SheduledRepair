@@ -298,20 +298,14 @@ end;
 
 procedure TDataRenderer.FireNodeSelectEvent (ANode : PVirtualNode);
 begin
-  if (Assigned(FEventProvider)) and (Assigned(FEventProvider.OnObjectSelect))
-     then
-  begin
-    FEventProvider.OnObjectSelect(GetObject(ANode));
-  end;
+  if Assigned(FEventProvider) then
+    FEventProvider.Fire(FEventProvider.EVENT_OBJECT_SELECT, GetObject(ANode));
 end;
 
 procedure TDataRenderer.FireNodeUnselectEvent (ANode : PVirtualNode);
 begin
-  if (Assigned(FEventProvider)) and (Assigned(FEventProvider.OnObjectUnselect))
-     then
-  begin
-    FEventProvider.OnObjectUnselect(GetObject(ANode));
-  end;
+  if Assigned(FEventProvider) then
+    FEventProvider.Fire(FEventProvider.EVENT_OBJECT_UNSELECT, GetObject(ANode));
 end;
 
 procedure TDataRenderer.OnNodeChange(Sender: TBaseVirtualTree; Node: 
@@ -335,8 +329,9 @@ begin
   if not Assigned(FSelectedNode) then
     Exit;
 
-  if Assigned(FEventProvider.OnObjectDoubleClick) then
-    FEventProvider.OnObjectDoubleClick(GetObject(FSelectedNode));
+  if Assigned(FEventProvider) then
+    FEventProvider.Fire(FEventProvider.EVENT_OBJECT_DOUBLE_CLICK,
+    GetObject(FSelectedNode));
 end;
 
 procedure TDataRenderer.OnNodeDraw (ASender : TBaseVirtualTree; 
@@ -519,34 +514,39 @@ end;
 
 procedure TMainMenuDataRenderer.FireNodeUnselectEvent (ANode : PVirtualNode);
 begin
-  TMainMenuItem(FDataRenderer.GetObject(ANode)).OnObjectUnselect
-    (TMainMenuItem(FDataRenderer.GetObject(ANode)));
+  TMainMenuItem(FDataRenderer.GetObject(ANode)).Fire(
+    FDataRenderer.FEventProvider.EVENT_OBJECT_UNSELECT,
+    (TMainMenuItem(FDataRenderer.GetObject(ANode))));
 end;
 
 procedure TMainMenuDataRenderer.FireNodeSelectEvent (ANode : PVirtualNode);
 begin
-  TMainMenuItem(FDataRenderer.GetObject(ANode)).OnObjectSelect
-    (TMainMenuItem(FDataRenderer.GetObject(ANode)));
+  TMainMenuItem(FDataRenderer.GetObject(ANode)).Fire(
+    FDataRenderer.FEventProvider.EVENT_OBJECT_SELECT,
+    (TMainMenuItem(FDataRenderer.GetObject(ANode))));
 end;
 
 procedure TMainMenuDataRenderer.FireNodeClickEvent (ANode : PVirtualNode);
 begin
-  TMainMenuItem(FDataRenderer.GetObject(ANode)).OnObjectClick
-    (TMainMenuItem(FDataRenderer.GetObject(ANode)));
+  TMainMenuItem(FDataRenderer.GetObject(ANode)).Fire(
+    FDataRenderer.FEventProvider.EVENT_OBJECT_CLICK,
+    (TMainMenuItem(FDataRenderer.GetObject(ANode))));
 end;
 
 procedure TMainMenuDataRenderer.FireNodeAttachDynamicMenuEvent (ANode : 
   PVirtualNode);
 begin
-  TMainMenuItem(FDataRenderer.GetObject(ANode)).OnObjectAttachDynamicMenu
-    (TMainMenuItem(FDataRenderer.GetObject(ANode)));
+  TMainMenuItem(FDataRenderer.GetObject(ANode)).Fire(
+    FDataRenderer.FEventProvider.EVENT_OBJECT_ATTACH_DYNAMIC_MENU,
+    (TMainMenuItem(FDataRenderer.GetObject(ANode))));
 end;
 
 procedure TMainMenuDataRenderer.FireNodeDetachDynamicMenuEvent (ANode : 
   PVirtualNode);
 begin
-  TMainMenuItem(FDataRenderer.GetObject(ANode)).OnObjectDetachDynamicMenu
-    (TMainMenuItem(FDataRenderer.GetObject(ANode)));
+  TMainMenuItem(FDataRenderer.GetObject(ANode)).Fire(
+    FDataRenderer.FEventProvider.EVENT_OBJECT_DETACH_DYNAMIC_MENU,
+    (TMainMenuItem(FDataRenderer.GetObject(ANode))));
 end;
 
 procedure TMainMenuDataRenderer.CreateDynamicMenu (ANode : PVirtualNode);

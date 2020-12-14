@@ -56,10 +56,11 @@ uses
 constructor TMainMenuItemJobEventProvider.Create;
 begin
   inherited Create;
-  OnObjectSelect := @JobSelectedEvent;
-  OnObjectUnselect := @JobUnselectedEvent;
-  OnObjectAttachDynamicMenu := @JobAttachDynamicMenuEvent;
-  OnObjectDetachDynamicMenu := @JobDetachDynamicMenuEvent;
+  
+  Register(EVENT_OBJECT_SELECT, @JobSelectedEvent);
+  Register(EVENT_OBJECT_UNSELECT, @JobUnselectedEvent);
+  Register(EVENT_OBJECT_ATTACH_DYNAMIC_MENU, @JobAttachDynamicMenuEvent);
+  Register(EVENT_OBJECT_DETACH_DYNAMIC_MENU, @JobDetachDynamicMenuEvent);
 end;
 
 procedure TMainMenuItemJobEventProvider.JobSelectedEvent (AObject : 

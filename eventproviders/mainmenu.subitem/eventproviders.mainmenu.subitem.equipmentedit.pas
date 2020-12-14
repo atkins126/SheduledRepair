@@ -52,7 +52,8 @@ uses
 constructor TMainMenuSubitemEquipmentEditEventProvider.Create;
 begin
   inherited Create;
-  OnObjectSelect := @EquipmentEditSelectedEvent;
+  
+  Register(EVENT_OBJECT_SELECT, @EquipmentEditSelectedEvent);
 end;
 
 procedure TMainMenuSubitemEquipmentEditEventProvider.EquipmentEditSelectedEvent 
