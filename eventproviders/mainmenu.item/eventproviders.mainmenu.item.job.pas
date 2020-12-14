@@ -39,8 +39,7 @@ type
   public
     constructor Create; override;
   private
-    procedure JobSelectedEvent ({%H-}AObject : TCommonObject);
-    procedure JobUnselectedEvent ({%H-}AObject : TCommonObject);
+    procedure JobClickEvent ({%H-}AObject : TCommonObject);
     procedure JobAttachDynamicMenuEvent ({%H-}AObject : TCommonObject);
     procedure JobDetachDynamicMenuEvent ({%H-}AObject : TCommonObject);
   end;
@@ -57,22 +56,15 @@ constructor TMainMenuItemJobEventProvider.Create;
 begin
   inherited Create;
   
-  Register(EVENT_OBJECT_SELECT, @JobSelectedEvent);
-  Register(EVENT_OBJECT_UNSELECT, @JobUnselectedEvent);
+  Register(EVENT_OBJECT_CLICK, @JobClickEvent);
   Register(EVENT_OBJECT_ATTACH_DYNAMIC_MENU, @JobAttachDynamicMenuEvent);
   Register(EVENT_OBJECT_DETACH_DYNAMIC_MENU, @JobDetachDynamicMenuEvent);
 end;
 
-procedure TMainMenuItemJobEventProvider.JobSelectedEvent (AObject : 
+procedure TMainMenuItemJobEventProvider.JobClickEvent (AObject : 
   TCommonObject);
 begin
   Provider.ChangeData(TJobDataHandler.Create);
-end;
-
-procedure TMainMenuItemJobEventProvider.JobUnselectedEvent (AObject : 
-  TCommonObject);
-begin
-  
 end;
 
 procedure TMainMenuItemJobEventProvider.JobAttachDynamicMenuEvent (AObject :

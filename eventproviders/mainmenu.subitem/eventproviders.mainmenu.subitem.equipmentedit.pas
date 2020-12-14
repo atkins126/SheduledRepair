@@ -39,7 +39,7 @@ type
   public
     constructor Create; override;
   private
-    procedure EquipmentEditSelectedEvent ({%H-}AObject : TCommonObject);
+    procedure EquipmentEditClickEvent ({%H-}AObject : TCommonObject);
   end;
 
 implementation
@@ -53,10 +53,10 @@ constructor TMainMenuSubitemEquipmentEditEventProvider.Create;
 begin
   inherited Create;
   
-  Register(EVENT_OBJECT_SELECT, @EquipmentEditSelectedEvent);
+  Register(EVENT_OBJECT_CLICK, @EquipmentEditClickEvent);
 end;
 
-procedure TMainMenuSubitemEquipmentEditEventProvider.EquipmentEditSelectedEvent 
+procedure TMainMenuSubitemEquipmentEditEventProvider.EquipmentEditClickEvent 
   (AObject : TCommonObject);
 var
   EquipmentObject : TCommonObject;

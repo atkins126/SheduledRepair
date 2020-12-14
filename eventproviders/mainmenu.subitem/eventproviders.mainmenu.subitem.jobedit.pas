@@ -39,7 +39,7 @@ type
   public
     constructor Create; override;
   private
-    procedure JobEditSelectedEvent ({%H-}AObject : TCommonObject);
+    procedure JobEditClickEvent ({%H-}AObject : TCommonObject);
   end;
 
 implementation
@@ -53,11 +53,11 @@ constructor TMainMenuSubitemJobEditEventProvider.Create;
 begin
   inherited Create;
   
-  Register(EVENT_OBJECT_SELECT, @JobEditSelectedEvent);
+  Register(EVENT_OBJECT_CLICK, @JobEditClickEvent);
 end;
 
-procedure TMainMenuSubitemJobEditEventProvider.JobEditSelectedEvent 
-  (AObject : TCommonObject);
+procedure TMainMenuSubitemJobEditEventProvider.JobEditClickEvent (AObject : 
+  TCommonObject);
 var
   JobObject : TCommonObject;
 begin

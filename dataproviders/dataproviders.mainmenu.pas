@@ -97,7 +97,7 @@ begin
   Clear;
   
   Append(TMainMenuItem.Create(TMainMenu.MAIN_MENU_ITEM_LOGO, 
-    MENU_ITEM_TYPE_LOGO, 'SheduledRepair', True));
+    MENU_ITEM_TYPE_LOGO, 'SheduledRepair', False));
   Append(TMainMenuItem.Create(TMainMenu.MAIN_MENU_ITEM_JOB, 
     MENU_ITEM_TYPE_ITEM, 'Job', True, TMainMenuItemJobEventProvider.Create));
   Append(TMainMenuItem.Create(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT, 

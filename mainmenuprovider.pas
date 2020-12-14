@@ -65,6 +65,9 @@ type
     { Detach menu item element object. }
     procedure DetachObject (AMenuItemID : Int64);
       {$IFNDEF DEBUG}inline;{$ENDIF}
+
+    procedure UpdateDynamicMenu;
+      {$IFNDEF DEBUG}inline;{$ENDIF}
   private
     type
       { Dynamic menu data provider and profiles provider. }
@@ -242,13 +245,16 @@ begin
   { Append dynamic menu to item ID. }
   FDynamicMenus.Value[AMenuItemID].Append(TDynamicMenuData.Create(
     ADataProvider, AProfilesProvider));
-  FMainMenuRenderer.UpdateSelectedDynamicMenu;
+  //FMainMenuRenderer.UpdateSelectedDynamicMenu;
 end;
 
 procedure TMainMenu.DetachAllDynamicMenus (AMenuItemID : Int64);
 begin
+  if (AMenuItemID = -1) or (AMenuItemID >= FDynamicMenus.Length) then
+    Exit;
+
   FDynamicMenus.Value[AMenuItemID].Clear;
-  FMainMenuRenderer.UpdateSelectedDynamicMenu;
+  //FMainMenuRenderer.UpdateSelectedDynamicMenu;
 end;
 
 function TMainMenu.GetAttachedMenus (AMenuItemID : Int64) : TIterator;
@@ -265,7 +271,6 @@ begin
   begin
     AttachedObject := AObject;
   end;
-  FMainMenuRenderer.UpdateSelectedDynamicMenu;
   FMainMenuView.Refresh;
 end;
 
@@ -275,8 +280,12 @@ begin
   begin
     AttachedObject := nil;
   end;
-  FMainMenuRenderer.UpdateSelectedDynamicMenu;
   FMainMenuView.Refresh;
+end;
+
+procedure TMainMenu.UpdateDynamicMenu;
+begin
+  FMainMenuRenderer.UpdateDynamicMenu;
 end;
 
 initialization

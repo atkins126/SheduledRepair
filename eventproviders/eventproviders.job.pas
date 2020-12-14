@@ -39,6 +39,8 @@ type
   public
     constructor Create; override;
   private
+    FEditItemVisible : Boolean;
+
     procedure OnObjectSelectEvent ({%H-}AObject : TCommonObject);
     procedure OnObjectUnselectEvent ({%H-}AObject : TCommonObject);
   end;
@@ -53,20 +55,26 @@ uses
 constructor TJobEventProvider.Create;
 begin
   inherited Create;
+  FEditItemVisible := False;
   
   Register(EVENT_OBJECT_SELECT, @OnObjectSelectEvent);
 end;
 
 procedure TJobEventProvider.OnObjectSelectEvent (AObject : TCommonObject);
 begin
-  MainMenu.AttachDynamicMenu(TMainMenu.MAIN_MENU_ITEM_JOB,
-    TMenuSubitemJobEditDataProvider.Create, 
-    TMenuSubitemJobProfilesProvider.Create);
+  if not FEditItemVisible then
+  begin
+    MainMenu.AttachDynamicMenu(TMainMenu.MAIN_MENU_ITEM_JOB,
+      TMenuSubitemJobEditDataProvider.Create, 
+      TMenuSubitemJobProfilesProvider.Create);
+    MainMenu.UpdateDynamicMenu;
+    FEditItemVisible := True;
+  end;
 end;
 
 procedure TJobEventProvider.OnObjectUnselectEvent (AObject : TCommonObject);
 begin
-  MainMenu.DetachAllDynamicMenus(TMainMenu.MAIN_MENU_ITEM_JOB);
+  //MainMenu.DetachAllDynamicMenus(TMainMenu.MAIN_MENU_ITEM_JOB);
 end;
 
 end.
