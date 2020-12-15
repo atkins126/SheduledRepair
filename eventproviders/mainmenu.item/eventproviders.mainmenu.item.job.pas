@@ -71,7 +71,8 @@ procedure TMainMenuItemJobEventProvider.JobAttachDynamicMenuEvent (AObject :
   TCommonObject);
 begin
   MainMenu.AttachDynamicMenu(TMainMenu.MAIN_MENU_ITEM_JOB,
-    TMenuSubitemJobDataProvider.Create, TMenuSubitemJobProfilesProvider.Create);
+    TMenuSubitemJobDataProvider.Create,
+    TMainMenuSubitemProfilesProvider.Create);
 end;
 
 procedure TMainMenuItemJobEventProvider.JobDetachDynamicMenuEvent (AObject :

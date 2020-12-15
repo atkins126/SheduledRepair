@@ -70,7 +70,7 @@ begin
   begin
     MainMenu.AttachDynamicMenu(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT,
       TMenuSubitemEquipmentEditDataProvider.Create,
-      TMenuSubitemEquipmentProfilesProvider.Create);
+      TMainMenuSubitemProfilesProvider.Create);
     MainMenu.UpdateDynamicMenu;
     FEditMenuAttached := True;
   end;
@@ -80,6 +80,9 @@ procedure TEquipmentEventProvider.OnObjectDoubleClickEvent (AObject :
   TCommonObject);
 begin
   MainMenu.DetachAllDynamicMenus(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT);
+  MainMenu.AttachDynamicMenu(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT,
+    TMenuSubitemEntityDataProvider.Create,
+    TMainMenuItemProfilesProvider.Create);
   MainMenu.AttachObject(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT,
     TEquipment(AObject));
   Provider.ChangeData(TEquipmentEntityDataHandler.Create(TEquipment(AObject)));

@@ -81,7 +81,7 @@ procedure TMainMenuItemEquipmentEventProvider.EquipmentAttachDynamicMenuEvent
 begin
   MainMenu.AttachDynamicMenu(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT,
     TMenuSubitemEquipmentDataProvider.Create, 
-    TMenuSubitemEquipmentProfilesProvider.Create);
+    TMainMenuSubitemProfilesProvider.Create);
 end;
 
 procedure TMainMenuItemEquipmentEventProvider.EquipmentDetachDynamicMenuEvent 

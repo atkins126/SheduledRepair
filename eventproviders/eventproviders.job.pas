@@ -66,7 +66,7 @@ begin
   begin
     MainMenu.AttachDynamicMenu(TMainMenu.MAIN_MENU_ITEM_JOB,
       TMenuSubitemJobEditDataProvider.Create, 
-      TMenuSubitemJobProfilesProvider.Create);
+      TMainMenuSubitemProfilesProvider.Create);
     MainMenu.UpdateDynamicMenu;
     FEditMenuAttached := True;
   end;

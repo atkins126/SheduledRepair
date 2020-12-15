@@ -32,13 +32,60 @@ unit eventproviders.entity;
 interface
 
 uses
-  SysUtils, eventproviders.common;
+  SysUtils, eventproviders.common, objects.common, objects.entity;
 
 type
   TEntityEventProvider = class(TCommonEventProvider)
-
+  public
+    constructor Create; override;
+  private
+    FEditMenuAttached : Boolean;
+    
+    procedure OnObjectSelectEvent ({%H-}AObject : TCommonObject);
+    procedure OnObjectDoubleClickEvent (AObject : TCommonObject);
   end;
 
 implementation
+
+uses
+  dataprovider, datahandlers, mainmenuprovider, dataproviders.mainmenu,
+  profilesprovider.mainmenu;
+
+{ TEntityEventProvider }
+
+constructor TEntityEventProvider.Create;
+begin
+  inherited Create;
+  FEditMenuAttached := False;
+  
+  //Register(EVENT_OBJECT_SELECT, @OnObjectSelectEvent);
+  //Register(EVENT_OBJECT_DOUBLE_CLICK, @OnObjectDoubleClickEvent);
+end;
+
+procedure TEntityEventProvider.OnObjectSelectEvent (AObject : TCommonObject);
+begin
+  {
+  if (not FEditMenuAttached) and (Assigned(Provider.GetSelectedObject)) then
+  begin
+    MainMenu.AttachDynamicMenu(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT,
+      TMenuSubitemEquipmentEditDataProvider.Create,
+      TMenuSubitemEquipmentProfilesProvider.Create);
+    MainMenu.UpdateDynamicMenu;
+    FEditMenuAttached := True;
+  end;
+  }
+end;
+
+procedure TEntityEventProvider.OnObjectDoubleClickEvent (AObject :
+  TCommonObject);
+begin
+  {
+  MainMenu.DetachAllDynamicMenus(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT);
+  MainMenu.AttachObject(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT,
+    TEquipment(AObject));
+  Provider.ChangeData(TEquipmentEntityDataHandler.Create(TEquipment(AObject)));
+  MainMenu.UpdateDynamicMenu;
+  }
+end;
 
 end.

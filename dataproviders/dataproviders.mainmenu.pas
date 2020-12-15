@@ -96,6 +96,17 @@ type
     function LoadConcreteObject ({%H-}AID : Int64) : TCommonObject; override;
   end;
 
+  TMenuSubitemEntityDataProvider = class(TCommonDataProvider)
+  public
+    function Load : Boolean; override;
+  protected
+    { Get current loaded objects table name. }
+    function LoadObjectsTableName : String; override;
+
+    { Load concrete object. }
+    function LoadConcreteObject ({%H-}AID : Int64) : TCommonObject; override;
+  end;
+
 implementation
 
 uses
@@ -216,6 +227,30 @@ end;
 
 function TMenuSubitemEquipmentEditDataProvider.LoadConcreteObject (AID : Int64) 
   : TCommonObject;
+begin
+  Result := nil;
+end;
+
+{ TMenuSubitemEntityDataProvider }
+
+function TMenuSubitemEntityDataProvider.Load : Boolean;
+begin
+  Clear;
+  
+  Append(TMainMenuItem.Create(TMainMenu.MAIN_MENU_ITEM_ENTITY, 
+    MENU_ITEM_TYPE_ITEM, 'Entity', True, 
+    {TMainMenuItemEntityEventProvider.Create}nil));
+  
+  Result := True;
+end;
+
+function TMenuSubitemEntityDataProvider.LoadObjectsTableName : String;
+begin
+  Result := '';
+end;
+
+function TMenuSubitemEntityDataProvider.LoadConcreteObject (AID : Int64) : 
+  TCommonObject;
 begin
   Result := nil;
 end;

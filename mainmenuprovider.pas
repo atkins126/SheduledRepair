@@ -45,6 +45,7 @@ type
       MAIN_MENU_ITEM_LOGO                                             = 0;
       MAIN_MENU_ITEM_JOB                                              = 1;
       MAIN_MENU_ITEM_EQUIPMENT                                        = 2;
+      MAIN_MENU_ITEM_ENTITY                                           = 3;
   public
     constructor Create;
     destructor Destroy; override;
