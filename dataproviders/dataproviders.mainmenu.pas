@@ -85,6 +85,17 @@ type
     function LoadConcreteObject ({%H-}AID : Int64) : TCommonObject; override;
   end;
 
+  TMenuSubitemEquipmentEditDataProvider = class(TCommonDataProvider)
+  public
+    function Load : Boolean; override;
+  protected
+    { Get current loaded objects table name. }
+    function LoadObjectsTableName : String; override;
+
+    { Load concrete object. }
+    function LoadConcreteObject ({%H-}AID : Int64) : TCommonObject; override;
+  end;
+
 implementation
 
 uses
@@ -171,8 +182,6 @@ begin
   
   Append(TMainMenuItem.Create(-1, MENU_ITEM_TYPE_SUBITEM, 'Create', False,
     TMainMenuSubitemEquipmentCreateEventProvider.Create));
-  Append(TMainMenuItem.Create(-1, MENU_ITEM_TYPE_SUBITEM, 'Edit', False,
-    TMainMenuSubitemEquipmentEditEventProvider.Create));
   
   Result := True;
 end;
@@ -184,6 +193,29 @@ end;
 
 function TMenuSubitemEquipmentDataProvider.LoadConcreteObject (AID : Int64) : 
   TCommonObject;
+begin
+  Result := nil;
+end;
+
+{ TMenuSubitemEquipmentEditDataProvider }
+
+function TMenuSubitemEquipmentEditDataProvider.Load : Boolean;
+begin
+  Clear;
+  
+  Append(TMainMenuItem.Create(-1, MENU_ITEM_TYPE_SUBITEM, 'Edit', False,
+    TMainMenuSubitemEquipmentEditEventProvider.Create));
+  
+  Result := True;
+end;
+
+function TMenuSubitemEquipmentEditDataProvider.LoadObjectsTableName : String;
+begin
+  Result := '';
+end;
+
+function TMenuSubitemEquipmentEditDataProvider.LoadConcreteObject (AID : Int64) 
+  : TCommonObject;
 begin
   Result := nil;
 end;

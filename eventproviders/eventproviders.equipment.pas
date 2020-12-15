@@ -39,6 +39,10 @@ type
   public
     constructor Create; override;
   private
+    FEditMenuAttached : Boolean;
+    
+    procedure OnObjectSelectEvent ({%H-}AObject : TCommonObject);
+
     { Object on double click event. }
     procedure OnObjectDoubleClickEvent (AObject : TCommonObject);
   end;
@@ -46,15 +50,30 @@ type
 implementation
 
 uses
-  dataprovider, datahandlers, mainmenuprovider;
+  dataprovider, datahandlers, mainmenuprovider, dataproviders.mainmenu,
+  profilesprovider.mainmenu;
 
 { TEquipmentEventProvider }
 
 constructor TEquipmentEventProvider.Create;
 begin
   inherited Create;
+  FEditMenuAttached := False;
   
+  Register(EVENT_OBJECT_SELECT, @OnObjectSelectEvent);
   Register(EVENT_OBJECT_DOUBLE_CLICK, @OnObjectDoubleClickEvent);
+end;
+
+procedure TEquipmentEventProvider.OnObjectSelectEvent (AObject : TCommonObject);
+begin
+  if (not FEditMenuAttached) and (Assigned(Provider.GetSelectedObject)) then
+  begin
+    MainMenu.AttachDynamicMenu(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT,
+      TMenuSubitemEquipmentEditDataProvider.Create,
+      TMenuSubitemEquipmentProfilesProvider.Create);
+    MainMenu.UpdateDynamicMenu;
+    FEditMenuAttached := True;
+  end;
 end;
 
 procedure TEquipmentEventProvider.OnObjectDoubleClickEvent (AObject :
@@ -64,6 +83,7 @@ begin
   MainMenu.AttachObject(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT,
     TEquipment(AObject));
   Provider.ChangeData(TEquipmentEntityDataHandler.Create(TEquipment(AObject)));
+  MainMenu.UpdateDynamicMenu;
 end;
 
 end.

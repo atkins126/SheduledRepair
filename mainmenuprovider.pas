@@ -66,6 +66,7 @@ type
     procedure DetachObject (AMenuItemID : Int64);
       {$IFNDEF DEBUG}inline;{$ENDIF}
 
+    { Update dynamic menu. }
     procedure UpdateDynamicMenu;
       {$IFNDEF DEBUG}inline;{$ENDIF}
   private
@@ -245,7 +246,6 @@ begin
   { Append dynamic menu to item ID. }
   FDynamicMenus.Value[AMenuItemID].Append(TDynamicMenuData.Create(
     ADataProvider, AProfilesProvider));
-  //FMainMenuRenderer.UpdateSelectedDynamicMenu;
 end;
 
 procedure TMainMenu.DetachAllDynamicMenus (AMenuItemID : Int64);
@@ -254,7 +254,6 @@ begin
     Exit;
 
   FDynamicMenus.Value[AMenuItemID].Clear;
-  //FMainMenuRenderer.UpdateSelectedDynamicMenu;
 end;
 
 function TMainMenu.GetAttachedMenus (AMenuItemID : Int64) : TIterator;
