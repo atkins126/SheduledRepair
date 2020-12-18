@@ -121,9 +121,10 @@ begin
   Append(TMainMenuItem.Create(TMainMenu.MAIN_MENU_ITEM_LOGO, 
     MENU_ITEM_TYPE_LOGO, 'SheduledRepair', False));
   Append(TMainMenuItem.Create(TMainMenu.MAIN_MENU_ITEM_JOB, 
-    MENU_ITEM_TYPE_ITEM, 'Job', True, TMainMenuItemJobEventProvider.Create));
+    MENU_ITEM_TYPE_ITEM, 'Job', True, False, 
+    TMainMenuItemJobEventProvider.Create));
   Append(TMainMenuItem.Create(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT, 
-    MENU_ITEM_TYPE_ITEM, 'Equipment', True, 
+    MENU_ITEM_TYPE_ITEM, 'Equipment', True, False,
     TMainMenuItemEquipmentEventProvider.Create));
   
   Result := True;
@@ -146,7 +147,7 @@ begin
   Clear;
   
   Append(TMainMenuItem.Create(-1, MENU_ITEM_TYPE_SUBITEM, 'Create', False,
-    TMainMenuSubitemJobCreateEventProvider.Create));
+    False, TMainMenuSubitemJobCreateEventProvider.Create));
     
   Result := True;
 end;
@@ -169,7 +170,7 @@ begin
   Clear;
   
   Append(TMainMenuItem.Create(-1, MENU_ITEM_TYPE_SUBITEM, 'Edit', False,
-    TMainMenuSubitemJobEditEventProvider.Create));
+    False, TMainMenuSubitemJobEditEventProvider.Create));
   
   Result := True;
 end;
@@ -192,7 +193,7 @@ begin
   Clear;
   
   Append(TMainMenuItem.Create(-1, MENU_ITEM_TYPE_SUBITEM, 'Create', False,
-    TMainMenuSubitemEquipmentCreateEventProvider.Create));
+    False, TMainMenuSubitemEquipmentCreateEventProvider.Create));
   
   Result := True;
 end;
@@ -215,7 +216,7 @@ begin
   Clear;
   
   Append(TMainMenuItem.Create(-1, MENU_ITEM_TYPE_SUBITEM, 'Edit', False,
-    TMainMenuSubitemEquipmentEditEventProvider.Create));
+    False, TMainMenuSubitemEquipmentEditEventProvider.Create));
   
   Result := True;
 end;
@@ -238,7 +239,7 @@ begin
   Clear;
   
   Append(TMainMenuItem.Create(TMainMenu.MAIN_MENU_ITEM_ENTITY, 
-    MENU_ITEM_TYPE_ITEM, 'Entity', True, 
+    MENU_ITEM_TYPE_ITEM, 'Entity', True, True, 
     {TMainMenuItemEntityEventProvider.Create}nil));
   
   Result := True;

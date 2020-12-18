@@ -511,6 +511,10 @@ begin
       end;
       DynamicItemNode^.NodeHeight := DynamicNodeData^.Profile.DefaultProfile
         .Height;
+      
+      if TMainMenuItem(DynamicMenuItem).CanSelected and 
+         TMainMenuItem(DynamicMenuItem).IsSelected then
+         FDataRenderer.FTreeView.Selected[DynamicItemNode] := True; 
 
       Inc(Index);  
     end;

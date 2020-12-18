@@ -40,7 +40,6 @@ type
     constructor Create; override;
   private
     procedure EquipmentClickEvent ({%H-}AObject : TCommonObject);
-    procedure EquipmentUnselectEvent ({%H-}AObject : TCommonObject);
     procedure EquipmentAttachDynamicMenuEvent ({%H-}AObject : TCommonObject);
     procedure EquipmentDetachDynamicMenuEvent ({%H-}AObject : TCommonObject);
   end;
@@ -58,7 +57,6 @@ begin
   inherited Create;
   
   Register(EVENT_OBJECT_CLICK, @EquipmentClickEvent);
-  Register(EVENT_OBJECT_UNSELECT, @EquipmentUnselectEvent);
   Register(EVENT_OBJECT_ATTACH_DYNAMIC_MENU, @EquipmentAttachDynamicMenuEvent);
   Register(EVENT_OBJECT_DETACH_DYNAMIC_MENU, @EquipmentDetachDynamicMenuEvent);
 end;
@@ -67,12 +65,7 @@ procedure TMainMenuItemEquipmentEventProvider.EquipmentClickEvent (AObject :
   TCommonObject);
 begin
   Provider.ChangeData(TEquipmentDataHandler.Create);
-  MainMenu.DetachObject(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT);
-end;
-
-procedure TMainMenuItemEquipmentEventProvider.EquipmentUnselectEvent (AObject :
-  TCommonObject);
-begin
+  MainMenu.DetachObject(TMainMenu.MAIN_MENU_ITEM_JOB);
   MainMenu.DetachObject(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT);
 end;
 

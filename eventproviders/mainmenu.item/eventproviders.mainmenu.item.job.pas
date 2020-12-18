@@ -65,6 +65,8 @@ procedure TMainMenuItemJobEventProvider.JobClickEvent (AObject :
   TCommonObject);
 begin
   Provider.ChangeData(TJobDataHandler.Create);
+  MainMenu.DetachObject(TMainMenu.MAIN_MENU_ITEM_JOB);
+  MainMenu.DetachObject(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT);
 end;
 
 procedure TMainMenuItemJobEventProvider.JobAttachDynamicMenuEvent (AObject :

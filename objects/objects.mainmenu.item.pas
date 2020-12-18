@@ -49,8 +49,8 @@ type
       );
   public
     constructor Create (AID : Int64; AItemType : TItemType; ATitle : String;
-      ACanSelected : Boolean = True; AEventProvider : 
-      TCommonEventProvider = nil); reintroduce;
+      ACanSelected : Boolean = True; AIsSelected : Boolean = False; 
+      AEventProvider : TCommonEventProvider = nil); reintroduce;
     destructor Destroy; override; 
 
     { Get object database table name. }
@@ -73,11 +73,13 @@ type
     FTitle : String;
     FAttachedObject : TNamedObject;
     FCanSelected : Boolean;
+    FIsSelected : Boolean;
     FEventProvider : TCommonEventProvider;
   public
     property ItemType : TItemType read FItemType;
     property Title : String read FTitle;
     property CanSelected : Boolean read FCanSelected;
+    property IsSelected : Boolean read FIsSelected;
     
     property AttachedObject : TNamedObject read FAttachedObject 
       write FAttachedObject;
@@ -88,13 +90,15 @@ implementation
 { TMainMenuItem }
 
 constructor TMainMenuItem.Create (AID : Int64; AItemType : TItemType; ATitle : 
-  String; ACanSelected : Boolean; AEventProvider : TCommonEventProvider);
+  String; ACanSelected : Boolean; AIsSelected : Boolean; AEventProvider : 
+  TCommonEventProvider);
 begin
   inherited Create(AID);
   FItemType := AItemType;
   FTitle := ATitle;
   FAttachedObject := nil;
   FCanSelected := ACanSelected;
+  FIsSelected := AIsSelected;
   FEventProvider := AEventProvider;
 end;
 
