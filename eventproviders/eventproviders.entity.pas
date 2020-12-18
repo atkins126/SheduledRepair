@@ -42,7 +42,7 @@ type
     FEditMenuAttached : Boolean;
     
     function OnObjectSelectEvent ({%H-}AObject : TCommonObject) : Boolean;
-    function OnObjectDoubleClickEvent (AObject : TCommonObject) : Boolean;
+    function OnObjectDoubleClickEvent ({%H-}AObject : TCommonObject) : Boolean;
   end;
 
 implementation

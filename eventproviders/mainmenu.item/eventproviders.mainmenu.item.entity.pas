@@ -50,7 +50,7 @@ type
 implementation
 
 uses
-  dataprovider, datahandlers, mainmenuprovider, profilesprovider.mainmenu,
+  dataprovider, mainmenuprovider, profilesprovider.mainmenu,
   dataproviders.mainmenu;
 
 { TMainMenuItemEntityEventProvider }
@@ -86,18 +86,18 @@ end;
 function TMainMenuItemEntityEventProvider.EntityAttachDynamicMenuEvent 
   (AObject : TCommonObject) : Boolean;
 begin
-  {
   MainMenu.AttachDynamicMenu(TMainMenu.MAIN_MENU_ITEM_ENTITY,
     TMenuSubitemEntityCreateDataProvider.Create,
     TMainMenuSubitemProfilesProvider.Create);
-  }
+  
   Result := True;
 end;
 
 function TMainMenuItemEntityEventProvider.EntityDetachDynamicMenuEvent 
   (AObject : TCommonObject) : Boolean;
 begin
-  //MainMenu.DetachAllDynamicMenus(TMainMenu.MAIN_MENU_ITEM_ENTITY);
+  MainMenu.DetachAllDynamicMenus(TMainMenu.MAIN_MENU_ITEM_ENTITY);
+  
   Result := True;
 end;
 

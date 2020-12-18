@@ -41,8 +41,10 @@ type
   TDataRenderer = class
   public
     type
+      { Renderer item handle. }
       TItemHandle = type Pointer;
 
+      { Renderer item create event. }
       TItemCreateEvent = procedure (AObject : TCommonObject; AItemHandle :
         TItemHandle) of object;
   public
@@ -140,6 +142,7 @@ type
   TMainMenuDataRenderer = class
   public
     type
+      { Renderer item destroy event. }
       TItemDestroyEvent = procedure (AObject : TCommonObject) of object;
   public
     constructor Create (ADataRenderer : TDataRenderer);
@@ -149,13 +152,19 @@ type
       TDataRenderer.TItemCreateEvent = nil);
       {$IFNDEF DEBUG}inline;{$ENDIF}
 
+    { Create dynamic menu. }
     procedure AttachDynamicMenu (AItemHandle : TDataRenderer.TItemHandle;
       ADataProvider : TCommonDataProvider; AProfilesProvider : 
       TCommonProfilesProvider; AItemCreateEvent : 
       TDataRenderer.TItemCreateEvent = nil);
 
+    { Remove dynamic menu. }
     procedure DetachAllDynamicMenus (AItemHandle : TDataRenderer.TItemHandle;
       AItemDestroyEvent : TItemDestroyEvent = nil);
+
+    { Select menu item by handle. }
+    procedure SelectMenuItem (AItemHandle : TDataRenderer.TItemHandle);
+      {$IFNDEF DEBUG}inline;{$ENDIF}
   protected
     FDataRenderer : TDataRenderer;
     FCurrentSelectedNode : PVirtualNode;
@@ -538,6 +547,15 @@ begin
 
   FItemDestroyEvent := AItemDestroyEvent;
   FDataRenderer.FTreeView.DeleteChildren(PVirtualNode(AItemHandle), True);
+end;
+
+procedure TMainMenuDataRenderer.SelectMenuItem (AItemHandle : TDataRenderer
+  .TItemHandle);
+begin
+  if not Assigned(AItemHandle) then
+    Exit;
+
+  FDataRenderer.FTreeView.Selected[PVirtualNode(AItemHandle)] := True;
 end;
 
 end.

@@ -91,11 +91,12 @@ begin
   MainMenu.AttachDynamicMenu(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT,
     TMenuSubitemEntityDataProvider.Create,
     TMainMenuItemProfilesProvider.Create);
-  {
   MainMenu.AttachDynamicMenu(TMainMenu.MAIN_MENU_ITEM_ENTITY,
     TMenuSubitemEntityCreateDataProvider.Create,
     TMainMenuSubitemProfilesProvider.Create);
-  }
+    
+  MainMenu.SelectMenuItem(TMainMenu.MAIN_MENU_ITEM_ENTITY);
+  
   Result := True;
 end;
 
