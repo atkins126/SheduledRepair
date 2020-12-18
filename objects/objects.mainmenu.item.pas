@@ -32,7 +32,7 @@ unit objects.mainmenu.item;
 interface
 
 uses
-  SysUtils, objects.common, objects.namedobject, sqlite3.schema,
+  SysUtils, VirtualTrees, objects.common, objects.namedobject, sqlite3.schema,
   eventproviders.common;
 
 type
@@ -57,7 +57,7 @@ type
     function Table : String; override;
 
      { Run exists event. } 
-    procedure Fire (AEventID : Integer; AObject : TCommonObject);
+    function Fire (AEventID : Integer; AObject : TCommonObject) : Boolean;
       {$IFNDEF DEBUG}inline;{$ENDIF}
   protected
     { Prepare current object database table scheme. }
@@ -74,12 +74,15 @@ type
     FAttachedObject : TNamedObject;
     FCanSelected : Boolean;
     FIsSelected : Boolean;
+    FOpenDynamicMenuNode : PVirtualNode;
     FEventProvider : TCommonEventProvider;
   public
     property ItemType : TItemType read FItemType;
     property Title : String read FTitle;
     property CanSelected : Boolean read FCanSelected;
     property IsSelected : Boolean read FIsSelected;
+    property OpenDynamicMenuNode : PVirtualNode read FOpenDynamicMenuNode
+      write FOpenDynamicMenuNode;
     
     property AttachedObject : TNamedObject read FAttachedObject 
       write FAttachedObject;
@@ -99,6 +102,7 @@ begin
   FAttachedObject := nil;
   FCanSelected := ACanSelected;
   FIsSelected := AIsSelected;
+  FOpenDynamicMenuNode := nil;
   FEventProvider := AEventProvider;
 end;
 
@@ -127,10 +131,12 @@ begin
   { Do nothing. }
 end;
 
-procedure TMainMenuItem.Fire (AEventID : Integer; AObject : TCommonObject);
+function TMainMenuItem.Fire (AEventID : Integer; AObject : TCommonObject) :
+  Boolean;
 begin
   if Assigned(FEventProvider) then
-    FEventProvider.Fire(AEventID, AObject);
+    Exit(FEventProvider.Fire(AEventID, AObject));
+  Result := False;
 end;
 
 end.

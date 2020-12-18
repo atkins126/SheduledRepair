@@ -39,9 +39,11 @@ type
   public
     constructor Create; override;
   private
-    procedure EquipmentClickEvent ({%H-}AObject : TCommonObject);
-    procedure EquipmentAttachDynamicMenuEvent ({%H-}AObject : TCommonObject);
-    procedure EquipmentDetachDynamicMenuEvent ({%H-}AObject : TCommonObject);
+    function EquipmentClickEvent ({%H-}AObject : TCommonObject) : Boolean;
+    function EquipmentAttachDynamicMenuEvent ({%H-}AObject : TCommonObject) :
+      Boolean;
+    function EquipmentDetachDynamicMenuEvent ({%H-}AObject : TCommonObject) :
+      Boolean;
   end;
 
 implementation
@@ -61,26 +63,32 @@ begin
   Register(EVENT_OBJECT_DETACH_DYNAMIC_MENU, @EquipmentDetachDynamicMenuEvent);
 end;
 
-procedure TMainMenuItemEquipmentEventProvider.EquipmentClickEvent (AObject : 
-  TCommonObject);
+function TMainMenuItemEquipmentEventProvider.EquipmentClickEvent (AObject : 
+  TCommonObject) : Boolean;
 begin
   Provider.ChangeData(TEquipmentDataHandler.Create);
   MainMenu.DetachObject(TMainMenu.MAIN_MENU_ITEM_JOB);
   MainMenu.DetachObject(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT);
+  MainMenu.DetachAllDynamicMenus(TMainMenu.MAIN_MENU_ITEM_JOB);
+
+  Result := True;
 end;
 
-procedure TMainMenuItemEquipmentEventProvider.EquipmentAttachDynamicMenuEvent 
-  (AObject : TCommonObject);
+function TMainMenuItemEquipmentEventProvider.EquipmentAttachDynamicMenuEvent 
+  (AObject : TCommonObject) : Boolean;
 begin
   MainMenu.AttachDynamicMenu(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT,
     TMenuSubitemEquipmentDataProvider.Create, 
     TMainMenuSubitemProfilesProvider.Create);
+
+  Result := True;
 end;
 
-procedure TMainMenuItemEquipmentEventProvider.EquipmentDetachDynamicMenuEvent 
-  (AObject : TCommonObject);
+function TMainMenuItemEquipmentEventProvider.EquipmentDetachDynamicMenuEvent 
+  (AObject : TCommonObject) : Boolean;
 begin
   MainMenu.DetachAllDynamicMenus(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT);
+  Result := True;
 end;
 
 end.

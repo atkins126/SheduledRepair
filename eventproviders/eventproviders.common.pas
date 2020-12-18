@@ -45,7 +45,7 @@ type
       EVENT_OBJECT_ATTACH_DYNAMIC_MENU                                   = 4;
       EVENT_OBJECT_DETACH_DYNAMIC_MENU                                   = 5;
     type
-      TObjectEvent = procedure (AObject : TCommonObject) of object;
+      TObjectEvent = function (AObject : TCommonObject) : Boolean of object;
   public
     constructor Create; virtual;
     destructor Destroy; override;
@@ -59,7 +59,7 @@ type
       {$IFNDEF DEBUG}inline;{$ENDIF}
 
     { Run exists event. } 
-    procedure Fire (AEventID : Integer; AObject : TCommonObject);
+    function Fire (AEventID : Integer; AObject : TCommonObject) : Boolean;
       {$IFNDEF DEBUG}inline;{$ENDIF}
   protected
     type
@@ -96,18 +96,19 @@ begin
   FEvents.Remove(AEventID);
 end;
 
-procedure TCommonEventProvider.Fire (AEventID : Integer; AObject : 
-  TCommonObject);
+function TCommonEventProvider.Fire (AEventID : Integer; AObject : 
+  TCommonObject) : Boolean;
 var
   Event : TObjectEvent;
 begin
   try
     Event := FEvents.Search(AEventID);
-    Event(AObject);
+    Exit(Event(AObject));
   except
     on E: EKeyNotExistsException do
       { Do nothing. }
   end;
+  Result := False;
 end;
 
 end.

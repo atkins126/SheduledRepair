@@ -41,8 +41,8 @@ type
   private
     FEditMenuAttached : Boolean;
     
-    procedure OnObjectSelectEvent ({%H-}AObject : TCommonObject);
-    procedure OnObjectDoubleClickEvent (AObject : TCommonObject);
+    function OnObjectSelectEvent ({%H-}AObject : TCommonObject) : Boolean;
+    function OnObjectDoubleClickEvent (AObject : TCommonObject) : Boolean;
   end;
 
 implementation
@@ -62,7 +62,8 @@ begin
   //Register(EVENT_OBJECT_DOUBLE_CLICK, @OnObjectDoubleClickEvent);
 end;
 
-procedure TEntityEventProvider.OnObjectSelectEvent (AObject : TCommonObject);
+function TEntityEventProvider.OnObjectSelectEvent (AObject : TCommonObject) :
+  Boolean;
 begin
   {
   if (not FEditMenuAttached) and (Assigned(Provider.GetSelectedObject)) then
@@ -74,10 +75,11 @@ begin
     FEditMenuAttached := True;
   end;
   }
+  Result := True;
 end;
 
-procedure TEntityEventProvider.OnObjectDoubleClickEvent (AObject :
-  TCommonObject);
+function TEntityEventProvider.OnObjectDoubleClickEvent (AObject :
+  TCommonObject) : Boolean;
 begin
   {
   MainMenu.DetachAllDynamicMenus(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT);
@@ -86,6 +88,7 @@ begin
   Provider.ChangeData(TEquipmentEntityDataHandler.Create(TEquipment(AObject)));
   MainMenu.UpdateDynamicMenu;
   }
+  Result := True;
 end;
 
 end.

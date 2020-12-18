@@ -39,7 +39,7 @@ type
   public
     constructor Create; override;
   private
-    procedure JobCreateClickEvent ({%H-}AObject : TCommonObject);
+    function JobCreateClickEvent ({%H-}AObject : TCommonObject) : Boolean;
   end;
 
 implementation
@@ -56,10 +56,11 @@ begin
   Register(EVENT_OBJECT_CLICK, @JobCreateClickEvent);
 end;
 
-procedure TMainMenuSubitemJobCreateEventProvider.JobCreateClickEvent 
-  (AObject : TCommonObject);
+function TMainMenuSubitemJobCreateEventProvider.JobCreateClickEvent 
+  (AObject : TCommonObject) : Boolean;
 begin
   Provider.ShowEditor(TJob.Create(-1));
+  Result := True;
 end;
 
 end.

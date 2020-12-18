@@ -108,7 +108,7 @@ type
       {$IFNDEF DEBUG}inline;{$ENDIF}
 
     { Fire node event. }
-    procedure FireNodeEvent (AEventID : Integer; ANode : PVirtualNode);
+    function FireNodeEvent (AEventID : Integer; ANode : PVirtualNode) : Boolean;
       {$IFNDEF DEBUG}inline;{$ENDIF}
 
     { On change node event. }
@@ -154,7 +154,7 @@ type
       {$IFNDEF DEBUG}inline;{$ENDIF}
 
     { Fire node event. }
-    procedure FireNodeEvent (AEventID : Integer; ANode : PVirtualNode);
+    function FireNodeEvent (AEventID : Integer; ANode : PVirtualNode) : Boolean;
       {$IFNDEF DEBUG}inline;{$ENDIF}
 
     { Append menu item dynamic menu items. }
@@ -282,11 +282,12 @@ begin
   end;
 end;
 
-procedure TDataRenderer.FireNodeEvent (AEventID : Integer; ANode : 
-  PVirtualNode);
+function TDataRenderer.FireNodeEvent (AEventID : Integer; ANode : 
+  PVirtualNode) : Boolean;
 begin
   if Assigned(FEventProvider) then
-    FEventProvider.Fire(AEventID, GetObject(ANode));
+    Exit(FEventProvider.Fire(AEventID, GetObject(ANode)));
+  Result := False;
 end;
 
 procedure TDataRenderer.NodeChangeEvent(Sender: TBaseVirtualTree; Node: 
@@ -463,11 +464,17 @@ begin
   
   if GetItemType(HitInfo.HitNode) = MENU_ITEM_TYPE_ITEM then
   begin
-    if Assigned(FOpenDynamicMenuNode) then
+    if Assigned(FOpenDynamicMenuNode) and FireNodeEvent(FDataRenderer
+       .FEventProvider.EVENT_OBJECT_DETACH_DYNAMIC_MENU, HitInfo.HitNode) then
     begin
       FDataRenderer.FTreeView.DeleteChildren(FOpenDynamicMenuNode, True);
-      FireNodeEvent(FDataRenderer.FEventProvider
-        .EVENT_OBJECT_DETACH_DYNAMIC_MENU, HitInfo.HitNode);
+
+      if Assigned(TMainMenuItem(FDataRenderer.GetObject(HitInfo.HitNode))
+         .OpenDynamicMenuNode) then
+      begin
+        FDataRenderer.FTreeView.DeleteChildren(TMainMenuItem(FDataRenderer
+          .GetObject(HitInfo.HitNode)).OpenDynamicMenuNode, True);
+      end;
     end;
 
     FOpenDynamicMenuNode := HitInfo.HitNode;
@@ -475,13 +482,15 @@ begin
     FireNodeEvent(FDataRenderer.FEventProvider.EVENT_OBJECT_ATTACH_DYNAMIC_MENU,
       HitInfo.HitNode);
     CreateDynamicMenu(HitInfo.HitNode);  
+    TMainMenuItem(FDataRenderer.GetObject(HitInfo.HitNode))
+      .OpenDynamicMenuNode := HitInfo.HitNode;
   end;
 end;
 
-procedure TMainMenuDataRenderer.FireNodeEvent (AEventID : Integer; ANode :
-  PVirtualNode);
+function TMainMenuDataRenderer.FireNodeEvent (AEventID : Integer; ANode :
+  PVirtualNode) : Boolean;
 begin
-  TMainMenuItem(FDataRenderer.GetObject(ANode)).Fire(AEventID,
+  Result := TMainMenuItem(FDataRenderer.GetObject(ANode)).Fire(AEventID,
     TMainMenuItem(FDataRenderer.GetObject(ANode)));
 end;
 

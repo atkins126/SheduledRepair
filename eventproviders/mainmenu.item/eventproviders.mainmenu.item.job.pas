@@ -39,9 +39,9 @@ type
   public
     constructor Create; override;
   private
-    procedure JobClickEvent ({%H-}AObject : TCommonObject);
-    procedure JobAttachDynamicMenuEvent ({%H-}AObject : TCommonObject);
-    procedure JobDetachDynamicMenuEvent ({%H-}AObject : TCommonObject);
+    function JobClickEvent ({%H-}AObject : TCommonObject) : Boolean;
+    function JobAttachDynamicMenuEvent ({%H-}AObject : TCommonObject) : Boolean;
+    function JobDetachDynamicMenuEvent ({%H-}AObject : TCommonObject) : Boolean;
   end;
 
 implementation
@@ -61,24 +61,27 @@ begin
   Register(EVENT_OBJECT_DETACH_DYNAMIC_MENU, @JobDetachDynamicMenuEvent);
 end;
 
-procedure TMainMenuItemJobEventProvider.JobClickEvent (AObject : 
-  TCommonObject);
+function TMainMenuItemJobEventProvider.JobClickEvent (AObject : 
+  TCommonObject) : Boolean;
 begin
   Provider.ChangeData(TJobDataHandler.Create);
   MainMenu.DetachObject(TMainMenu.MAIN_MENU_ITEM_JOB);
   MainMenu.DetachObject(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT);
+  MainMenu.DetachAllDynamicMenus(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT);
+
+  Result := True;
 end;
 
-procedure TMainMenuItemJobEventProvider.JobAttachDynamicMenuEvent (AObject :
-  TCommonObject);
+function TMainMenuItemJobEventProvider.JobAttachDynamicMenuEvent (AObject :
+  TCommonObject) : Boolean;
 begin
   MainMenu.AttachDynamicMenu(TMainMenu.MAIN_MENU_ITEM_JOB,
     TMenuSubitemJobDataProvider.Create,
     TMainMenuSubitemProfilesProvider.Create);
 end;
 
-procedure TMainMenuItemJobEventProvider.JobDetachDynamicMenuEvent (AObject :
-  TCommonObject);
+function TMainMenuItemJobEventProvider.JobDetachDynamicMenuEvent (AObject :
+  TCommonObject) : Boolean;
 begin
   MainMenu.DetachAllDynamicMenus(TMainMenu.MAIN_MENU_ITEM_JOB);
 end;

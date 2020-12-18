@@ -39,7 +39,7 @@ type
   public
     constructor Create; override;
   private
-    procedure EquipmentCreateClickEvent ({%H-}AObject : TCommonObject);
+    function EquipmentCreateClickEvent ({%H-}AObject : TCommonObject) : Boolean;
   end;
 
 implementation
@@ -56,10 +56,11 @@ begin
   Register(EVENT_OBJECT_CLICK, @EquipmentCreateClickEvent);
 end;
 
-procedure TMainMenuSubitemEquipmentCreateEventProvider.EquipmentCreateClickEvent 
-  (AObject : TCommonObject);
+function TMainMenuSubitemEquipmentCreateEventProvider.EquipmentCreateClickEvent 
+  (AObject : TCommonObject) : Boolean;
 begin
   Provider.ShowEditor(TEquipment.Create(-1));
+  Result := True;
 end;
 
 end.

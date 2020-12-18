@@ -41,7 +41,7 @@ type
   private
     FEditMenuAttached : Boolean;
 
-    procedure OnObjectSelectEvent ({%H-}AObject : TCommonObject);
+    function OnObjectSelectEvent ({%H-}AObject : TCommonObject) : Boolean;
   end;
 
 implementation
@@ -60,7 +60,8 @@ begin
   Register(EVENT_OBJECT_SELECT, @OnObjectSelectEvent);
 end;
 
-procedure TJobEventProvider.OnObjectSelectEvent (AObject : TCommonObject);
+function TJobEventProvider.OnObjectSelectEvent (AObject : TCommonObject) :
+  Boolean;
 begin
   if (not FEditMenuAttached) and (Assigned(Provider.GetSelectedObject)) then
   begin
@@ -70,6 +71,7 @@ begin
     MainMenu.UpdateDynamicMenu;
     FEditMenuAttached := True;
   end;
+  Result := True;
 end;
 
 end.
