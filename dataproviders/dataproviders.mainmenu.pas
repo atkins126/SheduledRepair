@@ -35,6 +35,7 @@ uses
   SysUtils, dataproviders.common, objects.common, objects.mainmenu.item,
   eventproviders.mainmenu.item.job,
   eventproviders.mainmenu.item.equipment, 
+  eventproviders.mainmenu.item.entity,
   eventproviders.mainmenu.subitem.jobcreate, 
   eventproviders.mainmenu.subitem.jobedit,
   eventproviders.mainmenu.subitem.equipmentcreate,
@@ -52,7 +53,7 @@ type
     function LoadConcreteObject ({%H-}AID : Int64) : TCommonObject; override;
   end;
 
-  TMenuSubitemJobDataProvider = class(TCommonDataProvider)
+  TMenuSubitemJobCreateDataProvider = class(TCommonDataProvider)
   public
     function Load : Boolean; override;
   protected
@@ -74,7 +75,7 @@ type
     function LoadConcreteObject ({%H-}AID : Int64) : TCommonObject; override;
   end;
 
-  TMenuSubitemEquipmentDataProvider = class(TCommonDataProvider)
+  TMenuSubitemEquipmentCreateDataProvider = class(TCommonDataProvider)
   public
     function Load : Boolean; override;
   protected
@@ -107,6 +108,17 @@ type
     function LoadConcreteObject ({%H-}AID : Int64) : TCommonObject; override;
   end;
 
+  TMenuSubitemEntityCreateDataProvider = class(TCommonDataProvider)
+  public
+    function Load : Boolean; override;
+  protected
+    { Get current loaded objects table name. }
+    function LoadObjectsTableName : String; override;
+
+    { Load concrete object. }
+    function LoadConcreteObject ({%H-}AID : Int64) : TCommonObject; override;
+  end;
+
 implementation
 
 uses
@@ -119,12 +131,11 @@ begin
   Clear;
   
   Append(TMainMenuItem.Create(TMainMenu.MAIN_MENU_ITEM_LOGO, 
-    MENU_ITEM_TYPE_LOGO, 'SheduledRepair', False));
+    MENU_ITEM_TYPE_LOGO, 'SheduledRepair'));
   Append(TMainMenuItem.Create(TMainMenu.MAIN_MENU_ITEM_JOB, 
-    MENU_ITEM_TYPE_ITEM, 'Job', True, False, 
-    TMainMenuItemJobEventProvider.Create));
+    MENU_ITEM_TYPE_ITEM, 'Job', TMainMenuItemJobEventProvider.Create));
   Append(TMainMenuItem.Create(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT, 
-    MENU_ITEM_TYPE_ITEM, 'Equipment', True, False,
+    MENU_ITEM_TYPE_ITEM, 'Equipment',
     TMainMenuItemEquipmentEventProvider.Create));
   
   Result := True;
@@ -140,24 +151,24 @@ begin
   Result := nil;
 end;
 
-{ TMenuSubitemJobDataProvider }
+{ TMenuSubitemJobCreateDataProvider }
 
-function TMenuSubitemJobDataProvider.Load : Boolean;
+function TMenuSubitemJobCreateDataProvider.Load : Boolean;
 begin
   Clear;
   
-  Append(TMainMenuItem.Create(-1, MENU_ITEM_TYPE_SUBITEM, 'Create', False,
-    False, TMainMenuSubitemJobCreateEventProvider.Create));
+  Append(TMainMenuItem.Create(-1, MENU_ITEM_TYPE_SUBITEM, 'Create',
+    TMainMenuSubitemJobCreateEventProvider.Create));
     
   Result := True;
 end;
 
-function TMenuSubitemJobDataProvider.LoadObjectsTableName : String;
+function TMenuSubitemJobCreateDataProvider.LoadObjectsTableName : String;
 begin
   Result := '';
 end;
 
-function TMenuSubitemJobDataProvider.LoadConcreteObject (AID : Int64) : 
+function TMenuSubitemJobCreateDataProvider.LoadConcreteObject (AID : Int64) : 
   TCommonObject;
 begin
   Result := nil;
@@ -169,8 +180,8 @@ function TMenuSubitemJobEditDataProvider.Load : Boolean;
 begin
   Clear;
   
-  Append(TMainMenuItem.Create(-1, MENU_ITEM_TYPE_SUBITEM, 'Edit', False,
-    False, TMainMenuSubitemJobEditEventProvider.Create));
+  Append(TMainMenuItem.Create(-1, MENU_ITEM_TYPE_SUBITEM, 'Edit',
+    TMainMenuSubitemJobEditEventProvider.Create));
   
   Result := True;
 end;
@@ -188,23 +199,23 @@ end;
 
 { TMenuSubitemEquipmentDataProvider }
 
-function TMenuSubitemEquipmentDataProvider.Load : Boolean;
+function TMenuSubitemEquipmentCreateDataProvider.Load : Boolean;
 begin
   Clear;
   
-  Append(TMainMenuItem.Create(-1, MENU_ITEM_TYPE_SUBITEM, 'Create', False,
-    False, TMainMenuSubitemEquipmentCreateEventProvider.Create));
+  Append(TMainMenuItem.Create(-1, MENU_ITEM_TYPE_SUBITEM, 'Create',
+    TMainMenuSubitemEquipmentCreateEventProvider.Create));
   
   Result := True;
 end;
 
-function TMenuSubitemEquipmentDataProvider.LoadObjectsTableName : String;
+function TMenuSubitemEquipmentCreateDataProvider.LoadObjectsTableName : String;
 begin
   Result := '';
 end;
 
-function TMenuSubitemEquipmentDataProvider.LoadConcreteObject (AID : Int64) : 
-  TCommonObject;
+function TMenuSubitemEquipmentCreateDataProvider.LoadConcreteObject (AID : 
+  Int64) : TCommonObject;
 begin
   Result := nil;
 end;
@@ -215,8 +226,8 @@ function TMenuSubitemEquipmentEditDataProvider.Load : Boolean;
 begin
   Clear;
   
-  Append(TMainMenuItem.Create(-1, MENU_ITEM_TYPE_SUBITEM, 'Edit', False,
-    False, TMainMenuSubitemEquipmentEditEventProvider.Create));
+  Append(TMainMenuItem.Create(-1, MENU_ITEM_TYPE_SUBITEM, 'Edit',
+    TMainMenuSubitemEquipmentEditEventProvider.Create));
   
   Result := True;
 end;
@@ -239,8 +250,7 @@ begin
   Clear;
   
   Append(TMainMenuItem.Create(TMainMenu.MAIN_MENU_ITEM_ENTITY, 
-    MENU_ITEM_TYPE_ITEM, 'Entity', True, True, 
-    {TMainMenuItemEntityEventProvider.Create}nil));
+    MENU_ITEM_TYPE_ITEM, 'Entity', TMainMenuItemEntityEventProvider.Create));
   
   Result := True;
 end;
@@ -251,6 +261,29 @@ begin
 end;
 
 function TMenuSubitemEntityDataProvider.LoadConcreteObject (AID : Int64) : 
+  TCommonObject;
+begin
+  Result := nil;
+end;
+
+{ TMenuSubitemEntityCreateDataProvider }
+
+function TMenuSubitemEntityCreateDataProvider.Load : Boolean;
+begin
+  Clear;
+  
+  Append(TMainMenuItem.Create(-1, MENU_ITEM_TYPE_SUBITEM, 'Create',
+    {TMainMenuSubitemJobCreateEventProvider.Create}nil));
+    
+  Result := True;
+end;
+
+function TMenuSubitemEntityCreateDataProvider.LoadObjectsTableName : String;
+begin
+  Result := '';
+end;
+
+function TMenuSubitemEntityCreateDataProvider.LoadConcreteObject (AID : Int64) : 
   TCommonObject;
 begin
   Result := nil;

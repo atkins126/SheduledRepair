@@ -72,23 +72,30 @@ begin
     MainMenu.AttachDynamicMenu(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT,
       TMenuSubitemEquipmentEditDataProvider.Create,
       TMainMenuSubitemProfilesProvider.Create);
-    MainMenu.UpdateDynamicMenu;
+
     FEditMenuAttached := True;
   end;
+  
   Result := True;
 end;
 
 function TEquipmentEventProvider.OnObjectDoubleClickEvent (AObject :
   TCommonObject) : Boolean;
 begin
-  MainMenu.DetachAllDynamicMenus(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT);
+  Provider.ChangeData(TEquipmentEntityDataHandler.Create(TEquipment(AObject)));
   MainMenu.AttachObject(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT,
     TEquipment(AObject));
+  
+  MainMenu.DetachAllDynamicMenus(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT);
+
   MainMenu.AttachDynamicMenu(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT,
     TMenuSubitemEntityDataProvider.Create,
     TMainMenuItemProfilesProvider.Create);
-  Provider.ChangeData(TEquipmentEntityDataHandler.Create(TEquipment(AObject)));
-  MainMenu.UpdateDynamicMenu;
+  {
+  MainMenu.AttachDynamicMenu(TMainMenu.MAIN_MENU_ITEM_ENTITY,
+    TMenuSubitemEntityCreateDataProvider.Create,
+    TMainMenuSubitemProfilesProvider.Create);
+  }
   Result := True;
 end;
 

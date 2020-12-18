@@ -39,6 +39,7 @@ type
   public
     constructor Create; override;
   private
+    function EquipmentSelectEvent ({%H-}AObject : TCommonObject) : Boolean;
     function EquipmentClickEvent ({%H-}AObject : TCommonObject) : Boolean;
     function EquipmentAttachDynamicMenuEvent ({%H-}AObject : TCommonObject) :
       Boolean;
@@ -58,17 +59,26 @@ constructor TMainMenuItemEquipmentEventProvider.Create;
 begin
   inherited Create;
   
+  Register(EVENT_OBJECT_SELECT, @EquipmentSelectEvent);
   Register(EVENT_OBJECT_CLICK, @EquipmentClickEvent);
   Register(EVENT_OBJECT_ATTACH_DYNAMIC_MENU, @EquipmentAttachDynamicMenuEvent);
   Register(EVENT_OBJECT_DETACH_DYNAMIC_MENU, @EquipmentDetachDynamicMenuEvent);
+end;
+
+function TMainMenuItemEquipmentEventProvider.EquipmentSelectEvent (AObject : 
+  TCommonObject) : Boolean;
+begin
+  Result := True;
 end;
 
 function TMainMenuItemEquipmentEventProvider.EquipmentClickEvent (AObject : 
   TCommonObject) : Boolean;
 begin
   Provider.ChangeData(TEquipmentDataHandler.Create);
+  
   MainMenu.DetachObject(TMainMenu.MAIN_MENU_ITEM_JOB);
   MainMenu.DetachObject(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT);
+  
   MainMenu.DetachAllDynamicMenus(TMainMenu.MAIN_MENU_ITEM_JOB);
 
   Result := True;
@@ -78,9 +88,9 @@ function TMainMenuItemEquipmentEventProvider.EquipmentAttachDynamicMenuEvent
   (AObject : TCommonObject) : Boolean;
 begin
   MainMenu.AttachDynamicMenu(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT,
-    TMenuSubitemEquipmentDataProvider.Create, 
+    TMenuSubitemEquipmentCreateDataProvider.Create, 
     TMainMenuSubitemProfilesProvider.Create);
-
+  
   Result := True;
 end;
 
@@ -88,6 +98,7 @@ function TMainMenuItemEquipmentEventProvider.EquipmentDetachDynamicMenuEvent
   (AObject : TCommonObject) : Boolean;
 begin
   MainMenu.DetachAllDynamicMenus(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT);
+  
   Result := True;
 end;
 

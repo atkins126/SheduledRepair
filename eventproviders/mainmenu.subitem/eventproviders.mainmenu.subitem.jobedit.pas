@@ -64,6 +64,7 @@ begin
   JobObject := Provider.GetSelectedObject;
   if Assigned(JobObject) then
     Provider.ShowEditor(TJob(JobObject));
+  
   Result := True;
 end;
 

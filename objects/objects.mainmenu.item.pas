@@ -32,8 +32,8 @@ unit objects.mainmenu.item;
 interface
 
 uses
-  SysUtils, VirtualTrees, objects.common, objects.namedobject, sqlite3.schema,
-  eventproviders.common;
+  SysUtils, objects.common, objects.namedobject, sqlite3.schema,
+  eventproviders.common, renderers.datarenderer;
 
 type
   TMainMenuItem = class(TCommonObject)
@@ -48,8 +48,7 @@ type
         MENU_ITEM_TYPE_SUBITEM
       );
   public
-    constructor Create (AID : Int64; AItemType : TItemType; ATitle : String;
-      ACanSelected : Boolean = True; AIsSelected : Boolean = False; 
+    constructor Create (AID : Int64; AItemType : TItemType; ATitle : String; 
       AEventProvider : TCommonEventProvider = nil); reintroduce;
     destructor Destroy; override; 
 
@@ -71,19 +70,12 @@ type
   protected
     FItemType : TItemType;
     FTitle : String;
+    FHandle : TDataRenderer.TItemHandle;
     FAttachedObject : TNamedObject;
-    FCanSelected : Boolean;
-    FIsSelected : Boolean;
-    FOpenDynamicMenuNode : PVirtualNode;
     FEventProvider : TCommonEventProvider;
   public
-    property ItemType : TItemType read FItemType;
     property Title : String read FTitle;
-    property CanSelected : Boolean read FCanSelected;
-    property IsSelected : Boolean read FIsSelected;
-    property OpenDynamicMenuNode : PVirtualNode read FOpenDynamicMenuNode
-      write FOpenDynamicMenuNode;
-    
+    property Handle : TDataRenderer.TItemHandle read FHandle write FHandle;
     property AttachedObject : TNamedObject read FAttachedObject 
       write FAttachedObject;
   end;
@@ -93,16 +85,13 @@ implementation
 { TMainMenuItem }
 
 constructor TMainMenuItem.Create (AID : Int64; AItemType : TItemType; ATitle : 
-  String; ACanSelected : Boolean; AIsSelected : Boolean; AEventProvider : 
-  TCommonEventProvider);
+  String; AEventProvider : TCommonEventProvider);
 begin
   inherited Create(AID);
   FItemType := AItemType;
   FTitle := ATitle;
+  FHandle := nil;
   FAttachedObject := nil;
-  FCanSelected := ACanSelected;
-  FIsSelected := AIsSelected;
-  FOpenDynamicMenuNode := nil;
   FEventProvider := AEventProvider;
 end;
 

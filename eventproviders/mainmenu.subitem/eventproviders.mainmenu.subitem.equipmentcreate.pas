@@ -60,6 +60,7 @@ function TMainMenuSubitemEquipmentCreateEventProvider.EquipmentCreateClickEvent
   (AObject : TCommonObject) : Boolean;
 begin
   Provider.ShowEditor(TEquipment.Create(-1));
+  
   Result := True;
 end;
 

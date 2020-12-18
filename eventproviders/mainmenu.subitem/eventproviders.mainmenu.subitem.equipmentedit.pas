@@ -64,6 +64,7 @@ begin
   EquipmentObject := Provider.GetSelectedObject;
   if Assigned(EquipmentObject) then
     Provider.ShowEditor(TEquipment(EquipmentObject));
+  
   Result := True;
 end;
 

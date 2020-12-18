@@ -60,6 +60,7 @@ function TMainMenuSubitemJobCreateEventProvider.JobCreateClickEvent
   (AObject : TCommonObject) : Boolean;
 begin
   Provider.ShowEditor(TJob.Create(-1));
+  
   Result := True;
 end;
 

@@ -22,7 +22,7 @@
 (* Floor, Boston, MA 02110-1335, USA.                                         *)
 (*                                                                            *)
 (******************************************************************************)
-unit eventproviders.mainmenu.item.job;
+unit eventproviders.mainmenu.item.entity;
 
 {$mode objfpc}{$H+}
 {$IFOPT D+}
@@ -35,14 +35,16 @@ uses
   SysUtils, eventproviders.common, objects.common;
 
 type
-  TMainMenuItemJobEventProvider = class(TCommonEventProvider)
+  TMainMenuItemEntityEventProvider = class(TCommonEventProvider)
   public
     constructor Create; override;
   private
-    function JobSelectEvent ({%H-}AObject : TCommonObject) : Boolean;
-    function JobClickEvent ({%H-}AObject : TCommonObject) : Boolean;
-    function JobAttachDynamicMenuEvent ({%H-}AObject : TCommonObject) : Boolean;
-    function JobDetachDynamicMenuEvent ({%H-}AObject : TCommonObject) : Boolean;
+    function EntitySelectEvent ({%H-}AObject : TCommonObject) : Boolean;
+    function EntityClickEvent ({%H-}AObject : TCommonObject) : Boolean;
+    function EntityAttachDynamicMenuEvent ({%H-}AObject : TCommonObject) : 
+      Boolean;
+    function EntityDetachDynamicMenuEvent ({%H-}AObject : TCommonObject) : 
+      Boolean;
   end;
 
 implementation
@@ -51,52 +53,51 @@ uses
   dataprovider, datahandlers, mainmenuprovider, profilesprovider.mainmenu,
   dataproviders.mainmenu;
 
-{ TMainMenuItemJobEventProvider }
+{ TMainMenuItemEntityEventProvider }
 
-constructor TMainMenuItemJobEventProvider.Create;
+constructor TMainMenuItemEntityEventProvider.Create;
 begin
   inherited Create;
   
-  Register(EVENT_OBJECT_SELECT, @JobSelectEvent);
-  Register(EVENT_OBJECT_CLICK, @JobClickEvent);
-  Register(EVENT_OBJECT_ATTACH_DYNAMIC_MENU, @JobAttachDynamicMenuEvent);
-  Register(EVENT_OBJECT_DETACH_DYNAMIC_MENU, @JobDetachDynamicMenuEvent);
+  Register(EVENT_OBJECT_SELECT, @EntitySelectEvent);
+  Register(EVENT_OBJECT_CLICK, @EntityClickEvent);
+  Register(EVENT_OBJECT_ATTACH_DYNAMIC_MENU, @EntityAttachDynamicMenuEvent);
+  Register(EVENT_OBJECT_DETACH_DYNAMIC_MENU, @EntityDetachDynamicMenuEvent);
 end;
 
-function TMainMenuItemJobEventProvider.JobSelectEvent (AObject : TCommonObject) 
-  : Boolean;
+function TMainMenuItemEntityEventProvider.EntitySelectEvent (AObject : 
+  TCommonObject) : Boolean;
 begin
   Result := True;
 end;
 
-function TMainMenuItemJobEventProvider.JobClickEvent (AObject : 
+function TMainMenuItemEntityEventProvider.EntityClickEvent (AObject : 
   TCommonObject) : Boolean;
 begin
+  {
   Provider.ChangeData(TJobDataHandler.Create);
-  
   MainMenu.DetachObject(TMainMenu.MAIN_MENU_ITEM_JOB);
   MainMenu.DetachObject(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT);
-  
   MainMenu.DetachAllDynamicMenus(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT);
-  
+  }
   Result := True;
 end;
 
-function TMainMenuItemJobEventProvider.JobAttachDynamicMenuEvent (AObject :
-  TCommonObject) : Boolean;
+function TMainMenuItemEntityEventProvider.EntityAttachDynamicMenuEvent 
+  (AObject : TCommonObject) : Boolean;
 begin
-  MainMenu.AttachDynamicMenu(TMainMenu.MAIN_MENU_ITEM_JOB,
-    TMenuSubitemJobCreateDataProvider.Create,
+  {
+  MainMenu.AttachDynamicMenu(TMainMenu.MAIN_MENU_ITEM_ENTITY,
+    TMenuSubitemEntityCreateDataProvider.Create,
     TMainMenuSubitemProfilesProvider.Create);
-  
+  }
   Result := True;
 end;
 
-function TMainMenuItemJobEventProvider.JobDetachDynamicMenuEvent (AObject :
-  TCommonObject) : Boolean;
+function TMainMenuItemEntityEventProvider.EntityDetachDynamicMenuEvent 
+  (AObject : TCommonObject) : Boolean;
 begin
-  MainMenu.DetachAllDynamicMenus(TMainMenu.MAIN_MENU_ITEM_JOB);
-
+  //MainMenu.DetachAllDynamicMenus(TMainMenu.MAIN_MENU_ITEM_ENTITY);
   Result := True;
 end;
 
