@@ -32,7 +32,7 @@ unit eventproviders.mainmenu.item.entity;
 interface
 
 uses
-  SysUtils, eventproviders.common, objects.common;
+  SysUtils, eventproviders.common, objects.common, objects.equipment;
 
 type
   TMainMenuItemEntityEventProvider = class(TCommonEventProvider)
@@ -50,7 +50,7 @@ type
 implementation
 
 uses
-  dataprovider, mainmenuprovider, profilesprovider.mainmenu,
+  dataprovider, datahandlers, mainmenuprovider, profilesprovider.mainmenu,
   dataproviders.mainmenu;
 
 { TMainMenuItemEntityEventProvider }
@@ -74,12 +74,12 @@ end;
 function TMainMenuItemEntityEventProvider.EntityClickEvent (AObject : 
   TCommonObject) : Boolean;
 begin
-  {
-  Provider.ChangeData(TJobDataHandler.Create);
-  MainMenu.DetachObject(TMainMenu.MAIN_MENU_ITEM_JOB);
-  MainMenu.DetachObject(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT);
-  MainMenu.DetachAllDynamicMenus(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT);
-  }
+  Provider.ChangeData(TEquipmentEntityDataHandler.Create(
+    TEquipment(MainMenu.GetAttachedObject(
+    TMainMenu.MAIN_MENU_ITEM_EQUIPMENT))));
+
+  MainMenu.DetachObject(TMainMenu.MAIN_MENU_ITEM_ENTITY);
+
   Result := True;
 end;
 

@@ -32,9 +32,9 @@ unit renderers.datarenderer;
 interface
 
 uses
-  SysUtils, Classes, Graphics, VirtualTrees, objects.common,
-  dataproviders.common, profilesprovider.common, renderers.common,
-  renderer.profile.objectprofile, renderer.profile.profile, 
+  SysUtils, Classes, Graphics, VirtualTrees, objects.common, 
+  objects.namedobject, dataproviders.common, profilesprovider.common, 
+  renderers.common, renderer.profile.objectprofile, renderer.profile.profile, 
   eventproviders.common;
 
 type
@@ -164,6 +164,20 @@ type
 
     { Select menu item by handle. }
     procedure SelectMenuItem (AItemHandle : TDataRenderer.TItemHandle);
+      {$IFNDEF DEBUG}inline;{$ENDIF}
+
+    { Attach object to menu item element. }
+    procedure AttachObject (AItemHandle : TDataRenderer.TItemHandle;
+      AObject : TNamedObject);
+      {$IFNDEF DEBUG}inline;{$ENDIF}
+
+    { Detach menu item element object. }
+    procedure DetachObject (AItemHandle : TDataRenderer.TItemHandle);
+      {$IFNDEF DEBUG}inline;{$ENDIF}
+
+    { Get attached object. }
+    function GetAttachedObject (AItemHandle : TDataRenderer.TItemHandle) :
+      TNamedObject;
       {$IFNDEF DEBUG}inline;{$ENDIF}
   protected
     FDataRenderer : TDataRenderer;
@@ -556,6 +570,38 @@ begin
     Exit;
 
   FDataRenderer.FTreeView.Selected[PVirtualNode(AItemHandle)] := True;
+end;
+
+procedure TMainMenuDataRenderer.AttachObject (AItemHandle :
+  TDataRenderer.TItemHandle; AObject : TNamedObject);
+begin
+  if not Assigned(AItemHandle) then
+    Exit;
+
+  TMainMenuItem(FDataRenderer.GetObject(PVirtualNode(AItemHandle)))
+    .AttachedObject := AObject;
+  FDataRenderer.FTreeView.InvalidateNode(PVirtualNode(AItemHandle));
+end;
+
+procedure TMainMenuDataRenderer.DetachObject (AItemHandle :
+  TDataRenderer.TItemHandle);
+begin
+  if not Assigned(AItemHandle) then
+    Exit;
+
+  TMainMenuItem(FDataRenderer.GetObject(PVirtualNode(AItemHandle)))
+    .AttachedObject := nil;
+  FDataRenderer.FTreeView.InvalidateNode(PVirtualNode(AItemHandle));
+end;
+
+function TMainMenuDataRenderer.GetAttachedObject (AItemHandle :
+  TDataRenderer.TItemHandle) : TNamedObject;
+begin
+  if not Assigned(AItemHandle) then
+    Exit;
+
+  Result := TMainMenuItem(FDataRenderer.GetObject(PVirtualNode(AItemHandle)))
+    .AttachedObject;
 end;
 
 end.

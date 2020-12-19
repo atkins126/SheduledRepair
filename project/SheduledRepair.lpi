@@ -17,7 +17,7 @@
       <UseVersionInfo Value="True"/>
       <AutoIncrementBuild Value="True"/>
       <MinorVersionNr Value="2"/>
-      <BuildNr Value="664"/>
+      <BuildNr Value="670"/>
     </VersionInfo>
     <BuildModes Count="1">
       <Item1 Name="Default" Default="True"/>
@@ -38,7 +38,7 @@
         <PackageName Value="LCL"/>
       </Item2>
     </RequiredPackages>
-    <Units Count="62">
+    <Units Count="67">
       <Unit0>
         <Filename Value="SheduledRepair.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -298,12 +298,32 @@
         <UnitName Value="objects.common"/>
       </Unit60>
       <Unit61>
+        <Filename Value="../eventproviders/mainmenu.item/eventproviders.mainmenu.item.entity.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit61>
+      <Unit62>
         <Filename Value="../forms/editors/entityform.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="EntityWindow"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-      </Unit61>
+      </Unit62>
+      <Unit63>
+        <Filename Value="../dataproviders/dataproviders.node.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit63>
+      <Unit64>
+        <Filename Value="../eventproviders/eventproviders.node.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit64>
+      <Unit65>
+        <Filename Value="../renderers/objects/renderers.node.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit65>
+      <Unit66>
+        <Filename Value="../profilesprovider/profilesprovider.node.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit66>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

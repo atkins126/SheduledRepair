@@ -69,6 +69,10 @@ type
     { Detach menu item element object. }
     procedure DetachObject (AMenuItemID : Int64);
       {$IFNDEF DEBUG}inline;{$ENDIF}
+
+    { Get attached object. }
+    function GetAttachedObject (AMenuItemID : Int64) : TNamedObject;
+      {$IFNDEF DEBUG}inline;{$ENDIF}
   private
     type
       { Menu items handle list. }
@@ -196,20 +200,26 @@ end;
 
 procedure TMainMenu.AttachObject (AMenuItemID : Int64; AObject : TNamedObject);
 begin
-  with TMainMenuItem(FMainMenuDataProvider.GetObject(AMenuItemID)) do
-  begin
-    AttachedObject := AObject;
-  end;
-  FMainMenuView.Refresh;
+  if AMenuItemID > (FMenuItems.Length - 1) then
+    Exit;
+
+  FMainMenuRenderer.AttachObject(FMenuItems.Value[AMenuItemID], AObject);
 end;
 
 procedure TMainMenu.DetachObject (AMenuItemID : Int64);
 begin
-  with TMainMenuItem(FMainMenuDataProvider.GetObject(AMenuItemID)) do
-  begin
-    AttachedObject := nil;
-  end;
-  FMainMenuView.Refresh;
+  if AMenuItemID > (FMenuItems.Length - 1) then
+    Exit;
+
+  FMainMenuRenderer.DetachObject(FMenuItems.Value[AMenuItemID]);
+end;
+
+function TMainMenu.GetAttachedObject (AMenuItemID : Int64) : TNamedObject;
+begin
+  if AMenuItemID > (FMenuItems.Length - 1) then
+    Exit;
+
+  Result := FMainMenuRenderer.GetAttachedObject(FMenuItems.Value[AMenuItemID]);
 end;
 
 initialization

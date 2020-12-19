@@ -22,7 +22,7 @@
 (* Floor, Boston, MA 02110-1335, USA.                                         *)
 (*                                                                            *)
 (******************************************************************************)
-unit eventproviders.entity;
+unit dataproviders.node;
 
 {$mode objfpc}{$H+}
 {$IFOPT D+}
@@ -32,63 +32,72 @@ unit eventproviders.entity;
 interface
 
 uses
-  SysUtils, eventproviders.common, objects.common, objects.entity;
+  SysUtils, dataproviders.common, objects.common, objects.entity, 
+  objects.nodebag, objects.node;
 
 type
-  TEntityEventProvider = class(TCommonEventProvider)
+  TNodeDataProvider = class(TCommonDataProvider)
   public
-    constructor Create; override;
+    constructor Create (AEntity : TEntity); reintroduce;
+
+    { Load objects. }
+    function Load : Boolean; override;
+  protected
+    { Get current loaded objects table name. }
+    function LoadObjectsTableName : String; override;
+
+    { Load concrete object. }
+    function LoadConcreteObject ({%H-}AID : Int64) : TCommonObject; override;
   private
-    FEditMenuAttached : Boolean;
-    
-    function OnObjectSelectEvent ({%H-}AObject : TCommonObject) : Boolean;
-    function OnObjectDoubleClickEvent ({%H-}AObject : TCommonObject) : Boolean;
+    FEntity : TEntity;
   end;
 
 implementation
 
-uses
-  dataprovider, datahandlers, mainmenuprovider, dataproviders.mainmenu,
-  profilesprovider.mainmenu;
+{ TNodeDataProvider }
 
-{ TEntityEventProvider }
-
-constructor TEntityEventProvider.Create;
+constructor TNodeDataProvider.Create (AEntity : TEntity);
 begin
   inherited Create;
-  FEditMenuAttached := False;
-  
-  Register(EVENT_OBJECT_SELECT, @OnObjectSelectEvent);
-  Register(EVENT_OBJECT_DOUBLE_CLICK, @OnObjectDoubleClickEvent);
+  FEntity := AEntity;
 end;
 
-function TEntityEventProvider.OnObjectSelectEvent (AObject : TCommonObject) :
-  Boolean;
+function TNodeDataProvider.Load : Boolean;
+var
+  Node : TNode;
 begin
-  if (not FEditMenuAttached) and (Assigned(Provider.GetSelectedObject)) then
+  if not Assigned(FEntity) then
+    Exit(inherited Load);
+
+  Clear;
+
+  for Node in FEntity.NodeBag do
+    Append(Node);
+
+  Result := True;
+end;
+
+function TNodeDataProvider.LoadObjectsTableName : String;
+var
+  Node : TNode;
+begin
+  Node := TNode.Create(-1);
+  Result := Node.Table;
+  FreeAndNil(Node);
+end;
+
+function TNodeDataProvider.LoadConcreteObject (AID : Int64) : TCommonObject;
+var
+  Node : TNode;
+begin
+  Node := TNode.Create(AID);
+  if not Node.Load then
   begin
-    MainMenu.AttachDynamicMenu(TMainMenu.MAIN_MENU_ITEM_ENTITY,
-      TMenuSubitemEntityEditDataProvider.Create,
-      TMainMenuSubitemProfilesProvider.Create);
-    
-    FEditMenuAttached := True;
+    FreeAndNil(Node);
+    Exit(nil);
   end;
-  
-  Result := True;
-end;
 
-function TEntityEventProvider.OnObjectDoubleClickEvent (AObject :
-  TCommonObject) : Boolean;
-begin
-  Provider.ChangeData(TEntityNodeDataHandler.Create(TEntity(AObject)));
-  MainMenu.AttachObject(TMainMenu.MAIN_MENU_ITEM_ENTITY,
-    TEntity(AObject));
-
-  MainMenu.DetachAllDynamicMenus(TMainMenu.MAIN_MENU_ITEM_ENTITY);
-  
-  
-  
-  Result := True;
+  Result := Node;
 end;
 
 end.

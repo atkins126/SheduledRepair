@@ -22,7 +22,7 @@
 (* Floor, Boston, MA 02110-1335, USA.                                         *)
 (*                                                                            *)
 (******************************************************************************)
-unit eventproviders.entity;
+unit eventproviders.node;
 
 {$mode objfpc}{$H+}
 {$IFOPT D+}
@@ -32,62 +32,47 @@ unit eventproviders.entity;
 interface
 
 uses
-  SysUtils, eventproviders.common, objects.common, objects.entity;
+  SysUtils, eventproviders.common, objects.common;
 
 type
-  TEntityEventProvider = class(TCommonEventProvider)
+  TNodeEventProvider = class(TCommonEventProvider)
   public
     constructor Create; override;
   private
     FEditMenuAttached : Boolean;
-    
+
     function OnObjectSelectEvent ({%H-}AObject : TCommonObject) : Boolean;
-    function OnObjectDoubleClickEvent ({%H-}AObject : TCommonObject) : Boolean;
   end;
 
 implementation
 
 uses
-  dataprovider, datahandlers, mainmenuprovider, dataproviders.mainmenu,
-  profilesprovider.mainmenu;
+  mainmenuprovider, dataproviders.mainmenu, profilesprovider.mainmenu, 
+  dataprovider;
 
-{ TEntityEventProvider }
+{ TNodeEventProvider }
 
-constructor TEntityEventProvider.Create;
+constructor TNodeEventProvider.Create;
 begin
   inherited Create;
   FEditMenuAttached := False;
   
-  Register(EVENT_OBJECT_SELECT, @OnObjectSelectEvent);
-  Register(EVENT_OBJECT_DOUBLE_CLICK, @OnObjectDoubleClickEvent);
+  //Register(EVENT_OBJECT_SELECT, @OnObjectSelectEvent);
 end;
 
-function TEntityEventProvider.OnObjectSelectEvent (AObject : TCommonObject) :
+function TNodeEventProvider.OnObjectSelectEvent (AObject : TCommonObject) :
   Boolean;
 begin
+  {
   if (not FEditMenuAttached) and (Assigned(Provider.GetSelectedObject)) then
   begin
-    MainMenu.AttachDynamicMenu(TMainMenu.MAIN_MENU_ITEM_ENTITY,
-      TMenuSubitemEntityEditDataProvider.Create,
+    MainMenu.AttachDynamicMenu(TMainMenu.MAIN_MENU_ITEM_JOB,
+      TMenuSubitemJobEditDataProvider.Create, 
       TMainMenuSubitemProfilesProvider.Create);
     
     FEditMenuAttached := True;
   end;
-  
-  Result := True;
-end;
-
-function TEntityEventProvider.OnObjectDoubleClickEvent (AObject :
-  TCommonObject) : Boolean;
-begin
-  Provider.ChangeData(TEntityNodeDataHandler.Create(TEntity(AObject)));
-  MainMenu.AttachObject(TMainMenu.MAIN_MENU_ITEM_ENTITY,
-    TEntity(AObject));
-
-  MainMenu.DetachAllDynamicMenus(TMainMenu.MAIN_MENU_ITEM_ENTITY);
-  
-  
-  
+  }
   Result := True;
 end;
 

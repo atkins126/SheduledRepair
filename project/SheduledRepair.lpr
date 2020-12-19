@@ -9,9 +9,9 @@ uses
   Interfaces, // this includes the LCL widgetset
   Forms, MainForm, renderers.datarenderer, profilesprovider.mainmenu,
   dataproviders.mainmenu, dataproviders.equipment, dataproviders.measure,
-  datahandlers, objects.common, objects.entitybag, objects.greasebag,
-  objects.mainmenu.item, objects.nodebag, equipmentform, profileform, jobform,
-  entityform
+  dataproviders.node, datahandlers, eventproviders.mainmenu.item.entity,
+  objects.common, objects.entitybag, objects.greasebag, objects.mainmenu.item,
+  objects.nodebag, equipmentform, profileform, jobform, entityform
   { you can add units after this };
 
 {$R *.res}

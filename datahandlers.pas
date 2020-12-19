@@ -33,11 +33,13 @@ interface
 
 uses
   SysUtils, VirtualTrees, Forms, Controls, objects.common, objects.equipment,
-  objects.job, objects.entity, renderers.datarenderer, renderers.equipment,
+  objects.job, objects.entity, objects.node, renderers.datarenderer, 
+  renderers.equipment, dataproviders.node, profilesprovider.node, 
   dataproviders.equipment, profilesprovider.equipment, eventproviders.equipment,
   renderers.entity, dataproviders.entity, profilesprovider.entity, 
   renderers.job, dataproviders.job, profilesprovider.job, eventproviders.job, 
-  eventproviders.entity, jobform, equipmentform, entityform;
+  eventproviders.entity, jobform, equipmentform, entityform, renderers.node,
+  eventproviders.node;
 
 type
   TDataHandler = class
@@ -76,6 +78,17 @@ type
       override;
   private
     FEquipment : TEquipment;
+  end;
+
+  TEntityNodeDataHandler = class(TDataHandler)
+  public
+    constructor Create (AEntity : TEntity);
+    function CreateDataRenderer (ADataView : TVirtualDrawTree) : TDataRenderer;
+      override;
+    procedure ShowEditor (AParent : TCustomForm; {%H-}AObject : TCommonObject); 
+      override;
+  private
+    FEntity : TEntity;
   end;
 
 implementation
@@ -189,6 +202,57 @@ begin
     Provider.ReloadData;
 
   FreeAndNil(EntityEditor);
+end;
+
+{ TEntityNodeDataHandler }
+
+constructor TEntityNodeDataHandler.Create (AEntity : TEntity);
+begin
+  FEntity := AEntity;
+end;
+
+function TEntityNodeDataHandler.CreateDataRenderer (ADataView :
+  TVirtualDrawTree) : TDataRenderer;
+begin
+  Result := TDataRenderer.Create(ADataView, 
+    TNodeDataProvider.Create(FEntity), TNodeProfilesProvider.Create,
+    TNodeRenderer.Create, TNodeEventProvider.Create);
+end;
+
+procedure TEntityNodeDataHandler.ShowEditor (AParent : TCustomForm; 
+  AObject : TCommonObject);
+var
+  EntityEditor : TEntityWindow;
+  Entity : TEntity;
+  ModalResult : Integer;
+begin
+  { EquipmentEditor window is temporaryly, onlu for work testing and it will
+    been changed after refactor. }
+  {
+  EntityEditor := TEntityWindow.Create(AParent, FEquipment, TEntity(AObject));
+  ModalResult := EntityEditor.ShowModal;
+
+  if ModalResult = mrOk then
+  begin
+    Entity := EntityEditor.GetObject;
+
+    if Entity.ID = -1 then
+    begin
+      Entity.Save;
+      FEquipment.EntityBag.Append(Entity);
+    end else
+    begin
+      Entity.Save;
+    end;
+
+    FEquipment.Save;
+  end;
+
+  if ModalResult <> mrCancel then
+    Provider.ReloadData;
+
+  FreeAndNil(EntityEditor);
+  }
 end;
 
 end.
