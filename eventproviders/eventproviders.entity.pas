@@ -86,8 +86,15 @@ begin
 
   MainMenu.DetachAllDynamicMenus(TMainMenu.MAIN_MENU_ITEM_ENTITY);
   
+  MainMenu.AttachDynamicMenu(TMainMenu.MAIN_MENU_ITEM_ENTITY,
+    TMenuSubitemNodeDataProvider.Create,
+    TMainMenuItemProfilesProvider.Create);
+  MainMenu.AttachDynamicMenu(TMainMenu.MAIN_MENU_ITEM_NODE,
+    TMenuSubitemNodeCreateDataProvider.Create,
+    TMainMenuSubitemProfilesProvider.Create);
   
-  
+  MainMenu.SelectMenuItem(TMainMenu.MAIN_MENU_ITEM_NODE);
+
   Result := True;
 end;
 

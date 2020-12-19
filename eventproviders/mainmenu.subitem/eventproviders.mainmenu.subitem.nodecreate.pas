@@ -22,7 +22,7 @@
 (* Floor, Boston, MA 02110-1335, USA.                                         *)
 (*                                                                            *)
 (******************************************************************************)
-unit eventproviders.node;
+unit eventproviders.mainmenu.subitem.nodecreate;
 
 {$mode objfpc}{$H+}
 {$IFOPT D+}
@@ -32,46 +32,35 @@ unit eventproviders.node;
 interface
 
 uses
-  SysUtils, eventproviders.common, objects.common;
+  SysUtils, eventproviders.common, objects.common, objects.node;
 
 type
-  TNodeEventProvider = class(TCommonEventProvider)
+  TMainMenuSubitemNodeCreateEventProvider = class(TCommonEventProvider)
   public
     constructor Create; override;
   private
-    FEditMenuAttached : Boolean;
-
-    function OnObjectSelectEvent ({%H-}AObject : TCommonObject) : Boolean;
+    function EntityCreateClickEvent ({%H-}AObject : TCommonObject) : Boolean;
   end;
 
 implementation
 
 uses
-  mainmenuprovider, dataproviders.mainmenu, profilesprovider.mainmenu, 
-  dataprovider;
+  dataprovider, mainmenuprovider;
 
-{ TNodeEventProvider }
+{ TMainMenuSubitemNodeCreateEventProvider }
 
-constructor TNodeEventProvider.Create;
+constructor TMainMenuSubitemNodeCreateEventProvider.Create;
 begin
   inherited Create;
-  FEditMenuAttached := False;
   
-  Register(EVENT_OBJECT_SELECT, @OnObjectSelectEvent);
+  Register(EVENT_OBJECT_CLICK, @EntityCreateClickEvent);
 end;
 
-function TNodeEventProvider.OnObjectSelectEvent (AObject : TCommonObject) :
-  Boolean;
+function TMainMenuSubitemNodeCreateEventProvider.EntityCreateClickEvent 
+  (AObject : TCommonObject) : Boolean;
 begin
-  if (not FEditMenuAttached) and (Assigned(Provider.GetSelectedObject)) then
-  begin
-    MainMenu.AttachDynamicMenu(TMainMenu.MAIN_MENU_ITEM_NODE,
-      TMenuSubitemNodeEditDataProvider.Create, 
-      TMainMenuSubitemProfilesProvider.Create);
+  Provider.ShowEditor(TNode.Create(-1));
     
-    FEditMenuAttached := True;
-  end;
-  
   Result := True;
 end;
 

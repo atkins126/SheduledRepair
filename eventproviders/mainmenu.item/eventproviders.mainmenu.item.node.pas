@@ -22,7 +22,7 @@
 (* Floor, Boston, MA 02110-1335, USA.                                         *)
 (*                                                                            *)
 (******************************************************************************)
-unit eventproviders.node;
+unit eventproviders.mainmenu.item.node;
 
 {$mode objfpc}{$H+}
 {$IFOPT D+}
@@ -35,43 +35,70 @@ uses
   SysUtils, eventproviders.common, objects.common;
 
 type
-  TNodeEventProvider = class(TCommonEventProvider)
+  TMainMenuItemNodeEventProvider = class(TCommonEventProvider)
   public
     constructor Create; override;
   private
-    FEditMenuAttached : Boolean;
-
-    function OnObjectSelectEvent ({%H-}AObject : TCommonObject) : Boolean;
+    function JobSelectEvent ({%H-}AObject : TCommonObject) : Boolean;
+    function JobClickEvent ({%H-}AObject : TCommonObject) : Boolean;
+    function JobAttachDynamicMenuEvent ({%H-}AObject : TCommonObject) : Boolean;
+    function JobDetachDynamicMenuEvent ({%H-}AObject : TCommonObject) : Boolean;
   end;
 
 implementation
 
 uses
-  mainmenuprovider, dataproviders.mainmenu, profilesprovider.mainmenu, 
-  dataprovider;
+  dataprovider, datahandlers, mainmenuprovider, profilesprovider.mainmenu,
+  dataproviders.mainmenu;
 
-{ TNodeEventProvider }
+{ TMainMenuItemNodeEventProvider }
 
-constructor TNodeEventProvider.Create;
+constructor TMainMenuItemNodeEventProvider.Create;
 begin
   inherited Create;
-  FEditMenuAttached := False;
   
-  Register(EVENT_OBJECT_SELECT, @OnObjectSelectEvent);
+  Register(EVENT_OBJECT_SELECT, @JobSelectEvent);
+  Register(EVENT_OBJECT_CLICK, @JobClickEvent);
+  Register(EVENT_OBJECT_ATTACH_DYNAMIC_MENU, @JobAttachDynamicMenuEvent);
+  Register(EVENT_OBJECT_DETACH_DYNAMIC_MENU, @JobDetachDynamicMenuEvent);
 end;
 
-function TNodeEventProvider.OnObjectSelectEvent (AObject : TCommonObject) :
-  Boolean;
+function TMainMenuItemNodeEventProvider.JobSelectEvent (AObject : TCommonObject) 
+  : Boolean;
 begin
-  if (not FEditMenuAttached) and (Assigned(Provider.GetSelectedObject)) then
-  begin
-    MainMenu.AttachDynamicMenu(TMainMenu.MAIN_MENU_ITEM_NODE,
-      TMenuSubitemNodeEditDataProvider.Create, 
-      TMainMenuSubitemProfilesProvider.Create);
-    
-    FEditMenuAttached := True;
-  end;
+  Result := True;
+end;
+
+function TMainMenuItemNodeEventProvider.JobClickEvent (AObject : 
+  TCommonObject) : Boolean;
+begin
+  {
+  Provider.ChangeData(TJobDataHandler.Create);
   
+  MainMenu.DetachObject(TMainMenu.MAIN_MENU_ITEM_JOB);
+  MainMenu.DetachObject(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT);
+  
+  MainMenu.DetachAllDynamicMenus(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT);
+  }
+  Result := True;
+end;
+
+function TMainMenuItemNodeEventProvider.JobAttachDynamicMenuEvent (AObject :
+  TCommonObject) : Boolean;
+begin
+  {
+  MainMenu.AttachDynamicMenu(TMainMenu.MAIN_MENU_ITEM_JOB,
+    TMenuSubitemJobCreateDataProvider.Create,
+    TMainMenuSubitemProfilesProvider.Create);
+  }
+  Result := True;
+end;
+
+function TMainMenuItemNodeEventProvider.JobDetachDynamicMenuEvent (AObject :
+  TCommonObject) : Boolean;
+begin
+  //MainMenu.DetachAllDynamicMenus(TMainMenu.MAIN_MENU_ITEM_JOB);
+
   Result := True;
 end;
 

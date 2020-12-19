@@ -276,6 +276,12 @@ begin
 
   if Index <> -1 then
     FNodesList.Remove(Index);
+
+  FTable.Delete
+    .Where('object_name', FObject.Table)
+    .Where('object_id', FObject.ID)
+    .Where('node_id', ANode.ID)
+    .Get;
 end;
 
 function TNodeBag.GetEnumerator : TNodesList.TIterator;

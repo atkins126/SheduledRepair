@@ -1,0 +1,145 @@
+unit nodeform;
+
+{$mode objfpc}{$H+}
+
+interface
+
+uses
+  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, ExtCtrls,
+  Spin, EditBtn, Buttons, objects.entity, objects.node, objects.common,
+  objects.measure, dataproviders.measure;
+
+type
+
+  { TNodeWindow }
+
+  TNodeWindow = class(TForm)
+    CancelButton: TBitBtn;
+    DeleteButton: TBitBtn;
+    NameEditor: TEdit;
+    NameEditorGroup: TPanel;
+    NameGroup: TPanel;
+    NameLabel: TLabel;
+    NameLabelGroup: TPanel;
+    ObjectGroup: TGroupBox;
+    PeriodCountEditor: TFloatSpinEdit;
+    PeriodEditorGroup: TPanel;
+    PeriodGroup: TPanel;
+    PeriodLabel: TLabel;
+    PeriodLabelGroup: TPanel;
+    PeriodMeasureEditor: TComboBox;
+    SaveButton: TBitBtn;
+    SheduleGroup: TGroupBox;
+    SheduleNextEditor: TDateEdit;
+    SheduleNextEditorGroup: TPanel;
+    SheduleNextGroup: TPanel;
+    SheduleNextNameLabel: TLabel;
+    SheduleNextNameLabelGroup: TPanel;
+    ShedulePrevEditor: TDateEdit;
+    ShedulePrevEditorGroup: TPanel;
+    ShedulePrevGroup: TPanel;
+    ShedulePrevNameLabel: TLabel;
+    ShedulePrevNameLabelGroup: TPanel;
+    procedure DeleteButtonClick(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
+    procedure NameEditorChange(Sender: TObject);
+  private
+    FEntity : TEntity;
+    FObject : TNode;
+    FMeasureDataProvider : TMeasureDataProvider;
+  public
+    constructor Create(TheOwner: TComponent; AEntity : TEntity; AObject :
+      TNode); reintroduce;
+    function GetObject : TNode;
+  end;
+
+var
+  NodeWindow: TNodeWindow;
+
+implementation
+
+{$R *.lfm}
+
+procedure TNodeWindow.NameEditorChange(Sender: TObject);
+begin
+  SaveButton.Enabled := NameEditor.Text <> '';
+end;
+
+procedure TNodeWindow.FormDestroy(Sender: TObject);
+begin
+  FreeAndNil(FMeasureDataProvider);
+end;
+
+procedure TNodeWindow.DeleteButtonClick(Sender: TObject);
+begin
+  if FEntity.ID <> -1 then
+    FEntity.NodeBag.Remove(FObject);
+
+  if FObject.ID <> -1 then
+    FObject.Delete;
+end;
+
+constructor TNodeWindow.Create (TheOwner : TComponent; AEntity : TEntity;
+  AObject : TNode);
+var
+  Measure : TCommonObject;
+  MeasureIndex : Integer;
+  Index : Integer;
+begin
+  inherited Create(TheOwner);
+  FEntity := AEntity;
+  FObject := AObject;
+
+  NameEditor.Text := FObject.Name;
+  PeriodCountEditor.Value := FObject.Period.Quantity.Count;
+
+  FMeasureDataProvider := TMeasureDataProvider.Create;
+  if FMeasureDataProvider.Load then
+  begin
+    PeriodMeasureEditor.Items.Clear;
+
+    Index := 0;
+    MeasureIndex := -1;
+    for Measure in FMeasureDataProvider do
+    begin
+      PeriodMeasureEditor.Items.Add(TMeasure(Measure).Name);
+
+      if (FObject <> nil) and (TMeasure(Measure).ID =
+        FObject.Period.Quantity.Measure.ID) then
+        MeasureIndex := Index;
+
+      Inc(Index);
+    end;
+
+    PeriodMeasureEditor.ItemIndex := MeasureIndex;
+  end;
+
+  ShedulePrevEditor.Date := FObject.Shedule.PrevDate;
+  SheduleNextEditor.Date := FObject.Shedule.NextDate;
+
+  SaveButton.Enabled := NameEditor.Text <> '';
+  DeleteButton.Visible := (FObject <> nil) and (FObject.ID <> -1);
+end;
+
+function TNodeWindow.GetObject : TNode;
+begin
+  Result := FObject;
+
+  Result.Name := NameEditor.Text;
+  Result.Period.Quantity.Count := PeriodCountEditor.Value;
+
+  if PeriodMeasureEditor.ItemIndex <> -1 then
+  begin
+    Result.Period.Quantity.Measure := TMeasure(FMeasureDataProvider.GetObject(
+      PeriodMeasureEditor.ItemIndex));
+  end else
+  begin
+    Result.Period.Quantity.Measure.Name := PeriodMeasureEditor.Text;
+  end;
+
+  Result.Shedule.PrevDate := ShedulePrevEditor.Date;
+  Result.Shedule.NextDate := SheduleNextEditor.Date;
+end;
+
+end.
+

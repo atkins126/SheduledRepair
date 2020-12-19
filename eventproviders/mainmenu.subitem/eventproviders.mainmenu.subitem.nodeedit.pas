@@ -22,7 +22,7 @@
 (* Floor, Boston, MA 02110-1335, USA.                                         *)
 (*                                                                            *)
 (******************************************************************************)
-unit eventproviders.node;
+unit eventproviders.mainmenu.subitem.nodeedit;
 
 {$mode objfpc}{$H+}
 {$IFOPT D+}
@@ -32,45 +32,38 @@ unit eventproviders.node;
 interface
 
 uses
-  SysUtils, eventproviders.common, objects.common;
+  SysUtils, eventproviders.common, objects.common, objects.node;
 
 type
-  TNodeEventProvider = class(TCommonEventProvider)
+  TMainMenuSubitemNodeEditEventProvider = class(TCommonEventProvider)
   public
     constructor Create; override;
   private
-    FEditMenuAttached : Boolean;
-
-    function OnObjectSelectEvent ({%H-}AObject : TCommonObject) : Boolean;
+    function EntityEditClickEvent ({%H-}AObject : TCommonObject) : Boolean;
   end;
 
 implementation
 
 uses
-  mainmenuprovider, dataproviders.mainmenu, profilesprovider.mainmenu, 
-  dataprovider;
+  dataprovider, mainmenuprovider;
 
-{ TNodeEventProvider }
+{ TMainMenuSubitemNodeEditEventProvider }
 
-constructor TNodeEventProvider.Create;
+constructor TMainMenuSubitemNodeEditEventProvider.Create;
 begin
   inherited Create;
-  FEditMenuAttached := False;
   
-  Register(EVENT_OBJECT_SELECT, @OnObjectSelectEvent);
+  Register(EVENT_OBJECT_CLICK, @EntityEditClickEvent);
 end;
 
-function TNodeEventProvider.OnObjectSelectEvent (AObject : TCommonObject) :
-  Boolean;
+function TMainMenuSubitemNodeEditEventProvider.EntityEditClickEvent (AObject : 
+  TCommonObject) : Boolean;
+var
+  NodeObject : TCommonObject;
 begin
-  if (not FEditMenuAttached) and (Assigned(Provider.GetSelectedObject)) then
-  begin
-    MainMenu.AttachDynamicMenu(TMainMenu.MAIN_MENU_ITEM_NODE,
-      TMenuSubitemNodeEditDataProvider.Create, 
-      TMainMenuSubitemProfilesProvider.Create);
-    
-    FEditMenuAttached := True;
-  end;
+  NodeObject := Provider.GetSelectedObject;
+  if Assigned(NodeObject) then
+    Provider.ShowEditor(TNode(NodeObject));
   
   Result := True;
 end;

@@ -39,7 +39,7 @@ uses
   renderers.entity, dataproviders.entity, profilesprovider.entity, 
   renderers.job, dataproviders.job, profilesprovider.job, eventproviders.job, 
   eventproviders.entity, jobform, equipmentform, entityform, renderers.node,
-  eventproviders.node;
+  eventproviders.node, nodeform;
 
 type
   TDataHandler = class
@@ -177,7 +177,7 @@ var
   Entity : TEntity;
   ModalResult : Integer;
 begin
-  { EquipmentEditor window is temporaryly, onlu for work testing and it will
+  { EntityEditor window is temporaryly, onlu for work testing and it will
     been changed after refactor. }
   EntityEditor := TEntityWindow.Create(AParent, FEquipment, TEntity(AObject));
   ModalResult := EntityEditor.ShowModal;
@@ -222,37 +222,35 @@ end;
 procedure TEntityNodeDataHandler.ShowEditor (AParent : TCustomForm; 
   AObject : TCommonObject);
 var
-  EntityEditor : TEntityWindow;
-  Entity : TEntity;
+  NodeEditor : TNodeWindow;
+  Node : TNode;
   ModalResult : Integer;
 begin
-  { EquipmentEditor window is temporaryly, onlu for work testing and it will
+  { NodeEditor window is temporaryly, onlu for work testing and it will
     been changed after refactor. }
-  {
-  EntityEditor := TEntityWindow.Create(AParent, FEquipment, TEntity(AObject));
-  ModalResult := EntityEditor.ShowModal;
+  NodeEditor := TNodeWindow.Create(AParent, FEntity, TNode(AObject));
+  ModalResult := NodeEditor.ShowModal;
 
   if ModalResult = mrOk then
   begin
-    Entity := EntityEditor.GetObject;
+    Node := NodeEditor.GetObject;
 
-    if Entity.ID = -1 then
+    if Node.ID = -1 then
     begin
-      Entity.Save;
-      FEquipment.EntityBag.Append(Entity);
+      Node.Save;
+      FEntity.NodeBag.Append(Node);
     end else
     begin
-      Entity.Save;
+      Node.Save;
     end;
 
-    FEquipment.Save;
+    FEntity.Save;
   end;
 
   if ModalResult <> mrCancel then
     Provider.ReloadData;
 
-  FreeAndNil(EntityEditor);
-  }
+  FreeAndNil(NodeEditor);
 end;
 
 end.

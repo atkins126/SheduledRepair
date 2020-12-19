@@ -17,7 +17,7 @@
       <UseVersionInfo Value="True"/>
       <AutoIncrementBuild Value="True"/>
       <MinorVersionNr Value="2"/>
-      <BuildNr Value="670"/>
+      <BuildNr Value="680"/>
     </VersionInfo>
     <BuildModes Count="1">
       <Item1 Name="Default" Default="True"/>
@@ -38,7 +38,7 @@
         <PackageName Value="LCL"/>
       </Item2>
     </RequiredPackages>
-    <Units Count="67">
+    <Units Count="68">
       <Unit0>
         <Filename Value="SheduledRepair.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -324,6 +324,13 @@
         <Filename Value="../profilesprovider/profilesprovider.node.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit66>
+      <Unit67>
+        <Filename Value="../forms/editors/nodeform.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="NodeWindow"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+      </Unit67>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

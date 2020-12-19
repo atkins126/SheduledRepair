@@ -5,7 +5,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, ExtCtrls, StdCtrls, VirtualTrees,
-  profileform, dataprovider, mainmenuprovider;
+  profileform, dataprovider, mainmenuprovider, objects.equipment, objects.job;
 
 type
 
@@ -36,6 +36,9 @@ implementation
 { TMainWindow }
 
 procedure TMainWindow.FormCreate(Sender: TObject);
+var
+  Equipment : TEquipment;
+  Job : TJob;
 begin
   {
   FProfileEditor := TProfileWindow.Create(Self);
@@ -44,6 +47,11 @@ begin
   FProfileEditor.Height := Self.Height;
   FProfileEditor.Show;
   }
+  Equipment := TEquipment.Create(-1);
+  Equipment.CheckSchema;
+  Job := TJob.Create(-1);
+  Job.CheckSchema;
+
   MainMenu.View := MainMenuView;
 
   Provider.Parent := Self;
