@@ -58,23 +58,22 @@ begin
   inherited Create;
   FEditMenuAttached := False;
   
-  //Register(EVENT_OBJECT_SELECT, @OnObjectSelectEvent);
+  Register(EVENT_OBJECT_SELECT, @OnObjectSelectEvent);
   //Register(EVENT_OBJECT_DOUBLE_CLICK, @OnObjectDoubleClickEvent);
 end;
 
 function TEntityEventProvider.OnObjectSelectEvent (AObject : TCommonObject) :
   Boolean;
 begin
-  {
   if (not FEditMenuAttached) and (Assigned(Provider.GetSelectedObject)) then
   begin
-    MainMenu.AttachDynamicMenu(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT,
-      TMenuSubitemEquipmentEditDataProvider.Create,
-      TMenuSubitemEquipmentProfilesProvider.Create);
-    MainMenu.UpdateDynamicMenu;
+    MainMenu.AttachDynamicMenu(TMainMenu.MAIN_MENU_ITEM_ENTITY,
+      TMenuSubitemEntityEditDataProvider.Create,
+      TMainMenuSubitemProfilesProvider.Create);
+    
     FEditMenuAttached := True;
   end;
-  }
+  
   Result := True;
 end;
 

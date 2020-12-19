@@ -17,7 +17,7 @@
       <UseVersionInfo Value="True"/>
       <AutoIncrementBuild Value="True"/>
       <MinorVersionNr Value="2"/>
-      <BuildNr Value="654"/>
+      <BuildNr Value="664"/>
     </VersionInfo>
     <BuildModes Count="1">
       <Item1 Name="Default" Default="True"/>
@@ -38,7 +38,7 @@
         <PackageName Value="LCL"/>
       </Item2>
     </RequiredPackages>
-    <Units Count="61">
+    <Units Count="62">
       <Unit0>
         <Filename Value="SheduledRepair.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -297,6 +297,13 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="objects.common"/>
       </Unit60>
+      <Unit61>
+        <Filename Value="../forms/editors/entityform.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="EntityWindow"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+      </Unit61>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

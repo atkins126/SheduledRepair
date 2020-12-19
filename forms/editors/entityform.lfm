@@ -1,37 +1,37 @@
-object JobWindow: TJobWindow
-  Left = 3148
-  Height = 381
+object EntityWindow: TEntityWindow
+  Left = 3146
+  Height = 287
   Top = 143
-  Width = 690
+  Width = 692
   BorderStyle = bsDialog
-  Caption = 'Job editor'
-  ClientHeight = 381
-  ClientWidth = 690
+  Caption = 'Entity editor'
+  ClientHeight = 287
+  ClientWidth = 692
   DesignTimePPI = 101
   OnDestroy = FormDestroy
   Position = poMainFormCenter
   LCLVersion = '2.0.10.0'
   object ObjectGroup: TGroupBox
     Left = 5
-    Height = 91
+    Height = 123
     Top = 5
-    Width = 680
+    Width = 682
     Align = alTop
     BorderSpacing.Around = 5
     Caption = 'Object'
-    ClientHeight = 72
-    ClientWidth = 676
+    ClientHeight = 104
+    ClientWidth = 678
     TabOrder = 0
     object NameGroup: TPanel
       Left = 5
       Height = 26
       Top = 5
-      Width = 666
+      Width = 668
       Align = alTop
       BorderSpacing.Around = 5
       BevelOuter = bvNone
       ClientHeight = 26
-      ClientWidth = 666
+      ClientWidth = 668
       TabOrder = 0
       object NameLabelGroup: TPanel
         Left = 0
@@ -58,34 +58,96 @@ object JobWindow: TJobWindow
         Left = 179
         Height = 26
         Top = 0
-        Width = 487
+        Width = 489
         Align = alClient
         BevelOuter = bvNone
         ClientHeight = 26
-        ClientWidth = 487
+        ClientWidth = 489
         TabOrder = 1
         object NameEditor: TEdit
           Left = 0
           Height = 26
           Top = 0
-          Width = 487
+          Width = 489
           Align = alClient
           OnChange = NameEditorChange
           TabOrder = 0
         end
       end
     end
-    object PeriodGroup: TPanel
+    object QuantityGroup: TPanel
       Left = 5
       Height = 26
       Top = 36
-      Width = 666
+      Width = 668
       Align = alTop
       BorderSpacing.Around = 5
       BevelOuter = bvNone
       ClientHeight = 26
-      ClientWidth = 666
+      ClientWidth = 668
       TabOrder = 1
+      object QuantityLabelGroup: TPanel
+        Left = 0
+        Height = 26
+        Top = 0
+        Width = 179
+        Align = alLeft
+        BevelOuter = bvNone
+        ClientHeight = 26
+        ClientWidth = 179
+        TabOrder = 0
+        object QuantityLabel: TLabel
+          Left = 0
+          Height = 26
+          Top = 0
+          Width = 57
+          Align = alLeft
+          Caption = 'Quantity'
+          Layout = tlCenter
+          ParentColor = False
+        end
+      end
+      object QuantityEditorGroup: TPanel
+        Left = 179
+        Height = 26
+        Top = 0
+        Width = 489
+        Align = alClient
+        BevelOuter = bvNone
+        ClientHeight = 26
+        ClientWidth = 489
+        TabOrder = 1
+        object QuantityCountEditor: TFloatSpinEdit
+          Left = 0
+          Height = 26
+          Top = 0
+          Width = 243
+          Align = alLeft
+          MaxValue = 9999999999999
+          TabOrder = 0
+        end
+        object QuantityMeasureEditor: TComboBox
+          Left = 243
+          Height = 26
+          Top = 0
+          Width = 246
+          Align = alClient
+          ItemHeight = 0
+          TabOrder = 1
+        end
+      end
+    end
+    object PeriodGroup: TPanel
+      Left = 5
+      Height = 26
+      Top = 67
+      Width = 668
+      Align = alTop
+      BorderSpacing.Around = 5
+      BevelOuter = bvNone
+      ClientHeight = 26
+      ClientWidth = 668
+      TabOrder = 2
       object PeriodLabelGroup: TPanel
         Left = 0
         Height = 26
@@ -111,11 +173,11 @@ object JobWindow: TJobWindow
         Left = 179
         Height = 26
         Top = 0
-        Width = 487
+        Width = 489
         Align = alClient
         BevelOuter = bvNone
         ClientHeight = 26
-        ClientWidth = 487
+        ClientWidth = 489
         TabOrder = 1
         object PeriodCountEditor: TFloatSpinEdit
           Left = 0
@@ -130,7 +192,7 @@ object JobWindow: TJobWindow
           Left = 243
           Height = 26
           Top = 0
-          Width = 244
+          Width = 246
           Align = alClient
           ItemHeight = 0
           TabOrder = 1
@@ -138,204 +200,27 @@ object JobWindow: TJobWindow
       end
     end
   end
-  object EntityGroup: TGroupBox
-    Left = 5
-    Height = 125
-    Top = 101
-    Width = 680
-    Align = alTop
-    BorderSpacing.Around = 5
-    Caption = 'Entity'
-    ClientHeight = 106
-    ClientWidth = 676
-    TabOrder = 1
-    object EntityNameGroup: TPanel
-      Left = 5
-      Height = 26
-      Top = 5
-      Width = 666
-      Align = alTop
-      BorderSpacing.Around = 5
-      BevelOuter = bvNone
-      ClientHeight = 26
-      ClientWidth = 666
-      TabOrder = 0
-      object EntityNameLabelGroup: TPanel
-        Left = 0
-        Height = 26
-        Top = 0
-        Width = 179
-        Align = alLeft
-        BevelOuter = bvNone
-        ClientHeight = 26
-        ClientWidth = 179
-        TabOrder = 0
-        object EntityNameLabel: TLabel
-          Left = 0
-          Height = 26
-          Top = 0
-          Width = 37
-          Align = alLeft
-          Caption = 'Name'
-          Layout = tlCenter
-          ParentColor = False
-        end
-      end
-      object EntityNameEditorGroup: TPanel
-        Left = 179
-        Height = 26
-        Top = 0
-        Width = 487
-        Align = alClient
-        BevelOuter = bvNone
-        ClientHeight = 26
-        ClientWidth = 487
-        TabOrder = 1
-        object EntityNameSelector: TComboBox
-          Left = 0
-          Height = 26
-          Top = 0
-          Width = 487
-          Align = alClient
-          ItemHeight = 0
-          OnChange = EntityNameSelectorChange
-          Style = csDropDownList
-          TabOrder = 0
-        end
-      end
-    end
-    object EntityCountGroup: TPanel
-      Left = 5
-      Height = 26
-      Top = 36
-      Width = 666
-      Align = alTop
-      BorderSpacing.Around = 5
-      BevelOuter = bvNone
-      ClientHeight = 26
-      ClientWidth = 666
-      TabOrder = 1
-      object EntityCountLabelGroup: TPanel
-        Left = 0
-        Height = 26
-        Top = 0
-        Width = 179
-        Align = alLeft
-        BevelOuter = bvNone
-        ClientHeight = 26
-        ClientWidth = 179
-        TabOrder = 0
-        object EntityCountLabel: TLabel
-          Left = 0
-          Height = 26
-          Top = 0
-          Width = 38
-          Align = alLeft
-          Caption = 'Count'
-          Layout = tlCenter
-          ParentColor = False
-        end
-      end
-      object EntityCountEditorGroup: TPanel
-        Left = 179
-        Height = 26
-        Top = 0
-        Width = 487
-        Align = alClient
-        BevelOuter = bvNone
-        ClientHeight = 26
-        ClientWidth = 487
-        TabOrder = 1
-        object EntityCountEditor: TPanel
-          Left = 0
-          Height = 26
-          Top = 0
-          Width = 487
-          Align = alClient
-          Alignment = taLeftJustify
-          BevelInner = bvLowered
-          BevelOuter = bvLowered
-          TabOrder = 0
-        end
-      end
-    end
-    object EntityPeriodGroup: TPanel
-      Left = 5
-      Height = 26
-      Top = 67
-      Width = 666
-      Align = alTop
-      BorderSpacing.Around = 5
-      BevelOuter = bvNone
-      ClientHeight = 26
-      ClientWidth = 666
-      TabOrder = 2
-      object EntityPeriodLabelGroup: TPanel
-        Left = 0
-        Height = 26
-        Top = 0
-        Width = 179
-        Align = alLeft
-        BevelOuter = bvNone
-        ClientHeight = 26
-        ClientWidth = 179
-        TabOrder = 0
-        object EntityPeriodLabel: TLabel
-          Left = 0
-          Height = 26
-          Top = 0
-          Width = 41
-          Align = alLeft
-          Caption = 'Period'
-          Layout = tlCenter
-          ParentColor = False
-        end
-      end
-      object EntityPeriodEditorGroup: TPanel
-        Left = 179
-        Height = 26
-        Top = 0
-        Width = 487
-        Align = alClient
-        BevelOuter = bvNone
-        ClientHeight = 26
-        ClientWidth = 487
-        TabOrder = 1
-        object EntityPeriodEditor: TPanel
-          Left = 0
-          Height = 26
-          Top = 0
-          Width = 487
-          Align = alClient
-          Alignment = taLeftJustify
-          BevelInner = bvLowered
-          BevelOuter = bvLowered
-          TabOrder = 0
-        end
-      end
-    end
-  end
   object SheduleGroup: TGroupBox
     Left = 5
     Height = 94
-    Top = 231
-    Width = 680
+    Top = 133
+    Width = 682
     Align = alTop
     BorderSpacing.Around = 5
     Caption = 'Shedule'
     ClientHeight = 75
-    ClientWidth = 676
-    TabOrder = 2
+    ClientWidth = 678
+    TabOrder = 1
     object ShedulePrevGroup: TPanel
       Left = 5
       Height = 26
       Top = 5
-      Width = 666
+      Width = 668
       Align = alTop
       BorderSpacing.Around = 5
       BevelOuter = bvNone
       ClientHeight = 26
-      ClientWidth = 666
+      ClientWidth = 668
       TabOrder = 0
       object ShedulePrevNameLabelGroup: TPanel
         Left = 0
@@ -362,17 +247,17 @@ object JobWindow: TJobWindow
         Left = 179
         Height = 26
         Top = 0
-        Width = 487
+        Width = 489
         Align = alClient
         BevelOuter = bvNone
         ClientHeight = 26
-        ClientWidth = 487
+        ClientWidth = 489
         TabOrder = 1
         object ShedulePrevEditor: TDateEdit
           Left = 0
           Height = 26
           Top = 0
-          Width = 487
+          Width = 489
           CalendarDisplaySettings = [dsShowHeadings, dsShowDayNames]
           DateOrder = doNone
           ButtonWidth = 24
@@ -388,12 +273,12 @@ object JobWindow: TJobWindow
       Left = 5
       Height = 26
       Top = 36
-      Width = 666
+      Width = 668
       Align = alTop
       BorderSpacing.Around = 5
       BevelOuter = bvNone
       ClientHeight = 26
-      ClientWidth = 666
+      ClientWidth = 668
       TabOrder = 1
       object SheduleNextNameLabelGroup: TPanel
         Left = 0
@@ -420,17 +305,17 @@ object JobWindow: TJobWindow
         Left = 179
         Height = 26
         Top = 0
-        Width = 487
+        Width = 489
         Align = alClient
         BevelOuter = bvNone
         ClientHeight = 26
-        ClientWidth = 487
+        ClientWidth = 489
         TabOrder = 1
         object SheduleNextEditor: TDateEdit
           Left = 0
           Height = 26
           Top = 0
-          Width = 487
+          Width = 489
           CalendarDisplaySettings = [dsShowHeadings, dsShowDayNames]
           DateOrder = doNone
           ButtonWidth = 24
@@ -446,30 +331,30 @@ object JobWindow: TJobWindow
   object SaveButton: TBitBtn
     Left = 480
     Height = 32
-    Top = 344
+    Top = 248
     Width = 100
     Caption = 'Save'
     ModalResult = 1
-    TabOrder = 3
+    TabOrder = 2
   end
   object CancelButton: TBitBtn
     Left = 584
     Height = 32
-    Top = 344
+    Top = 248
     Width = 100
     Caption = 'Cancel'
     ModalResult = 2
-    TabOrder = 4
+    TabOrder = 3
   end
   object DeleteButton: TBitBtn
     Left = 5
     Height = 32
-    Top = 344
+    Top = 248
     Width = 100
     Caption = 'Delete'
     ModalResult = 11
     OnClick = DeleteButtonClick
-    TabOrder = 5
+    TabOrder = 4
     Visible = False
   end
 end

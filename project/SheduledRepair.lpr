@@ -10,7 +10,8 @@ uses
   Forms, MainForm, renderers.datarenderer, profilesprovider.mainmenu,
   dataproviders.mainmenu, dataproviders.equipment, dataproviders.measure,
   datahandlers, objects.common, objects.entitybag, objects.greasebag,
-  objects.mainmenu.item, objects.nodebag, equipmentform, profileform, jobform
+  objects.mainmenu.item, objects.nodebag, equipmentform, profileform, jobform,
+  entityform
   { you can add units after this };
 
 {$R *.res}
@@ -20,6 +21,7 @@ begin
   Application.Scaled:=True;
   Application.Initialize;
   Application.CreateForm(TMainWindow, MainWindow);
+  Application.CreateForm(TEntityWindow, EntityWindow);
   Application.Run;
 end.
 

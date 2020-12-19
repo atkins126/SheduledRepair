@@ -33,11 +33,11 @@ interface
 
 uses
   SysUtils, VirtualTrees, Forms, Controls, objects.common, objects.equipment,
-  objects.job, renderers.datarenderer, renderers.equipment,
+  objects.job, objects.entity, renderers.datarenderer, renderers.equipment,
   dataproviders.equipment, profilesprovider.equipment, eventproviders.equipment,
   renderers.entity, dataproviders.entity, profilesprovider.entity, 
   renderers.job, dataproviders.job, profilesprovider.job, eventproviders.job, 
-  eventproviders.entity, jobform, equipmentform;
+  eventproviders.entity, jobform, equipmentform, entityform;
 
 type
   TDataHandler = class
@@ -159,8 +159,36 @@ end;
 
 procedure TEquipmentEntityDataHandler.ShowEditor (AParent : TCustomForm; 
   AObject : TCommonObject);
+var
+  EntityEditor : TEntityWindow;
+  Entity : TEntity;
+  ModalResult : Integer;
 begin
+  { EquipmentEditor window is temporaryly, onlu for work testing and it will
+    been changed after refactor. }
+  EntityEditor := TEntityWindow.Create(AParent, FEquipment, TEntity(AObject));
+  ModalResult := EntityEditor.ShowModal;
 
+  if ModalResult = mrOk then
+  begin
+    Entity := EntityEditor.GetObject;
+
+    if Entity.ID = -1 then
+    begin
+      Entity.Save;
+      FEquipment.EntityBag.Append(Entity);
+    end else
+    begin
+      Entity.Save;
+    end;
+
+    FEquipment.Save;
+  end;
+
+  if ModalResult <> mrCancel then
+    Provider.ReloadData;
+
+  FreeAndNil(EntityEditor);
 end;
 
 end.

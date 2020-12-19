@@ -276,7 +276,15 @@ begin
   Index := FEntityList.IndexOf(AEntity);
 
   if Index <> -1 then
+  begin
     FEntityList.Remove(Index);
+
+    FTable.Delete
+      .Where('object_name', FObject.Table)
+      .Where('object_id', FObject.ID)
+      .Where('entity_id', AEntity.ID)
+      .Get;
+  end;
 end;
 
 function TEntityBag.GetEnumerator : TEntityList.TIterator;

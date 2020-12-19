@@ -22,7 +22,7 @@
 (* Floor, Boston, MA 02110-1335, USA.                                         *)
 (*                                                                            *)
 (******************************************************************************)
-unit eventproviders.mainmenu.subitem.jobcreate;
+unit eventproviders.mainmenu.subitem.entitycreate;
 
 {$mode objfpc}{$H+}
 {$IFOPT D+}
@@ -32,14 +32,14 @@ unit eventproviders.mainmenu.subitem.jobcreate;
 interface
 
 uses
-  SysUtils, eventproviders.common, objects.common, objects.job;
+  SysUtils, eventproviders.common, objects.common, objects.entity;
 
 type
-  TMainMenuSubitemJobCreateEventProvider = class(TCommonEventProvider)
+  TMainMenuSubitemEntityCreateEventProvider = class(TCommonEventProvider)
   public
     constructor Create; override;
   private
-    function JobCreateClickEvent ({%H-}AObject : TCommonObject) : Boolean;
+    function EntityCreateClickEvent ({%H-}AObject : TCommonObject) : Boolean;
   end;
 
 implementation
@@ -47,19 +47,19 @@ implementation
 uses
   dataprovider, mainmenuprovider;
 
-{ TMainMenuSubitemJobCreateEventProvider }
+{ TMainMenuSubitemEntityCreateEventProvider }
 
-constructor TMainMenuSubitemJobCreateEventProvider.Create;
+constructor TMainMenuSubitemEntityCreateEventProvider.Create;
 begin
   inherited Create;
   
-  Register(EVENT_OBJECT_CLICK, @JobCreateClickEvent);
+  Register(EVENT_OBJECT_CLICK, @EntityCreateClickEvent);
 end;
 
-function TMainMenuSubitemJobCreateEventProvider.JobCreateClickEvent 
+function TMainMenuSubitemEntityCreateEventProvider.EntityCreateClickEvent 
   (AObject : TCommonObject) : Boolean;
 begin
-  Provider.ShowEditor(TJob.Create(-1));
+  Provider.ShowEditor(TEntity.Create(-1));
     
   Result := True;
 end;
