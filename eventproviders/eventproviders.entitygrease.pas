@@ -22,7 +22,7 @@
 (* Floor, Boston, MA 02110-1335, USA.                                         *)
 (*                                                                            *)
 (******************************************************************************)
-unit eventproviders.mainmenu.item.node;
+unit eventproviders.entitygrease;
 
 {$mode objfpc}{$H+}
 {$IFOPT D+}
@@ -35,70 +35,71 @@ uses
   SysUtils, eventproviders.common, objects.common;
 
 type
-  TMainMenuItemNodeEventProvider = class(TCommonEventProvider)
+  TEntityGreaseEventProvider = class(TCommonEventProvider)
   public
     constructor Create; override;
   private
-    function JobSelectEvent ({%H-}AObject : TCommonObject) : Boolean;
-    function JobClickEvent ({%H-}AObject : TCommonObject) : Boolean;
-    function JobAttachDynamicMenuEvent ({%H-}AObject : TCommonObject) : Boolean;
-    function JobDetachDynamicMenuEvent ({%H-}AObject : TCommonObject) : Boolean;
+    FEditMenuAttached : Boolean;
+    
+    function OnObjectSelectEvent ({%H-}AObject : TCommonObject) : Boolean;
+    function OnObjectDoubleClickEvent ({%H-}AObject : TCommonObject) : Boolean;
   end;
 
 implementation
 
 uses
-  dataprovider, mainmenuprovider, profilesprovider.mainmenu,
-  dataproviders.mainmenu;
+  dataprovider, datahandlers, mainmenuprovider, dataproviders.mainmenu,
+  profilesprovider.mainmenu;
 
-{ TMainMenuItemNodeEventProvider }
+{ TEntityGreaseEventProvider }
 
-constructor TMainMenuItemNodeEventProvider.Create;
+constructor TEntityGreaseEventProvider.Create;
 begin
   inherited Create;
+  FEditMenuAttached := False;
   
-  Register(EVENT_OBJECT_SELECT, @JobSelectEvent);
-  Register(EVENT_OBJECT_CLICK, @JobClickEvent);
-  Register(EVENT_OBJECT_ATTACH_DYNAMIC_MENU, @JobAttachDynamicMenuEvent);
-  Register(EVENT_OBJECT_DETACH_DYNAMIC_MENU, @JobDetachDynamicMenuEvent);
+  Register(EVENT_OBJECT_SELECT, @OnObjectSelectEvent);
+  Register(EVENT_OBJECT_DOUBLE_CLICK, @OnObjectDoubleClickEvent);
 end;
 
-function TMainMenuItemNodeEventProvider.JobSelectEvent (AObject : TCommonObject) 
-  : Boolean;
-begin
-  Result := True;
-end;
-
-function TMainMenuItemNodeEventProvider.JobClickEvent (AObject : 
-  TCommonObject) : Boolean;
+function TEntityGreaseEventProvider.OnObjectSelectEvent (AObject : TCommonObject) :
+  Boolean;
 begin
   {
-  Provider.ChangeData(TJobDataHandler.Create);
-  
-  MainMenu.DetachObject(TMainMenu.MAIN_MENU_ITEM_JOB);
-  MainMenu.DetachObject(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT);
-  
-  MainMenu.DetachAllDynamicMenus(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT);
+  if (not FEditMenuAttached) and (Assigned(Provider.GetSelectedObject)) then
+  begin
+    MainMenu.AttachDynamicMenu(TMainMenu.MAIN_MENU_ITEM_ENTITY,
+      TMenuSubitemEntityEditDataProvider.Create,
+      TMainMenuSubitemProfilesProvider.Create);
+    MainMenu.AttachDynamicMenu(TMainMenu.MAIN_MENU_ITEM_ENTITY,
+      TMenuSubitemEntityGreaseEditDataProvider.Create,
+      TMainMenuSubitemProfilesProvider.Create);
+    
+    FEditMenuAttached := True;
+  end;
   }
   Result := True;
 end;
 
-function TMainMenuItemNodeEventProvider.JobAttachDynamicMenuEvent (AObject :
+function TEntityGreaseEventProvider.OnObjectDoubleClickEvent (AObject :
   TCommonObject) : Boolean;
 begin
   {
-  MainMenu.AttachDynamicMenu(TMainMenu.MAIN_MENU_ITEM_JOB,
-    TMenuSubitemJobCreateDataProvider.Create,
+  Provider.ChangeData(TEntityNodeDataHandler.Create(TEntity(AObject)));
+  MainMenu.AttachObject(TMainMenu.MAIN_MENU_ITEM_ENTITY,
+    TEntity(AObject));
+
+  MainMenu.DetachAllDynamicMenus(TMainMenu.MAIN_MENU_ITEM_ENTITY);
+  
+  MainMenu.AttachDynamicMenu(TMainMenu.MAIN_MENU_ITEM_ENTITY,
+    TMenuSubitemNodeDataProvider.Create,
+    TMainMenuItemProfilesProvider.Create);
+  MainMenu.AttachDynamicMenu(TMainMenu.MAIN_MENU_ITEM_NODE,
+    TMenuSubitemNodeCreateDataProvider.Create,
     TMainMenuSubitemProfilesProvider.Create);
-  }
-  Result := True;
-end;
-
-function TMainMenuItemNodeEventProvider.JobDetachDynamicMenuEvent (AObject :
-  TCommonObject) : Boolean;
-begin
-  //MainMenu.DetachAllDynamicMenus(TMainMenu.MAIN_MENU_ITEM_JOB);
-
+  
+  MainMenu.SelectMenuItem(TMainMenu.MAIN_MENU_ITEM_NODE);
+  }  
   Result := True;
 end;
 

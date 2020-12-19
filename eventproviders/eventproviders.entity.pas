@@ -70,6 +70,9 @@ begin
     MainMenu.AttachDynamicMenu(TMainMenu.MAIN_MENU_ITEM_ENTITY,
       TMenuSubitemEntityEditDataProvider.Create,
       TMainMenuSubitemProfilesProvider.Create);
+    MainMenu.AttachDynamicMenu(TMainMenu.MAIN_MENU_ITEM_ENTITY,
+      TMenuSubitemEntityGreaseListDataProvider.Create,
+      TMainMenuSubitemProfilesProvider.Create);
     
     FEditMenuAttached := True;
   end;

@@ -39,7 +39,9 @@ uses
   renderers.entity, dataproviders.entity, profilesprovider.entity, 
   renderers.job, dataproviders.job, profilesprovider.job, eventproviders.job, 
   eventproviders.entity, jobform, equipmentform, entityform, renderers.node,
-  eventproviders.node, nodeform;
+  eventproviders.node, nodeform, dataproviders.grease, 
+  profilesprovider.greasebundle, renderers.greasebundle, 
+  eventproviders.entitygrease, greasebundleform, objects.greasebundle;
 
 type
   TDataHandler = class
@@ -78,6 +80,17 @@ type
       override;
   private
     FEquipment : TEquipment;
+  end;
+
+  TEntityGreaseDataHandler = class(TDataHandler)
+  public
+    constructor Create (AEntity : TEntity);
+    function CreateDataRenderer (ADataView : TVirtualDrawTree) : TDataRenderer;
+      override;
+    procedure ShowEditor (AParent : TCustomForm; {%H-}AObject : TCommonObject); 
+      override;
+  private
+    FEntity : TEntity;
   end;
 
   TEntityNodeDataHandler = class(TDataHandler)
@@ -251,6 +264,56 @@ begin
     Provider.ReloadData;
 
   FreeAndNil(NodeEditor);
+end;
+
+{ TEntityGreaseDataHandler }
+
+constructor TEntityGreaseDataHandler.Create (AEntity : TEntity);
+begin
+  FEntity := AEntity;
+end;
+
+function TEntityGreaseDataHandler.CreateDataRenderer (ADataView :
+  TVirtualDrawTree) : TDataRenderer;
+begin
+  Result := TDataRenderer.Create(ADataView, 
+    TGreaseDataProvider.Create(FEntity), TGreaseBundleProfilesProvider.Create,
+    TGreaseBundleRenderer.Create, TEntityGreaseEventProvider.Create);
+end;
+
+procedure TEntityGreaseDataHandler.ShowEditor (AParent : TCustomForm; 
+  AObject : TCommonObject);
+var
+  GreaseBundleEditor : TGreaseBundleWindow;
+  GreaseBundle : TGreaseBundle;
+  ModalResult : Integer;
+begin
+  { GreaseBundleEditor window is temporaryly, onlu for work testing and it will
+    been changed after refactor. }
+  GreaseBundleEditor := TGreaseBundleWindow.Create(AParent, FEntity,
+    TGreaseBundle(AObject));
+  ModalResult := GreaseBundleEditor.ShowModal;
+
+  if ModalResult = mrOk then
+  begin
+    GreaseBundle := GreaseBundleEditor.GetObject;
+
+    if GreaseBundle.ID = -1 then
+    begin
+      GreaseBundle.Save;
+      FEntity.GreaseBag.Append(GreaseBundle);
+    end else
+    begin
+      GreaseBundle.Save;
+    end;
+
+    FEntity.Save;
+  end;
+
+  if ModalResult <> mrCancel then
+    Provider.ReloadData;
+
+  FreeAndNil(GreaseBundleEditor);
 end;
 
 end.

@@ -22,7 +22,7 @@
 (* Floor, Boston, MA 02110-1335, USA.                                         *)
 (*                                                                            *)
 (******************************************************************************)
-unit eventproviders.mainmenu.item.node;
+unit dataproviders.grease;
 
 {$mode objfpc}{$H+}
 {$IFOPT D+}
@@ -32,74 +32,72 @@ unit eventproviders.mainmenu.item.node;
 interface
 
 uses
-  SysUtils, eventproviders.common, objects.common;
+  SysUtils, dataproviders.common, objects.common, objects.greasebag,
+  objects.greasebundle, objects.greasableobject, objects.grease;
 
 type
-  TMainMenuItemNodeEventProvider = class(TCommonEventProvider)
+  TGreaseDataProvider = class(TCommonDataProvider)
   public
-    constructor Create; override;
+    constructor Create (AGreasableObject : TGreasableObject); reintroduce;
+
+    { Load objects. }
+    function Load : Boolean; override;
+  protected
+    { Get current loaded objects table name. }
+    function LoadObjectsTableName : String; override;
+
+    { Load concrete object. }
+    function LoadConcreteObject ({%H-}AID : Int64) : TCommonObject; override;
   private
-    function JobSelectEvent ({%H-}AObject : TCommonObject) : Boolean;
-    function JobClickEvent ({%H-}AObject : TCommonObject) : Boolean;
-    function JobAttachDynamicMenuEvent ({%H-}AObject : TCommonObject) : Boolean;
-    function JobDetachDynamicMenuEvent ({%H-}AObject : TCommonObject) : Boolean;
+    FGreasableObject : TGreasableObject;
   end;
 
 implementation
 
-uses
-  dataprovider, mainmenuprovider, profilesprovider.mainmenu,
-  dataproviders.mainmenu;
+{ TGreaseDataProvider }
 
-{ TMainMenuItemNodeEventProvider }
-
-constructor TMainMenuItemNodeEventProvider.Create;
+constructor TGreaseDataProvider.Create (AGreasableObject : TGreasableObject);
 begin
   inherited Create;
-  
-  Register(EVENT_OBJECT_SELECT, @JobSelectEvent);
-  Register(EVENT_OBJECT_CLICK, @JobClickEvent);
-  Register(EVENT_OBJECT_ATTACH_DYNAMIC_MENU, @JobAttachDynamicMenuEvent);
-  Register(EVENT_OBJECT_DETACH_DYNAMIC_MENU, @JobDetachDynamicMenuEvent);
+  FGreasableObject := AGreasableObject;
 end;
 
-function TMainMenuItemNodeEventProvider.JobSelectEvent (AObject : TCommonObject) 
-  : Boolean;
+function TGreaseDataProvider.Load : Boolean;
+var
+  GreaseBundle : TGreaseBundle;
 begin
+  if not Assigned(FGreasableObject) then
+    Exit(inherited Load);
+
+  Clear;
+
+  for GreaseBundle in FGreasableObject.GreaseBag do
+    Append(GreaseBundle);
+
   Result := True;
 end;
 
-function TMainMenuItemNodeEventProvider.JobClickEvent (AObject : 
-  TCommonObject) : Boolean;
+function TGreaseDataProvider.LoadObjectsTableName : String;
+var
+  Grease : TGrease;
 begin
-  {
-  Provider.ChangeData(TJobDataHandler.Create);
-  
-  MainMenu.DetachObject(TMainMenu.MAIN_MENU_ITEM_JOB);
-  MainMenu.DetachObject(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT);
-  
-  MainMenu.DetachAllDynamicMenus(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT);
-  }
-  Result := True;
+  Grease := TGrease.Create(-1);
+  Result := Grease.Table;
+  FreeAndNil(Grease);
 end;
 
-function TMainMenuItemNodeEventProvider.JobAttachDynamicMenuEvent (AObject :
-  TCommonObject) : Boolean;
+function TGreaseDataProvider.LoadConcreteObject (AID : Int64) : TCommonObject;
+var
+  Grease : TGrease;
 begin
-  {
-  MainMenu.AttachDynamicMenu(TMainMenu.MAIN_MENU_ITEM_JOB,
-    TMenuSubitemJobCreateDataProvider.Create,
-    TMainMenuSubitemProfilesProvider.Create);
-  }
-  Result := True;
-end;
+  Grease := TGrease.Create(AID);
+  if not Grease.Load then
+  begin
+    FreeAndNil(Grease);
+    Exit(nil);
+  end;
 
-function TMainMenuItemNodeEventProvider.JobDetachDynamicMenuEvent (AObject :
-  TCommonObject) : Boolean;
-begin
-  //MainMenu.DetachAllDynamicMenus(TMainMenu.MAIN_MENU_ITEM_JOB);
-
-  Result := True;
+  Result := Grease;
 end;
 
 end.

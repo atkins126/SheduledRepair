@@ -46,6 +46,7 @@ type
       MAIN_MENU_ITEM_EQUIPMENT                                        = 2;
       MAIN_MENU_ITEM_ENTITY                                           = 3;
       MAIN_MENU_ITEM_NODE                                             = 4;
+      MAIN_MENU_ITEM_ENTITY_GREASE                                    = 5;
   public
     constructor Create;
     destructor Destroy; override;
@@ -101,9 +102,6 @@ var
   MainMenu : TMainMenu = nil;
 
 implementation
-
-uses 
-  objects.mainmenu.item;
 
 { TMainMenu }
 

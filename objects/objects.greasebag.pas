@@ -321,6 +321,12 @@ begin
 
   if Index <> -1 then
     FGreaseBundleList.Remove(Index);
+
+  FTable.Delete
+    .Where('object_name', FObject.Table)
+    .Where('object_id', FObject.ID)
+    .Where('greasebundle_id', AGreaseBundle.ID)
+    .Get;
 end;
 
 function TGreaseBag.GetEnumerator : TGreaseBundleList.TIterator;

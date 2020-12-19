@@ -22,7 +22,7 @@
 (* Floor, Boston, MA 02110-1335, USA.                                         *)
 (*                                                                            *)
 (******************************************************************************)
-unit eventproviders.mainmenu.item.node;
+unit dataproviders.grade;
 
 {$mode objfpc}{$H+}
 {$IFOPT D+}
@@ -32,74 +32,44 @@ unit eventproviders.mainmenu.item.node;
 interface
 
 uses
-  SysUtils, eventproviders.common, objects.common;
+  SysUtils, dataproviders.common, objects.common, objects.grade;
 
 type
-  TMainMenuItemNodeEventProvider = class(TCommonEventProvider)
+  TGradeDataProvider = class(TCommonDataProvider)
   public
-    constructor Create; override;
-  private
-    function JobSelectEvent ({%H-}AObject : TCommonObject) : Boolean;
-    function JobClickEvent ({%H-}AObject : TCommonObject) : Boolean;
-    function JobAttachDynamicMenuEvent ({%H-}AObject : TCommonObject) : Boolean;
-    function JobDetachDynamicMenuEvent ({%H-}AObject : TCommonObject) : Boolean;
+    { Get current loaded objects table name. }
+    function LoadObjectsTableName : String; override;
+
+    { Load concrete object. }
+    function LoadConcreteObject (AID : Int64) : TCommonObject; override;
   end;
 
 implementation
 
-uses
-  dataprovider, mainmenuprovider, profilesprovider.mainmenu,
-  dataproviders.mainmenu;
+{ TGradeDataProvider }
 
-{ TMainMenuItemNodeEventProvider }
-
-constructor TMainMenuItemNodeEventProvider.Create;
+function TGradeDataProvider.LoadObjectsTableName : String;
+var
+  Grade : TGrade;
 begin
-  inherited Create;
-  
-  Register(EVENT_OBJECT_SELECT, @JobSelectEvent);
-  Register(EVENT_OBJECT_CLICK, @JobClickEvent);
-  Register(EVENT_OBJECT_ATTACH_DYNAMIC_MENU, @JobAttachDynamicMenuEvent);
-  Register(EVENT_OBJECT_DETACH_DYNAMIC_MENU, @JobDetachDynamicMenuEvent);
+  Grade := TGrade.Create(-1);
+  Result := Grade.Table;
+  FreeAndNil(Grade);
 end;
 
-function TMainMenuItemNodeEventProvider.JobSelectEvent (AObject : TCommonObject) 
-  : Boolean;
+function TGradeDataProvider.LoadConcreteObject (AID : Int64) :
+  TCommonObject;
+var
+  Grade : TGrade;
 begin
-  Result := True;
-end;
+  Grade := TGrade.Create(AID);
+  if not Grade.Load then
+  begin
+    FreeAndNil(Grade);
+    Exit(nil);
+  end;
 
-function TMainMenuItemNodeEventProvider.JobClickEvent (AObject : 
-  TCommonObject) : Boolean;
-begin
-  {
-  Provider.ChangeData(TJobDataHandler.Create);
-  
-  MainMenu.DetachObject(TMainMenu.MAIN_MENU_ITEM_JOB);
-  MainMenu.DetachObject(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT);
-  
-  MainMenu.DetachAllDynamicMenus(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT);
-  }
-  Result := True;
-end;
-
-function TMainMenuItemNodeEventProvider.JobAttachDynamicMenuEvent (AObject :
-  TCommonObject) : Boolean;
-begin
-  {
-  MainMenu.AttachDynamicMenu(TMainMenu.MAIN_MENU_ITEM_JOB,
-    TMenuSubitemJobCreateDataProvider.Create,
-    TMainMenuSubitemProfilesProvider.Create);
-  }
-  Result := True;
-end;
-
-function TMainMenuItemNodeEventProvider.JobDetachDynamicMenuEvent (AObject :
-  TCommonObject) : Boolean;
-begin
-  //MainMenu.DetachAllDynamicMenus(TMainMenu.MAIN_MENU_ITEM_JOB);
-
-  Result := True;
+  Result := Grade;
 end;
 
 end.

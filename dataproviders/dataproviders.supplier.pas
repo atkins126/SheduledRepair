@@ -22,7 +22,7 @@
 (* Floor, Boston, MA 02110-1335, USA.                                         *)
 (*                                                                            *)
 (******************************************************************************)
-unit eventproviders.mainmenu.item.node;
+unit dataproviders.supplier;
 
 {$mode objfpc}{$H+}
 {$IFOPT D+}
@@ -32,74 +32,44 @@ unit eventproviders.mainmenu.item.node;
 interface
 
 uses
-  SysUtils, eventproviders.common, objects.common;
+  SysUtils, dataproviders.common, objects.common, objects.supplier;
 
 type
-  TMainMenuItemNodeEventProvider = class(TCommonEventProvider)
+  TSupplierDataProvider = class(TCommonDataProvider)
   public
-    constructor Create; override;
-  private
-    function JobSelectEvent ({%H-}AObject : TCommonObject) : Boolean;
-    function JobClickEvent ({%H-}AObject : TCommonObject) : Boolean;
-    function JobAttachDynamicMenuEvent ({%H-}AObject : TCommonObject) : Boolean;
-    function JobDetachDynamicMenuEvent ({%H-}AObject : TCommonObject) : Boolean;
+    { Get current loaded objects table name. }
+    function LoadObjectsTableName : String; override;
+
+    { Load concrete object. }
+    function LoadConcreteObject (AID : Int64) : TCommonObject; override;
   end;
 
 implementation
 
-uses
-  dataprovider, mainmenuprovider, profilesprovider.mainmenu,
-  dataproviders.mainmenu;
+{ TSupplierDataProvider }
 
-{ TMainMenuItemNodeEventProvider }
-
-constructor TMainMenuItemNodeEventProvider.Create;
+function TSupplierDataProvider.LoadObjectsTableName : String;
+var
+  Supplier : TSupplier;
 begin
-  inherited Create;
-  
-  Register(EVENT_OBJECT_SELECT, @JobSelectEvent);
-  Register(EVENT_OBJECT_CLICK, @JobClickEvent);
-  Register(EVENT_OBJECT_ATTACH_DYNAMIC_MENU, @JobAttachDynamicMenuEvent);
-  Register(EVENT_OBJECT_DETACH_DYNAMIC_MENU, @JobDetachDynamicMenuEvent);
+  Supplier := TSupplier.Create(-1);
+  Result := Supplier.Table;
+  FreeAndNil(Supplier);
 end;
 
-function TMainMenuItemNodeEventProvider.JobSelectEvent (AObject : TCommonObject) 
-  : Boolean;
+function TSupplierDataProvider.LoadConcreteObject (AID : Int64) :
+  TCommonObject;
+var
+  Supplier : TSupplier;
 begin
-  Result := True;
-end;
+  Supplier := TSupplier.Create(AID);
+  if not Supplier.Load then
+  begin
+    FreeAndNil(Supplier);
+    Exit(nil);
+  end;
 
-function TMainMenuItemNodeEventProvider.JobClickEvent (AObject : 
-  TCommonObject) : Boolean;
-begin
-  {
-  Provider.ChangeData(TJobDataHandler.Create);
-  
-  MainMenu.DetachObject(TMainMenu.MAIN_MENU_ITEM_JOB);
-  MainMenu.DetachObject(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT);
-  
-  MainMenu.DetachAllDynamicMenus(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT);
-  }
-  Result := True;
-end;
-
-function TMainMenuItemNodeEventProvider.JobAttachDynamicMenuEvent (AObject :
-  TCommonObject) : Boolean;
-begin
-  {
-  MainMenu.AttachDynamicMenu(TMainMenu.MAIN_MENU_ITEM_JOB,
-    TMenuSubitemJobCreateDataProvider.Create,
-    TMainMenuSubitemProfilesProvider.Create);
-  }
-  Result := True;
-end;
-
-function TMainMenuItemNodeEventProvider.JobDetachDynamicMenuEvent (AObject :
-  TCommonObject) : Boolean;
-begin
-  //MainMenu.DetachAllDynamicMenus(TMainMenu.MAIN_MENU_ITEM_JOB);
-
-  Result := True;
+  Result := Supplier;
 end;
 
 end.
