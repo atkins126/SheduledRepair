@@ -65,41 +65,21 @@ end;
 function TEntityGreaseEventProvider.OnObjectSelectEvent (AObject : TCommonObject) :
   Boolean;
 begin
-  {
   if (not FEditMenuAttached) and (Assigned(Provider.GetSelectedObject)) then
   begin
-    MainMenu.AttachDynamicMenu(TMainMenu.MAIN_MENU_ITEM_ENTITY,
-      TMenuSubitemEntityEditDataProvider.Create,
-      TMainMenuSubitemProfilesProvider.Create);
-    MainMenu.AttachDynamicMenu(TMainMenu.MAIN_MENU_ITEM_ENTITY,
+    MainMenu.AttachDynamicMenu(TMainMenu.MAIN_MENU_ITEM_ENTITY_GREASE,
       TMenuSubitemEntityGreaseEditDataProvider.Create,
       TMainMenuSubitemProfilesProvider.Create);
     
     FEditMenuAttached := True;
   end;
-  }
+  
   Result := True;
 end;
 
 function TEntityGreaseEventProvider.OnObjectDoubleClickEvent (AObject :
   TCommonObject) : Boolean;
 begin
-  {
-  Provider.ChangeData(TEntityNodeDataHandler.Create(TEntity(AObject)));
-  MainMenu.AttachObject(TMainMenu.MAIN_MENU_ITEM_ENTITY,
-    TEntity(AObject));
-
-  MainMenu.DetachAllDynamicMenus(TMainMenu.MAIN_MENU_ITEM_ENTITY);
-  
-  MainMenu.AttachDynamicMenu(TMainMenu.MAIN_MENU_ITEM_ENTITY,
-    TMenuSubitemNodeDataProvider.Create,
-    TMainMenuItemProfilesProvider.Create);
-  MainMenu.AttachDynamicMenu(TMainMenu.MAIN_MENU_ITEM_NODE,
-    TMenuSubitemNodeCreateDataProvider.Create,
-    TMainMenuSubitemProfilesProvider.Create);
-  
-  MainMenu.SelectMenuItem(TMainMenu.MAIN_MENU_ITEM_NODE);
-  }  
   Result := True;
 end;
 

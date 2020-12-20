@@ -38,7 +38,6 @@ uses
   eventproviders.mainmenu.item.entity,
   eventproviders.mainmenu.item.entitygrease,
   eventproviders.mainmenu.item.node,
-  
   eventproviders.mainmenu.subitem.jobcreate, 
   eventproviders.mainmenu.subitem.jobedit,
   eventproviders.mainmenu.subitem.equipmentcreate,
@@ -47,6 +46,7 @@ uses
   eventproviders.mainmenu.subitem.entityedit,
   eventproviders.mainmenu.subitem.entitygreaselist,
   eventproviders.mainmenu.subitem.entitygreasecreate,
+  eventproviders.mainmenu.subitem.entitygreaseedit,
   eventproviders.mainmenu.subitem.nodecreate,
   eventproviders.mainmenu.subitem.nodeedit;
 
@@ -162,6 +162,17 @@ type
   end;
 
   TMenuSubitemEntityGreaseCreateDataProvider = class(TCommonDataProvider)
+  public
+    function Load : Boolean; override;
+  protected
+    { Get current loaded objects table name. }
+    function LoadObjectsTableName : String; override;
+
+    { Load concrete object. }
+    function LoadConcreteObject ({%H-}AID : Int64) : TCommonObject; override;
+  end;
+
+  TMenuSubitemEntityGreaseEditDataProvider = class(TCommonDataProvider)
   public
     function Load : Boolean; override;
   protected
@@ -533,6 +544,30 @@ begin
 end;
 
 function TMenuSubitemEntityGreaseCreateDataProvider.LoadConcreteObject (AID : 
+  Int64) : TCommonObject;
+begin
+  Result := nil;
+end;
+
+{ TMenuSubitemEntityGreaseEditDataProvider }
+
+function TMenuSubitemEntityGreaseEditDataProvider.Load : Boolean;
+begin
+  Clear;
+  
+  Append(TMainMenuItem.Create(-1, MENU_ITEM_TYPE_SUBITEM, 'Edit',
+    TMainMenuSubitemEntityGreaseEditEventProvider.Create));
+    
+  Result := True;
+end;
+
+function TMenuSubitemEntityGreaseEditDataProvider.LoadObjectsTableName : 
+  String;
+begin
+  Result := '';
+end;
+
+function TMenuSubitemEntityGreaseEditDataProvider.LoadConcreteObject (AID : 
   Int64) : TCommonObject;
 begin
   Result := nil;
