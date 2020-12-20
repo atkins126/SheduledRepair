@@ -22,7 +22,7 @@
 (* Floor, Boston, MA 02110-1335, USA.                                         *)
 (*                                                                            *)
 (******************************************************************************)
-unit eventproviders.mainmenu.item.node;
+unit eventproviders.mainmenu.subitem.nodegreaseedit;
 
 {$mode objfpc}{$H+}
 {$IFOPT D+}
@@ -32,70 +32,39 @@ unit eventproviders.mainmenu.item.node;
 interface
 
 uses
-  SysUtils, eventproviders.common, objects.common, objects.entity;
+  SysUtils, eventproviders.common, objects.common, objects.greasebundle;
 
 type
-  TMainMenuItemNodeEventProvider = class(TCommonEventProvider)
+  TMainMenuSubitemNodeGreaseEditEventProvider = class(TCommonEventProvider)
   public
     constructor Create; override;
   private
-    function NodeSelectEvent ({%H-}AObject : TCommonObject) : Boolean;
-    function NodeClickEvent ({%H-}AObject : TCommonObject) : Boolean;
-    function NodeAttachDynamicMenuEvent ({%H-}AObject : TCommonObject) : 
-      Boolean;
-    function NodeDetachDynamicMenuEvent ({%H-}AObject : TCommonObject) : 
+    function NodeGreaseEditClickEvent ({%H-}AObject : TCommonObject) : 
       Boolean;
   end;
 
 implementation
 
 uses
-  dataprovider, datahandlers, mainmenuprovider, profilesprovider.mainmenu,
-  dataproviders.mainmenu;
+  dataprovider, mainmenuprovider;
 
-{ TMainMenuItemNodeEventProvider }
+{ TMainMenuSubitemNodeGreaseEditEventProvider }
 
-constructor TMainMenuItemNodeEventProvider.Create;
+constructor TMainMenuSubitemNodeGreaseEditEventProvider.Create;
 begin
   inherited Create;
   
-  Register(EVENT_OBJECT_SELECT, @NodeSelectEvent);
-  Register(EVENT_OBJECT_CLICK, @NodeClickEvent);
-  Register(EVENT_OBJECT_ATTACH_DYNAMIC_MENU, @NodeAttachDynamicMenuEvent);
-  Register(EVENT_OBJECT_DETACH_DYNAMIC_MENU, @NodeDetachDynamicMenuEvent);
+  Register(EVENT_OBJECT_CLICK, @NodeGreaseEditClickEvent);
 end;
 
-function TMainMenuItemNodeEventProvider.NodeSelectEvent (AObject : 
-  TCommonObject) : Boolean;
+function TMainMenuSubitemNodeGreaseEditEventProvider
+  .NodeGreaseEditClickEvent (AObject : TCommonObject) : Boolean;
+var
+  EntityObject : TCommonObject;
 begin
-  Result := True;
-end;
-
-function TMainMenuItemNodeEventProvider.NodeClickEvent (AObject : 
-  TCommonObject) : Boolean;
-begin
-  Provider.ChangeData(TEntityNodeDataHandler.Create(TEntity(
-    MainMenu.GetAttachedObject(TMainMenu.MAIN_MENU_ITEM_ENTITY))));
-
-  MainMenu.DetachObject(TMainMenu.MAIN_MENU_ITEM_NODE);
-
-  Result := True;
-end;
-
-function TMainMenuItemNodeEventProvider.NodeAttachDynamicMenuEvent (AObject :
-  TCommonObject) : Boolean;
-begin
-  MainMenu.AttachDynamicMenu(TMainMenu.MAIN_MENU_ITEM_NODE,
-    TMenuSubitemJobCreateDataProvider.Create,
-    TMainMenuSubitemProfilesProvider.Create);
-  
-  Result := True;
-end;
-
-function TMainMenuItemNodeEventProvider.NodeDetachDynamicMenuEvent (AObject :
-  TCommonObject) : Boolean;
-begin
-  MainMenu.DetachAllDynamicMenus(TMainMenu.MAIN_MENU_ITEM_NODE);
+  EntityObject := Provider.GetSelectedObject;
+  if Assigned(EntityObject) then
+    Provider.ShowEditor(TGreaseBundle(EntityObject));
 
   Result := True;
 end;

@@ -22,7 +22,7 @@
 (* Floor, Boston, MA 02110-1335, USA.                                         *)
 (*                                                                            *)
 (******************************************************************************)
-unit eventproviders.mainmenu.item.node;
+unit eventproviders.nodegrease;
 
 {$mode objfpc}{$H+}
 {$IFOPT D+}
@@ -32,71 +32,54 @@ unit eventproviders.mainmenu.item.node;
 interface
 
 uses
-  SysUtils, eventproviders.common, objects.common, objects.entity;
+  SysUtils, eventproviders.common, objects.common;
 
 type
-  TMainMenuItemNodeEventProvider = class(TCommonEventProvider)
+  TNodeGreaseEventProvider = class(TCommonEventProvider)
   public
     constructor Create; override;
   private
-    function NodeSelectEvent ({%H-}AObject : TCommonObject) : Boolean;
-    function NodeClickEvent ({%H-}AObject : TCommonObject) : Boolean;
-    function NodeAttachDynamicMenuEvent ({%H-}AObject : TCommonObject) : 
-      Boolean;
-    function NodeDetachDynamicMenuEvent ({%H-}AObject : TCommonObject) : 
-      Boolean;
+    FEditMenuAttached : Boolean;
+    
+    function OnObjectSelectEvent ({%H-}AObject : TCommonObject) : Boolean;
+    function OnObjectDoubleClickEvent ({%H-}AObject : TCommonObject) : Boolean;
   end;
 
 implementation
 
 uses
-  dataprovider, datahandlers, mainmenuprovider, profilesprovider.mainmenu,
-  dataproviders.mainmenu;
+  dataprovider, mainmenuprovider, dataproviders.mainmenu,
+  profilesprovider.mainmenu;
 
-{ TMainMenuItemNodeEventProvider }
+{ TNodeGreaseEventProvider }
 
-constructor TMainMenuItemNodeEventProvider.Create;
+constructor TNodeGreaseEventProvider.Create;
 begin
   inherited Create;
+  FEditMenuAttached := False;
   
-  Register(EVENT_OBJECT_SELECT, @NodeSelectEvent);
-  Register(EVENT_OBJECT_CLICK, @NodeClickEvent);
-  Register(EVENT_OBJECT_ATTACH_DYNAMIC_MENU, @NodeAttachDynamicMenuEvent);
-  Register(EVENT_OBJECT_DETACH_DYNAMIC_MENU, @NodeDetachDynamicMenuEvent);
+  Register(EVENT_OBJECT_SELECT, @OnObjectSelectEvent);
+  Register(EVENT_OBJECT_DOUBLE_CLICK, @OnObjectDoubleClickEvent);
 end;
 
-function TMainMenuItemNodeEventProvider.NodeSelectEvent (AObject : 
-  TCommonObject) : Boolean;
+function TNodeGreaseEventProvider.OnObjectSelectEvent (AObject : TCommonObject) :
+  Boolean;
 begin
-  Result := True;
-end;
-
-function TMainMenuItemNodeEventProvider.NodeClickEvent (AObject : 
-  TCommonObject) : Boolean;
-begin
-  Provider.ChangeData(TEntityNodeDataHandler.Create(TEntity(
-    MainMenu.GetAttachedObject(TMainMenu.MAIN_MENU_ITEM_ENTITY))));
-
-  MainMenu.DetachObject(TMainMenu.MAIN_MENU_ITEM_NODE);
-
-  Result := True;
-end;
-
-function TMainMenuItemNodeEventProvider.NodeAttachDynamicMenuEvent (AObject :
-  TCommonObject) : Boolean;
-begin
-  MainMenu.AttachDynamicMenu(TMainMenu.MAIN_MENU_ITEM_NODE,
-    TMenuSubitemJobCreateDataProvider.Create,
-    TMainMenuSubitemProfilesProvider.Create);
+  if (not FEditMenuAttached) and (Assigned(Provider.GetSelectedObject)) then
+  begin
+    MainMenu.AttachDynamicMenu(TMainMenu.MAIN_MENU_ITEM_NODE_GREASE,
+      TMenuSubitemNodeGreaseEditDataProvider.Create,
+      TMainMenuSubitemProfilesProvider.Create);
+    
+    FEditMenuAttached := True;
+  end;
   
   Result := True;
 end;
 
-function TMainMenuItemNodeEventProvider.NodeDetachDynamicMenuEvent (AObject :
+function TNodeGreaseEventProvider.OnObjectDoubleClickEvent (AObject :
   TCommonObject) : Boolean;
 begin
-  MainMenu.DetachAllDynamicMenus(TMainMenu.MAIN_MENU_ITEM_NODE);
-
   Result := True;
 end;
 

@@ -89,19 +89,12 @@ end;
 function TMainMenuItemEntityGreaseEventProvider.GreaseAttachDynamicMenuEvent 
   (AObject : TCommonObject) : Boolean;
 begin
-  {
-  MainMenu.AttachDynamicMenu(TMainMenu.MAIN_MENU_ITEM_ENTITY,
-    TMenuSubitemEntityCreateDataProvider.Create,
-    TMainMenuSubitemProfilesProvider.Create);
-  }
   Result := True;
 end;
 
 function TMainMenuItemEntityGreaseEventProvider.GreaseDetachDynamicMenuEvent 
   (AObject : TCommonObject) : Boolean;
 begin
-  //MainMenu.DetachAllDynamicMenus(TMainMenu.MAIN_MENU_ITEM_ENTITY);
-  
   Result := True;
 end;
 

@@ -48,7 +48,7 @@ type
 implementation
 
 uses
-  dataprovider, datahandlers, mainmenuprovider, dataproviders.mainmenu,
+  dataprovider, mainmenuprovider, dataproviders.mainmenu,
   profilesprovider.mainmenu;
 
 { TEntityGreaseEventProvider }

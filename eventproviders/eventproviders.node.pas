@@ -68,7 +68,10 @@ begin
     MainMenu.AttachDynamicMenu(TMainMenu.MAIN_MENU_ITEM_NODE,
       TMenuSubitemNodeEditDataProvider.Create, 
       TMainMenuSubitemProfilesProvider.Create);
-    
+    MainMenu.AttachDynamicMenu(TMainMenu.MAIN_MENU_ITEM_NODE,
+      TMenuSubitemNodeGreaseListDataProvider.Create, 
+      TMainMenuSubitemProfilesProvider.Create);
+
     FEditMenuAttached := True;
   end;
   

@@ -47,6 +47,7 @@ type
       MAIN_MENU_ITEM_ENTITY                                           = 3;
       MAIN_MENU_ITEM_NODE                                             = 4;
       MAIN_MENU_ITEM_ENTITY_GREASE                                    = 5;
+      MAIN_MENU_ITEM_NODE_GREASE                                      = 6;
   public
     constructor Create;
     destructor Destroy; override;
