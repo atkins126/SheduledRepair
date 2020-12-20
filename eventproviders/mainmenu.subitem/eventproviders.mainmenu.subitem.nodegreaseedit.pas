@@ -24,7 +24,9 @@
 (******************************************************************************)
 unit eventproviders.mainmenu.subitem.nodegreaseedit;
 
-{$mode objfpc}{$H+}
+{$IFDEF FPC}
+  {$mode objfpc}{$H+}
+{$ENDIF}
 {$IFOPT D+}
   {$DEFINE DEBUG}
 {$ENDIF}
@@ -54,7 +56,7 @@ constructor TMainMenuSubitemNodeGreaseEditEventProvider.Create;
 begin
   inherited Create;
   
-  Register(EVENT_OBJECT_CLICK, @NodeGreaseEditClickEvent);
+  Register(EVENT_OBJECT_CLICK, {$IFDEF FPC}@{$ENDIF}NodeGreaseEditClickEvent);
 end;
 
 function TMainMenuSubitemNodeGreaseEditEventProvider

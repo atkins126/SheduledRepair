@@ -1,11 +1,11 @@
 object MainWindow: TMainWindow
-  Left = 2576
-  Height = 689
+  Left = 2638
+  Height = 655
   Top = 143
-  Width = 1262
+  Width = 1200
   Caption = 'SheduledRepair'
-  ClientHeight = 689
-  ClientWidth = 1262
+  ClientHeight = 655
+  ClientWidth = 1200
   DesignTimePPI = 101
   OnCreate = FormCreate
   OnDestroy = FormDestroy
@@ -14,7 +14,7 @@ object MainWindow: TMainWindow
     Left = 0
     Height = 53
     Top = 0
-    Width = 1262
+    Width = 1200
     Align = alTop
     ParentFont = False
     TabOrder = 5
@@ -22,7 +22,7 @@ object MainWindow: TMainWindow
   end
   object MainMenuView: TVirtualDrawTree
     Left = 0
-    Height = 583
+    Height = 549
     Top = 53
     Width = 316
     Align = alLeft
@@ -35,13 +35,13 @@ object MainWindow: TMainWindow
   end
   object MainMenuSplitter: TSplitter
     Left = 316
-    Height = 583
+    Height = 549
     Top = 53
     Width = 5
   end
   object SettingsView: TVirtualDrawTree
-    Left = 946
-    Height = 583
+    Left = 884
+    Height = 549
     Top = 53
     Width = 316
     Align = alRight
@@ -53,8 +53,8 @@ object MainWindow: TMainWindow
     Visible = False
   end
   object SettingsSplitter: TSplitter
-    Left = 941
-    Height = 583
+    Left = 879
+    Height = 549
     Top = 53
     Width = 5
     Align = alRight
@@ -63,9 +63,9 @@ object MainWindow: TMainWindow
   end
   object ContentView: TVirtualDrawTree
     Left = 321
-    Height = 583
+    Height = 549
     Top = 53
-    Width = 620
+    Width = 558
     Align = alClient
     Header.AutoSizeIndex = 0
     Header.Columns = <>
@@ -76,8 +76,8 @@ object MainWindow: TMainWindow
   object BottomPanel: TPanel
     Left = 0
     Height = 53
-    Top = 636
-    Width = 1262
+    Top = 602
+    Width = 1200
     Align = alBottom
     ParentFont = False
     TabOrder = 6

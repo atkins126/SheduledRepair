@@ -24,7 +24,9 @@
 (******************************************************************************)
 unit eventproviders.mainmenu.item.entitygrease;
 
-{$mode objfpc}{$H+}
+{$IFDEF FPC}
+  {$mode objfpc}{$H+}
+{$ENDIF}
 {$IFOPT D+}
   {$DEFINE DEBUG}
 {$ENDIF}
@@ -59,10 +61,12 @@ constructor TMainMenuItemEntityGreaseEventProvider.Create;
 begin
   inherited Create;
   
-  Register(EVENT_OBJECT_SELECT, @GreaseSelectEvent);
-  Register(EVENT_OBJECT_CLICK, @GreaseClickEvent);
-  Register(EVENT_OBJECT_ATTACH_DYNAMIC_MENU, @GreaseAttachDynamicMenuEvent);
-  Register(EVENT_OBJECT_DETACH_DYNAMIC_MENU, @GreaseDetachDynamicMenuEvent);
+  Register(EVENT_OBJECT_SELECT, {$IFDEF FPC}@{$ENDIF}GreaseSelectEvent);
+  Register(EVENT_OBJECT_CLICK, {$IFDEF FPC}@{$ENDIF}GreaseClickEvent);
+  Register(EVENT_OBJECT_ATTACH_DYNAMIC_MENU,
+    {$IFDEF FPC}@{$ENDIF}GreaseAttachDynamicMenuEvent);
+  Register(EVENT_OBJECT_DETACH_DYNAMIC_MENU,
+    {$IFDEF FPC}@{$ENDIF}GreaseDetachDynamicMenuEvent);
 end;
 
 function TMainMenuItemEntityGreaseEventProvider.GreaseSelectEvent (AObject : 

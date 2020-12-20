@@ -24,7 +24,9 @@
 (******************************************************************************)
 unit eventproviders.mainmenu.subitem.jobcreate;
 
-{$mode objfpc}{$H+}
+{$IFDEF FPC}
+  {$mode objfpc}{$H+}
+{$ENDIF}
 {$IFOPT D+}
   {$DEFINE DEBUG}
 {$ENDIF}
@@ -53,7 +55,7 @@ constructor TMainMenuSubitemJobCreateEventProvider.Create;
 begin
   inherited Create;
   
-  Register(EVENT_OBJECT_CLICK, @JobCreateClickEvent);
+  Register(EVENT_OBJECT_CLICK, {$IFDEF FPC}@{$ENDIF}JobCreateClickEvent);
 end;
 
 function TMainMenuSubitemJobCreateEventProvider.JobCreateClickEvent 

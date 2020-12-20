@@ -24,7 +24,9 @@
 (******************************************************************************)
 unit objects.nodebag;
 
-{$mode objfpc}{$H+}
+{$IFDEF FPC}
+  {$mode objfpc}{$H+}
+{$ENDIF}
 {$IFOPT D+}
   {$DEFINE DEBUG}
 {$ENDIF}
@@ -87,13 +89,14 @@ type
     function DeleteDepentObjects : Boolean; override;
   public
     type
-      TNodeCompareFunctor = class (specialize TBinaryFunctor<TNode, Integer>)
+      TNodeCompareFunctor = class ({$IFDEF FPC}specialize{$ENDIF}
+        TBinaryFunctor<TNode, Integer>)
       public
         function Call (AValue1, AValue2 : TNode) : Integer; override;
       end;
-      
-      TNodesList = class
-        (specialize TArrayList<TNode, TNodeCompareFunctor>);  
+
+      TNodesList = {$IFDEF FPC}type specialize{$ENDIF} TArrayList<TNode,
+        TNodeCompareFunctor>;
   public
     { Get enumerator for in operator. }
     function GetEnumerator : TNodesList.TIterator;

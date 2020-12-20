@@ -24,7 +24,9 @@
 (******************************************************************************)
 unit profilesprovider.common;
 
-{$mode objfpc}{$H+}
+{$IFDEF FPC}
+  {$mode objfpc}{$H+}
+{$ENDIF}
 {$IFOPT D+}
   {$DEFINE DEBUG}
 {$ENDIF}
@@ -64,15 +66,15 @@ type
   protected
     type
       TProfilesCompareFunctor = class
-        (specialize TBinaryFunctor<TRendererObjectProfile, Integer>)
+        ({$IFDEF FPC}specialize{$ENDIF} TBinaryFunctor<TRendererObjectProfile,
+        Integer>)
       public
         function Call (AValue1, AValue2 : TRendererObjectProfile) : Integer; 
           override;
       end;
 
-      TProfilesList = class
-        (specialize TArrayList<TRendererObjectProfile, 
-        TProfilesCompareFunctor>);
+      TProfilesList = {$IFDEF FPC}type specialize{$ENDIF}
+        TArrayList<TRendererObjectProfile, TProfilesCompareFunctor>;
   protected
     FProfilesList : TProfilesList;
   end;

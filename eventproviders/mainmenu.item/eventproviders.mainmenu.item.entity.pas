@@ -24,7 +24,9 @@
 (******************************************************************************)
 unit eventproviders.mainmenu.item.entity;
 
-{$mode objfpc}{$H+}
+{$IFDEF FPC}
+  {$mode objfpc}{$H+}
+{$ENDIF}
 {$IFOPT D+}
   {$DEFINE DEBUG}
 {$ENDIF}
@@ -59,10 +61,12 @@ constructor TMainMenuItemEntityEventProvider.Create;
 begin
   inherited Create;
   
-  Register(EVENT_OBJECT_SELECT, @EntitySelectEvent);
-  Register(EVENT_OBJECT_CLICK, @EntityClickEvent);
-  Register(EVENT_OBJECT_ATTACH_DYNAMIC_MENU, @EntityAttachDynamicMenuEvent);
-  Register(EVENT_OBJECT_DETACH_DYNAMIC_MENU, @EntityDetachDynamicMenuEvent);
+  Register(EVENT_OBJECT_SELECT, {$IFDEF FPC}@{$ENDIF}EntitySelectEvent);
+  Register(EVENT_OBJECT_CLICK, {$IFDEF FPC}@{$ENDIF}EntityClickEvent);
+  Register(EVENT_OBJECT_ATTACH_DYNAMIC_MENU,
+    {$IFDEF FPC}@{$ENDIF}EntityAttachDynamicMenuEvent);
+  Register(EVENT_OBJECT_DETACH_DYNAMIC_MENU,
+    {$IFDEF FPC}@{$ENDIF}EntityDetachDynamicMenuEvent);
 end;
 
 function TMainMenuItemEntityEventProvider.EntitySelectEvent (AObject : 

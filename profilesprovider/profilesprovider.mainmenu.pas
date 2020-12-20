@@ -24,7 +24,9 @@
 (******************************************************************************)
 unit profilesprovider.mainmenu;
 
-{$mode objfpc}{$H+}
+{$IFDEF FPC}
+  {$mode objfpc}{$H+}
+{$ENDIF}
 {$IFOPT D+}
   {$DEFINE DEBUG}
 {$ENDIF}

@@ -24,7 +24,9 @@
 (******************************************************************************)
 unit renderer.profile.profile;
 
-{$mode objfpc}{$H+}
+{$IFDEF FPC}
+  {$mode objfpc}{$H+}
+{$ENDIF}
 {$IFOPT D+}
   {$DEFINE DEBUG}
 {$ENDIF}
@@ -32,25 +34,14 @@ unit renderer.profile.profile;
 interface
 
 uses
-  SysUtils, objects.common, Graphics, container.arraylist, utils.functor, 
-  sqlite3.schema, renderer.profile.profileitem, renderer.profile.itembag;
+  SysUtils, objects.common, Graphics, sqlite3.schema,
+  renderer.profile.profileitem, renderer.profile.itembag;
 
 type
   TRendererProfile = class(TCommonObject)
   private
     const
       RENDERER_PROFILE_TABLE_NAME = 'renderer_profile';
-  public
-    type
-      TItemCompareFunctor = class
-        (specialize TBinaryFunctor<TRendererProfileItem, Integer>)
-      public
-        function Call (AValue1, AValue2 : TRendererProfileItem) : Integer; 
-          override;
-      end;
-
-      TItemsList = class
-        (specialize TArrayList<TRendererProfileItem, TItemCompareFunctor>);
   public
     constructor Create (AID : Int64); override;
     destructor Destroy; override;
@@ -91,7 +82,7 @@ type
     procedure SetItem (AName : String; AValue : TRendererProfileItem);
   public
     { Get enumerator for in operator. }
-    function GetEnumerator : TItemsList.TIterator;
+    function GetEnumerator : TProfileItemBag.TIterator;
   public
     property Enable : Boolean read FEnable write FEnable;
     property Height : Integer read FHeight write FHeight;
@@ -101,19 +92,6 @@ type
   end;
 
 implementation
-
-{ TRendererProfile.TItemCompareFunctor }
-
-function TRendererProfile.TItemCompareFunctor.Call (AValue1, AValue2 :
-  TRendererProfileItem) : Integer;
-begin
-  if AValue1.Name < AValue2.Name then
-    Result := -1
-  else if AValue2.Name < AValue1.Name then
-    Result := 1
-  else
-    Result := 1;
-end;
 
 constructor TRendererProfile.Create (AID : Int64);
 begin
@@ -167,7 +145,7 @@ begin
   FItems.Append(ProfileItem);
 end;
 
-function TRendererProfile.GetEnumerator : TItemsList.TIterator;
+function TRendererProfile.GetEnumerator : TProfileItemBag.TIterator;
 begin
   Result := FItems.GetEnumerator;
 end;

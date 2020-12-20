@@ -24,7 +24,9 @@
 (******************************************************************************)
 unit eventproviders.mainmenu.item.job;
 
-{$mode objfpc}{$H+}
+{$IFDEF FPC}
+  {$mode objfpc}{$H+}
+{$ENDIF}
 {$IFOPT D+}
   {$DEFINE DEBUG}
 {$ENDIF}
@@ -57,10 +59,12 @@ constructor TMainMenuItemJobEventProvider.Create;
 begin
   inherited Create;
   
-  Register(EVENT_OBJECT_SELECT, @JobSelectEvent);
-  Register(EVENT_OBJECT_CLICK, @JobClickEvent);
-  Register(EVENT_OBJECT_ATTACH_DYNAMIC_MENU, @JobAttachDynamicMenuEvent);
-  Register(EVENT_OBJECT_DETACH_DYNAMIC_MENU, @JobDetachDynamicMenuEvent);
+  Register(EVENT_OBJECT_SELECT, {$IFDEF FPC}@{$ENDIF}JobSelectEvent);
+  Register(EVENT_OBJECT_CLICK, {$IFDEF FPC}@{$ENDIF}JobClickEvent);
+  Register(EVENT_OBJECT_ATTACH_DYNAMIC_MENU,
+    {$IFDEF FPC}@{$ENDIF}JobAttachDynamicMenuEvent);
+  Register(EVENT_OBJECT_DETACH_DYNAMIC_MENU,
+    {$IFDEF FPC}@{$ENDIF}JobDetachDynamicMenuEvent);
 end;
 
 function TMainMenuItemJobEventProvider.JobSelectEvent (AObject : TCommonObject) 

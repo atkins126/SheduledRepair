@@ -24,7 +24,9 @@
 (******************************************************************************)
 unit objects.grease;
 
-{$mode objfpc}{$H+}
+{$IFDEF FPC}
+  {$mode objfpc}{$H+}
+{$ENDIF}
 {$IFOPT D+}
   {$DEFINE DEBUG}
 {$ENDIF}
@@ -115,7 +117,13 @@ end;
 
 function TGrease.SaveDepentObjects : Boolean;
 begin
-  Result := FSupplier.Save and FGrade.Save;
+  Result := True;
+
+  if FSupplier.Name <> '' then
+    Result := FSupplier.Save;
+
+  if FGrade.Name <> '' then
+    Result := FGrade.Save;
 end;
 
 procedure TGrease.SaveCurrentObject;

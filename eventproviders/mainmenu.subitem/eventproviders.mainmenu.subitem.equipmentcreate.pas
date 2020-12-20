@@ -24,7 +24,9 @@
 (******************************************************************************)
 unit eventproviders.mainmenu.subitem.equipmentcreate;
 
-{$mode objfpc}{$H+}
+{$IFDEF FPC}
+  {$mode objfpc}{$H+}
+{$ENDIF}
 {$IFOPT D+}
   {$DEFINE DEBUG}
 {$ENDIF}
@@ -53,7 +55,7 @@ constructor TMainMenuSubitemEquipmentCreateEventProvider.Create;
 begin
   inherited Create;
   
-  Register(EVENT_OBJECT_CLICK, @EquipmentCreateClickEvent);
+  Register(EVENT_OBJECT_CLICK, {$IFDEF FPC}@{$ENDIF}EquipmentCreateClickEvent);
 end;
 
 function TMainMenuSubitemEquipmentCreateEventProvider.EquipmentCreateClickEvent 

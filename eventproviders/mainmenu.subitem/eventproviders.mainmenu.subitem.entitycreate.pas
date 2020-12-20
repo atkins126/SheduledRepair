@@ -24,7 +24,9 @@
 (******************************************************************************)
 unit eventproviders.mainmenu.subitem.entitycreate;
 
-{$mode objfpc}{$H+}
+{$IFDEF FPC}
+  {$mode objfpc}{$H+}
+{$ENDIF}
 {$IFOPT D+}
   {$DEFINE DEBUG}
 {$ENDIF}
@@ -53,7 +55,7 @@ constructor TMainMenuSubitemEntityCreateEventProvider.Create;
 begin
   inherited Create;
   
-  Register(EVENT_OBJECT_CLICK, @EntityCreateClickEvent);
+  Register(EVENT_OBJECT_CLICK, {$IFDEF FPC}@{$ENDIF}EntityCreateClickEvent);
 end;
 
 function TMainMenuSubitemEntityCreateEventProvider.EntityCreateClickEvent 

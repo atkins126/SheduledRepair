@@ -24,7 +24,9 @@
 (******************************************************************************)
 unit renderers.common;
 
-{$mode objfpc}{$H+}
+{$IFDEF FPC}
+  {$mode objfpc}{$H+}
+{$ENDIF}
 {$IFOPT D+}
   {$DEFINE DEBUG}
 {$ENDIF}
@@ -49,8 +51,8 @@ type
     procedure CalculateColumns (AFullWidth : Cardinal); virtual; abstract;
   protected
     type
-      TColumnsList = class
-        (specialize TArrayList<Cardinal, TCompareFunctorCardinal>);
+      TColumnsList = {$IFDEF FPC}type specialize{$ENDIF} TArrayList<Cardinal,
+        TCompareFunctorCardinal>;
   protected
     { Add new column. }
     procedure AppendColumn (AWidth : Cardinal);

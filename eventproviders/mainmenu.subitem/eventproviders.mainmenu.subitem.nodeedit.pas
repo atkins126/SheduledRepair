@@ -24,7 +24,9 @@
 (******************************************************************************)
 unit eventproviders.mainmenu.subitem.nodeedit;
 
-{$mode objfpc}{$H+}
+{$IFDEF FPC}
+  {$mode objfpc}{$H+}
+{$ENDIF}
 {$IFOPT D+}
   {$DEFINE DEBUG}
 {$ENDIF}
@@ -53,7 +55,7 @@ constructor TMainMenuSubitemNodeEditEventProvider.Create;
 begin
   inherited Create;
   
-  Register(EVENT_OBJECT_CLICK, @EntityEditClickEvent);
+  Register(EVENT_OBJECT_CLICK, {$IFDEF FPC}@{$ENDIF}EntityEditClickEvent);
 end;
 
 function TMainMenuSubitemNodeEditEventProvider.EntityEditClickEvent (AObject : 

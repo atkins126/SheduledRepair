@@ -24,7 +24,9 @@
 (******************************************************************************)
 unit eventproviders.mainmenu.subitem.nodegreaselist;
 
-{$mode objfpc}{$H+}
+{$IFDEF FPC}
+  {$mode objfpc}{$H+}
+{$ENDIF}
 {$IFOPT D+}
   {$DEFINE DEBUG}
 {$ENDIF}
@@ -54,7 +56,7 @@ constructor TMainMenuSubitemNodeGreaseListEventProvider.Create;
 begin
   inherited Create;
   
-  Register(EVENT_OBJECT_CLICK, @NodeGreaseClickEvent);
+  Register(EVENT_OBJECT_CLICK, {$IFDEF FPC}@{$ENDIF}NodeGreaseClickEvent);
 end;
 
 function TMainMenuSubitemNodeGreaseListEventProvider.NodeGreaseClickEvent 

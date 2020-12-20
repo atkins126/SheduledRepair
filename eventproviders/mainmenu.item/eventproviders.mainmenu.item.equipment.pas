@@ -24,7 +24,9 @@
 (******************************************************************************)
 unit eventproviders.mainmenu.item.equipment;
 
-{$mode objfpc}{$H+}
+{$IFDEF FPC}
+  {$mode objfpc}{$H+}
+{$ENDIF}
 {$IFOPT D+}
   {$DEFINE DEBUG}
 {$ENDIF}
@@ -59,10 +61,12 @@ constructor TMainMenuItemEquipmentEventProvider.Create;
 begin
   inherited Create;
   
-  Register(EVENT_OBJECT_SELECT, @EquipmentSelectEvent);
-  Register(EVENT_OBJECT_CLICK, @EquipmentClickEvent);
-  Register(EVENT_OBJECT_ATTACH_DYNAMIC_MENU, @EquipmentAttachDynamicMenuEvent);
-  Register(EVENT_OBJECT_DETACH_DYNAMIC_MENU, @EquipmentDetachDynamicMenuEvent);
+  Register(EVENT_OBJECT_SELECT, {$IFDEF FPC}@{$ENDIF}EquipmentSelectEvent);
+  Register(EVENT_OBJECT_CLICK, {$IFDEF FPC}@{$ENDIF}EquipmentClickEvent);
+  Register(EVENT_OBJECT_ATTACH_DYNAMIC_MENU,
+    {$IFDEF FPC}@{$ENDIF}EquipmentAttachDynamicMenuEvent);
+  Register(EVENT_OBJECT_DETACH_DYNAMIC_MENU,
+    {$IFDEF FPC}@{$ENDIF}EquipmentDetachDynamicMenuEvent);
 end;
 
 function TMainMenuItemEquipmentEventProvider.EquipmentSelectEvent (AObject : 

@@ -24,7 +24,9 @@
 (******************************************************************************)
 unit mainmenuprovider;
 
-{$mode objfpc}{$H+}
+{$IFDEF FPC}
+  {$mode objfpc}{$H+}
+{$ENDIF}
 {$IFOPT D+}
   {$DEFINE DEBUG}
 {$ENDIF}
@@ -80,9 +82,10 @@ type
     type
       { Menu items handle list. }
       TMenuItemListCompareFunctor = class
-        (specialize TUnsortableFunctor<TDataRenderer.TItemHandle>);
-      TMenuItemList = class(specialize TArrayList<TDataRenderer.TItemHandle,
-        TMenuItemListCompareFunctor>);
+        ({$IFDEF FPC}specialize{$ENDIF}
+        TUnsortableFunctor<TDataRenderer.TItemHandle>);
+      TMenuItemList = {$IFDEF FPC}type specialize{$ENDIF}
+        TArrayList<TDataRenderer.TItemHandle, TMenuItemListCompareFunctor>;
   private
     FMainMenuView : TVirtualDrawTree;  
     FMainMenuRenderer : TMainMenuDataRenderer;
@@ -142,7 +145,7 @@ begin
     TDataRenderer.Create(FMainMenuView, FMainMenuDataProvider, 
     TMainMenuProfilesProvider.Create, TMainMenuRenderer.Create,
     TMainMenuEventProvider.Create));
-  FMainMenuRenderer.ReloadData(@MenuItemCreateEvent);
+  FMainMenuRenderer.ReloadData({$IFDEF FPC}@{$ENDIF}MenuItemCreateEvent);
 end;
 
 procedure TMainMenu.MenuItemCreateEvent (AObject : TCommonObject; AItemHandle :
@@ -179,7 +182,7 @@ begin
     Exit;
     
   FMainMenuRenderer.AttachDynamicMenu(FMenuItems.Value[AMenuItemID],
-    ADataProvider, AProfilesProvider, @MenuItemCreateEvent);
+    ADataProvider, AProfilesProvider, {$IFDEF FPC}@{$ENDIF}MenuItemCreateEvent);
 end;
 
 procedure TMainMenu.DetachAllDynamicMenus (AMenuItemID : Int64);

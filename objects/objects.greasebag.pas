@@ -24,7 +24,9 @@
 (******************************************************************************)
 unit objects.greasebag;
 
-{$mode objfpc}{$H+}
+{$IFDEF FPC}
+  {$mode objfpc}{$H+}
+{$ENDIF}
 {$IFOPT D+}
   {$DEFINE DEBUG}
 {$ENDIF}
@@ -89,7 +91,7 @@ type
   protected
     type
       TGreaseBundleCompareFunctor = class
-        (specialize TBinaryFunctor<TGreaseBundle, Integer>)
+        ({$IFDEF FPC}specialize{$ENDIF} TBinaryFunctor<TGreaseBundle, Integer>)
       protected
         function CompareGreaseSupplier (ASupplier1, ASupplier2 : TSupplier) :
           Integer;
@@ -98,8 +100,8 @@ type
         function Call (AValue1, AValue2 : TGreaseBundle) : Integer; override;
       end;
       
-      TGreaseBundleList = class
-        (specialize TArrayList<TGreaseBundle, TGreaseBundleCompareFunctor>);  
+      TGreaseBundleList = {$IFDEF FPC}type specialize{$ENDIF}
+        TArrayList<TGreaseBundle, TGreaseBundleCompareFunctor>;
   public
     { Get enumerator for in operator. }
     function GetEnumerator : TGreaseBundleList.TIterator;

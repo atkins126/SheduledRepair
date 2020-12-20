@@ -24,7 +24,9 @@
 (******************************************************************************)
 unit renderers.datarenderer;
 
-{$mode objfpc}{$H+}
+{$IFDEF FPC}
+  {$mode objfpc}{$H+}
+{$ENDIF}
 {$IFOPT D+}
   {$DEFINE DEBUG}
 {$ENDIF}
@@ -244,11 +246,11 @@ procedure TDataRenderer.SetTreeViewCallbacks;
 begin
   with FTreeView do
   begin
-    OnDrawNode := @NodeDrawEvent;
-    OnResize := @TreeResizeEvent;
-    OnChange := @NodeChangeEvent;
-    OnNodeClick := @NodeClickEvent;
-    OnNodeDblClick := @NodeDoubleClickEvent;
+    OnDrawNode := {$IFDEF FPC}@{$ENDIF}NodeDrawEvent;
+    OnResize := {$IFDEF FPC}@{$ENDIF}TreeResizeEvent;
+    OnChange := {$IFDEF FPC}@{$ENDIF}NodeChangeEvent;
+    OnNodeClick := {$IFDEF FPC}@{$ENDIF}NodeClickEvent;
+    OnNodeDblClick := {$IFDEF FPC}@{$ENDIF}NodeDoubleClickEvent;
   end;
 end;
 
@@ -257,7 +259,12 @@ var
   Width : Cardinal;
   Column : TVirtualTreeColumn;
 begin
-  FTreeView.Header.Columns.Clear;
+  //FTreeView.Header.Columns.Clear;
+  //Column := FTreeView.Header.Columns.Add;
+  //Column.Width := FTreeView.ClientWidth;
+  //Column.Style := vsOwnerDraw;
+
+  {
   FRenderer.CalculateColumns(FTreeView.ClientWidth);
 
   for Width in FRenderer do
@@ -266,6 +273,7 @@ begin
     Column.Width := Width;
     Column.Style := vsOwnerDraw;
   end;
+  }
 end;
 
 function TDataRenderer.GetHoverProfile (ANode : PVirtualNode) : 
@@ -443,9 +451,9 @@ end;
 constructor TMainMenuDataRenderer.Create (ADataRenderer : TDataRenderer);
 begin
   FDataRenderer := ADataRenderer;
-  FDataRenderer.FTreeView.OnChange := @NodeChangeEvent;
-  FDataRenderer.FTreeView.OnNodeClick := @NodeClickEvent;
-  FDataRenderer.FTreeView.OnFreeNode := @NodeFreeEvent;
+  FDataRenderer.FTreeView.OnChange := {$IFDEF FPC}@{$ENDIF}NodeChangeEvent;
+  FDataRenderer.FTreeView.OnNodeClick := {$IFDEF FPC}@{$ENDIF}NodeClickEvent;
+  FDataRenderer.FTreeView.OnFreeNode := {$IFDEF FPC}@{$ENDIF}NodeFreeEvent;
 
   FCurrentSelectedNode := nil;
   FItemDestroyEvent := nil;
@@ -488,10 +496,14 @@ end;
 procedure TMainMenuDataRenderer.NodeClickEvent (Sender : TBaseVirtualTree;
   const HitInfo : THitInfo);
 begin
+  if HitInfo.HitNode = nil then
+    Exit;
+
   FireNodeEvent(TCommonEventProvider.EVENT_OBJECT_CLICK,
     HitInfo.HitNode);
   
-  if FDataRenderer.GetObject(HitInfo.HitNode).ID <> -1 then
+  if (HitInfo.HitNode <> nil) and (FDataRenderer.GetObject(HitInfo.HitNode).ID
+    <> -1) then
   begin
     FireNodeEvent(TCommonEventProvider.EVENT_OBJECT_DETACH_DYNAMIC_MENU, 
       HitInfo.HitNode);

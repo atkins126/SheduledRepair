@@ -24,7 +24,9 @@
 (******************************************************************************)
 unit renderer.profile.itembag;
 
-{$mode objfpc}{$H+}
+{$IFDEF FPC}
+  {$mode objfpc}{$H+}
+{$ENDIF}
 {$IFOPT D+}
   {$DEFINE DEBUG}
 {$ENDIF}
@@ -91,15 +93,19 @@ type
   protected
     type
       TProfileItemsCompareFunctor = class
-        (specialize TBinaryFunctor<TRendererProfileItem, Integer>)
+        ({$IFDEF FPC}specialize{$ENDIF} TBinaryFunctor<TRendererProfileItem,
+        Integer>)
       public
         function Call (AValue1, AValue2 : TRendererProfileItem) : Integer;
           override;
       end;
       
-      TProfileItemsList = class
-        (specialize TArrayList<TRendererProfileItem, 
-        TProfileItemsCompareFunctor>);
+      TProfileItemsList = {$IFDEF FPC}type specialize{$ENDIF}
+        TArrayList<TRendererProfileItem,
+        TProfileItemsCompareFunctor>;
+  public
+    type
+      TIterator = TProfileItemsList.TIterator;
   public
     { Get enumerator for in operator. }
     function GetEnumerator : TProfileItemsList.TIterator;

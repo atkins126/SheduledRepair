@@ -24,7 +24,9 @@
 (******************************************************************************)
 unit objects.entitybag;
 
-{$mode objfpc}{$H+}
+{$IFDEF FPC}
+  {$mode objfpc}{$H+}
+{$ENDIF}
 {$IFOPT D+}
   {$DEFINE DEBUG}
 {$ENDIF}
@@ -88,13 +90,13 @@ type
   public
     type
       TEntityCompareFunctor = class
-       (specialize TBinaryFunctor<TEntity, Integer>)
+       ({$IFDEF FPC}specialize{$ENDIF} TBinaryFunctor<TEntity, Integer>)
       public
         function Call (AValue1, AValue2 : TEntity) : Integer; override;
       end;
-      
-      TEntityList = class
-        (specialize TArrayList<TEntity, TEntityCompareFunctor>);  
+
+      TEntityList = {$IFDEF FPC}type specialize{$ENDIF} TArrayList<TEntity,
+        TEntityCompareFunctor>;
   public
     { Get enumerator for in operator. }
     function GetEnumerator : TEntityList.TIterator;

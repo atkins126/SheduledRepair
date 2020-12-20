@@ -24,7 +24,9 @@
 (******************************************************************************)
 unit eventproviders.common;
 
-{$mode objfpc}{$H+}
+{$IFDEF FPC}
+  {$mode objfpc}{$H+}
+{$ENDIF}
 {$IFOPT D+}
   {$DEFINE DEBUG}
 {$ENDIF}
@@ -32,7 +34,7 @@ unit eventproviders.common;
 interface
 
 uses
-  SysUtils, objects.common, container.hashtable, utils.functor;
+  SysUtils, objects.common, container.arraylist, utils.functor;
 
 type
   TCommonEventProvider = class
@@ -63,9 +65,10 @@ type
       {$IFNDEF DEBUG}inline;{$ENDIF}
   protected
     type
-      TEventCompareFunctor = class(specialize TUnsortableFunctor<Integer>);
-      TEvents = class(specialize THashTable<Integer, TObjectEvent, 
-        TEventCompareFunctor>);
+      TEventCompareFunctor = class({$IFDEF FPC}specialize{$ENDIF}
+        TUnsortableFunctor<TObjectEvent>);
+      TEvents = {$IFDEF FPC}type specialize{$ENDIF} TArrayList<TObjectEvent,
+        TEventCompareFunctor>;
   protected
     FEvents : TEvents;
   end;
@@ -76,7 +79,7 @@ implementation
 
 constructor TCommonEventProvider.Create;
 begin
-  FEvents := TEvents.Create(@HashInteger);
+  FEvents := TEvents.Create;
 end;
 
 destructor TCommonEventProvider.Destroy;
@@ -87,8 +90,16 @@ end;
 
 procedure TCommonEventProvider.Register (AEventID : Integer; AEvent :
   TObjectEvent);
+var
+  Index : Integer;
 begin
-  FEvents.Insert(AEventID, AEvent);
+  if AEventID > (FEvents.Length - 1) then
+  begin
+    for Index := FEvents.Length to AEventID do
+      FEvents.Append(nil);
+  end;
+
+  FEvents.Value[AEventID] := AEvent;
 end;
 
 procedure TCommonEventProvider.Remove (AEventID : Integer);
@@ -101,14 +112,12 @@ function TCommonEventProvider.Fire (AEventID : Integer; AObject :
 var
   Event : TObjectEvent;
 begin
-  try
-    Event := FEvents.Search(AEventID);
-    Exit(Event(AObject));
-  except
-    on E: EKeyNotExistsException do
-      { Do nothing. }
-  end;
-  Result := False;
+  if (AEventID > FEvents.Length - 1) or (not Assigned(FEvents.Value[AEventID]))
+    then
+    Exit(False);
+
+  Event := FEvents.Value[AEventID];
+  Result := Event(AObject);
 end;
 
 end.

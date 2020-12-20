@@ -24,7 +24,9 @@
 (******************************************************************************)
 unit objects.quantity;
 
-{$mode objfpc}{$H+}
+{$IFDEF FPC}
+  {$mode objfpc}{$H+}
+{$ENDIF}
 {$IFOPT D+}
   {$DEFINE DEBUG}
 {$ENDIF}
@@ -122,7 +124,10 @@ end;
 
 function TQuantity.SaveDepentObjects : Boolean;
 begin
-  Result := FMeasure.Save;
+  if FMeasure.Name <> '' then
+    Exit(FMeasure.Save);
+
+  Result := True;
 end;
 
 procedure TQuantity.SaveCurrentObject;

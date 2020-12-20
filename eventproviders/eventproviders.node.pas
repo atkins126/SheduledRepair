@@ -24,7 +24,9 @@
 (******************************************************************************)
 unit eventproviders.node;
 
-{$mode objfpc}{$H+}
+{$IFDEF FPC}
+  {$mode objfpc}{$H+}
+{$ENDIF}
 {$IFOPT D+}
   {$DEFINE DEBUG}
 {$ENDIF}
@@ -57,13 +59,13 @@ begin
   inherited Create;
   FEditMenuAttached := False;
   
-  Register(EVENT_OBJECT_SELECT, @OnObjectSelectEvent);
+  Register(EVENT_OBJECT_SELECT, {$IFDEF FPC}@{$ENDIF}OnObjectSelectEvent);
 end;
 
 function TNodeEventProvider.OnObjectSelectEvent (AObject : TCommonObject) :
   Boolean;
 begin
-  if (not FEditMenuAttached) and (Assigned(Provider.GetSelectedObject)) then
+  if (not FEditMenuAttached) and (Provider.GetSelectedObject <> nil) then
   begin
     MainMenu.AttachDynamicMenu(TMainMenu.MAIN_MENU_ITEM_NODE,
       TMenuSubitemNodeEditDataProvider.Create, 

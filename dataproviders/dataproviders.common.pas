@@ -24,7 +24,9 @@
 (******************************************************************************)
 unit dataproviders.common;
 
-{$mode objfpc}{$H+}
+{$IFDEF FPC}
+  {$mode objfpc}{$H+}
+{$ENDIF}
 {$IFOPT D+}
   {$DEFINE DEBUG}
 {$ENDIF}
@@ -65,13 +67,13 @@ type
   protected
     type
       TObjectsCompareFunctor = class
-        (specialize TBinaryFunctor<TCommonObject, Integer>)
+        ({$IFDEF FPC}specialize{$ENDIF} TBinaryFunctor<TCommonObject, Integer>)
       public
         function Call (AValue1, AValue2 : TCommonObject) : Integer; override;
       end;
 
-      TObjectsList = class
-        (specialize TArrayList<TCommonObject, TObjectsCompareFunctor>);
+      TObjectsList = {$IFDEF FPC}type specialize{$ENDIF}
+        TArrayList<TCommonObject, TObjectsCompareFunctor>;
   protected
     FObjectsList : TObjectsList;
   public

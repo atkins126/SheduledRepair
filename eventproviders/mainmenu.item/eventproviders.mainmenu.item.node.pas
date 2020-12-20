@@ -24,7 +24,9 @@
 (******************************************************************************)
 unit eventproviders.mainmenu.item.node;
 
-{$mode objfpc}{$H+}
+{$IFDEF FPC}
+  {$mode objfpc}{$H+}
+{$ENDIF}
 {$IFOPT D+}
   {$DEFINE DEBUG}
 {$ENDIF}
@@ -59,10 +61,12 @@ constructor TMainMenuItemNodeEventProvider.Create;
 begin
   inherited Create;
   
-  Register(EVENT_OBJECT_SELECT, @NodeSelectEvent);
-  Register(EVENT_OBJECT_CLICK, @NodeClickEvent);
-  Register(EVENT_OBJECT_ATTACH_DYNAMIC_MENU, @NodeAttachDynamicMenuEvent);
-  Register(EVENT_OBJECT_DETACH_DYNAMIC_MENU, @NodeDetachDynamicMenuEvent);
+  Register(EVENT_OBJECT_SELECT, {$IFDEF FPC}@{$ENDIF}NodeSelectEvent);
+  Register(EVENT_OBJECT_CLICK, {$IFDEF FPC}@{$ENDIF}NodeClickEvent);
+  Register(EVENT_OBJECT_ATTACH_DYNAMIC_MENU,
+    {$IFDEF FPC}@{$ENDIF}NodeAttachDynamicMenuEvent);
+  Register(EVENT_OBJECT_DETACH_DYNAMIC_MENU,
+    {$IFDEF FPC}@{$ENDIF}NodeDetachDynamicMenuEvent);
 end;
 
 function TMainMenuItemNodeEventProvider.NodeSelectEvent (AObject : 

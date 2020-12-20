@@ -24,7 +24,9 @@
 (******************************************************************************)
 unit eventproviders.mainmenu.subitem.entitygreaselist;
 
-{$mode objfpc}{$H+}
+{$IFDEF FPC}
+  {$mode objfpc}{$H+}
+{$ENDIF}
 {$IFOPT D+}
   {$DEFINE DEBUG}
 {$ENDIF}
@@ -54,7 +56,7 @@ constructor TMainMenuSubitemEntityGreaseListEventProvider.Create;
 begin
   inherited Create;
   
-  Register(EVENT_OBJECT_CLICK, @EntityGreaseClickEvent);
+  Register(EVENT_OBJECT_CLICK, {$IFDEF FPC}@{$ENDIF}EntityGreaseClickEvent);
 end;
 
 function TMainMenuSubitemEntityGreaseListEventProvider.EntityGreaseClickEvent 

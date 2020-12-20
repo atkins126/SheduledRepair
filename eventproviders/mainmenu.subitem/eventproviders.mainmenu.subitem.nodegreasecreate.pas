@@ -24,7 +24,9 @@
 (******************************************************************************)
 unit eventproviders.mainmenu.subitem.nodegreasecreate;
 
-{$mode objfpc}{$H+}
+{$IFDEF FPC}
+  {$mode objfpc}{$H+}
+{$ENDIF}
 {$IFOPT D+}
   {$DEFINE DEBUG}
 {$ENDIF}
@@ -54,7 +56,7 @@ constructor TMainMenuSubitemNodeGreaseCreateEventProvider.Create;
 begin
   inherited Create;
   
-  Register(EVENT_OBJECT_CLICK, @NodeGreaseCreateClickEvent);
+  Register(EVENT_OBJECT_CLICK, {$IFDEF FPC}@{$ENDIF}NodeGreaseCreateClickEvent);
 end;
 
 function TMainMenuSubitemNodeGreaseCreateEventProvider
