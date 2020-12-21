@@ -1,7 +1,7 @@
 object NodeWindow: TNodeWindow
   Left = 3146
   Height = 255
-  Top = 459
+  Top = 143
   Width = 692
   BorderStyle = bsDialog
   Caption = 'Node editor'

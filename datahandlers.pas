@@ -45,7 +45,8 @@ uses
   profilesprovider.greasebundle, renderers.greasebundle,
   eventproviders.entitygrease, objects.greasebundle,
   eventproviders.nodegrease{$IFDEF FPC},jobform, equipmentform, entityform,
-  nodeform, greasebundleform{$ENDIF};
+  nodeform, greasebundleform{$ELSE}, jobform_delphi, equipmentform_delphi,
+  entityform_delphi, nodeform_delphi, greasebundleform_delphi{$ENDIF};
 
 type
   TDataHandler = class
@@ -136,12 +137,11 @@ end;
 procedure TJobDataHandler.ShowEditor (AParent : TCustomForm; AObject : 
   TCommonObject);
 var
-  {$IFDEF FPC}JobEditor : TJobWindow;{$ENDIF}
+  JobEditor : TJobWindow;
   ModalResult : Integer;
 begin
   { JobEditor window is temporaryly, onlu for work testing and it will been 
     changed after refactor. }
-  {$IFDEF FPC}
   JobEditor := TJobWindow.Create(AParent, TJob(AObject));
   ModalResult := JobEditor.ShowModal;
 
@@ -152,7 +152,6 @@ begin
     Provider.ReloadData;
 
   FreeAndNil(JobEditor);
-  {$ENDIF}
 end;
 
 { TEquipmentDataHandler }
@@ -168,12 +167,11 @@ end;
 procedure TEquipmentDataHandler.ShowEditor (AParent : TCustomForm; AObject : 
   TCommonObject);
 var
-  {$IFDEF FPC}EquipmentEditor : TEquipmentWindow;{$ENDIF}
+  EquipmentEditor : TEquipmentWindow;
   ModalResult : Integer;
 begin
   { EquipmentEditor window is temporaryly, onlu for work testing and it will
     been changed after refactor. }
-  {$IFDEF FPC}
   EquipmentEditor := TEquipmentWindow.Create(AParent, TEquipment(AObject));
   ModalResult := EquipmentEditor.ShowModal;
 
@@ -184,7 +182,6 @@ begin
     Provider.ReloadData;
 
   FreeAndNil(EquipmentEditor);
-  {$ENDIF}
 end;
 
 { TEquipmentEntityDataHandler }
@@ -205,13 +202,12 @@ end;
 procedure TEquipmentEntityDataHandler.ShowEditor (AParent : TCustomForm; 
   AObject : TCommonObject);
 var
-  {$IFDEF FPC}EntityEditor : TEntityWindow;{$ENDIF}
+  EntityEditor : TEntityWindow;
   Entity : TEntity;
   ModalResult : Integer;
 begin
   { EntityEditor window is temporaryly, onlu for work testing and it will
     been changed after refactor. }
-  {$IFDEF FPC}
   EntityEditor := TEntityWindow.Create(AParent, FEquipment, TEntity(AObject));
   ModalResult := EntityEditor.ShowModal;
 
@@ -235,7 +231,6 @@ begin
     Provider.ReloadData;
 
   FreeAndNil(EntityEditor);
-  {$ENDIF}
 end;
 
 { TEntityNodeDataHandler }
@@ -256,13 +251,12 @@ end;
 procedure TEntityNodeDataHandler.ShowEditor (AParent : TCustomForm; 
   AObject : TCommonObject);
 var
-  {$IFDEF FPC}NodeEditor : TNodeWindow;{$ENDIF}
+  NodeEditor : TNodeWindow;
   Node : TNode;
   ModalResult : Integer;
 begin
   { NodeEditor window is temporaryly, onlu for work testing and it will
     been changed after refactor. }
-  {$IFDEF FPC}
   NodeEditor := TNodeWindow.Create(AParent, FEntity, TNode(AObject));
   ModalResult := NodeEditor.ShowModal;
 
@@ -286,7 +280,6 @@ begin
     Provider.ReloadData;
 
   FreeAndNil(NodeEditor);
-  {$ENDIF}
 end;
 
 { TEntityGreaseDataHandler }
@@ -307,13 +300,12 @@ end;
 procedure TEntityGreaseDataHandler.ShowEditor (AParent : TCustomForm; 
   AObject : TCommonObject);
 var
-  {$IFDEF FPC}GreaseBundleEditor : TGreaseBundleWindow;{$ENDIF}
+  GreaseBundleEditor : TGreaseBundleWindow;
   GreaseBundle : TGreaseBundle;
   ModalResult : Integer;
 begin
   { GreaseBundleEditor window is temporaryly, onlu for work testing and it will
     been changed after refactor. }
-  {$IFDEF FPC}
   GreaseBundleEditor := TGreaseBundleWindow.Create(AParent, FEntity,
     TGreaseBundle(AObject));
   ModalResult := GreaseBundleEditor.ShowModal;
@@ -338,7 +330,6 @@ begin
     Provider.ReloadData;
 
   FreeAndNil(GreaseBundleEditor);
-  {$ENDIF}
 end;
 
 { TNodeGreaseDataHandler }
@@ -359,13 +350,12 @@ end;
 procedure TNodeGreaseDataHandler.ShowEditor (AParent : TCustomForm; 
   AObject : TCommonObject);
 var
-  {$IFDEF FPC}GreaseBundleEditor : TGreaseBundleWindow;{$ENDIF}
+  GreaseBundleEditor : TGreaseBundleWindow;
   GreaseBundle : TGreaseBundle;
   ModalResult : Integer;
 begin
   { GreaseBundleEditor window is temporaryly, onlu for work testing and it will
     been changed after refactor. }
-  {$IFDEF FPC}
   GreaseBundleEditor := TGreaseBundleWindow.Create(AParent, FNode,
     TGreaseBundle(AObject));
   ModalResult := GreaseBundleEditor.ShowModal;
@@ -390,7 +380,6 @@ begin
     Provider.ReloadData;
 
   FreeAndNil(GreaseBundleEditor);
-  {$ENDIF}
 end;
 
 end.

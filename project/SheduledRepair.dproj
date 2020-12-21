@@ -96,6 +96,9 @@
     <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
         <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>
         <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
+        <DCC_UnitSearchPath>Z:\code\SheduledRepair;Z:\code\SheduledRepair\dataproviders;Z:\code\SheduledRepair\eventproviders;Z:\code\SheduledRepair\eventproviders\mainmenu.item;Z:\code\SheduledRepair\eventproviders\mainmenu.subitem;Z:\code\SheduledRepair\libpasc-algorithms\source;Z:\code\SheduledRepair\libpassqlite\source;Z:\code\SheduledRepair\libpassqlite\source\builder;Z:\code\SheduledRepair\libpassqlite\source\sqlite3;Z:\code\SheduledRepair\objects;Z:\code\SheduledRepair\pascalutils\source;Z:\code\SheduledRepair\profilesprovider;Z:\code\SheduledRepair\renderers;Z:\code\SheduledRepair\renderers\objects;Z:\code\SheduledRepair\renderers\profile;Z:\code\SheduledRepair\rules;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
+        <VerInfo_Locale>1033</VerInfo_Locale>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">
@@ -107,6 +110,22 @@
         </DCCReference>
         <DCCReference Include="..\forms\editors\jobform_delphi.pas">
             <Form>JobWindow</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="..\forms\editors\equipmentform_delphi.pas">
+            <Form>EquipmentWindow</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="..\forms\editors\entityform_delphi.pas">
+            <Form>EntityWindow</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="..\forms\editors\nodeform_delphi.pas">
+            <Form>NodeWindow</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="..\forms\editors\greasebundleform_delphi.pas">
+            <Form>GreaseBundleWindow</Form>
             <FormType>dfm</FormType>
         </DCCReference>
         <BuildConfiguration Include="Release">

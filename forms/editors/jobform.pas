@@ -104,6 +104,7 @@ end;
 procedure TJobWindow.FormDestroy(Sender: TObject);
 begin
   FreeAndNil(EntityDataProvider);
+  FreeAndNil(MeasureDataProvider);
 end;
 
 procedure TJobWindow.NameEditorChange(Sender: TObject);

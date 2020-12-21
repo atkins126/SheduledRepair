@@ -56,7 +56,6 @@ type
     { Draw name. }
     procedure DrawText (AText : String; AProfileItem : 
       TRendererProfileItem; ACanvas : TCanvas; ARect : TRect);
-    {$IFNDEF DEBUG}inline;{$ENDIF}
   end;
 
 implementation
@@ -79,17 +78,17 @@ end;
 procedure TNodeRenderer.DrawText(AText : String; AProfileItem :
   TRendererProfileItem; ACanvas : TCanvas; ARect : TRect);
 
-  function CalculateXPos : Integer; {$IFNDEF DEBUG}inline;{$ENDIF}
+  function CalculateXPos : Integer;
   begin
     Result := Round(AProfileItem.Position.X * ARect.Width / 100);
   end;
 
-  function CalculateYPos : Integer; {$IFNDEF DEBUG}inline;{$ENDIF}
+  function CalculateYPos : Integer;
   begin
     Result := Round(AProfileItem.Position.Y * ARect.Height / 100);
   end;
 
-  function CalculateNameRect : TRect; {$IFNDEF DEBUG}inline;{$ENDIF}
+  function CalculateNameRect : TRect;
   var
     TitleSize : TSize;
   begin

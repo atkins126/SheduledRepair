@@ -4,7 +4,8 @@ object MainWindow: TMainWindow
   Caption = 'SheduledRepair'
   ClientHeight = 578
   ClientWidth = 966
-  Color = clBtnFace
+  Color = clWindow
+  Ctl3D = False
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11

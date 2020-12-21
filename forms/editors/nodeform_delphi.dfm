@@ -1,9 +1,9 @@
-object JobWindow: TJobWindow
+object NodeWindow: TNodeWindow
   Left = 0
   Top = 0
   BorderStyle = bsDialog
-  Caption = 'Job Editor'
-  ClientHeight = 316
+  Caption = 'Node editor'
+  ClientHeight = 210
   ClientWidth = 645
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -129,165 +129,14 @@ object JobWindow: TJobWindow
       end
     end
   end
-  object EntityGroup: TGroupBox
-    Left = 0
-    Top = 78
-    Width = 645
-    Height = 99
-    Align = alCustom
-    Caption = 'Entity'
-    TabOrder = 1
-    object EntityNameGroup: TPanel
-      Left = 10
-      Top = 17
-      Width = 625
-      Height = 21
-      Align = alCustom
-      BevelOuter = bvNone
-      TabOrder = 0
-      object EntityNameLabelGroup: TPanel
-        Left = 0
-        Top = 0
-        Width = 305
-        Height = 21
-        Align = alLeft
-        BevelOuter = bvNone
-        TabOrder = 0
-        object EnttiyNameLabel: TLabel
-          Left = 0
-          Top = 0
-          Width = 305
-          Height = 21
-          Align = alClient
-          Caption = 'Name'
-          Layout = tlCenter
-          ExplicitWidth = 27
-          ExplicitHeight = 13
-        end
-      end
-      object EntityNameEditorGroup: TPanel
-        Left = 305
-        Top = 0
-        Width = 320
-        Height = 21
-        Align = alClient
-        BevelOuter = bvNone
-        TabOrder = 1
-        object EntityNameSelector: TComboBox
-          Left = 0
-          Top = 0
-          Width = 320
-          Height = 21
-          Align = alClient
-          Style = csDropDownList
-          TabOrder = 0
-          OnChange = EntityNameSelectorChange
-        end
-      end
-    end
-    object EntityCountGroup: TPanel
-      Left = 10
-      Top = 41
-      Width = 625
-      Height = 21
-      Align = alCustom
-      BevelOuter = bvNone
-      TabOrder = 1
-      object EntityCountLabelGroup: TPanel
-        Left = 0
-        Top = 0
-        Width = 305
-        Height = 21
-        Align = alLeft
-        BevelOuter = bvNone
-        TabOrder = 0
-        object EntityCountLabel: TLabel
-          Left = 0
-          Top = 0
-          Width = 305
-          Height = 21
-          Align = alClient
-          Caption = 'Count'
-          Layout = tlCenter
-          ExplicitWidth = 29
-          ExplicitHeight = 13
-        end
-      end
-      object EntityCountEditorGroup: TPanel
-        Left = 305
-        Top = 0
-        Width = 320
-        Height = 21
-        Align = alClient
-        BevelOuter = bvNone
-        TabOrder = 1
-        object EntityCountEditor: TEdit
-          Left = 0
-          Top = 0
-          Width = 320
-          Height = 21
-          Align = alClient
-          Enabled = False
-          TabOrder = 0
-        end
-      end
-    end
-    object EntityPeriodGroup: TPanel
-      Left = 10
-      Top = 65
-      Width = 625
-      Height = 21
-      Align = alCustom
-      BevelOuter = bvNone
-      TabOrder = 2
-      object EntityPeriodLabelGroup: TPanel
-        Left = 0
-        Top = 0
-        Width = 305
-        Height = 21
-        Align = alLeft
-        BevelOuter = bvNone
-        TabOrder = 0
-        object EntityPeriodLabel: TLabel
-          Left = 0
-          Top = 0
-          Width = 305
-          Height = 21
-          Align = alClient
-          Caption = 'Period'
-          Layout = tlCenter
-          ExplicitWidth = 30
-          ExplicitHeight = 13
-        end
-      end
-      object EntityPeriodEditorGroup: TPanel
-        Left = 305
-        Top = 0
-        Width = 320
-        Height = 21
-        Align = alClient
-        BevelOuter = bvNone
-        TabOrder = 1
-        object EntityPeriodEditor: TEdit
-          Left = 0
-          Top = 0
-          Width = 320
-          Height = 21
-          Align = alClient
-          Enabled = False
-          TabOrder = 0
-        end
-      end
-    end
-  end
   object SheduleGroup: TGroupBox
     Left = 0
-    Top = 180
+    Top = 77
     Width = 645
     Height = 75
     Align = alCustom
     Caption = 'Shedule'
-    TabOrder = 2
+    TabOrder = 1
     object ShedulePrevGroup: TPanel
       Left = 10
       Top = 17
@@ -387,30 +236,30 @@ object JobWindow: TJobWindow
   end
   object DeleteButton: TBitBtn
     Left = 0
-    Top = 272
+    Top = 168
     Width = 97
     Height = 33
     Caption = 'Delete'
     ModalResult = 8
-    TabOrder = 3
+    TabOrder = 2
     OnClick = DeleteButtonClick
+  end
+  object SaveButton: TBitBtn
+    Left = 445
+    Top = 168
+    Width = 97
+    Height = 33
+    Caption = 'Save'
+    ModalResult = 1
+    TabOrder = 3
   end
   object CancelButton: TBitBtn
     Left = 548
-    Top = 272
+    Top = 168
     Width = 97
     Height = 33
     Caption = 'Cancel'
     ModalResult = 2
     TabOrder = 4
-  end
-  object SaveButton: TBitBtn
-    Left = 445
-    Top = 272
-    Width = 97
-    Height = 33
-    Caption = 'Save'
-    ModalResult = 1
-    TabOrder = 5
   end
 end
