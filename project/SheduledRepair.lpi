@@ -17,7 +17,7 @@
       <UseVersionInfo Value="True"/>
       <AutoIncrementBuild Value="True"/>
       <MinorVersionNr Value="2"/>
-      <BuildNr Value="723"/>
+      <BuildNr Value="731"/>
     </VersionInfo>
     <BuildModes Count="1">
       <Item1 Name="Default" Default="True"/>
@@ -335,6 +335,7 @@
         <Filename Value="../forms/editors/greasebundleform.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="GreaseBundleWindow"/>
+        <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
       </Unit68>
     </Units>

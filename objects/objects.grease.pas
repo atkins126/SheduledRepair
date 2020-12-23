@@ -117,13 +117,7 @@ end;
 
 function TGrease.SaveDepentObjects : Boolean;
 begin
-  Result := True;
-
-  if FSupplier.Name <> '' then
-    Result := FSupplier.Save;
-
-  if FGrade.Name <> '' then
-    Result := FGrade.Save;
+  Result := FSupplier.Save and FGrade.Save;
 end;
 
 procedure TGrease.SaveCurrentObject;

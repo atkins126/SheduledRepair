@@ -64,6 +64,9 @@ var
 
 implementation
 
+uses
+  configuration;
+
 {$R *.lfm}
 
 procedure TEntityWindow.DeleteButtonClick(Sender: TObject);
@@ -96,6 +99,21 @@ begin
   inherited Create(TheOwner);
   FEquipment := AEquipment;
   FObject := AObject;
+
+  ObjectGroup.Caption := Config.GetValue('Object', 'Object');
+  NameLabel.Caption := Config.GetValue('Name', 'Name');
+  QuantityLabel.Caption := Config.GetValue('Quantity', 'Quantity');
+  PeriodLabel.Caption := Config.GetValue('Period', 'Period');
+
+  SheduleGroup.Caption := Config.GetValue('Shedule', 'Shedule');
+  ShedulePrevNameLabel.Caption := Config.GetValue('Previous date',
+    'Previous date');
+  SheduleNextNameLabel.Caption := Config.GetValue('Next date',
+    'Next date');
+
+  SaveButton.Caption := Config.GetValue('Save', 'Save');
+  CancelButton.Caption := Config.GetValue('Cancel', 'Cancel');
+  DeleteButton.Caption := Config.GetValue('Delete', 'Delete');
 
   MeasureDataProvider := TMeasureDataProvider.Create;
   MeasureLoad := MeasureDataProvider.Load;

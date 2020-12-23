@@ -210,7 +210,7 @@ object EntityWindow: TEntityWindow
         Align = alLeft
         BevelOuter = bvNone
         TabOrder = 0
-        object ShedulePrevLabel: TLabel
+        object ShedulePrevNameLabel: TLabel
           Left = 0
           Top = 0
           Width = 305
@@ -258,7 +258,7 @@ object EntityWindow: TEntityWindow
         Align = alLeft
         BevelOuter = bvNone
         TabOrder = 0
-        object SheduleNextLabel: TLabel
+        object SheduleNextNameLabel: TLabel
           Left = 0
           Top = 0
           Width = 305

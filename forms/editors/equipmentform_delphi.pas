@@ -32,12 +32,22 @@ var
 
 implementation
 
+uses
+  configuration;
+
 {$R *.dfm}
 
 constructor TEquipmentWindow.Create(TheOwner: TComponent; AObject : TEquipment);
 begin
   inherited Create(TheOwner);
   FObject := AObject;
+
+  ObjectGroup.Caption := Config.GetValue('Object', 'Object');
+  NameLabel.Caption := Config.GetValue('Name', 'Name');
+
+  SaveButton.Caption := Config.GetValue('Save', 'Save');
+  CancelButton.Caption := Config.GetValue('Cancel', 'Cancel');
+  DeleteButton.Caption := Config.GetValue('Delete', 'Delete');
 
   NameEditor.Text := FObject.Name;
 

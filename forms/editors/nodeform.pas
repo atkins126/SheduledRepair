@@ -58,6 +58,9 @@ var
 
 implementation
 
+uses
+  configuration;
+
 {$R *.lfm}
 
 procedure TNodeWindow.NameEditorChange(Sender: TObject);
@@ -89,6 +92,20 @@ begin
   inherited Create(TheOwner);
   FEntity := AEntity;
   FObject := AObject;
+
+  ObjectGroup.Caption := Config.GetValue('Object', 'Object');
+  NameLabel.Caption := Config.GetValue('Name', 'Name');
+  PeriodLabel.Caption := Config.GetValue('Period', 'Period');
+
+  SheduleGroup.Caption := Config.GetValue('Shedule', 'Shedule');
+  ShedulePrevNameLabel.Caption := Config.GetValue('Previous date',
+    'Previous date');
+  SheduleNextNameLabel.Caption := Config.GetValue('Next date',
+    'Next date');
+
+  SaveButton.Caption := Config.GetValue('Save', 'Save');
+  CancelButton.Caption := Config.GetValue('Cancel', 'Cancel');
+  DeleteButton.Caption := Config.GetValue('Delete', 'Delete');
 
   NameEditor.Text := FObject.Name;
   PeriodCountEditor.Value := FObject.Period.Quantity.Count;

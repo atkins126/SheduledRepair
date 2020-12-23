@@ -31,6 +31,9 @@ var
 
 implementation
 
+uses
+  configuration;
+
 {$R *.lfm}
 
 { TMainWindow }
@@ -51,6 +54,8 @@ begin
   Equipment.CheckSchema;
   Job := TJob.Create(-1);
   Job.CheckSchema;
+  Config.CheckSchema;
+  Config.Load;
 
   MainMenu.View := MainMenuView;
 

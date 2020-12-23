@@ -55,6 +55,9 @@ var
 
 implementation
 
+uses
+  configuration;
+
 {$R *.dfm}
 
 constructor TGreaseBundleWindow.Create(TheOwner : TComponent; AGreasableObject :
@@ -66,6 +69,15 @@ begin
   inherited Create(TheOwner);
   FGreasableObject := AGreasableObject;
   FObject := AObject;
+
+  ObjectGroup.Caption := Config.GetValue('Object', 'Object');
+  SupplierLabel.Caption := Config.GetValue('Supplier', 'Supplier');
+  GradeLabel.Caption := Config.GetValue('Grade', 'Grade');
+  QuantityLabel.Caption := Config.GetValue('Quantity', 'Quantity');
+
+  SaveButton.Caption := Config.GetValue('Save', 'Save');
+  CancelButton.Caption := Config.GetValue('Cancel', 'Cancel');
+  DeleteButton.Caption := Config.GetValue('Delete', 'Delete');
 
   FSupplierDataProvider := TSupplierDataProvider.Create;
   if FSupplierDataProvider.Load then

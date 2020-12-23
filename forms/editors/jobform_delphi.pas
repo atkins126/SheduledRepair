@@ -26,7 +26,7 @@ type
     EntityGroup: TGroupBox;
     EntityNameGroup: TPanel;
     EntityNameLabelGroup: TPanel;
-    EnttiyNameLabel: TLabel;
+    EntityNameLabel: TLabel;
     EntityNameEditorGroup: TPanel;
     EntityNameSelector: TComboBox;
     EntityCountGroup: TPanel;
@@ -42,12 +42,12 @@ type
     SheduleGroup: TGroupBox;
     ShedulePrevGroup: TPanel;
     ShedulePrevNameLabelGroup: TPanel;
-    ShedulePrevLabel: TLabel;
+    ShedulePrevNameLabel: TLabel;
     ShedulePrevEditorGroup: TPanel;
     ShedulePrevEditor: TDateTimePicker;
     SheduleNextGroup: TPanel;
     SheduleNextNameLabelGroup: TPanel;
-    SheduleNextLabel: TLabel;
+    SheduleNextNameLabel: TLabel;
     SheduleNextEditorGroup: TPanel;
     SheduleNextEditor: TDateTimePicker;
     DeleteButton: TBitBtn;
@@ -71,6 +71,9 @@ var
 
 implementation
 
+uses
+  configuration;
+
 {$R *.dfm}
 
 constructor TJobWindow.Create (TheOwner : TComponent; AObject : TJob);
@@ -80,6 +83,25 @@ var
 begin
   inherited Create(TheOwner);
   FObject := AObject;
+
+  ObjectGroup.Caption := Config.GetValue('Object', 'Object');
+  NameLabel.Caption := Config.GetValue('Name', 'Name');
+  PeriodLabel.Caption := Config.GetValue('Period', 'Period');
+
+  EntityGroup.Caption := Config.GetValue('Entity', 'Entity');
+  EntityNameLabel.Caption := Config.GetValue('Name', 'Name');
+  EntityCountLabel.Caption := Config.GetValue('Quantity', 'Quantity');
+  EntityPeriodLabel.Caption := Config.GetValue('Period', 'Period');
+
+  SheduleGroup.Caption := Config.GetValue('Shedule', 'Shedule');
+  ShedulePrevNameLabel.Caption := Config.GetValue('Previous date',
+    'Previous date');
+  SheduleNextNameLabel.Caption := Config.GetValue('Next date',
+    'Next date');
+
+  SaveButton.Caption := Config.GetValue('Save', 'Save');
+  CancelButton.Caption := Config.GetValue('Cancel', 'Cancel');
+  DeleteButton.Caption := Config.GetValue('Delete', 'Delete');
 
   NameEditor.Text := FObject.Name;
   PeriodCountEditor.Value := Ceil(FObject.Period.Quantity.Count);

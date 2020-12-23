@@ -124,10 +124,7 @@ end;
 
 function TQuantity.SaveDepentObjects : Boolean;
 begin
-  if FMeasure.Name <> '' then
-    Exit(FMeasure.Save);
-
-  Result := True;
+  Result := FMeasure.Save;
 end;
 
 procedure TQuantity.SaveCurrentObject;

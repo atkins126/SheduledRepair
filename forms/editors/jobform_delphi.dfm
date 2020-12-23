@@ -153,7 +153,7 @@ object JobWindow: TJobWindow
         Align = alLeft
         BevelOuter = bvNone
         TabOrder = 0
-        object EnttiyNameLabel: TLabel
+        object EntityNameLabel: TLabel
           Left = 0
           Top = 0
           Width = 305
@@ -304,7 +304,7 @@ object JobWindow: TJobWindow
         Align = alLeft
         BevelOuter = bvNone
         TabOrder = 0
-        object ShedulePrevLabel: TLabel
+        object ShedulePrevNameLabel: TLabel
           Left = 0
           Top = 0
           Width = 305
@@ -352,7 +352,7 @@ object JobWindow: TJobWindow
         Align = alLeft
         BevelOuter = bvNone
         TabOrder = 0
-        object SheduleNextLabel: TLabel
+        object SheduleNextNameLabel: TLabel
           Left = 0
           Top = 0
           Width = 305

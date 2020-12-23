@@ -229,9 +229,9 @@ object JobWindow: TJobWindow
           Left = 0
           Height = 26
           Top = 0
-          Width = 38
+          Width = 57
           Align = alLeft
-          Caption = 'Count'
+          Caption = 'Quantity'
           Layout = tlCenter
           ParentColor = False
         end

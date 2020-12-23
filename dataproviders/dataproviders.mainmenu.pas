@@ -269,7 +269,7 @@ type
 implementation
 
 uses
-  mainmenuprovider;
+  mainmenuprovider, configuration;
 
 { TMainMenuDataProvider }
 
@@ -280,9 +280,10 @@ begin
   Append(TMainMenuItem.Create(TMainMenu.MAIN_MENU_ITEM_LOGO, 
     MENU_ITEM_TYPE_LOGO, 'SheduledRepair'));
   Append(TMainMenuItem.Create(TMainMenu.MAIN_MENU_ITEM_JOB, 
-    MENU_ITEM_TYPE_ITEM, 'Job', TMainMenuItemJobEventProvider.Create));
+    MENU_ITEM_TYPE_ITEM, Config.GetValue('Job', 'Job'), 
+    TMainMenuItemJobEventProvider.Create));
   Append(TMainMenuItem.Create(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT, 
-    MENU_ITEM_TYPE_ITEM, 'Equipment',
+    MENU_ITEM_TYPE_ITEM, Config.GetValue('Equipment', 'Equipment'),
     TMainMenuItemEquipmentEventProvider.Create));
   
   Result := True;
@@ -304,7 +305,8 @@ function TMenuSubitemJobCreateDataProvider.Load : Boolean;
 begin
   Clear;
   
-  Append(TMainMenuItem.Create(-1, MENU_ITEM_TYPE_SUBITEM, 'Create',
+  Append(TMainMenuItem.Create(-1, MENU_ITEM_TYPE_SUBITEM, 
+    Config.GetValue('Create', 'Create'),
     TMainMenuSubitemJobCreateEventProvider.Create));
     
   Result := True;
@@ -327,7 +329,8 @@ function TMenuSubitemJobEditDataProvider.Load : Boolean;
 begin
   Clear;
   
-  Append(TMainMenuItem.Create(-1, MENU_ITEM_TYPE_SUBITEM, 'Edit',
+  Append(TMainMenuItem.Create(-1, MENU_ITEM_TYPE_SUBITEM, 
+    Config.GetValue('Edit', 'Edit'),
     TMainMenuSubitemJobEditEventProvider.Create));
   
   Result := True;
@@ -350,7 +353,8 @@ function TMenuSubitemEquipmentCreateDataProvider.Load : Boolean;
 begin
   Clear;
   
-  Append(TMainMenuItem.Create(-1, MENU_ITEM_TYPE_SUBITEM, 'Create',
+  Append(TMainMenuItem.Create(-1, MENU_ITEM_TYPE_SUBITEM, 
+    Config.GetValue('Create', 'Create'),
     TMainMenuSubitemEquipmentCreateEventProvider.Create));
   
   Result := True;
@@ -373,7 +377,8 @@ function TMenuSubitemEquipmentEditDataProvider.Load : Boolean;
 begin
   Clear;
   
-  Append(TMainMenuItem.Create(-1, MENU_ITEM_TYPE_SUBITEM, 'Edit',
+  Append(TMainMenuItem.Create(-1, MENU_ITEM_TYPE_SUBITEM, 
+    Config.GetValue('Edit', 'Edit'),
     TMainMenuSubitemEquipmentEditEventProvider.Create));
   
   Result := True;
@@ -397,7 +402,8 @@ begin
   Clear;
   
   Append(TMainMenuItem.Create(TMainMenu.MAIN_MENU_ITEM_ENTITY, 
-    MENU_ITEM_TYPE_ITEM, 'Entity', TMainMenuItemEntityEventProvider.Create));
+    MENU_ITEM_TYPE_ITEM, Config.GetValue('Entity', 'Entity'), 
+    TMainMenuItemEntityEventProvider.Create));
   
   Result := True;
 end;
@@ -419,7 +425,8 @@ function TMenuSubitemEntityCreateDataProvider.Load : Boolean;
 begin
   Clear;
   
-  Append(TMainMenuItem.Create(-1, MENU_ITEM_TYPE_SUBITEM, 'Create',
+  Append(TMainMenuItem.Create(-1, MENU_ITEM_TYPE_SUBITEM, 
+    Config.GetValue('Create', 'Create'),
     TMainMenuSubitemEntityCreateEventProvider.Create));
     
   Result := True;
@@ -442,7 +449,8 @@ function TMenuSubitemEntityEditDataProvider.Load : Boolean;
 begin
   Clear;
   
-  Append(TMainMenuItem.Create(-1, MENU_ITEM_TYPE_SUBITEM, 'Edit',
+  Append(TMainMenuItem.Create(-1, MENU_ITEM_TYPE_SUBITEM, 
+    Config.GetValue('Edit', 'Edit'),
     TMainMenuSubitemEntityEditEventProvider.Create));
     
   Result := True;
@@ -465,7 +473,8 @@ function TMenuSubitemEntityGreaseListDataProvider.Load : Boolean;
 begin
   Clear;
   
-  Append(TMainMenuItem.Create(-1, MENU_ITEM_TYPE_SUBITEM, 'Grease',
+  Append(TMainMenuItem.Create(-1, MENU_ITEM_TYPE_SUBITEM, 
+    Config.GetValue('Grease', 'Grease'),
     TMainMenuSubitemEntityGreaseListEventProvider.Create));
     
   Result := True;
@@ -489,7 +498,8 @@ begin
   Clear;
   
   Append(TMainMenuItem.Create(TMainMenu.MAIN_MENU_ITEM_NODE, 
-    MENU_ITEM_TYPE_ITEM, 'Node', TMainMenuItemNodeEventProvider.Create));
+    MENU_ITEM_TYPE_ITEM, Config.GetValue('Node', 'Node'), 
+    TMainMenuItemNodeEventProvider.Create));
   
   Result := True;
 end;
@@ -511,7 +521,8 @@ function TMenuSubitemNodeCreateDataProvider.Load : Boolean;
 begin
   Clear;
   
-  Append(TMainMenuItem.Create(-1, MENU_ITEM_TYPE_SUBITEM, 'Create',
+  Append(TMainMenuItem.Create(-1, MENU_ITEM_TYPE_SUBITEM, 
+    Config.GetValue('Create', 'Create'),
     TMainMenuSubitemNodeCreateEventProvider.Create));
     
   Result := True;
@@ -534,7 +545,8 @@ function TMenuSubitemNodeEditDataProvider.Load : Boolean;
 begin
   Clear;
   
-  Append(TMainMenuItem.Create(-1, MENU_ITEM_TYPE_SUBITEM, 'Edit',
+  Append(TMainMenuItem.Create(-1, MENU_ITEM_TYPE_SUBITEM, 
+    Config.GetValue('Edit', 'Edit'),
     TMainMenuSubitemNodeEditEventProvider.Create));
     
   Result := True;
@@ -558,7 +570,7 @@ begin
   Clear;
   
   Append(TMainMenuItem.Create(TMainMenu.MAIN_MENU_ITEM_ENTITY_GREASE, 
-    MENU_ITEM_TYPE_ITEM, 'Grease', 
+    MENU_ITEM_TYPE_ITEM, Config.GetValue('Grease', 'Grease'),
     TMainMenuItemEntityGreaseEventProvider.Create));
   
   Result := True;
@@ -581,7 +593,8 @@ function TMenuSubitemEntityGreaseCreateDataProvider.Load : Boolean;
 begin
   Clear;
   
-  Append(TMainMenuItem.Create(-1, MENU_ITEM_TYPE_SUBITEM, 'Create',
+  Append(TMainMenuItem.Create(-1, MENU_ITEM_TYPE_SUBITEM, 
+    Config.GetValue('Create', 'Create'),
     TMainMenuSubitemEntityGreaseCreateEventProvider.Create));
     
   Result := True;
@@ -605,7 +618,8 @@ function TMenuSubitemEntityGreaseEditDataProvider.Load : Boolean;
 begin
   Clear;
   
-  Append(TMainMenuItem.Create(-1, MENU_ITEM_TYPE_SUBITEM, 'Edit',
+  Append(TMainMenuItem.Create(-1, MENU_ITEM_TYPE_SUBITEM, 
+    Config.GetValue('Edit', 'Edit'),
     TMainMenuSubitemEntityGreaseEditEventProvider.Create));
     
   Result := True;
@@ -630,7 +644,8 @@ function TMenuSubitemNodeGreaseListDataProvider.Load : Boolean;
 begin
   Clear;
   
-  Append(TMainMenuItem.Create(-1, MENU_ITEM_TYPE_SUBITEM, 'Grease',
+  Append(TMainMenuItem.Create(-1, MENU_ITEM_TYPE_SUBITEM, 
+    Config.GetValue('Grease', 'Grease'),
     TMainMenuSubitemNodeGreaseListEventProvider.Create));
     
   Result := True;
@@ -654,7 +669,7 @@ begin
   Clear;
   
   Append(TMainMenuItem.Create(TMainMenu.MAIN_MENU_ITEM_NODE_GREASE, 
-    MENU_ITEM_TYPE_ITEM, 'Grease', 
+    MENU_ITEM_TYPE_ITEM, Config.GetValue('Grease', 'Grease'),
     TMainMenuItemNodeGreaseEventProvider.Create));
   
   Result := True;
@@ -677,7 +692,8 @@ function TMenuSubitemNodeGreaseCreateDataProvider.Load : Boolean;
 begin
   Clear;
   
-  Append(TMainMenuItem.Create(-1, MENU_ITEM_TYPE_SUBITEM, 'Create',
+  Append(TMainMenuItem.Create(-1, MENU_ITEM_TYPE_SUBITEM, 
+    Config.GetValue('Create', 'Create'),
     TMainMenuSubitemNodeGreaseCreateEventProvider.Create));
     
   Result := True;
@@ -701,7 +717,8 @@ function TMenuSubitemNodeGreaseEditDataProvider.Load : Boolean;
 begin
   Clear;
   
-  Append(TMainMenuItem.Create(-1, MENU_ITEM_TYPE_SUBITEM, 'Edit',
+  Append(TMainMenuItem.Create(-1, MENU_ITEM_TYPE_SUBITEM, 
+    Config.GetValue('Edit', 'Edit'),
     TMainMenuSubitemNodeGreaseEditEventProvider.Create));
     
   Result := True;

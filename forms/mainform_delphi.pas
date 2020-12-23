@@ -26,6 +26,9 @@ var
 
 implementation
 
+uses
+  configuration;
+
 {$R *.dfm}
 
 procedure TMainWindow.FormCreate(Sender: TObject);
@@ -39,6 +42,8 @@ begin
   Job := TJob.Create(-1);
   Job.CheckSchema;
   FreeAndNil(Job);
+  Config.CheckSchema;
+  Config.Load;
 
   MainMenu.View := MainMenuView;
 
