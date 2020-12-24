@@ -32,6 +32,7 @@ object MainWindow: TMainWindow
     ParentFont = False
     TabOrder = 0
     TreeOptions.MiscOptions = [toFullRepaintOnResize, toInitOnSave, toToggleOnDblClick, toWheelPanning, toEditOnClick]
+    OnKeyDown = MainMenuViewKeyDown
   end
   object MainMenuSplitter: TSplitter
     Left = 316
@@ -49,7 +50,7 @@ object MainWindow: TMainWindow
     Header.Columns = <>
     Header.MainColumn = -1
     ParentFont = False
-    TabOrder = 1
+    TabOrder = 2
     Visible = False
   end
   object SettingsSplitter: TSplitter
@@ -71,7 +72,7 @@ object MainWindow: TMainWindow
     Header.Columns = <>
     Header.MainColumn = -1
     ParentFont = False
-    TabOrder = 2
+    TabOrder = 1
   end
   object BottomPanel: TPanel
     Left = 0

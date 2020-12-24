@@ -67,6 +67,10 @@ type
     procedure SelectMenuItem (AMenuItemID : Int64);
       {$IFNDEF DEBUG}inline;{$ENDIF}
 
+    { Return selected menu item ID or -1. }
+    function GetSelectedMenuItem : Int64;
+      {$IFNDEF DEBUG}inline;{$ENDIF}
+
     { Attach object to menu item element. }
     procedure AttachObject (AMenuItemID : Int64; AObject : TNamedObject);
       {$IFNDEF DEBUG}inline;{$ENDIF}
@@ -199,6 +203,34 @@ begin
     Exit;
 
   FMainMenuRenderer.SelectMenuItem(FMenuItems.Value[AMenuItemID]);
+end;
+
+function TMainMenu.GetSelectedMenuItem : Int64;
+var
+  MenuItemHandle : TDataRenderer.TItemHandle;
+  MenuItemIterator : TMenuItemList.TIterator;
+  Index : Integer;
+begin
+  MenuItemHandle := FMainMenuRenderer.GetSelectedMenuItem;
+
+  if (not Assigned(MenuItemHandle)) or (not FMenuItems.FirstEntry.HasValue) then
+  begin
+    Exit(-1);  
+  end;
+
+  MenuItemIterator := FMenuItems.FirstEntry;
+  Index := 0;
+
+  while MenuItemIterator.HasValue do
+  begin
+    if MenuItemIterator.Value = MenuItemHandle then
+      Exit(Index);
+    
+    Inc(index);
+    MenuItemIterator := MenuItemIterator.Next;
+  end;
+
+  Result := -1;
 end;
 
 procedure TMainMenu.AttachObject (AMenuItemID : Int64; AObject : TNamedObject);

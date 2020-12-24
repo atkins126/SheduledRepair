@@ -54,7 +54,7 @@ object MainWindow: TMainWindow
     Align = alRight
     Header.AutoSizeIndex = 0
     Header.MainColumn = -1
-    TabOrder = 1
+    TabOrder = 2
     Visible = False
     Columns = <>
   end
@@ -66,7 +66,7 @@ object MainWindow: TMainWindow
     Align = alClient
     Header.AutoSizeIndex = 0
     Header.MainColumn = -1
-    TabOrder = 2
+    TabOrder = 1
     Columns = <>
   end
 end

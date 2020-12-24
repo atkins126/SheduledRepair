@@ -168,6 +168,9 @@ type
     procedure SelectMenuItem (AItemHandle : TDataRenderer.TItemHandle);
       {$IFNDEF DEBUG}inline;{$ENDIF}
 
+    { Return selected menu item handle. }
+    function GetSelectedMenuItem : TDataRenderer.TItemHandle;
+
     { Attach object to menu item element. }
     procedure AttachObject (AItemHandle : TDataRenderer.TItemHandle;
       AObject : TNamedObject);
@@ -495,15 +498,18 @@ end;
 
 procedure TMainMenuDataRenderer.NodeClickEvent (Sender : TBaseVirtualTree;
   const HitInfo : THitInfo);
+var
+  Obj : TCommonObject;
 begin
   if HitInfo.HitNode = nil then
     Exit;
 
+  Obj := FDataRenderer.GetObject(HitInfo.HitNode);
+
   FireNodeEvent(TCommonEventProvider.EVENT_OBJECT_CLICK,
     HitInfo.HitNode);
-  
-  if (HitInfo.HitNode <> nil) and (FDataRenderer.GetObject(HitInfo.HitNode).ID
-    <> -1) then
+
+  if (Assigned(HitInfo.HitNode)) and (Obj.ID <> -1) then
   begin
     FireNodeEvent(TCommonEventProvider.EVENT_OBJECT_DETACH_DYNAMIC_MENU, 
       HitInfo.HitNode);
@@ -614,6 +620,14 @@ begin
 
   Result := TMainMenuItem(FDataRenderer.GetObject(PVirtualNode(AItemHandle)))
     .AttachedObject;
+end;
+
+function TMainMenuDataRenderer.GetSelectedMenuItem : TDataRenderer.TItemHandle;
+begin
+  if Assigned(FCurrentSelectedNode) then
+    Exit(TDataRenderer.TItemHandle(FCurrentSelectedNode));
+
+  Result := nil;
 end;
 
 end.

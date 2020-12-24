@@ -4,7 +4,7 @@ unit MainForm;
 interface
 
 uses
-  Classes, SysUtils, Forms, Controls, ExtCtrls, StdCtrls, VirtualTrees,
+  Classes, SysUtils, Forms, Controls, ExtCtrls, StdCtrls, VirtualTrees, LCLType,
   profileform, dataprovider, mainmenuprovider, objects.equipment, objects.job;
 
 type
@@ -22,6 +22,8 @@ type
 
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
+    procedure MainMenuViewKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
   private
     FProfileEditor : TProfileWindow;
   end;
@@ -66,6 +68,16 @@ end;
 procedure TMainWindow.FormDestroy(Sender: TObject);
 begin
   FreeAndNil(FProfileEditor);
+end;
+
+procedure TMainWindow.MainMenuViewKeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  case Key of
+    VK_LEFT : begin
+      //
+    end;
+  end;
 end;
 
 end.
