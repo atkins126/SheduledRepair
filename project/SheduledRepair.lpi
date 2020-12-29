@@ -17,7 +17,7 @@
       <UseVersionInfo Value="True"/>
       <AutoIncrementBuild Value="True"/>
       <MinorVersionNr Value="2"/>
-      <BuildNr Value="737"/>
+      <BuildNr Value="743"/>
     </VersionInfo>
     <BuildModes Count="1">
       <Item1 Name="Default" Default="True"/>
@@ -38,7 +38,7 @@
         <PackageName Value="LCL"/>
       </Item2>
     </RequiredPackages>
-    <Units Count="69">
+    <Units Count="76">
       <Unit0>
         <Filename Value="SheduledRepair.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -338,6 +338,34 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
       </Unit68>
+      <Unit69>
+        <Filename Value="../renderers/objects/renderers.equipment.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit69>
+      <Unit70>
+        <Filename Value="../renderers/objects/renderers.job.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit70>
+      <Unit71>
+        <Filename Value="../renderers/objects/renderers.greasebundle.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit71>
+      <Unit72>
+        <Filename Value="../profilesprovider/profilesprovider.entity.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit72>
+      <Unit73>
+        <Filename Value="../profilesprovider/profilesprovider.greasebundle.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit73>
+      <Unit74>
+        <Filename Value="../profilesprovider/profilesprovider.job.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit74>
+      <Unit75>
+        <Filename Value="../renderers/objects/renderers.entity.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit75>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

@@ -1,6 +1,9 @@
 (******************************************************************************)
 (*                               SheduledRepair                               *)
 (*                                                                            *)
+(* This is a software for creating schedules  for repair work, accounting and *)
+(* monitoring  their  implementation, accounting for the  necessary materials *)
+(* and spare parts.                                                           *)
 (*                                                                            *)
 (* Copyright (c) 2020                                       Ivan Semenkov     *)
 (* https://github.com/isemenkov/SheduledRepair              ivan@semenkov.pro *)
@@ -147,6 +150,9 @@ begin
   DrawText(TEntity(AObject).Name, AProfile.Items['Name'], ACanvas, ARect);
   DrawText(FormatFloat('0.00', TEntity(AObject).Quantity.Count) + ' ' +
     TEntity(AObject).Quantity.Measure.Name, AProfile.Items['Quantity'],
+    ACanvas, ARect);
+  DrawText(FormatFloat('0.00', TEntity(AObject).Period.Quantity.Count) + ' ' +
+    TEntity(AObject).Period.Quantity.Measure.Name, AProfile.Items['Period'],
     ACanvas, ARect);
 end;
 

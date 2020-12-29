@@ -1,6 +1,9 @@
 (******************************************************************************)
 (*                               SheduledRepair                               *)
 (*                                                                            *)
+(* This is a software for creating schedules  for repair work, accounting and *)
+(* monitoring  their  implementation, accounting for the  necessary materials *)
+(* and spare parts.                                                           *)
 (*                                                                            *)
 (* Copyright (c) 2020                                       Ivan Semenkov     *)
 (* https://github.com/isemenkov/SheduledRepair              ivan@semenkov.pro *)
@@ -122,6 +125,42 @@ begin
     Position.Y := 0;
   end;
 
+  with Result.DefaultProfile.Items['ShedulePrev'] do
+  begin
+    Enable := False;
+    Background := clWhite;
+    BackgroundFillType := FILL_NONE;
+    BackgroundRoundRadius := 0;
+    FontName := 'default';
+    FontSize := 10;
+    FontColor := clBlack;
+    Padding.Top := 1;
+    Padding.Left := 0;
+    Padding.Bottom := 1;
+    Padding.Right := 0;
+    PositionType := POSITION_FIXED;
+    Position.X := 250;
+    Position.Y := 0;
+  end;
+
+  with Result.DefaultProfile.Items['SheduleNext'] do
+  begin
+    Enable := False;
+    Background := clWhite;
+    BackgroundFillType := FILL_NONE;
+    BackgroundRoundRadius := 0;
+    FontName := 'default';
+    FontSize := 10;
+    FontColor := clBlack;
+    Padding.Top := 1;
+    Padding.Left := 0;
+    Padding.Bottom := 1;
+    Padding.Right := 0;
+    PositionType := POSITION_FIXED;
+    Position.X := 500;
+    Position.Y := 0;
+  end;
+
   { Create job selected profile. }
   with Result.SelectedProfile do
   begin
@@ -182,7 +221,43 @@ begin
     PositionType := POSITION_FIXED;
     Position.X := 250;
     Position.Y := 2;
-  end;  
+  end;
+
+  with Result.SelectedProfile.Items['ShedulePrev'] do
+  begin
+    Enable := True;
+    Background := clWhite;
+    BackgroundFillType := FILL_NONE;
+    BackgroundRoundRadius := 0;
+    FontName := 'default';
+    FontSize := 10;
+    FontColor := clBlack;
+    Padding.Top := 5;
+    Padding.Left := 0;
+    Padding.Bottom := 0;
+    Padding.Right := 0;
+    PositionType := POSITION_FIXED;
+    Position.X := 500;
+    Position.Y := 2;
+  end;
+
+  with Result.SelectedProfile.Items['SheduleNext'] do
+  begin
+    Enable := True;
+    Background := clWhite;
+    BackgroundFillType := FILL_NONE;
+    BackgroundRoundRadius := 0;
+    FontName := 'default';
+    FontSize := 10;
+    FontColor := clBlack;
+    Padding.Top := 28;
+    Padding.Left := 0;
+    Padding.Bottom := 0;
+    Padding.Right := 0;
+    PositionType := POSITION_FIXED;
+    Position.X := 500;
+    Position.Y := 2;
+  end;
 
   { Create job hover profile. }
   with Result.HoverProfile do
@@ -229,6 +304,42 @@ begin
   end;
 
   with Result.HoverProfile.Items['Period'] do
+  begin
+    Enable := False;
+    Background := clWhite;
+    BackgroundFillType := FILL_NONE;
+    BackgroundRoundRadius := 0;
+    FontName := 'default';
+    FontSize := 10;
+    FontColor := clBlack;
+    Padding.Top := 28;
+    Padding.Left := 0;
+    Padding.Bottom := 0;
+    Padding.Right := 0;
+    PositionType := POSITION_FIXED;
+    Position.X := 15;
+    Position.Y := 2;
+  end;
+
+  with Result.HoverProfile.Items['ShedulePrev'] do
+  begin
+    Enable := False;
+    Background := clWhite;
+    BackgroundFillType := FILL_NONE;
+    BackgroundRoundRadius := 0;
+    FontName := 'default';
+    FontSize := 10;
+    FontColor := clBlack;
+    Padding.Top := 28;
+    Padding.Left := 0;
+    Padding.Bottom := 0;
+    Padding.Right := 0;
+    PositionType := POSITION_FIXED;
+    Position.X := 15;
+    Position.Y := 2;
+  end;
+
+  with Result.HoverProfile.Items['SheduleNext'] do
   begin
     Enable := False;
     Background := clWhite;
