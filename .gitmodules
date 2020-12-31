@@ -7,3 +7,6 @@
 [submodule "libpasc-algorithms"]
 	path = libpasc-algorithms
 	url = https://github.com/isemenkov/libpasc-algorithms
+[submodule "cef"]
+	path = cef
+	url = https://github.com/chromiumembedded/cef.git
