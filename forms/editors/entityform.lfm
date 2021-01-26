@@ -1,0 +1,360 @@
+object EntityWindow: TEntityWindow
+  Left = 3146
+  Height = 287
+  Top = 143
+  Width = 692
+  BorderStyle = bsDialog
+  Caption = 'Entity editor'
+  ClientHeight = 287
+  ClientWidth = 692
+  DesignTimePPI = 101
+  OnDestroy = FormDestroy
+  Position = poMainFormCenter
+  LCLVersion = '2.0.10.0'
+  object ObjectGroup: TGroupBox
+    Left = 5
+    Height = 123
+    Top = 5
+    Width = 682
+    Align = alTop
+    BorderSpacing.Around = 5
+    Caption = 'Object'
+    ClientHeight = 104
+    ClientWidth = 678
+    TabOrder = 0
+    object NameGroup: TPanel
+      Left = 5
+      Height = 26
+      Top = 5
+      Width = 668
+      Align = alTop
+      BorderSpacing.Around = 5
+      BevelOuter = bvNone
+      ClientHeight = 26
+      ClientWidth = 668
+      TabOrder = 0
+      object NameLabelGroup: TPanel
+        Left = 0
+        Height = 26
+        Top = 0
+        Width = 179
+        Align = alLeft
+        BevelOuter = bvNone
+        ClientHeight = 26
+        ClientWidth = 179
+        TabOrder = 0
+        object NameLabel: TLabel
+          Left = 0
+          Height = 26
+          Top = 0
+          Width = 37
+          Align = alLeft
+          Caption = 'Name'
+          Layout = tlCenter
+          ParentColor = False
+        end
+      end
+      object NameEditorGroup: TPanel
+        Left = 179
+        Height = 26
+        Top = 0
+        Width = 489
+        Align = alClient
+        BevelOuter = bvNone
+        ClientHeight = 26
+        ClientWidth = 489
+        TabOrder = 1
+        object NameEditor: TEdit
+          Left = 0
+          Height = 26
+          Top = 0
+          Width = 489
+          Align = alClient
+          OnChange = NameEditorChange
+          TabOrder = 0
+        end
+      end
+    end
+    object QuantityGroup: TPanel
+      Left = 5
+      Height = 26
+      Top = 36
+      Width = 668
+      Align = alTop
+      BorderSpacing.Around = 5
+      BevelOuter = bvNone
+      ClientHeight = 26
+      ClientWidth = 668
+      TabOrder = 1
+      object QuantityLabelGroup: TPanel
+        Left = 0
+        Height = 26
+        Top = 0
+        Width = 179
+        Align = alLeft
+        BevelOuter = bvNone
+        ClientHeight = 26
+        ClientWidth = 179
+        TabOrder = 0
+        object QuantityLabel: TLabel
+          Left = 0
+          Height = 26
+          Top = 0
+          Width = 57
+          Align = alLeft
+          Caption = 'Quantity'
+          Layout = tlCenter
+          ParentColor = False
+        end
+      end
+      object QuantityEditorGroup: TPanel
+        Left = 179
+        Height = 26
+        Top = 0
+        Width = 489
+        Align = alClient
+        BevelOuter = bvNone
+        ClientHeight = 26
+        ClientWidth = 489
+        TabOrder = 1
+        object QuantityCountEditor: TFloatSpinEdit
+          Left = 0
+          Height = 26
+          Top = 0
+          Width = 243
+          Align = alLeft
+          MaxValue = 9999999999999
+          TabOrder = 0
+        end
+        object QuantityMeasureEditor: TComboBox
+          Left = 243
+          Height = 26
+          Top = 0
+          Width = 246
+          Align = alClient
+          ItemHeight = 0
+          TabOrder = 1
+        end
+      end
+    end
+    object PeriodGroup: TPanel
+      Left = 5
+      Height = 26
+      Top = 67
+      Width = 668
+      Align = alTop
+      BorderSpacing.Around = 5
+      BevelOuter = bvNone
+      ClientHeight = 26
+      ClientWidth = 668
+      TabOrder = 2
+      object PeriodLabelGroup: TPanel
+        Left = 0
+        Height = 26
+        Top = 0
+        Width = 179
+        Align = alLeft
+        BevelOuter = bvNone
+        ClientHeight = 26
+        ClientWidth = 179
+        TabOrder = 0
+        object PeriodLabel: TLabel
+          Left = 0
+          Height = 26
+          Top = 0
+          Width = 41
+          Align = alLeft
+          Caption = 'Period'
+          Layout = tlCenter
+          ParentColor = False
+        end
+      end
+      object PeriodEditorGroup: TPanel
+        Left = 179
+        Height = 26
+        Top = 0
+        Width = 489
+        Align = alClient
+        BevelOuter = bvNone
+        ClientHeight = 26
+        ClientWidth = 489
+        TabOrder = 1
+        object PeriodCountEditor: TFloatSpinEdit
+          Left = 0
+          Height = 26
+          Top = 0
+          Width = 243
+          Align = alLeft
+          MaxValue = 9999999999999
+          TabOrder = 0
+        end
+        object PeriodMeasureEditor: TComboBox
+          Left = 243
+          Height = 26
+          Top = 0
+          Width = 246
+          Align = alClient
+          ItemHeight = 0
+          TabOrder = 1
+        end
+      end
+    end
+  end
+  object SheduleGroup: TGroupBox
+    Left = 5
+    Height = 94
+    Top = 133
+    Width = 682
+    Align = alTop
+    BorderSpacing.Around = 5
+    Caption = 'Shedule'
+    ClientHeight = 75
+    ClientWidth = 678
+    TabOrder = 1
+    object ShedulePrevGroup: TPanel
+      Left = 5
+      Height = 26
+      Top = 5
+      Width = 668
+      Align = alTop
+      BorderSpacing.Around = 5
+      BevelOuter = bvNone
+      ClientHeight = 26
+      ClientWidth = 668
+      TabOrder = 0
+      object ShedulePrevNameLabelGroup: TPanel
+        Left = 0
+        Height = 26
+        Top = 0
+        Width = 179
+        Align = alLeft
+        BevelOuter = bvNone
+        ClientHeight = 26
+        ClientWidth = 179
+        TabOrder = 0
+        object ShedulePrevNameLabel: TLabel
+          Left = 0
+          Height = 26
+          Top = 0
+          Width = 86
+          Align = alLeft
+          Caption = 'Previous date'
+          Layout = tlCenter
+          ParentColor = False
+        end
+      end
+      object ShedulePrevEditorGroup: TPanel
+        Left = 179
+        Height = 26
+        Top = 0
+        Width = 489
+        Align = alClient
+        BevelOuter = bvNone
+        ClientHeight = 26
+        ClientWidth = 489
+        TabOrder = 1
+        object ShedulePrevEditor: TDateEdit
+          Left = 0
+          Height = 26
+          Top = 0
+          Width = 489
+          CalendarDisplaySettings = [dsShowHeadings, dsShowDayNames]
+          DateOrder = doNone
+          ButtonWidth = 24
+          Align = alClient
+          NumGlyphs = 1
+          MaxLength = 0
+          TabOrder = 0
+          Text = 'ShedulePrevEditor'
+        end
+      end
+    end
+    object SheduleNextGroup: TPanel
+      Left = 5
+      Height = 26
+      Top = 36
+      Width = 668
+      Align = alTop
+      BorderSpacing.Around = 5
+      BevelOuter = bvNone
+      ClientHeight = 26
+      ClientWidth = 668
+      TabOrder = 1
+      object SheduleNextNameLabelGroup: TPanel
+        Left = 0
+        Height = 26
+        Top = 0
+        Width = 179
+        Align = alLeft
+        BevelOuter = bvNone
+        ClientHeight = 26
+        ClientWidth = 179
+        TabOrder = 0
+        object SheduleNextNameLabel: TLabel
+          Left = 0
+          Height = 26
+          Top = 0
+          Width = 62
+          Align = alLeft
+          Caption = 'Next date'
+          Layout = tlCenter
+          ParentColor = False
+        end
+      end
+      object SheduleNextEditorGroup: TPanel
+        Left = 179
+        Height = 26
+        Top = 0
+        Width = 489
+        Align = alClient
+        BevelOuter = bvNone
+        ClientHeight = 26
+        ClientWidth = 489
+        TabOrder = 1
+        object SheduleNextEditor: TDateEdit
+          Left = 0
+          Height = 26
+          Top = 0
+          Width = 489
+          CalendarDisplaySettings = [dsShowHeadings, dsShowDayNames]
+          DateOrder = doNone
+          ButtonWidth = 24
+          Align = alClient
+          NumGlyphs = 1
+          MaxLength = 0
+          TabOrder = 0
+          Text = 'ShedulePrevEditor'
+        end
+      end
+    end
+  end
+  object SaveButton: TBitBtn
+    Left = 480
+    Height = 32
+    Top = 248
+    Width = 100
+    Caption = 'Save'
+    ModalResult = 1
+    TabOrder = 2
+  end
+  object CancelButton: TBitBtn
+    Left = 584
+    Height = 32
+    Top = 248
+    Width = 100
+    Caption = 'Cancel'
+    ModalResult = 2
+    TabOrder = 3
+  end
+  object DeleteButton: TBitBtn
+    Left = 5
+    Height = 32
+    Top = 248
+    Width = 100
+    Caption = 'Delete'
+    ModalResult = 11
+    OnClick = DeleteButtonClick
+    TabOrder = 4
+    Visible = False
+  end
+end

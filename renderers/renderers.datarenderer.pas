@@ -1,6 +1,9 @@
 (******************************************************************************)
 (*                               SheduledRepair                               *)
 (*                                                                            *)
+(* This is a software for creating schedules  for repair work, accounting and *)
+(* monitoring  their  implementation, accounting for the  necessary materials *)
+(* and spare parts.                                                           *)
 (*                                                                            *)
 (* Copyright (c) 2020                                       Ivan Semenkov     *)
 (* https://github.com/isemenkov/SheduledRepair              ivan@semenkov.pro *)
@@ -24,7 +27,9 @@
 (******************************************************************************)
 unit renderers.datarenderer;
 
-{$mode objfpc}{$H+}
+{$IFDEF FPC}
+  {$mode objfpc}{$H+}
+{$ENDIF}
 {$IFOPT D+}
   {$DEFINE DEBUG}
 {$ENDIF}
@@ -32,13 +37,21 @@ unit renderers.datarenderer;
 interface
 
 uses
-  SysUtils, Classes, Graphics, VirtualTrees, objects.common,
-  dataproviders.common, profilesprovider.common, renderers.common,
-  renderer.profile.objectprofile, renderer.profile.profile, 
-  objects.mainmenu.item, eventproviders.common;
+  SysUtils, Classes, Graphics, VirtualTrees, objects.common, 
+  objects.namedobject, dataproviders.common, profilesprovider.common, 
+  renderers.common, renderer.profile.objectprofile, renderer.profile.profile, 
+  eventproviders.common;
 
 type
   TDataRenderer = class
+  public
+    type
+      { Renderer item handle. }
+      TItemHandle = type Pointer;
+
+      { Renderer item create event. }
+      TItemCreateEvent = procedure (AObject : TCommonObject; AItemHandle :
+        TItemHandle) of object;
   public
     constructor Create (ATreeView : TVirtualDrawTree; ADataProvider : 
       TCommonDataProvider; AProfileProvider : TCommonProfilesProvider;
@@ -46,7 +59,7 @@ type
     destructor Destroy; override;
 
     { Reload renderer data. }
-    procedure ReloadData;
+    procedure ReloadData (AItemCreateEvent : TItemCreateEvent = nil);
 
     { Get selected object. }
     function GetSelectedObject : TCommonObject;
@@ -108,7 +121,7 @@ type
       {$IFNDEF DEBUG}inline;{$ENDIF}
 
     { Fire node event. }
-    procedure FireNodeEvent (AEventID : Integer; ANode : PVirtualNode);
+    function FireNodeEvent (AEventID : Integer; ANode : PVirtualNode) : Boolean;
       {$IFNDEF DEBUG}inline;{$ENDIF}
 
     { On change node event. }
@@ -133,32 +146,54 @@ type
   { Main menu data renderer decorator. }
   TMainMenuDataRenderer = class
   public
+    type
+      { Renderer item destroy event. }
+      TItemDestroyEvent = procedure (AObject : TCommonObject) of object;
+  public
     constructor Create (ADataRenderer : TDataRenderer);
 
     { Reload renderer data. }
-    procedure ReloadData;
+    procedure ReloadData (AItemCreateEvent :
+      TDataRenderer.TItemCreateEvent = nil);
+      {$IFNDEF DEBUG}inline;{$ENDIF}
 
-    { Update dynamic menu items. }
-    procedure UpdateDynamicMenu;
+    { Create dynamic menu. }
+    procedure AttachDynamicMenu (AItemHandle : TDataRenderer.TItemHandle;
+      ADataProvider : TCommonDataProvider; AProfilesProvider : 
+      TCommonProfilesProvider; AItemCreateEvent : 
+      TDataRenderer.TItemCreateEvent = nil);
+
+    { Remove dynamic menu. }
+    procedure DetachAllDynamicMenus (AItemHandle : TDataRenderer.TItemHandle;
+      AItemDestroyEvent : TItemDestroyEvent = nil);
+
+    { Select menu item by handle. }
+    procedure SelectMenuItem (AItemHandle : TDataRenderer.TItemHandle);
+      {$IFNDEF DEBUG}inline;{$ENDIF}
+
+    { Return selected menu item handle. }
+    function GetSelectedMenuItem : TDataRenderer.TItemHandle;
+
+    { Attach object to menu item element. }
+    procedure AttachObject (AItemHandle : TDataRenderer.TItemHandle;
+      AObject : TNamedObject);
+      {$IFNDEF DEBUG}inline;{$ENDIF}
+
+    { Detach menu item element object. }
+    procedure DetachObject (AItemHandle : TDataRenderer.TItemHandle);
+      {$IFNDEF DEBUG}inline;{$ENDIF}
+
+    { Get attached object. }
+    function GetAttachedObject (AItemHandle : TDataRenderer.TItemHandle) :
+      TNamedObject;
+      {$IFNDEF DEBUG}inline;{$ENDIF}
   protected
     FDataRenderer : TDataRenderer;
     FCurrentSelectedNode : PVirtualNode;
-    FOpenDynamicMenuNode : PVirtualNode;
+    FItemDestroyEvent : TItemDestroyEvent;
   private
-    { Get menu item type. }
-    function GetItemType (ANode : PVirtualNode) : TMainMenuItem.TItemType;
-      {$IFNDEF DEBUG}inline;{$ENDIF}
-
-    { Return true if menu item can be selected. }
-    function CanSelected (ANode : PVirtualNode) : Boolean;
-      {$IFNDEF DEBUG}inline;{$ENDIF}
-
     { Fire node event. }
-    procedure FireNodeEvent (AEventID : Integer; ANode : PVirtualNode);
-      {$IFNDEF DEBUG}inline;{$ENDIF}
-
-    { Append menu item dynamic menu items. }
-    procedure CreateDynamicMenu (ANode : PVirtualNode);
+    function FireNodeEvent (AEventID : Integer; ANode : PVirtualNode) : Boolean;
       {$IFNDEF DEBUG}inline;{$ENDIF}
 
     { Node OnChage event. }
@@ -167,12 +202,15 @@ type
     { Node OnClick event. }
     procedure NodeClickEvent (Sender : TBaseVirtualTree; const HitInfo : 
       THitInfo);
+
+    { Node OnFree event. }
+    procedure NodeFreeEvent (Sender : TBaseVirtualTree; Node : PVirtualNode);
   end;
 
 implementation
 
 uses
-  mainmenuprovider;
+  mainmenuprovider, objects.mainmenu.item;
 
 { TDataRenderer }
 
@@ -214,11 +252,11 @@ procedure TDataRenderer.SetTreeViewCallbacks;
 begin
   with FTreeView do
   begin
-    OnDrawNode := @NodeDrawEvent;
-    OnResize := @TreeResizeEvent;
-    OnChange := @NodeChangeEvent;
-    OnNodeClick := @NodeClickEvent;
-    OnNodeDblClick := @NodeDoubleClickEvent;
+    OnDrawNode := {$IFDEF FPC}@{$ENDIF}NodeDrawEvent;
+    OnResize := {$IFDEF FPC}@{$ENDIF}TreeResizeEvent;
+    OnChange := {$IFDEF FPC}@{$ENDIF}NodeChangeEvent;
+    OnNodeClick := {$IFDEF FPC}@{$ENDIF}NodeClickEvent;
+    OnNodeDblClick := {$IFDEF FPC}@{$ENDIF}NodeDoubleClickEvent;
   end;
 end;
 
@@ -227,7 +265,12 @@ var
   Width : Cardinal;
   Column : TVirtualTreeColumn;
 begin
-  FTreeView.Header.Columns.Clear;
+  //FTreeView.Header.Columns.Clear;
+  //Column := FTreeView.Header.Columns.Add;
+  //Column.Width := FTreeView.ClientWidth;
+  //Column.Style := vsOwnerDraw;
+
+  {
   FRenderer.CalculateColumns(FTreeView.ClientWidth);
 
   for Width in FRenderer do
@@ -236,6 +279,7 @@ begin
     Column.Width := Width;
     Column.Style := vsOwnerDraw;
   end;
+  }
 end;
 
 function TDataRenderer.GetHoverProfile (ANode : PVirtualNode) : 
@@ -275,18 +319,19 @@ procedure TDataRenderer.RestorePrevSelectedNodeHeight;
 begin
   if Assigned(FSelectedNode) and (not FTreeView.Selected[FSelectedNode]) then
   begin
-    FireNodeEvent(FEventProvider.EVENT_OBJECT_UNSELECT, FSelectedNode);
+    FireNodeEvent(TCommonEventProvider.EVENT_OBJECT_UNSELECT, FSelectedNode);
 
     FSelectedNode^.NodeHeight := GetDefaultProfile(FSelectedNode).Height;
     FTreeView.InvalidateNode(FSelectedNode);
   end;
 end;
 
-procedure TDataRenderer.FireNodeEvent (AEventID : Integer; ANode : 
-  PVirtualNode);
+function TDataRenderer.FireNodeEvent (AEventID : Integer; ANode : 
+  PVirtualNode) : Boolean;
 begin
   if Assigned(FEventProvider) then
-    FEventProvider.Fire(AEventID, GetObject(ANode));
+    Exit(FEventProvider.Fire(AEventID, GetObject(ANode)));
+  Result := False;
 end;
 
 procedure TDataRenderer.NodeChangeEvent(Sender: TBaseVirtualTree; Node: 
@@ -301,7 +346,7 @@ begin
     Node^.NodeHeight := GetSelectedProfile(Node).Height;
     FSelectedNode := Node;
 
-    FireNodeEvent(FEventProvider.EVENT_OBJECT_SELECT, Node);
+    FireNodeEvent(TCommonEventProvider.EVENT_OBJECT_SELECT, Node);
 
     FTreeView.InvalidateNode(Node);
   end;
@@ -310,13 +355,14 @@ end;
 procedure TDataRenderer.NodeClickEvent (Sender : TBaseVirtualTree; 
   const HitInfo : THitInfo);
 begin
-  FireNodeEvent(FEventProvider.EVENT_OBJECT_CLICK, HitInfo.HitNode);
+  FireNodeEvent(TCommonEventProvider.EVENT_OBJECT_CLICK, HitInfo.HitNode);
 end;
 
 procedure TDataRenderer.NodeDoubleClickEvent (Sender : TBaseVirtualTree; 
   const HitInfo : THitInfo);
 begin
-  FireNodeEvent(FEventProvider.EVENT_OBJECT_DOUBLE_CLICK, HitInfo.HitNode);
+  FireNodeEvent(TCommonEventProvider.EVENT_OBJECT_DOUBLE_CLICK, 
+    HitInfo.HitNode);
 end;
 
 procedure TDataRenderer.NodeDrawEvent (ASender : TBaseVirtualTree; 
@@ -364,7 +410,7 @@ begin
   SetTreeViewColumns;
 end;
 
-procedure TDataRenderer.ReloadData;
+procedure TDataRenderer.ReloadData (AItemCreateEvent : TItemCreateEvent);
 var
   ObjectItem : TCommonObject;
   NodeData : PNodeData;
@@ -391,6 +437,9 @@ begin
 
     Node^.NodeHeight := NodeData^.Profile.DefaultProfile.Height;
 
+    if Assigned(AItemCreateEvent) then
+      AItemCreateEvent(ObjectItem, TItemHandle(Node));
+
     Inc(Index);
   end;
 
@@ -408,27 +457,18 @@ end;
 constructor TMainMenuDataRenderer.Create (ADataRenderer : TDataRenderer);
 begin
   FDataRenderer := ADataRenderer;
-  FDataRenderer.FTreeView.OnChange := @NodeChangeEvent;
-  FDataRenderer.FTreeView.OnNodeClick := @NodeClickEvent;
+  FDataRenderer.FTreeView.OnChange := {$IFDEF FPC}@{$ENDIF}NodeChangeEvent;
+  FDataRenderer.FTreeView.OnNodeClick := {$IFDEF FPC}@{$ENDIF}NodeClickEvent;
+  FDataRenderer.FTreeView.OnFreeNode := {$IFDEF FPC}@{$ENDIF}NodeFreeEvent;
 
   FCurrentSelectedNode := nil;
-  FOpenDynamicMenuNode := nil;
+  FItemDestroyEvent := nil;
 end;
 
-procedure TMainMenuDataRenderer.ReloadData;
+procedure TMainMenuDataRenderer.ReloadData(AItemCreateEvent : 
+  TDataRenderer.TItemCreateEvent);
 begin
-  FDataRenderer.ReloadData;
-end;
-
-function TMainMenuDataRenderer.GetItemType (ANode : PVirtualNode) : 
-  TMainMenuItem.TItemType;
-begin
-  Result := TMainMenuItem(FDataRenderer.GetObject(ANode)).ItemType;
-end;
-
-function TMainMenuDataRenderer.CanSelected (ANode : PVirtualNode) : Boolean;
-begin
-  Result := TMainMenuItem(FDataRenderer.GetObject(ANode)).CanSelected;
+  FDataRenderer.ReloadData(AItemCreateEvent);
 end;
 
 procedure TMainMenuDataRenderer.NodeChangeEvent (Sender : TBaseVirtualTree; 
@@ -437,95 +477,160 @@ begin
   if Node = nil then
     Exit;
   
-  if CanSelected(Node) then
+  if FireNodeEvent(TCommonEventProvider.EVENT_OBJECT_SELECT, Node) then
   begin
     if (Assigned(FCurrentSelectedNode)) and (FCurrentSelectedNode <> Node) then
     begin
-      FireNodeEvent(FDataRenderer.FEventProvider.EVENT_OBJECT_UNSELECT, 
+      FireNodeEvent(TCommonEventProvider.EVENT_OBJECT_UNSELECT, 
         FCurrentSelectedNode);
     end;
 
     FCurrentSelectedNode := Node;
-
-    FireNodeEvent(FDataRenderer.FEventProvider.EVENT_OBJECT_SELECT, Node);
+    FDataRenderer.FTreeView.Selected[FCurrentSelectedNode] := True;
     Exit;
   end;
-
+  
   if Assigned(FCurrentSelectedNode) then
+  begin
     FDataRenderer.FTreeView.Selected[FCurrentSelectedNode] := True;
+    Exit;
+  end;
+  
+  FDataRenderer.FTreeView.Selected[Node] := False;
 end;
 
 procedure TMainMenuDataRenderer.NodeClickEvent (Sender : TBaseVirtualTree;
   const HitInfo : THitInfo);
+var
+  Obj : TCommonObject;
 begin
-  FireNodeEvent(FDataRenderer.FEventProvider.EVENT_OBJECT_CLICK, 
+  if HitInfo.HitNode = nil then
+    Exit;
+
+  Obj := FDataRenderer.GetObject(HitInfo.HitNode);
+
+  FireNodeEvent(TCommonEventProvider.EVENT_OBJECT_CLICK,
     HitInfo.HitNode);
-  
-  if GetItemType(HitInfo.HitNode) = MENU_ITEM_TYPE_ITEM then
+
+  if (Assigned(HitInfo.HitNode)) and (Obj.ID <> -1) then
   begin
-    if Assigned(FOpenDynamicMenuNode) then
-    begin
-      FDataRenderer.FTreeView.DeleteChildren(FOpenDynamicMenuNode, True);
-      FireNodeEvent(FDataRenderer.FEventProvider
-        .EVENT_OBJECT_DETACH_DYNAMIC_MENU, HitInfo.HitNode);
-    end;
-
-    FOpenDynamicMenuNode := HitInfo.HitNode;
-
-    FireNodeEvent(FDataRenderer.FEventProvider.EVENT_OBJECT_ATTACH_DYNAMIC_MENU,
+    FireNodeEvent(TCommonEventProvider.EVENT_OBJECT_DETACH_DYNAMIC_MENU, 
       HitInfo.HitNode);
-    CreateDynamicMenu(HitInfo.HitNode);  
+    FireNodeEvent(TCommonEventProvider.EVENT_OBJECT_ATTACH_DYNAMIC_MENU,
+      HitInfo.HitNode);
   end;
 end;
 
-procedure TMainMenuDataRenderer.FireNodeEvent (AEventID : Integer; ANode :
+procedure TMainMenuDataRenderer.NodeFreeEvent (Sender : TBaseVirtualTree; Node : 
   PVirtualNode);
 begin
-  TMainMenuItem(FDataRenderer.GetObject(ANode)).Fire(AEventID,
+  if Assigned(FItemDestroyEvent) then
+    FItemDestroyEvent(FDataRenderer.GetObject(Node));
+end;
+
+function TMainMenuDataRenderer.FireNodeEvent (AEventID : Integer; ANode :
+  PVirtualNode) : Boolean;
+begin
+  Result := TMainMenuItem(FDataRenderer.GetObject(ANode)).Fire(AEventID,
     TMainMenuItem(FDataRenderer.GetObject(ANode)));
 end;
 
-procedure TMainMenuDataRenderer.CreateDynamicMenu (ANode : PVirtualNode);
+procedure TMainMenuDataRenderer.AttachDynamicMenu (AItemHandle : TDataRenderer
+  .TItemHandle; ADataProvider : TCommonDataProvider; AProfilesProvider :
+  TCommonProfilesProvider; AItemCreateEvent : TDataRenderer.TItemCreateEvent);
 var
-  DynamicMenu : TMainMenu.TIterator;
   DynamicMenuItem : TCommonObject;
   DynamicItemNode : PVirtualNode;
   DynamicNodeData : TDataRenderer.PNodeData;
   Index : Integer;
 begin
-  for DynamicMenu in MainMenu.GetAttachedMenus(
-    FDataRenderer.GetObject(ANode).ID) do
-  begin
-    Index := 0;
-    for DynamicMenuItem in DynamicMenu.DataProvider do
-    begin
-      DynamicItemNode := FDataRenderer.FTreeView.AddChild(ANode);
-      DynamicNodeData := TDataRenderer.PNodeData(FDataRenderer.FTreeView
-        .GetNodeData(DynamicItemNode));
+  if (not Assigned(AItemHandle)) or (not ADataProvider.Load) or 
+     (not AProfilesProvider.Load) then
+    Exit;
 
-      if Assigned(DynamicNodeData) then
-      begin
-        DynamicNodeData^.CommonObject := DynamicMenuItem;
-        DynamicNodeData^.Profile := DynamicMenu.ProfilesProvider
-          .GetProfile(Index);
-      end;
+  Index := 0;
+  for DynamicMenuItem in ADataProvider do
+  begin
+    DynamicItemNode := FDataRenderer.FTreeView.AddChild(PVirtualNode(
+      AItemHandle));
+    DynamicNodeData := TDataRenderer.PNodeData(FDataRenderer.FTreeView
+      .GetNodeData(DynamicItemNode));
+    
+    if Assigned(DynamicNodeData) then
+    begin
+      DynamicNodeData^.CommonObject := DynamicMenuItem;
+      DynamicNodeData^.Profile := AProfilesProvider.GetProfile(Index);
+
       DynamicItemNode^.NodeHeight := DynamicNodeData^.Profile.DefaultProfile
         .Height;
-
-      Inc(Index);  
     end;
-    FDataRenderer.FTreeView.Expanded[ANode] := True;
+
+    if Assigned(AItemCreateEvent) then
+      AItemCreateEvent(DynamicMenuItem, TDataRenderer.TItemHandle(
+        DynamicItemNode));
+
+    Inc(Index);
   end;
-  FDataRenderer.FTreeView.Refresh;
+  FDataRenderer.FTreeView.Expanded[PVirtualNode(AItemHandle)] := True;
 end;
 
-procedure TMainMenuDataRenderer.UpdateDynamicMenu;
+procedure TMainMenuDataRenderer.DetachAllDynamicMenus (AItemHandle :
+  TDataRenderer.TItemHandle; AItemDestroyEvent : TItemDestroyEvent);
 begin
-  if Assigned(FOpenDynamicMenuNode) then
-  begin
-    FDataRenderer.FTreeView.DeleteChildren(FOpenDynamicMenuNode, True);
-    CreateDynamicMenu(FOpenDynamicMenuNode);
-  end;
+  if (not Assigned(AItemHandle)) then
+    Exit;
+
+  FItemDestroyEvent := AItemDestroyEvent;
+  FDataRenderer.FTreeView.DeleteChildren(PVirtualNode(AItemHandle), True);
+end;
+
+procedure TMainMenuDataRenderer.SelectMenuItem (AItemHandle : TDataRenderer
+  .TItemHandle);
+begin
+  if not Assigned(AItemHandle) then
+    Exit;
+
+  FDataRenderer.FTreeView.Selected[PVirtualNode(AItemHandle)] := True;
+end;
+
+procedure TMainMenuDataRenderer.AttachObject (AItemHandle :
+  TDataRenderer.TItemHandle; AObject : TNamedObject);
+begin
+  if not Assigned(AItemHandle) then
+    Exit;
+
+  TMainMenuItem(FDataRenderer.GetObject(PVirtualNode(AItemHandle)))
+    .AttachedObject := AObject;
+  FDataRenderer.FTreeView.InvalidateNode(PVirtualNode(AItemHandle));
+end;
+
+procedure TMainMenuDataRenderer.DetachObject (AItemHandle :
+  TDataRenderer.TItemHandle);
+begin
+  if not Assigned(AItemHandle) then
+    Exit;
+
+  TMainMenuItem(FDataRenderer.GetObject(PVirtualNode(AItemHandle)))
+    .AttachedObject := nil;
+  FDataRenderer.FTreeView.InvalidateNode(PVirtualNode(AItemHandle));
+end;
+
+function TMainMenuDataRenderer.GetAttachedObject (AItemHandle :
+  TDataRenderer.TItemHandle) : TNamedObject;
+begin
+  if not Assigned(AItemHandle) then
+    Exit;
+
+  Result := TMainMenuItem(FDataRenderer.GetObject(PVirtualNode(AItemHandle)))
+    .AttachedObject;
+end;
+
+function TMainMenuDataRenderer.GetSelectedMenuItem : TDataRenderer.TItemHandle;
+begin
+  if Assigned(FCurrentSelectedNode) then
+    Exit(TDataRenderer.TItemHandle(FCurrentSelectedNode));
+
+  Result := nil;
 end;
 
 end.

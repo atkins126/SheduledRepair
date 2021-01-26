@@ -1,6 +1,9 @@
 (******************************************************************************)
 (*                               SheduledRepair                               *)
 (*                                                                            *)
+(* This is a software for creating schedules  for repair work, accounting and *)
+(* monitoring  their  implementation, accounting for the  necessary materials *)
+(* and spare parts.                                                           *)
 (*                                                                            *)
 (* Copyright (c) 2020                                       Ivan Semenkov     *)
 (* https://github.com/isemenkov/SheduledRepair              ivan@semenkov.pro *)
@@ -24,7 +27,9 @@
 (******************************************************************************)
 unit objects.common;
 
-{$mode objfpc}{$H+}
+{$IFDEF FPC}
+  {$mode objfpc}{$H+}
+{$ENDIF}
 {$IFOPT D+}
   {$DEFINE DEBUG}
 {$ENDIF}
@@ -80,8 +85,8 @@ type
       end;
 
       { Object properties list. }
-      TValueUnsortableFunctor = class(specialize TUnsortableFunctor<TValue>);
-      TValuesList = class(specialize TList<TValue, TValueUnsortableFunctor>);
+      TValueUnsortableFunctor = class({$IFDEF FPC}specialize{$ENDIF} TUnsortableFunctor<TValue>);
+      TValuesList = class({$IFDEF FPC}specialize{$ENDIF} TList<TValue, TValueUnsortableFunctor>);
   protected
     { Prepare current object database table scheme. }
     procedure PrepareSchema (var ASchema : TSQLite3Schema); virtual; abstract;

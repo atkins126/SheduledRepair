@@ -1,6 +1,9 @@
 (******************************************************************************)
 (*                               SheduledRepair                               *)
 (*                                                                            *)
+(* This is a software for creating schedules  for repair work, accounting and *)
+(* monitoring  their  implementation, accounting for the  necessary materials *)
+(* and spare parts.                                                           *)
 (*                                                                            *)
 (* Copyright (c) 2020                                       Ivan Semenkov     *)
 (* https://github.com/isemenkov/SheduledRepair              ivan@semenkov.pro *)
@@ -24,7 +27,9 @@
 (******************************************************************************)
 unit objects.mainmenu.item;
 
-{$mode objfpc}{$H+}
+{$IFDEF FPC}
+  {$mode objfpc}{$H+}
+{$ENDIF}
 {$IFOPT D+}
   {$DEFINE DEBUG}
 {$ENDIF}
@@ -33,7 +38,7 @@ interface
 
 uses
   SysUtils, objects.common, objects.namedobject, sqlite3.schema,
-  eventproviders.common;
+  eventproviders.common, renderers.datarenderer;
 
 type
   TMainMenuItem = class(TCommonObject)
@@ -48,16 +53,15 @@ type
         MENU_ITEM_TYPE_SUBITEM
       );
   public
-    constructor Create (AID : Int64; AItemType : TItemType; ATitle : String;
-      ACanSelected : Boolean = True; AEventProvider : 
-      TCommonEventProvider = nil); reintroduce;
+    constructor Create (AID : Int64; AItemType : TItemType; ATitle : String; 
+      AEventProvider : TCommonEventProvider = nil); reintroduce;
     destructor Destroy; override; 
 
     { Get object database table name. }
     function Table : String; override;
 
      { Run exists event. } 
-    procedure Fire (AEventID : Integer; AObject : TCommonObject);
+    function Fire (AEventID : Integer; AObject : TCommonObject) : Boolean;
       {$IFNDEF DEBUG}inline;{$ENDIF}
   protected
     { Prepare current object database table scheme. }
@@ -71,14 +75,12 @@ type
   protected
     FItemType : TItemType;
     FTitle : String;
+    FHandle : TDataRenderer.TItemHandle;
     FAttachedObject : TNamedObject;
-    FCanSelected : Boolean;
     FEventProvider : TCommonEventProvider;
   public
-    property ItemType : TItemType read FItemType;
     property Title : String read FTitle;
-    property CanSelected : Boolean read FCanSelected;
-    
+    property Handle : TDataRenderer.TItemHandle read FHandle write FHandle;
     property AttachedObject : TNamedObject read FAttachedObject 
       write FAttachedObject;
   end;
@@ -88,13 +90,13 @@ implementation
 { TMainMenuItem }
 
 constructor TMainMenuItem.Create (AID : Int64; AItemType : TItemType; ATitle : 
-  String; ACanSelected : Boolean; AEventProvider : TCommonEventProvider);
+  String; AEventProvider : TCommonEventProvider);
 begin
   inherited Create(AID);
   FItemType := AItemType;
   FTitle := ATitle;
+  FHandle := nil;
   FAttachedObject := nil;
-  FCanSelected := ACanSelected;
   FEventProvider := AEventProvider;
 end;
 
@@ -123,10 +125,12 @@ begin
   { Do nothing. }
 end;
 
-procedure TMainMenuItem.Fire (AEventID : Integer; AObject : TCommonObject);
+function TMainMenuItem.Fire (AEventID : Integer; AObject : TCommonObject) :
+  Boolean;
 begin
   if Assigned(FEventProvider) then
-    FEventProvider.Fire(AEventID, AObject);
+    Exit(FEventProvider.Fire(AEventID, AObject));
+  Result := False;
 end;
 
 end.

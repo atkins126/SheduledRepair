@@ -1,0 +1,52 @@
+package SheduledRepair;
+
+{$R *.res}
+{$IFDEF IMPLICITBUILDING This IFDEF should not be used by users}
+{$ALIGN 8}
+{$ASSERTIONS ON}
+{$BOOLEVAL OFF}
+{$DEBUGINFO OFF}
+{$EXTENDEDSYNTAX ON}
+{$IMPORTEDDATA ON}
+{$IOCHECKS ON}
+{$LOCALSYMBOLS OFF}
+{$LONGSTRINGS ON}
+{$OPENSTRINGS ON}
+{$OPTIMIZATION ON}
+{$OVERFLOWCHECKS OFF}
+{$RANGECHECKS OFF}
+{$REFERENCEINFO OFF}
+{$SAFEDIVIDE OFF}
+{$STACKFRAMES OFF}
+{$TYPEDADDRESS OFF}
+{$VARSTRINGCHECKS ON}
+{$WRITEABLECONST OFF}
+{$MINENUMSIZE 1}
+{$IMAGEBASE $400000}
+{$DEFINE RELEASE}
+{$ENDIF IMPLICITBUILDING}
+{$LIBSUFFIX '26'}
+{$RUNONLY}
+{$IMPLICITBUILD OFF}
+
+requires
+  vcl,
+  vclx;
+
+contains
+  VirtualTrees in 'C:\Virtual-TreeView-master\Source\VirtualTrees.pas',
+  VirtualTrees.HeaderPopup in 'C:\Virtual-TreeView-master\Source\VirtualTrees.HeaderPopup.pas',
+  VirtualTrees.AccessibilityFactory in 'C:\Virtual-TreeView-master\Source\VirtualTrees.AccessibilityFactory.pas',
+  VirtualTrees.Accessibility in 'C:\Virtual-TreeView-master\Source\VirtualTrees.Accessibility.pas',
+  VirtualTrees.StyleHooks in 'C:\Virtual-TreeView-master\Source\VirtualTrees.StyleHooks.pas',
+  VirtualTrees.Classes in 'C:\Virtual-TreeView-master\Source\VirtualTrees.Classes.pas',
+  VirtualTrees.WorkerThread in 'C:\Virtual-TreeView-master\Source\VirtualTrees.WorkerThread.pas',
+  VirtualTrees.ClipBoard in 'C:\Virtual-TreeView-master\Source\VirtualTrees.ClipBoard.pas',
+  VirtualTrees.Actions in 'C:\Virtual-TreeView-master\Source\VirtualTrees.Actions.pas',
+  VirtualTrees.Export in 'C:\Virtual-TreeView-master\Source\VirtualTrees.Export.pas',
+  VirtualTrees.Utils in 'C:\Virtual-TreeView-master\Source\VirtualTrees.Utils.pas',
+  mainform_delphi in '..\forms\mainform_delphi.pas' {MainWindow};
+
+end.
+
+

@@ -1,6 +1,9 @@
 (******************************************************************************)
 (*                               SheduledRepair                               *)
 (*                                                                            *)
+(* This is a software for creating schedules  for repair work, accounting and *)
+(* monitoring  their  implementation, accounting for the  necessary materials *) 
+(* and spare parts.                                                           *)                 
 (*                                                                            *)
 (* Copyright (c) 2020                                       Ivan Semenkov     *)
 (* https://github.com/isemenkov/SheduledRepair              ivan@semenkov.pro *)
@@ -24,7 +27,9 @@
 (******************************************************************************)
 unit eventproviders.job;
 
-{$mode objfpc}{$H+}
+{$IFDEF FPC}
+  {$mode objfpc}{$H+}
+{$ENDIF}
 {$IFOPT D+}
   {$DEFINE DEBUG}
 {$ENDIF}
@@ -41,7 +46,7 @@ type
   private
     FEditMenuAttached : Boolean;
 
-    procedure OnObjectSelectEvent ({%H-}AObject : TCommonObject);
+    function OnObjectSelectEvent ({%H-}AObject : TCommonObject) : Boolean;
   end;
 
 implementation
@@ -57,19 +62,22 @@ begin
   inherited Create;
   FEditMenuAttached := False;
   
-  Register(EVENT_OBJECT_SELECT, @OnObjectSelectEvent);
+  Register(EVENT_OBJECT_SELECT, {$IFDEF FPC}@{$ENDIF}OnObjectSelectEvent);
 end;
 
-procedure TJobEventProvider.OnObjectSelectEvent (AObject : TCommonObject);
+function TJobEventProvider.OnObjectSelectEvent (AObject : TCommonObject) :
+  Boolean;
 begin
-  if (not FEditMenuAttached) and (Assigned(Provider.GetSelectedObject)) then
+  if (not FEditMenuAttached) and (Provider.GetSelectedObject <> nil) then
   begin
     MainMenu.AttachDynamicMenu(TMainMenu.MAIN_MENU_ITEM_JOB,
       TMenuSubitemJobEditDataProvider.Create, 
       TMainMenuSubitemProfilesProvider.Create);
-    MainMenu.UpdateDynamicMenu;
+    
     FEditMenuAttached := True;
   end;
+
+  Result := True;
 end;
 
 end.

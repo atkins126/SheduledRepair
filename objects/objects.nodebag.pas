@@ -1,6 +1,9 @@
 (******************************************************************************)
 (*                               SheduledRepair                               *)
 (*                                                                            *)
+(* This is a software for creating schedules  for repair work, accounting and *)
+(* monitoring  their  implementation, accounting for the  necessary materials *)
+(* and spare parts.                                                           *)
 (*                                                                            *)
 (* Copyright (c) 2020                                       Ivan Semenkov     *)
 (* https://github.com/isemenkov/SheduledRepair              ivan@semenkov.pro *)
@@ -24,7 +27,9 @@
 (******************************************************************************)
 unit objects.nodebag;
 
-{$mode objfpc}{$H+}
+{$IFDEF FPC}
+  {$mode objfpc}{$H+}
+{$ENDIF}
 {$IFOPT D+}
   {$DEFINE DEBUG}
 {$ENDIF}
@@ -87,13 +92,14 @@ type
     function DeleteDepentObjects : Boolean; override;
   public
     type
-      TNodeCompareFunctor = class (specialize TBinaryFunctor<TNode, Integer>)
+      TNodeCompareFunctor = class ({$IFDEF FPC}specialize{$ENDIF}
+        TBinaryFunctor<TNode, Integer>)
       public
         function Call (AValue1, AValue2 : TNode) : Integer; override;
       end;
-      
-      TNodesList = class
-        (specialize TArrayList<TNode, TNodeCompareFunctor>);  
+
+      TNodesList = {$IFDEF FPC}type specialize{$ENDIF} TArrayList<TNode,
+        TNodeCompareFunctor>;
   public
     { Get enumerator for in operator. }
     function GetEnumerator : TNodesList.TIterator;
@@ -276,6 +282,12 @@ begin
 
   if Index <> -1 then
     FNodesList.Remove(Index);
+
+  FTable.Delete
+    .Where('object_name', FObject.Table)
+    .Where('object_id', FObject.ID)
+    .Where('node_id', ANode.ID)
+    .Get;
 end;
 
 function TNodeBag.GetEnumerator : TNodesList.TIterator;

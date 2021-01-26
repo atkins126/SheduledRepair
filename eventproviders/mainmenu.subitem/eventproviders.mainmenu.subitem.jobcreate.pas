@@ -1,6 +1,9 @@
 (******************************************************************************)
 (*                               SheduledRepair                               *)
 (*                                                                            *)
+(* This is a software for creating schedules  for repair work, accounting and *)
+(* monitoring  their  implementation, accounting for the  necessary materials *) 
+(* and spare parts.                                                           *)                 
 (*                                                                            *)
 (* Copyright (c) 2020                                       Ivan Semenkov     *)
 (* https://github.com/isemenkov/SheduledRepair              ivan@semenkov.pro *)
@@ -24,7 +27,9 @@
 (******************************************************************************)
 unit eventproviders.mainmenu.subitem.jobcreate;
 
-{$mode objfpc}{$H+}
+{$IFDEF FPC}
+  {$mode objfpc}{$H+}
+{$ENDIF}
 {$IFOPT D+}
   {$DEFINE DEBUG}
 {$ENDIF}
@@ -39,7 +44,7 @@ type
   public
     constructor Create; override;
   private
-    procedure JobCreateClickEvent ({%H-}AObject : TCommonObject);
+    function JobCreateClickEvent ({%H-}AObject : TCommonObject) : Boolean;
   end;
 
 implementation
@@ -53,13 +58,15 @@ constructor TMainMenuSubitemJobCreateEventProvider.Create;
 begin
   inherited Create;
   
-  Register(EVENT_OBJECT_CLICK, @JobCreateClickEvent);
+  Register(EVENT_OBJECT_CLICK, {$IFDEF FPC}@{$ENDIF}JobCreateClickEvent);
 end;
 
-procedure TMainMenuSubitemJobCreateEventProvider.JobCreateClickEvent 
-  (AObject : TCommonObject);
+function TMainMenuSubitemJobCreateEventProvider.JobCreateClickEvent 
+  (AObject : TCommonObject) : Boolean;
 begin
   Provider.ShowEditor(TJob.Create(-1));
+    
+  Result := True;
 end;
 
 end.

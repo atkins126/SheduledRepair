@@ -1,3 +1,30 @@
+(******************************************************************************)
+(*                               SheduledRepair                               *)
+(*                                                                            *)
+(* This is a software for creating schedules  for repair work, accounting and *)
+(* monitoring  their  implementation, accounting for the  necessary materials *)
+(* and spare parts.                                                           *)
+(*                                                                            *)
+(* Copyright (c) 2020                                       Ivan Semenkov     *)
+(* https://github.com/isemenkov/SheduledRepair              ivan@semenkov.pro *)
+(*                                                          Ukraine           *)
+(******************************************************************************)
+(*                                                                            *)
+(* This source  is free software;  you can redistribute  it and/or modify  it *)
+(* under the terms of the GNU General Public License as published by the Free *)
+(* Software Foundation; either version 3 of the License.                      *)
+(*                                                                            *)
+(* This code is distributed in the  hope that it will  be useful, but WITHOUT *)
+(* ANY  WARRANTY;  without even  the implied  warranty of MERCHANTABILITY  or *)
+(* FITNESS FOR A PARTICULAR PURPOSE.  See the  GNU General Public License for *)
+(* more details.                                                              *)
+(*                                                                            *)
+(* A copy  of the  GNU General Public License is available  on the World Wide *)
+(* Web at <http://www.gnu.org/copyleft/gpl.html>. You  can also obtain  it by *)
+(* writing to the Free Software Foundation, Inc., 51  Franklin Street - Fifth *)
+(* Floor, Boston, MA 02110-1335, USA.                                         *)
+(*                                                                            *)
+(******************************************************************************)
 unit jobform;
 
 {$mode objfpc}{$H+}
@@ -74,6 +101,9 @@ var
 
 implementation
 
+uses
+  configuration;
+
 {$R *.lfm}
 
 procedure TJobWindow.EntityNameSelectorChange(Sender: TObject);
@@ -104,6 +134,7 @@ end;
 procedure TJobWindow.FormDestroy(Sender: TObject);
 begin
   FreeAndNil(EntityDataProvider);
+  FreeAndNil(MeasureDataProvider);
 end;
 
 procedure TJobWindow.NameEditorChange(Sender: TObject);
@@ -119,6 +150,25 @@ var
 begin
   inherited Create(TheOwner);
   FObject := AObject;
+
+  ObjectGroup.Caption := Config.GetValue('Object', 'Object');
+  NameLabel.Caption := Config.GetValue('Name', 'Name');
+  PeriodLabel.Caption := Config.GetValue('Period', 'Period');
+
+  EntityGroup.Caption := Config.GetValue('Entity', 'Entity');
+  EntityNameLabel.Caption := Config.GetValue('Name', 'Name');
+  EntityCountLabel.Caption := Config.GetValue('Quantity', 'Quantity');
+  EntityPeriodLabel.Caption := Config.GetValue('Period', 'Period');
+
+  SheduleGroup.Caption := Config.GetValue('Shedule', 'Shedule');
+  ShedulePrevNameLabel.Caption := Config.GetValue('Previous date',
+    'Previous date');
+  SheduleNextNameLabel.Caption := Config.GetValue('Next date',
+    'Next date');
+
+  SaveButton.Caption := Config.GetValue('Save', 'Save');
+  CancelButton.Caption := Config.GetValue('Cancel', 'Cancel');
+  DeleteButton.Caption := Config.GetValue('Delete', 'Delete');
 
   NameEditor.Text := FObject.Name;
   PeriodCountEditor.Value := FObject.Period.Quantity.Count;

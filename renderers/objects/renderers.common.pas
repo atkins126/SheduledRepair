@@ -1,6 +1,9 @@
 (******************************************************************************)
 (*                               SheduledRepair                               *)
 (*                                                                            *)
+(* This is a software for creating schedules  for repair work, accounting and *)
+(* monitoring  their  implementation, accounting for the  necessary materials *)
+(* and spare parts.                                                           *)
 (*                                                                            *)
 (* Copyright (c) 2020                                       Ivan Semenkov     *)
 (* https://github.com/isemenkov/SheduledRepair              ivan@semenkov.pro *)
@@ -24,7 +27,9 @@
 (******************************************************************************)
 unit renderers.common;
 
-{$mode objfpc}{$H+}
+{$IFDEF FPC}
+  {$mode objfpc}{$H+}
+{$ENDIF}
 {$IFOPT D+}
   {$DEFINE DEBUG}
 {$ENDIF}
@@ -49,8 +54,8 @@ type
     procedure CalculateColumns (AFullWidth : Cardinal); virtual; abstract;
   protected
     type
-      TColumnsList = class
-        (specialize TArrayList<Cardinal, TCompareFunctorCardinal>);
+      TColumnsList = {$IFDEF FPC}type specialize{$ENDIF} TArrayList<Cardinal,
+        TCompareFunctorCardinal>;
   protected
     { Add new column. }
     procedure AppendColumn (AWidth : Cardinal);

@@ -1,6 +1,9 @@
 (******************************************************************************)
 (*                               SheduledRepair                               *)
 (*                                                                            *)
+(* This is a software for creating schedules  for repair work, accounting and *)
+(* monitoring  their  implementation, accounting for the  necessary materials *) 
+(* and spare parts.                                                           *)                 
 (*                                                                            *)
 (* Copyright (c) 2020                                       Ivan Semenkov     *)
 (* https://github.com/isemenkov/SheduledRepair              ivan@semenkov.pro *)
@@ -24,7 +27,9 @@
 (******************************************************************************)
 unit configuration;
 
-{$mode objfpc}{$H+}
+{$IFDEF FPC}
+  {$mode objfpc}{$H+}
+{$ENDIF}
 {$IFOPT D+}
   {$DEFINE DEBUG}
 {$ENDIF}
@@ -75,16 +80,17 @@ type
     function LoadCurrentObject : Boolean; override;
   private
     type
-      TKeyValue = class(specialize TPair<String, String>);
+      TKeyValue = {$IFDEF FPC}type specialize{$ENDIF} TPair<String, String>;
       
       TKeyValueCompareFunctor = class
-        (specialize TBinaryFunctor<TKeyValue, Integer>)
+        ({$IFDEF FPC}specialize{$ENDIF} TBinaryFunctor<TKeyValue, Integer>)
       public
         function Call (AValue1, AValue2 : TKeyValue) : Integer; override;
       end;
       
       TKeyValueList = class
-        (specialize TArrayList<TKeyValue, TKeyValueCompareFunctor>);
+        ({$IFDEF FPC}specialize{$ENDIF} TArrayList<TKeyValue,
+        TKeyValueCompareFunctor>);
   private
     FKeyValueList : TKeyValueList;
   end;

@@ -1,6 +1,9 @@
 (******************************************************************************)
 (*                               SheduledRepair                               *)
 (*                                                                            *)
+(* This is a software for creating schedules  for repair work, accounting and *)
+(* monitoring  their  implementation, accounting for the  necessary materials *) 
+(* and spare parts.                                                           *)                 
 (*                                                                            *)
 (* Copyright (c) 2020                                       Ivan Semenkov     *)
 (* https://github.com/isemenkov/SheduledRepair              ivan@semenkov.pro *)
@@ -24,7 +27,9 @@
 (******************************************************************************)
 unit eventproviders.mainmenu.subitem.equipmentcreate;
 
-{$mode objfpc}{$H+}
+{$IFDEF FPC}
+  {$mode objfpc}{$H+}
+{$ENDIF}
 {$IFOPT D+}
   {$DEFINE DEBUG}
 {$ENDIF}
@@ -39,7 +44,7 @@ type
   public
     constructor Create; override;
   private
-    procedure EquipmentCreateClickEvent ({%H-}AObject : TCommonObject);
+    function EquipmentCreateClickEvent ({%H-}AObject : TCommonObject) : Boolean;
   end;
 
 implementation
@@ -53,13 +58,15 @@ constructor TMainMenuSubitemEquipmentCreateEventProvider.Create;
 begin
   inherited Create;
   
-  Register(EVENT_OBJECT_CLICK, @EquipmentCreateClickEvent);
+  Register(EVENT_OBJECT_CLICK, {$IFDEF FPC}@{$ENDIF}EquipmentCreateClickEvent);
 end;
 
-procedure TMainMenuSubitemEquipmentCreateEventProvider.EquipmentCreateClickEvent 
-  (AObject : TCommonObject);
+function TMainMenuSubitemEquipmentCreateEventProvider.EquipmentCreateClickEvent 
+  (AObject : TCommonObject) : Boolean;
 begin
   Provider.ShowEditor(TEquipment.Create(-1));
+  
+  Result := True;
 end;
 
 end.

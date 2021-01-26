@@ -1,6 +1,9 @@
 (******************************************************************************)
 (*                               SheduledRepair                               *)
 (*                                                                            *)
+(* This is a software for creating schedules  for repair work, accounting and *)
+(* monitoring  their  implementation, accounting for the  necessary materials *) 
+(* and spare parts.                                                           *)                 
 (*                                                                            *)
 (* Copyright (c) 2020                                       Ivan Semenkov     *)
 (* https://github.com/isemenkov/SheduledRepair              ivan@semenkov.pro *)
@@ -24,7 +27,9 @@
 (******************************************************************************)
 unit eventproviders.equipment;
 
-{$mode objfpc}{$H+}
+{$IFDEF FPC}
+  {$mode objfpc}{$H+}
+{$ENDIF}
 {$IFOPT D+}
   {$DEFINE DEBUG}
 {$ENDIF}
@@ -41,10 +46,10 @@ type
   private
     FEditMenuAttached : Boolean;
     
-    procedure OnObjectSelectEvent ({%H-}AObject : TCommonObject);
+    function OnObjectSelectEvent ({%H-}AObject : TCommonObject) : Boolean;
 
     { Object on double click event. }
-    procedure OnObjectDoubleClickEvent (AObject : TCommonObject);
+    function OnObjectDoubleClickEvent (AObject : TCommonObject) : Boolean;
   end;
 
 implementation
@@ -60,33 +65,45 @@ begin
   inherited Create;
   FEditMenuAttached := False;
   
-  Register(EVENT_OBJECT_SELECT, @OnObjectSelectEvent);
-  Register(EVENT_OBJECT_DOUBLE_CLICK, @OnObjectDoubleClickEvent);
+  Register(EVENT_OBJECT_SELECT, {$IFDEF FPC}@{$ENDIF}OnObjectSelectEvent);
+  Register(EVENT_OBJECT_DOUBLE_CLICK,
+    {$IFDEF FPC}@{$ENDIF}OnObjectDoubleClickEvent);
 end;
 
-procedure TEquipmentEventProvider.OnObjectSelectEvent (AObject : TCommonObject);
+function TEquipmentEventProvider.OnObjectSelectEvent (AObject : TCommonObject) :
+  Boolean;
 begin
-  if (not FEditMenuAttached) and (Assigned(Provider.GetSelectedObject)) then
+  if (not FEditMenuAttached) and (Provider.GetSelectedObject <> nil) then
   begin
     MainMenu.AttachDynamicMenu(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT,
       TMenuSubitemEquipmentEditDataProvider.Create,
       TMainMenuSubitemProfilesProvider.Create);
-    MainMenu.UpdateDynamicMenu;
+
     FEditMenuAttached := True;
   end;
+  
+  Result := True;
 end;
 
-procedure TEquipmentEventProvider.OnObjectDoubleClickEvent (AObject :
-  TCommonObject);
+function TEquipmentEventProvider.OnObjectDoubleClickEvent (AObject :
+  TCommonObject) : Boolean;
 begin
+  Provider.ChangeData(TEquipmentEntityDataHandler.Create(TEquipment(AObject)));
+  MainMenu.AttachObject(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT,
+    TEquipment(AObject));
+  
   MainMenu.DetachAllDynamicMenus(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT);
+
   MainMenu.AttachDynamicMenu(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT,
     TMenuSubitemEntityDataProvider.Create,
     TMainMenuItemProfilesProvider.Create);
-  MainMenu.AttachObject(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT,
-    TEquipment(AObject));
-  Provider.ChangeData(TEquipmentEntityDataHandler.Create(TEquipment(AObject)));
-  MainMenu.UpdateDynamicMenu;
+  MainMenu.AttachDynamicMenu(TMainMenu.MAIN_MENU_ITEM_ENTITY,
+    TMenuSubitemEntityCreateDataProvider.Create,
+    TMainMenuSubitemProfilesProvider.Create);
+    
+  MainMenu.SelectMenuItem(TMainMenu.MAIN_MENU_ITEM_ENTITY);
+  
+  Result := True;
 end;
 
 end.

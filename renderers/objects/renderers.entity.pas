@@ -1,6 +1,9 @@
 (******************************************************************************)
 (*                               SheduledRepair                               *)
 (*                                                                            *)
+(* This is a software for creating schedules  for repair work, accounting and *)
+(* monitoring  their  implementation, accounting for the  necessary materials *)
+(* and spare parts.                                                           *)
 (*                                                                            *)
 (* Copyright (c) 2020                                       Ivan Semenkov     *)
 (* https://github.com/isemenkov/SheduledRepair              ivan@semenkov.pro *)
@@ -24,7 +27,9 @@
 (******************************************************************************)
 unit renderers.entity;
 
-{$mode objfpc}{$H+}
+{$IFDEF FPC}
+  {$mode objfpc}{$H+}
+{$ENDIF}
 {$IFOPT D+}
   {$DEFINE DEBUG}
 {$ENDIF}
@@ -54,7 +59,6 @@ type
     { Draw name. }
     procedure DrawText (AText : String; AProfileItem : 
       TRendererProfileItem; ACanvas : TCanvas; ARect : TRect);
-    {$IFNDEF DEBUG}inline;{$ENDIF}
   end;
 
 implementation
@@ -77,17 +81,17 @@ end;
 procedure TEntityRenderer.DrawText(AText : String; AProfileItem :
   TRendererProfileItem; ACanvas : TCanvas; ARect : TRect);
 
-  function CalculateXPos : Integer; {$IFNDEF DEBUG}inline;{$ENDIF}
+  function CalculateXPos : Integer;
   begin
     Result := Round(AProfileItem.Position.X * ARect.Width / 100);
   end;
 
-  function CalculateYPos : Integer; {$IFNDEF DEBUG}inline;{$ENDIF}
+  function CalculateYPos : Integer;
   begin
     Result := Round(AProfileItem.Position.Y * ARect.Height / 100);
   end;
 
-  function CalculateNameRect : TRect; {$IFNDEF DEBUG}inline;{$ENDIF}
+  function CalculateNameRect : TRect;
   var
     TitleSize : TSize;
   begin
@@ -146,6 +150,9 @@ begin
   DrawText(TEntity(AObject).Name, AProfile.Items['Name'], ACanvas, ARect);
   DrawText(FormatFloat('0.00', TEntity(AObject).Quantity.Count) + ' ' +
     TEntity(AObject).Quantity.Measure.Name, AProfile.Items['Quantity'],
+    ACanvas, ARect);
+  DrawText(FormatFloat('0.00', TEntity(AObject).Period.Quantity.Count) + ' ' +
+    TEntity(AObject).Period.Quantity.Measure.Name, AProfile.Items['Period'],
     ACanvas, ARect);
 end;
 

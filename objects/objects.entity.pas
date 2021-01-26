@@ -1,6 +1,9 @@
 (******************************************************************************)
 (*                               SheduledRepair                               *)
 (*                                                                            *)
+(* This is a software for creating schedules  for repair work, accounting and *)
+(* monitoring  their  implementation, accounting for the  necessary materials *)
+(* and spare parts.                                                           *)
 (*                                                                            *)
 (* Copyright (c) 2020                                       Ivan Semenkov     *)
 (* https://github.com/isemenkov/SheduledRepair              ivan@semenkov.pro *)
@@ -24,7 +27,9 @@
 (******************************************************************************)
 unit objects.entity;
 
-{$mode objfpc}{$H+}
+{$IFDEF FPC}
+  {$mode objfpc}{$H+}
+{$ENDIF}
 {$IFOPT D+}
   {$DEFINE DEBUG}
 {$ENDIF}
@@ -32,11 +37,11 @@ unit objects.entity;
 interface
 
 uses
-  SysUtils, objects.namedobject, sqlite3.schema, objects.greasebag, 
+  SysUtils, objects.greasableobject, sqlite3.schema, objects.greasebag, 
   objects.nodebag, objects.shedule, objects.period, objects.quantity;
 
 type
-  TEntity = class(TNamedObject)
+  TEntity = class(TGreasableObject)
   private
     const
       ENTITY_TABLE_NAME = 'entity';
@@ -77,13 +82,11 @@ type
     { Delete all dependent objects. }
     function DeleteDepentObjects : Boolean; override;
   protected
-    FGreaseBag : TGreaseBag;
     FNodeBag : TNodeBag;
     FShedule : TShedule;
     FQuantity : TQuantity;
     FPeriod : TPeriod;
   public
-    property GreaseBag : TGreaseBag read FGreaseBag write FGreaseBag;
     property NodeBag : TNodeBag read FNodeBag write FNodeBag;
     property Shedule : TShedule read FShedule write FShedule;
     property Quantity : TQuantity read FQuantity write FQuantity;
@@ -97,7 +100,6 @@ implementation
 constructor TEntity.Create (AID : Int64);
 begin
   inherited Create (AID);
-  FGreaseBag := TGreaseBag.Create(-1, Self);
   FNodeBag := TNodeBag.Create(-1, Self);
   FShedule := TShedule.Create(-1);
   FQuantity := TQuantity.Create(-1);
@@ -106,7 +108,6 @@ end;
 
 destructor TEntity.Destroy;
 begin
-  FreeAndNil(FGreaseBag);
   FreeAndNil(FNodeBag);
   FreeAndNil(FShedule);
   FreeAndNil(FQuantity);

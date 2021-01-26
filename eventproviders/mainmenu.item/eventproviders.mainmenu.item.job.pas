@@ -1,6 +1,9 @@
 (******************************************************************************)
 (*                               SheduledRepair                               *)
 (*                                                                            *)
+(* This is a software for creating schedules  for repair work, accounting and *)
+(* monitoring  their  implementation, accounting for the  necessary materials *) 
+(* and spare parts.                                                           *)                 
 (*                                                                            *)
 (* Copyright (c) 2020                                       Ivan Semenkov     *)
 (* https://github.com/isemenkov/SheduledRepair              ivan@semenkov.pro *)
@@ -24,7 +27,9 @@
 (******************************************************************************)
 unit eventproviders.mainmenu.item.job;
 
-{$mode objfpc}{$H+}
+{$IFDEF FPC}
+  {$mode objfpc}{$H+}
+{$ENDIF}
 {$IFOPT D+}
   {$DEFINE DEBUG}
 {$ENDIF}
@@ -39,9 +44,10 @@ type
   public
     constructor Create; override;
   private
-    procedure JobClickEvent ({%H-}AObject : TCommonObject);
-    procedure JobAttachDynamicMenuEvent ({%H-}AObject : TCommonObject);
-    procedure JobDetachDynamicMenuEvent ({%H-}AObject : TCommonObject);
+    function JobSelectEvent ({%H-}AObject : TCommonObject) : Boolean;
+    function JobClickEvent ({%H-}AObject : TCommonObject) : Boolean;
+    function JobAttachDynamicMenuEvent ({%H-}AObject : TCommonObject) : Boolean;
+    function JobDetachDynamicMenuEvent ({%H-}AObject : TCommonObject) : Boolean;
   end;
 
 implementation
@@ -56,29 +62,49 @@ constructor TMainMenuItemJobEventProvider.Create;
 begin
   inherited Create;
   
-  Register(EVENT_OBJECT_CLICK, @JobClickEvent);
-  Register(EVENT_OBJECT_ATTACH_DYNAMIC_MENU, @JobAttachDynamicMenuEvent);
-  Register(EVENT_OBJECT_DETACH_DYNAMIC_MENU, @JobDetachDynamicMenuEvent);
+  Register(EVENT_OBJECT_SELECT, {$IFDEF FPC}@{$ENDIF}JobSelectEvent);
+  Register(EVENT_OBJECT_CLICK, {$IFDEF FPC}@{$ENDIF}JobClickEvent);
+  Register(EVENT_OBJECT_ATTACH_DYNAMIC_MENU,
+    {$IFDEF FPC}@{$ENDIF}JobAttachDynamicMenuEvent);
+  Register(EVENT_OBJECT_DETACH_DYNAMIC_MENU,
+    {$IFDEF FPC}@{$ENDIF}JobDetachDynamicMenuEvent);
 end;
 
-procedure TMainMenuItemJobEventProvider.JobClickEvent (AObject : 
-  TCommonObject);
+function TMainMenuItemJobEventProvider.JobSelectEvent (AObject : TCommonObject) 
+  : Boolean;
+begin
+  Result := True;
+end;
+
+function TMainMenuItemJobEventProvider.JobClickEvent (AObject : 
+  TCommonObject) : Boolean;
 begin
   Provider.ChangeData(TJobDataHandler.Create);
+  
+  MainMenu.DetachObject(TMainMenu.MAIN_MENU_ITEM_JOB);
+  MainMenu.DetachObject(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT);
+  
+  MainMenu.DetachAllDynamicMenus(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT);
+  
+  Result := True;
 end;
 
-procedure TMainMenuItemJobEventProvider.JobAttachDynamicMenuEvent (AObject :
-  TCommonObject);
+function TMainMenuItemJobEventProvider.JobAttachDynamicMenuEvent (AObject :
+  TCommonObject) : Boolean;
 begin
   MainMenu.AttachDynamicMenu(TMainMenu.MAIN_MENU_ITEM_JOB,
-    TMenuSubitemJobDataProvider.Create,
+    TMenuSubitemJobCreateDataProvider.Create,
     TMainMenuSubitemProfilesProvider.Create);
+  
+  Result := True;
 end;
 
-procedure TMainMenuItemJobEventProvider.JobDetachDynamicMenuEvent (AObject :
-  TCommonObject);
+function TMainMenuItemJobEventProvider.JobDetachDynamicMenuEvent (AObject :
+  TCommonObject) : Boolean;
 begin
   MainMenu.DetachAllDynamicMenus(TMainMenu.MAIN_MENU_ITEM_JOB);
+
+  Result := True;
 end;
 
 end.

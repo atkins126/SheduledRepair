@@ -1,6 +1,9 @@
 (******************************************************************************)
 (*                               SheduledRepair                               *)
 (*                                                                            *)
+(* This is a software for creating schedules  for repair work, accounting and *)
+(* monitoring  their  implementation, accounting for the  necessary materials *)
+(* and spare parts.                                                           *)
 (*                                                                            *)
 (* Copyright (c) 2020                                       Ivan Semenkov     *)
 (* https://github.com/isemenkov/SheduledRepair              ivan@semenkov.pro *)
@@ -24,7 +27,9 @@
 (******************************************************************************)
 unit objects.entitybag;
 
-{$mode objfpc}{$H+}
+{$IFDEF FPC}
+  {$mode objfpc}{$H+}
+{$ENDIF}
 {$IFOPT D+}
   {$DEFINE DEBUG}
 {$ENDIF}
@@ -88,13 +93,13 @@ type
   public
     type
       TEntityCompareFunctor = class
-       (specialize TBinaryFunctor<TEntity, Integer>)
+       ({$IFDEF FPC}specialize{$ENDIF} TBinaryFunctor<TEntity, Integer>)
       public
         function Call (AValue1, AValue2 : TEntity) : Integer; override;
       end;
-      
-      TEntityList = class
-        (specialize TArrayList<TEntity, TEntityCompareFunctor>);  
+
+      TEntityList = {$IFDEF FPC}type specialize{$ENDIF} TArrayList<TEntity,
+        TEntityCompareFunctor>;
   public
     { Get enumerator for in operator. }
     function GetEnumerator : TEntityList.TIterator;
@@ -276,7 +281,15 @@ begin
   Index := FEntityList.IndexOf(AEntity);
 
   if Index <> -1 then
+  begin
     FEntityList.Remove(Index);
+
+    FTable.Delete
+      .Where('object_name', FObject.Table)
+      .Where('object_id', FObject.ID)
+      .Where('entity_id', AEntity.ID)
+      .Get;
+  end;
 end;
 
 function TEntityBag.GetEnumerator : TEntityList.TIterator;

@@ -1,6 +1,9 @@
 (******************************************************************************)
 (*                               SheduledRepair                               *)
 (*                                                                            *)
+(* This is a software for creating schedules  for repair work, accounting and *)
+(* monitoring  their  implementation, accounting for the  necessary materials *) 
+(* and spare parts.                                                           *)                 
 (*                                                                            *)
 (* Copyright (c) 2020                                       Ivan Semenkov     *)
 (* https://github.com/isemenkov/SheduledRepair              ivan@semenkov.pro *)
@@ -24,7 +27,9 @@
 (******************************************************************************)
 unit datahandlers;
 
-{$mode objfpc}{$H+}
+{$IFDEF FPC}
+  {$mode objfpc}{$H+}
+{$ENDIF}
 {$IFOPT D+}
   {$DEFINE DEBUG}
 {$ENDIF}
@@ -33,11 +38,18 @@ interface
 
 uses
   SysUtils, VirtualTrees, Forms, Controls, objects.common, objects.equipment,
-  objects.job, renderers.datarenderer, renderers.equipment,
+  objects.job, objects.entity, objects.node, renderers.datarenderer, 
+  renderers.equipment, dataproviders.node, profilesprovider.node, 
   dataproviders.equipment, profilesprovider.equipment, eventproviders.equipment,
   renderers.entity, dataproviders.entity, profilesprovider.entity, 
   renderers.job, dataproviders.job, profilesprovider.job, eventproviders.job, 
-  eventproviders.entity, jobform, equipmentform;
+  eventproviders.entity, renderers.node,
+  eventproviders.node, dataproviders.grease,
+  profilesprovider.greasebundle, renderers.greasebundle,
+  eventproviders.entitygrease, objects.greasebundle,
+  eventproviders.nodegrease{$IFDEF FPC},jobform, equipmentform, entityform,
+  nodeform, greasebundleform{$ELSE}, jobform_delphi, equipmentform_delphi,
+  entityform_delphi, nodeform_delphi, greasebundleform_delphi{$ENDIF};
 
 type
   TDataHandler = class
@@ -78,6 +90,39 @@ type
     FEquipment : TEquipment;
   end;
 
+  TEntityGreaseDataHandler = class(TDataHandler)
+  public
+    constructor Create (AEntity : TEntity);
+    function CreateDataRenderer (ADataView : TVirtualDrawTree) : TDataRenderer;
+      override;
+    procedure ShowEditor (AParent : TCustomForm; {%H-}AObject : TCommonObject); 
+      override;
+  private
+    FEntity : TEntity;
+  end;
+
+  TEntityNodeDataHandler = class(TDataHandler)
+  public
+    constructor Create (AEntity : TEntity);
+    function CreateDataRenderer (ADataView : TVirtualDrawTree) : TDataRenderer;
+      override;
+    procedure ShowEditor (AParent : TCustomForm; {%H-}AObject : TCommonObject); 
+      override;
+  private
+    FEntity : TEntity;
+  end;
+
+  TNodeGreaseDataHandler = class(TDataHandler)
+  public
+    constructor Create (ANode : TNode);
+    function CreateDataRenderer (ADataView : TVirtualDrawTree) : TDataRenderer;
+      override;
+    procedure ShowEditor (AParent : TCustomForm; {%H-}AObject : TCommonObject); 
+      override;
+  private
+    FNode : TNode;
+  end;
+
 implementation
 
 uses
@@ -102,7 +147,7 @@ begin
     changed after refactor. }
   JobEditor := TJobWindow.Create(AParent, TJob(AObject));
   ModalResult := JobEditor.ShowModal;
-  
+
   if ModalResult = mrOk then
     JobEditor.GetObject.Save;
 
@@ -159,8 +204,185 @@ end;
 
 procedure TEquipmentEntityDataHandler.ShowEditor (AParent : TCustomForm; 
   AObject : TCommonObject);
+var
+  EntityEditor : TEntityWindow;
+  Entity : TEntity;
+  ModalResult : Integer;
 begin
+  { EntityEditor window is temporaryly, onlu for work testing and it will
+    been changed after refactor. }
+  EntityEditor := TEntityWindow.Create(AParent, FEquipment, TEntity(AObject));
+  ModalResult := EntityEditor.ShowModal;
 
+  if ModalResult = mrOk then
+  begin
+    Entity := EntityEditor.GetObject;
+
+    if Entity.ID = -1 then
+    begin
+      Entity.Save;
+      FEquipment.EntityBag.Append(Entity);
+    end else
+    begin
+      Entity.Save;
+    end;
+
+    FEquipment.Save;
+  end;
+
+  if ModalResult <> mrCancel then
+    Provider.ReloadData;
+
+  FreeAndNil(EntityEditor);
+end;
+
+{ TEntityNodeDataHandler }
+
+constructor TEntityNodeDataHandler.Create (AEntity : TEntity);
+begin
+  FEntity := AEntity;
+end;
+
+function TEntityNodeDataHandler.CreateDataRenderer (ADataView :
+  TVirtualDrawTree) : TDataRenderer;
+begin
+  Result := TDataRenderer.Create(ADataView, 
+    TNodeDataProvider.Create(FEntity), TNodeProfilesProvider.Create,
+    TNodeRenderer.Create, TNodeEventProvider.Create);
+end;
+
+procedure TEntityNodeDataHandler.ShowEditor (AParent : TCustomForm; 
+  AObject : TCommonObject);
+var
+  NodeEditor : TNodeWindow;
+  Node : TNode;
+  ModalResult : Integer;
+begin
+  { NodeEditor window is temporaryly, onlu for work testing and it will
+    been changed after refactor. }
+  NodeEditor := TNodeWindow.Create(AParent, FEntity, TNode(AObject));
+  ModalResult := NodeEditor.ShowModal;
+
+  if ModalResult = mrOk then
+  begin
+    Node := NodeEditor.GetObject;
+
+    if Node.ID = -1 then
+    begin
+      Node.Save;
+      FEntity.NodeBag.Append(Node);
+    end else
+    begin
+      Node.Save;
+    end;
+
+    FEntity.Save;
+  end;
+
+  if ModalResult <> mrCancel then
+    Provider.ReloadData;
+
+  FreeAndNil(NodeEditor);
+end;
+
+{ TEntityGreaseDataHandler }
+
+constructor TEntityGreaseDataHandler.Create (AEntity : TEntity);
+begin
+  FEntity := AEntity;
+end;
+
+function TEntityGreaseDataHandler.CreateDataRenderer (ADataView :
+  TVirtualDrawTree) : TDataRenderer;
+begin
+  Result := TDataRenderer.Create(ADataView, 
+    TGreaseDataProvider.Create(FEntity), TGreaseBundleProfilesProvider.Create,
+    TGreaseBundleRenderer.Create, TEntityGreaseEventProvider.Create);
+end;
+
+procedure TEntityGreaseDataHandler.ShowEditor (AParent : TCustomForm; 
+  AObject : TCommonObject);
+var
+  GreaseBundleEditor : TGreaseBundleWindow;
+  GreaseBundle : TGreaseBundle;
+  ModalResult : Integer;
+begin
+  { GreaseBundleEditor window is temporaryly, onlu for work testing and it will
+    been changed after refactor. }
+  GreaseBundleEditor := TGreaseBundleWindow.Create(AParent, FEntity,
+    TGreaseBundle(AObject));
+  ModalResult := GreaseBundleEditor.ShowModal;
+
+  if ModalResult = mrOk then
+  begin
+    GreaseBundle := GreaseBundleEditor.GetObject;
+
+    if GreaseBundle.ID = -1 then
+    begin
+      GreaseBundle.Save;
+      FEntity.GreaseBag.Append(GreaseBundle);
+    end else
+    begin
+      GreaseBundle.Save;
+    end;
+
+    FEntity.Save;
+  end;
+
+  if ModalResult <> mrCancel then
+    Provider.ReloadData;
+
+  FreeAndNil(GreaseBundleEditor);
+end;
+
+{ TNodeGreaseDataHandler }
+
+constructor TNodeGreaseDataHandler.Create (ANode : TNode);
+begin
+  FNode := ANode;
+end;
+
+function TNodeGreaseDataHandler.CreateDataRenderer (ADataView :
+  TVirtualDrawTree) : TDataRenderer;
+begin
+  Result := TDataRenderer.Create(ADataView, 
+    TGreaseDataProvider.Create(FNode), TGreaseBundleProfilesProvider.Create,
+    TGreaseBundleRenderer.Create, TNodeGreaseEventProvider.Create);
+end;
+
+procedure TNodeGreaseDataHandler.ShowEditor (AParent : TCustomForm; 
+  AObject : TCommonObject);
+var
+  GreaseBundleEditor : TGreaseBundleWindow;
+  GreaseBundle : TGreaseBundle;
+  ModalResult : Integer;
+begin
+  { GreaseBundleEditor window is temporaryly, onlu for work testing and it will
+    been changed after refactor. }
+  GreaseBundleEditor := TGreaseBundleWindow.Create(AParent, FNode,
+    TGreaseBundle(AObject));
+  ModalResult := GreaseBundleEditor.ShowModal;
+
+  if ModalResult = mrOk then
+  begin
+    GreaseBundle := GreaseBundleEditor.GetObject;
+
+    if GreaseBundle.ID = -1 then
+    begin
+      GreaseBundle.Save;
+      FNode.GreaseBag.Append(GreaseBundle);
+    end else
+    begin
+      GreaseBundle.Save;
+    end;
+
+    FNode.Save;
+  end;
+
+  if ModalResult <> mrCancel then
+    Provider.ReloadData;
+
+  FreeAndNil(GreaseBundleEditor);
 end;
 
 end.

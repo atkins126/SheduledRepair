@@ -1,6 +1,9 @@
 (******************************************************************************)
 (*                               SheduledRepair                               *)
 (*                                                                            *)
+(* This is a software for creating schedules  for repair work, accounting and *)
+(* monitoring  their  implementation, accounting for the  necessary materials *) 
+(* and spare parts.                                                           *)                 
 (*                                                                            *)
 (* Copyright (c) 2020                                       Ivan Semenkov     *)
 (* https://github.com/isemenkov/SheduledRepair              ivan@semenkov.pro *)
@@ -24,7 +27,9 @@
 (******************************************************************************)
 unit dataproviders.common;
 
-{$mode objfpc}{$H+}
+{$IFDEF FPC}
+  {$mode objfpc}{$H+}
+{$ENDIF}
 {$IFOPT D+}
   {$DEFINE DEBUG}
 {$ENDIF}
@@ -65,13 +70,13 @@ type
   protected
     type
       TObjectsCompareFunctor = class
-        (specialize TBinaryFunctor<TCommonObject, Integer>)
+        ({$IFDEF FPC}specialize{$ENDIF} TBinaryFunctor<TCommonObject, Integer>)
       public
         function Call (AValue1, AValue2 : TCommonObject) : Integer; override;
       end;
 
-      TObjectsList = class
-        (specialize TArrayList<TCommonObject, TObjectsCompareFunctor>);
+      TObjectsList = {$IFDEF FPC}type specialize{$ENDIF}
+        TArrayList<TCommonObject, TObjectsCompareFunctor>;
   protected
     FObjectsList : TObjectsList;
   public

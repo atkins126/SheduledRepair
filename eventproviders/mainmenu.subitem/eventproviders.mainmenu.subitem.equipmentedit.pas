@@ -1,6 +1,9 @@
 (******************************************************************************)
 (*                               SheduledRepair                               *)
 (*                                                                            *)
+(* This is a software for creating schedules  for repair work, accounting and *)
+(* monitoring  their  implementation, accounting for the  necessary materials *) 
+(* and spare parts.                                                           *)                 
 (*                                                                            *)
 (* Copyright (c) 2020                                       Ivan Semenkov     *)
 (* https://github.com/isemenkov/SheduledRepair              ivan@semenkov.pro *)
@@ -24,7 +27,9 @@
 (******************************************************************************)
 unit eventproviders.mainmenu.subitem.equipmentedit;
 
-{$mode objfpc}{$H+}
+{$IFDEF FPC}
+  {$mode objfpc}{$H+}
+{$ENDIF}
 {$IFOPT D+}
   {$DEFINE DEBUG}
 {$ENDIF}
@@ -39,7 +44,7 @@ type
   public
     constructor Create; override;
   private
-    procedure EquipmentEditClickEvent ({%H-}AObject : TCommonObject);
+    function EquipmentEditClickEvent ({%H-}AObject : TCommonObject) : Boolean;
   end;
 
 implementation
@@ -53,17 +58,19 @@ constructor TMainMenuSubitemEquipmentEditEventProvider.Create;
 begin
   inherited Create;
   
-  Register(EVENT_OBJECT_CLICK, @EquipmentEditClickEvent);
+  Register(EVENT_OBJECT_CLICK, {$IFDEF FPC}@{$ENDIF}EquipmentEditClickEvent);
 end;
 
-procedure TMainMenuSubitemEquipmentEditEventProvider.EquipmentEditClickEvent 
-  (AObject : TCommonObject);
+function TMainMenuSubitemEquipmentEditEventProvider.EquipmentEditClickEvent 
+  (AObject : TCommonObject) : Boolean;
 var
   EquipmentObject : TCommonObject;
 begin
   EquipmentObject := Provider.GetSelectedObject;
   if Assigned(EquipmentObject) then
     Provider.ShowEditor(TEquipment(EquipmentObject));
+  
+  Result := True;
 end;
 
 end.

@@ -1,6 +1,9 @@
 (******************************************************************************)
 (*                               SheduledRepair                               *)
 (*                                                                            *)
+(* This is a software for creating schedules  for repair work, accounting and *)
+(* monitoring  their  implementation, accounting for the  necessary materials *) 
+(* and spare parts.                                                           *)                 
 (*                                                                            *)
 (* Copyright (c) 2020                                       Ivan Semenkov     *)
 (* https://github.com/isemenkov/SheduledRepair              ivan@semenkov.pro *)
@@ -24,7 +27,9 @@
 (******************************************************************************)
 unit eventproviders.common;
 
-{$mode objfpc}{$H+}
+{$IFDEF FPC}
+  {$mode objfpc}{$H+}
+{$ENDIF}
 {$IFOPT D+}
   {$DEFINE DEBUG}
 {$ENDIF}
@@ -32,7 +37,7 @@ unit eventproviders.common;
 interface
 
 uses
-  SysUtils, objects.common, container.hashtable, utils.functor;
+  SysUtils, objects.common, container.arraylist, utils.functor;
 
 type
   TCommonEventProvider = class
@@ -45,7 +50,7 @@ type
       EVENT_OBJECT_ATTACH_DYNAMIC_MENU                                   = 4;
       EVENT_OBJECT_DETACH_DYNAMIC_MENU                                   = 5;
     type
-      TObjectEvent = procedure (AObject : TCommonObject) of object;
+      TObjectEvent = function (AObject : TCommonObject) : Boolean of object;
   public
     constructor Create; virtual;
     destructor Destroy; override;
@@ -59,13 +64,14 @@ type
       {$IFNDEF DEBUG}inline;{$ENDIF}
 
     { Run exists event. } 
-    procedure Fire (AEventID : Integer; AObject : TCommonObject);
+    function Fire (AEventID : Integer; AObject : TCommonObject) : Boolean;
       {$IFNDEF DEBUG}inline;{$ENDIF}
   protected
     type
-      TEventCompareFunctor = class(specialize TUnsortableFunctor<Integer>);
-      TEvents = class(specialize THashTable<Integer, TObjectEvent, 
-        TEventCompareFunctor>);
+      TEventCompareFunctor = class({$IFDEF FPC}specialize{$ENDIF}
+        TUnsortableFunctor<TObjectEvent>);
+      TEvents = {$IFDEF FPC}type specialize{$ENDIF} TArrayList<TObjectEvent,
+        TEventCompareFunctor>;
   protected
     FEvents : TEvents;
   end;
@@ -76,7 +82,7 @@ implementation
 
 constructor TCommonEventProvider.Create;
 begin
-  FEvents := TEvents.Create(@HashInteger);
+  FEvents := TEvents.Create;
 end;
 
 destructor TCommonEventProvider.Destroy;
@@ -87,8 +93,16 @@ end;
 
 procedure TCommonEventProvider.Register (AEventID : Integer; AEvent :
   TObjectEvent);
+var
+  Index : Integer;
 begin
-  FEvents.Insert(AEventID, AEvent);
+  if AEventID > (FEvents.Length - 1) then
+  begin
+    for Index := FEvents.Length to AEventID do
+      FEvents.Append(nil);
+  end;
+
+  FEvents.Value[AEventID] := AEvent;
 end;
 
 procedure TCommonEventProvider.Remove (AEventID : Integer);
@@ -96,18 +110,17 @@ begin
   FEvents.Remove(AEventID);
 end;
 
-procedure TCommonEventProvider.Fire (AEventID : Integer; AObject : 
-  TCommonObject);
+function TCommonEventProvider.Fire (AEventID : Integer; AObject : 
+  TCommonObject) : Boolean;
 var
   Event : TObjectEvent;
 begin
-  try
-    Event := FEvents.Search(AEventID);
-    Event(AObject);
-  except
-    on E: EKeyNotExistsException do
-      { Do nothing. }
-  end;
+  if (AEventID > FEvents.Length - 1) or (not Assigned(FEvents.Value[AEventID]))
+    then
+    Exit(False);
+
+  Event := FEvents.Value[AEventID];
+  Result := Event(AObject);
 end;
 
 end.

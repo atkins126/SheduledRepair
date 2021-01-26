@@ -1,6 +1,9 @@
 (******************************************************************************)
 (*                               SheduledRepair                               *)
 (*                                                                            *)
+(* This is a software for creating schedules  for repair work, accounting and *)
+(* monitoring  their  implementation, accounting for the  necessary materials *) 
+(* and spare parts.                                                           *)                 
 (*                                                                            *)
 (* Copyright (c) 2020                                       Ivan Semenkov     *)
 (* https://github.com/isemenkov/SheduledRepair              ivan@semenkov.pro *)
@@ -24,7 +27,9 @@
 (******************************************************************************)
 unit eventproviders.mainmenu.item.equipment;
 
-{$mode objfpc}{$H+}
+{$IFDEF FPC}
+  {$mode objfpc}{$H+}
+{$ENDIF}
 {$IFOPT D+}
   {$DEFINE DEBUG}
 {$ENDIF}
@@ -39,10 +44,12 @@ type
   public
     constructor Create; override;
   private
-    procedure EquipmentClickEvent ({%H-}AObject : TCommonObject);
-    procedure EquipmentUnselectEvent ({%H-}AObject : TCommonObject);
-    procedure EquipmentAttachDynamicMenuEvent ({%H-}AObject : TCommonObject);
-    procedure EquipmentDetachDynamicMenuEvent ({%H-}AObject : TCommonObject);
+    function EquipmentSelectEvent ({%H-}AObject : TCommonObject) : Boolean;
+    function EquipmentClickEvent ({%H-}AObject : TCommonObject) : Boolean;
+    function EquipmentAttachDynamicMenuEvent ({%H-}AObject : TCommonObject) :
+      Boolean;
+    function EquipmentDetachDynamicMenuEvent ({%H-}AObject : TCommonObject) :
+      Boolean;
   end;
 
 implementation
@@ -57,37 +64,49 @@ constructor TMainMenuItemEquipmentEventProvider.Create;
 begin
   inherited Create;
   
-  Register(EVENT_OBJECT_CLICK, @EquipmentClickEvent);
-  Register(EVENT_OBJECT_UNSELECT, @EquipmentUnselectEvent);
-  Register(EVENT_OBJECT_ATTACH_DYNAMIC_MENU, @EquipmentAttachDynamicMenuEvent);
-  Register(EVENT_OBJECT_DETACH_DYNAMIC_MENU, @EquipmentDetachDynamicMenuEvent);
+  Register(EVENT_OBJECT_SELECT, {$IFDEF FPC}@{$ENDIF}EquipmentSelectEvent);
+  Register(EVENT_OBJECT_CLICK, {$IFDEF FPC}@{$ENDIF}EquipmentClickEvent);
+  Register(EVENT_OBJECT_ATTACH_DYNAMIC_MENU,
+    {$IFDEF FPC}@{$ENDIF}EquipmentAttachDynamicMenuEvent);
+  Register(EVENT_OBJECT_DETACH_DYNAMIC_MENU,
+    {$IFDEF FPC}@{$ENDIF}EquipmentDetachDynamicMenuEvent);
 end;
 
-procedure TMainMenuItemEquipmentEventProvider.EquipmentClickEvent (AObject : 
-  TCommonObject);
+function TMainMenuItemEquipmentEventProvider.EquipmentSelectEvent (AObject : 
+  TCommonObject) : Boolean;
+begin
+  Result := True;
+end;
+
+function TMainMenuItemEquipmentEventProvider.EquipmentClickEvent (AObject : 
+  TCommonObject) : Boolean;
 begin
   Provider.ChangeData(TEquipmentDataHandler.Create);
+  
+  MainMenu.DetachObject(TMainMenu.MAIN_MENU_ITEM_JOB);
   MainMenu.DetachObject(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT);
+  
+  MainMenu.DetachAllDynamicMenus(TMainMenu.MAIN_MENU_ITEM_JOB);
+
+  Result := True;
 end;
 
-procedure TMainMenuItemEquipmentEventProvider.EquipmentUnselectEvent (AObject :
-  TCommonObject);
-begin
-  MainMenu.DetachObject(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT);
-end;
-
-procedure TMainMenuItemEquipmentEventProvider.EquipmentAttachDynamicMenuEvent 
-  (AObject : TCommonObject);
+function TMainMenuItemEquipmentEventProvider.EquipmentAttachDynamicMenuEvent 
+  (AObject : TCommonObject) : Boolean;
 begin
   MainMenu.AttachDynamicMenu(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT,
-    TMenuSubitemEquipmentDataProvider.Create, 
+    TMenuSubitemEquipmentCreateDataProvider.Create, 
     TMainMenuSubitemProfilesProvider.Create);
+  
+  Result := True;
 end;
 
-procedure TMainMenuItemEquipmentEventProvider.EquipmentDetachDynamicMenuEvent 
-  (AObject : TCommonObject);
+function TMainMenuItemEquipmentEventProvider.EquipmentDetachDynamicMenuEvent 
+  (AObject : TCommonObject) : Boolean;
 begin
   MainMenu.DetachAllDynamicMenus(TMainMenu.MAIN_MENU_ITEM_EQUIPMENT);
+  
+  Result := True;
 end;
 
 end.
