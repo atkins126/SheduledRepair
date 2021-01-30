@@ -38,334 +38,284 @@
         <PackageName Value="LCL"/>
       </Item2>
     </RequiredPackages>
-    <Units Count="76">
+    <Units Count="69">
       <Unit0>
         <Filename Value="SheduledRepair.lpr"/>
         <IsPartOfProject Value="True"/>
       </Unit0>
       <Unit1>
-        <Filename Value="../forms/mainform.pas"/>
+        <Filename Value="../pascalutils/source/utils.functor.pas"/>
         <IsPartOfProject Value="True"/>
-        <ComponentName Value="MainWindow"/>
-        <HasResources Value="True"/>
-        <ResourceBaseClass Value="Form"/>
-        <UnitName Value="MainForm"/>
       </Unit1>
       <Unit2>
-        <Filename Value="../pascalutils/source/utils.functor.pas"/>
+        <Filename Value="../libpasc-algorithms/source/container.arraylist.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit2>
       <Unit3>
-        <Filename Value="../libpasc-algorithms/source/container.arraylist.pas"/>
+        <Filename Value="../dataproviders/dataproviders.common.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit3>
       <Unit4>
-        <Filename Value="../dataproviders/dataproviders.common.pas"/>
+        <Filename Value="../database.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit4>
       <Unit5>
-        <Filename Value="../database.pas"/>
+        <Filename Value="../libpassqlite/source/libpassqlite.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit5>
       <Unit6>
-        <Filename Value="../libpassqlite/source/libpassqlite.pas"/>
+        <Filename Value="../libpassqlite/source/sqlite3/sqlite3.errors_stack.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit6>
       <Unit7>
-        <Filename Value="../libpassqlite/source/sqlite3/sqlite3.errors_stack.pas"/>
+        <Filename Value="../libpassqlite/source/builder/sqlite3.table.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit7>
       <Unit8>
-        <Filename Value="../libpassqlite/source/builder/sqlite3.table.pas"/>
+        <Filename Value="../objects/objects.measure.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit8>
       <Unit9>
-        <Filename Value="../objects/objects.measure.pas"/>
+        <Filename Value="../configuration.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit9>
       <Unit10>
-        <Filename Value="../configuration.pas"/>
+        <Filename Value="../rules/rules.chain.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit10>
       <Unit11>
-        <Filename Value="../rules/rules.chain.pas"/>
+        <Filename Value="../rules/rules.rule.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit11>
       <Unit12>
-        <Filename Value="../rules/rules.rule.pas"/>
+        <Filename Value="../dataprovider.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit12>
       <Unit13>
-        <Filename Value="../dataprovider.pas"/>
+        <Filename Value="../renderers/profile/renderer.profile.objectprofile.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit13>
       <Unit14>
-        <Filename Value="../renderers/profile/renderer.profile.objectprofile.pas"/>
+        <Filename Value="../renderers/profile/renderer.profile.profile.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit14>
       <Unit15>
-        <Filename Value="../renderers/profile/renderer.profile.profile.pas"/>
+        <Filename Value="../renderers/profile/renderer.profile.profileitem.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit15>
       <Unit16>
-        <Filename Value="../renderers/profile/renderer.profile.profileitem.pas"/>
+        <Filename Value="../renderers/renderers.virtualtreeview.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit16>
       <Unit17>
-        <Filename Value="../forms/editors/equipmentform.pas"/>
+        <Filename Value="../renderers/objects/renderers.common.pas"/>
         <IsPartOfProject Value="True"/>
-        <ComponentName Value="EquipmentWindow"/>
-        <HasResources Value="True"/>
-        <ResourceBaseClass Value="Form"/>
       </Unit17>
       <Unit18>
-        <Filename Value="../forms/editors/profileform.pas"/>
+        <Filename Value="../renderers/objects/renderers.mainmenu.pas"/>
         <IsPartOfProject Value="True"/>
-        <ComponentName Value="ProfileWindow"/>
-        <HasResources Value="True"/>
-        <ResourceBaseClass Value="Form"/>
       </Unit18>
       <Unit19>
-        <Filename Value="../renderers/renderers.virtualtreeview.pas"/>
+        <Filename Value="../profilesprovider/profilesprovider.common.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit19>
       <Unit20>
-        <Filename Value="../renderers/objects/renderers.common.pas"/>
+        <Filename Value="../renderers/renderers.datarenderer.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit20>
       <Unit21>
-        <Filename Value="../renderers/objects/renderers.mainmenu.pas"/>
+        <Filename Value="../dataproviders/dataproviders.mainmenu.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit21>
       <Unit22>
-        <Filename Value="../profilesprovider/profilesprovider.common.pas"/>
+        <Filename Value="../profilesprovider/profilesprovider.mainmenu.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit22>
       <Unit23>
-        <Filename Value="../renderers/renderers.datarenderer.pas"/>
+        <Filename Value="../dataproviders/dataproviders.equipment.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit23>
       <Unit24>
-        <Filename Value="../dataproviders/dataproviders.mainmenu.pas"/>
+        <Filename Value="../profilesprovider/profilesprovider.equipment.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit24>
       <Unit25>
-        <Filename Value="../profilesprovider/profilesprovider.mainmenu.pas"/>
+        <Filename Value="../dataproviders/dataproviders.entity.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit25>
       <Unit26>
-        <Filename Value="../dataproviders/dataproviders.equipment.pas"/>
+        <Filename Value="../dataproviders/dataproviders.job.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit26>
       <Unit27>
-        <Filename Value="../profilesprovider/profilesprovider.equipment.pas"/>
+        <Filename Value="../datahandlers.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit27>
       <Unit28>
-        <Filename Value="../dataproviders/dataproviders.entity.pas"/>
+        <Filename Value="../mainmenuprovider.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit28>
       <Unit29>
-        <Filename Value="../dataproviders/dataproviders.job.pas"/>
+        <Filename Value="../dataproviders/dataproviders.measure.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit29>
       <Unit30>
-        <Filename Value="../datahandlers.pas"/>
+        <Filename Value="../objects/objects.mainmenu.item.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit30>
       <Unit31>
-        <Filename Value="../mainmenuprovider.pas"/>
+        <Filename Value="../objects/objects.greasebag.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit31>
       <Unit32>
-        <Filename Value="../dataproviders/dataproviders.measure.pas"/>
+        <Filename Value="../objects/objects.entitybag.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit32>
       <Unit33>
-        <Filename Value="../objects/objects.mainmenu.item.pas"/>
+        <Filename Value="../objects/objects.nodebag.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit33>
       <Unit34>
-        <Filename Value="../objects/objects.greasebag.pas"/>
+        <Filename Value="../objects/objects.common.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit34>
       <Unit35>
-        <Filename Value="../objects/objects.entitybag.pas"/>
+        <Filename Value="../objects/objects.entity.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit35>
       <Unit36>
-        <Filename Value="../objects/objects.nodebag.pas"/>
+        <Filename Value="../objects/objects.equipment.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit36>
       <Unit37>
-        <Filename Value="../objects/objects.common.pas"/>
+        <Filename Value="../objects/objects.grade.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit37>
       <Unit38>
-        <Filename Value="../forms/editors/jobform.pas"/>
+        <Filename Value="../objects/objects.grease.pas"/>
         <IsPartOfProject Value="True"/>
-        <ComponentName Value="JobWindow"/>
-        <HasResources Value="True"/>
-        <ResourceBaseClass Value="Form"/>
       </Unit38>
       <Unit39>
-        <Filename Value="../objects/objects.entity.pas"/>
+        <Filename Value="../objects/objects.greasebundle.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit39>
       <Unit40>
-        <Filename Value="../objects/objects.equipment.pas"/>
+        <Filename Value="../objects/objects.job.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit40>
       <Unit41>
-        <Filename Value="../objects/objects.grade.pas"/>
+        <Filename Value="../objects/objects.node.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit41>
       <Unit42>
-        <Filename Value="../objects/objects.grease.pas"/>
+        <Filename Value="../objects/objects.period.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit42>
       <Unit43>
-        <Filename Value="../objects/objects.greasebundle.pas"/>
+        <Filename Value="../objects/objects.quantity.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit43>
       <Unit44>
-        <Filename Value="../objects/objects.job.pas"/>
+        <Filename Value="../objects/objects.shedule.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit44>
       <Unit45>
-        <Filename Value="../objects/objects.node.pas"/>
+        <Filename Value="../objects/objects.supplier.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit45>
       <Unit46>
-        <Filename Value="../objects/objects.period.pas"/>
+        <Filename Value="../eventproviders/eventproviders.common.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit46>
       <Unit47>
-        <Filename Value="../objects/objects.quantity.pas"/>
+        <Filename Value="../eventproviders/eventproviders.entity.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit47>
       <Unit48>
-        <Filename Value="../objects/objects.shedule.pas"/>
+        <Filename Value="../eventproviders/eventproviders.equipment.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit48>
       <Unit49>
-        <Filename Value="../objects/objects.supplier.pas"/>
+        <Filename Value="../eventproviders/eventproviders.job.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit49>
       <Unit50>
-        <Filename Value="../eventproviders/eventproviders.common.pas"/>
+        <Filename Value="../eventproviders/mainmenu.item/eventproviders.mainmenu.item.equipment.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit50>
       <Unit51>
-        <Filename Value="../eventproviders/eventproviders.entity.pas"/>
+        <Filename Value="../eventproviders/mainmenu.item/eventproviders.mainmenu.item.job.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit51>
       <Unit52>
-        <Filename Value="../eventproviders/eventproviders.equipment.pas"/>
+        <Filename Value="../eventproviders/mainmenu.subitem/eventproviders.mainmenu.subitem.equipmentcreate.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit52>
       <Unit53>
-        <Filename Value="../eventproviders/eventproviders.job.pas"/>
+        <Filename Value="../eventproviders/mainmenu.subitem/eventproviders.mainmenu.subitem.equipmentedit.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit53>
       <Unit54>
-        <Filename Value="../eventproviders/mainmenu.item/eventproviders.mainmenu.item.equipment.pas"/>
+        <Filename Value="../eventproviders/mainmenu.subitem/eventproviders.mainmenu.subitem.jobcreate.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit54>
       <Unit55>
-        <Filename Value="../eventproviders/mainmenu.item/eventproviders.mainmenu.item.job.pas"/>
+        <Filename Value="../eventproviders/mainmenu.subitem/eventproviders.mainmenu.subitem.jobedit.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit55>
       <Unit56>
-        <Filename Value="../eventproviders/mainmenu.subitem/eventproviders.mainmenu.subitem.equipmentcreate.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit56>
-      <Unit57>
-        <Filename Value="../eventproviders/mainmenu.subitem/eventproviders.mainmenu.subitem.equipmentedit.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit57>
-      <Unit58>
-        <Filename Value="../eventproviders/mainmenu.subitem/eventproviders.mainmenu.subitem.jobcreate.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit58>
-      <Unit59>
-        <Filename Value="../eventproviders/mainmenu.subitem/eventproviders.mainmenu.subitem.jobedit.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit59>
-      <Unit60>
         <Filename Value="../objects/objects.namedobject.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="objects.common"/>
+      </Unit56>
+      <Unit57>
+        <Filename Value="../eventproviders/mainmenu.item/eventproviders.mainmenu.item.entity.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit57>
+      <Unit58>
+        <Filename Value="../dataproviders/dataproviders.node.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit58>
+      <Unit59>
+        <Filename Value="../eventproviders/eventproviders.node.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit59>
+      <Unit60>
+        <Filename Value="../renderers/objects/renderers.node.pas"/>
+        <IsPartOfProject Value="True"/>
       </Unit60>
       <Unit61>
-        <Filename Value="../eventproviders/mainmenu.item/eventproviders.mainmenu.item.entity.pas"/>
+        <Filename Value="../profilesprovider/profilesprovider.node.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit61>
       <Unit62>
-        <Filename Value="../forms/editors/entityform.pas"/>
+        <Filename Value="../renderers/objects/renderers.equipment.pas"/>
         <IsPartOfProject Value="True"/>
-        <ComponentName Value="EntityWindow"/>
-        <HasResources Value="True"/>
-        <ResourceBaseClass Value="Form"/>
       </Unit62>
       <Unit63>
-        <Filename Value="../dataproviders/dataproviders.node.pas"/>
+        <Filename Value="../renderers/objects/renderers.job.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit63>
       <Unit64>
-        <Filename Value="../eventproviders/eventproviders.node.pas"/>
+        <Filename Value="../renderers/objects/renderers.greasebundle.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit64>
       <Unit65>
-        <Filename Value="../renderers/objects/renderers.node.pas"/>
+        <Filename Value="../profilesprovider/profilesprovider.entity.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit65>
       <Unit66>
-        <Filename Value="../profilesprovider/profilesprovider.node.pas"/>
+        <Filename Value="../profilesprovider/profilesprovider.greasebundle.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit66>
       <Unit67>
-        <Filename Value="../forms/editors/nodeform.pas"/>
-        <IsPartOfProject Value="True"/>
-        <ComponentName Value="NodeWindow"/>
-        <HasResources Value="True"/>
-        <ResourceBaseClass Value="Form"/>
-      </Unit67>
-      <Unit68>
-        <Filename Value="../forms/editors/greasebundleform.pas"/>
-        <IsPartOfProject Value="True"/>
-        <ComponentName Value="GreaseBundleWindow"/>
-        <HasResources Value="True"/>
-        <ResourceBaseClass Value="Form"/>
-      </Unit68>
-      <Unit69>
-        <Filename Value="../renderers/objects/renderers.equipment.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit69>
-      <Unit70>
-        <Filename Value="../renderers/objects/renderers.job.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit70>
-      <Unit71>
-        <Filename Value="../renderers/objects/renderers.greasebundle.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit71>
-      <Unit72>
-        <Filename Value="../profilesprovider/profilesprovider.entity.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit72>
-      <Unit73>
-        <Filename Value="../profilesprovider/profilesprovider.greasebundle.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit73>
-      <Unit74>
         <Filename Value="../profilesprovider/profilesprovider.job.pas"/>
         <IsPartOfProject Value="True"/>
-      </Unit74>
-      <Unit75>
+      </Unit67>
+      <Unit68>
         <Filename Value="../renderers/objects/renderers.entity.pas"/>
         <IsPartOfProject Value="True"/>
-      </Unit75>
+      </Unit68>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
@@ -375,7 +325,7 @@
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="../forms;../pascalutils/source;../libpasc-algorithms/source;../dataproviders;..;../libpassqlite/source;../libpassqlite/source/sqlite3;../libpassqlite/source/builder;../objects;../rules;../forms/editors;../renderers/profile;../renderers;../renderers/objects;../profilesprovider;../eventproviders;../eventproviders/mainmenu.item;../eventproviders/mainmenu.subitem"/>
+      <OtherUnitFiles Value="../pascalutils/source;../libpasc-algorithms/source;../dataproviders;..;../libpassqlite/source;../libpassqlite/source/sqlite3;../libpassqlite/source/builder;../objects;../rules;../renderers/profile;../renderers;../renderers/objects;../profilesprovider;../eventproviders;../eventproviders/mainmenu.item;../eventproviders/mainmenu.subitem"/>
       <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Linking>
