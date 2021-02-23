@@ -104,28 +104,8 @@
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
-        <DCCReference Include="..\forms\mainform_delphi.pas">
+        <DCCReference Include="..\forms\MainWindowUnit.pas">
             <Form>MainWindow</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
-        <DCCReference Include="..\forms\editors\jobform_delphi.pas">
-            <Form>JobWindow</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
-        <DCCReference Include="..\forms\editors\equipmentform_delphi.pas">
-            <Form>EquipmentWindow</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
-        <DCCReference Include="..\forms\editors\entityform_delphi.pas">
-            <Form>EntityWindow</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
-        <DCCReference Include="..\forms\editors\nodeform_delphi.pas">
-            <Form>NodeWindow</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
-        <DCCReference Include="..\forms\editors\greasebundleform_delphi.pas">
-            <Form>GreaseBundleWindow</Form>
             <FormType>dfm</FormType>
         </DCCReference>
         <BuildConfiguration Include="Release">
@@ -154,6 +134,12 @@
                 </Excluded_Packages>
             </Delphi.Personality>
             <Deployment Version="3">
+                <DeployFile LocalName="Win32\Release\SheduledRepair.exe" Configuration="Release" Class="ProjectOutput">
+                    <Platform Name="Win32">
+                        <RemoteName>SheduledRepair.exe</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
                 <DeployFile LocalName="Win32\Debug\SheduledRepair.exe" Configuration="Debug" Class="ProjectOutput">
                     <Platform Name="Win32">
                         <RemoteName>SheduledRepair.exe</RemoteName>
